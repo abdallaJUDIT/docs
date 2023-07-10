@@ -11,6 +11,10 @@
     "light": "#0CAE56",
     "dark": "#15BE62"
   },
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": true
+  },
   "topbarLinks": [
     {
       "name": "Swagger",
