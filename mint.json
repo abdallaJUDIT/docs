@@ -11,6 +11,12 @@
     "light": "#0CAE56",
     "dark": "#15BE62"
   },
+  "topbarLinks": [
+    {
+      "name": "Swagger",
+      "url": "https://api.judit.io/api"
+    }
+  ],
   "topbarCtaButton": {
     "name": "Dashboard",
     "url": "https://app.judit.io"
@@ -51,12 +57,12 @@
     "name": "Documentação"
   },
   "api": {
-    "baseUrl": "https://api.judit.io",
+    "baseUrl": "http://api.judit.io",
     "auth": {
       "method": "basic",
       "name": "api-key"
     }
   },
-  "openapi": "https://api.judit.io/api-json",
+  "openapi": "http://api.judit.io/api-json",
   "backgroundImage": "/background.png"
 }
