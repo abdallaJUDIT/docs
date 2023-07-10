@@ -37,18 +37,9 @@
       ]
     },
     {
-      "group": "API Documentation",
+      "group": "Endpoints de exemplo",
       "pages": [
-        "api-reference/authentication"
-      ]
-    },
-    {
-      "group": "Endpoint Examples",
-      "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/update",
-        "api-reference/endpoint/delete"
+        "api-reference/endpoint/get"
       ]
     }
   ],
@@ -56,7 +47,11 @@
     "name": "Documentação"
   },
   "api": {
-    "baseUrl": "https://api.judit.io"
+    "baseUrl": "https://api.judit.io",
+    "auth": {
+      "method": "basic",
+      "name": "api-key"
+    }
   },
   "openapi": "https://api.judit.io/api-json",
   "backgroundImage": "/background.png"
