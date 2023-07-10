@@ -1,0 +1,27 @@
+---
+title: 'Busca processual'
+description: 'Encontre processos judiciais de forma rápida e fácil'
+icon: 'magnifying-glass'
+---
+
+A API da Judit.io oferece a possibilidade de buscar processos judiciais usando a rota `/lawsuits/{processo}`. 
+
+## Rota de Busca de Processos
+
+Para buscar um processo, você deve realizar uma solicitação GET para a rota `/lawsuits/{processo}`, substituindo `{processo}` pelo número do processo desejado.
+
+## Parâmetros de Consulta
+
+A rota de busca de processos também aceita alguns parâmetros de consulta para personalizar a busca:
+
+- `mode`: Defina este parâmetro como "crawl" se você desejar que a API atualize os dados do processo durante a busca. Isso pode ser útil se você quiser ter certeza de que está obtendo as informações mais recentes disponíveis.
+
+- `instance`: Este parâmetro permite que você defina a instância em que deseja buscar o processo. O valor padrão é 1, que corresponde à primeira instância. Se você quiser buscar o processo na segunda instância, por exemplo, defina este parâmetro como 2.
+
+- `template`: Defina este parâmetro como "future" se você quiser que os dados sejam retornados no nosso novo formato. 
+
+Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
+
+```bash
+curl -X GET "https://api.judit.io/lawsuits/{processo}?mode=crawl&instance=2&template=future" \
+-H "x-api-key: YOUR_API_KEY"

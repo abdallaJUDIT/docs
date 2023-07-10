@@ -1,0 +1,65 @@
+---
+title: 'Monitoramento'
+description: 'Monitore documentos ou processos e se mantenha atualizado sobre todos os seus processos'
+icon: 'radar'
+---
+
+A Judit.io permite que você monitore processos, CPFs e CNPJs, mantendo-o atualizado sobre qualquer nova movimentação. Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ ou número de processo que você está monitorando.
+
+## Rota de Monitoramento
+
+Para começar a monitorar um processo, CPF ou CNPJ, você deve realizar uma solicitação POST para a rota `/tracks`. 
+
+## Payload da Solicitação
+
+A solicitação POST deve incluir um payload com as seguintes propriedades:
+
+- `type`: O tipo de entidade que você quer monitorar. Pode ser 'document' para CPF ou CNPJ, ou 'lawsuit' para um número de processo.
+
+- `code`: O número do processo, CPF ou CNPJ que você deseja monitorar.
+
+Aqui está um exemplo de como um payload pode parecer:
+
+```json
+{
+    "type": "lawsuit",
+    "code": "0001234-55.2023.8.26.0100"
+}
+```
+
+Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
+
+```bash
+curl -X POST "https://api.judit.io/tracks" \
+-H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{
+    "type": "lawsuit",
+    "code": "0001234-55.2023.8.26.0100"
+}'
+```
+
+## Consultando Seus Monitoramentos
+
+Para consultar todos os seus monitoramentos, você pode fazer uma solicitação GET para a rota /tracks. Esta rota aceita dois parâmetros de consulta opcionais para paginar os resultados:
+
+page: Define a página dos resultados que você deseja consultar.
+limit: Define o número máximo de resultados que você deseja receber por página.
+Aqui está um exemplo de como consultar seus monitoramentos usando curl:
+
+```bash
+curl -X GET "https://api.judit.io/tracks?page=1&limit=10" \
+-H "api-key: YOUR_API_KEY"
+```
+
+## Consultando Informações de um Monitoramento
+Para consultar todas as informações sobre um monitoramento específico, você pode fazer uma solicitação GET para a rota /tracks/{monitoramento}, substituindo {monitoramento} pelo ID do monitoramento que você deseja consultar.
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X GET "https://api.judit.io/tracks/{monitoramento}" \
+-H "api-key: YOUR_API_KEY"
+```
+
+E é isso! Com esses recursos, você pode manter-se atualizado sobre qualquer movimentação em processos judiciais de seu interesse. Se você tiver alguma dúvida ou encontrar algum problema, nossa equipe de suporte está à disposição para ajudá-lo. Entre em contato conosco através do nosso portal de suporte.
