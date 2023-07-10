@@ -39,7 +39,11 @@
     {
       "group": "Endpoints de exemplo",
       "pages": [
-        "api-reference/endpoint/get"
+        "api-reference/endpoint/get",
+        "api-reference/endpoint/new-tracking",
+        "api-reference/endpoint/find-trackings",
+        "api-reference/endpoint/get-tracking",
+        "api-reference/endpoint/deactivate-tracking"
       ]
     }
   ],
