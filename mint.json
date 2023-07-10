@@ -30,17 +30,11 @@
   "navigation": [
     {
       "group": "Comece a usar",
-      "pages": [
-        "introduction",
-        "quickstart"
-      ]
+      "pages": ["introduction", "quickstart"]
     },
     {
       "group": "Essenciais",
-      "pages": [
-        "essentials/search-lawsuit",
-        "essentials/tracking"
-      ]
+      "pages": ["essentials/search-lawsuit", "essentials/tracking"]
     },
     {
       "group": "Endpoints de exemplo",
@@ -64,5 +58,5 @@
     }
   },
   "openapi": "http://api.judit.io/api-json",
-  "backgroundImage": "/background.png"
+  "backgroundImage": "/images/background.png"
 }
