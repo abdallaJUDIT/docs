@@ -57,7 +57,7 @@
   "api": {
     "baseUrl": "http://api.judit.io",
     "auth": {
-      "method": "basic",
+      "method": "key",
       "name": "api-key"
     }
   },
