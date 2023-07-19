@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Judit.io - Docs",
+  "name": "JUDIT - Docs",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -10,6 +10,10 @@
     "primary": "#15BE62",
     "light": "#0CAE56",
     "dark": "#15BE62"
+  },
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": true
   },
   "topbarLinks": [
     {
@@ -30,17 +34,11 @@
   "navigation": [
     {
       "group": "Comece a usar",
-      "pages": [
-        "introduction",
-        "quickstart"
-      ]
+      "pages": ["introduction", "quickstart"]
     },
     {
       "group": "Essenciais",
-      "pages": [
-        "essentials/search-lawsuit",
-        "essentials/tracking"
-      ]
+      "pages": ["essentials/search-lawsuit", "essentials/tracking"]
     },
     {
       "group": "Endpoints de exemplo",
@@ -60,10 +58,10 @@
   "api": {
     "baseUrl": "http://api.judit.io",
     "auth": {
-      "method": "basic",
+      "method": "key",
       "name": "api-key"
     }
   },
   "openapi": "http://api.judit.io/api-json",
-  "backgroundImage": "/background.png"
+  "backgroundImage": "/images/background.png"
 }
