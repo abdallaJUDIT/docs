@@ -10,14 +10,55 @@ Cada termo está listado em inglês, seguido de sua tradução para o português
 
 Esperamos que este glossário seja uma ferramenta útil para você. Se tiver alguma dúvida ou sugestão, não hesite em nos contatar.
 
-##Termos
+## Termos
 
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
-- `Lawsuit`: Processo ou ação judicial - Termo utilizado em muitas partes da nossa API no contexto de busca processual
+- `Accept Cache`: Aceita cache - Esta propriedade permite que a API retorne dados armazenados em cache, acelerando a resposta. O período de armazenamento em cache é definido pela propriedade "Cache TTL in Days". Após esse período, os dados são atualizados.
+- `Amount`: Valor da Causa - É o valor monetário que está em disputa no processo. Este valor é geralmente definido pelo demandante no início do processo.
+- `Attachments`: Anexos - São documentos associados a um processo judicial na nossa API. Incluem autos processuais, decisões, despachos, entre outros materiais relevantes.
+- `Cache TTL in Days`: Tempo de Vida Útil do Cache em Dias - Este é o número de dias que a informação pode ser armazenada e recuperada do cache pela função "Accept Cache". Depois desse período, a informação é considerada desatualizada e uma nova solicitação é feita para obter dados atualizados.
+- `Classification`: Classificação - Refere-se à categorização do processo segundo critérios do CNJ.
+- `Code`: Código - Código - No contexto de "Lawsuit", refere-se ao código CNJ. Em outros contextos, pode se referir ao código único de certas propriedades.
+- `County`: Comarca - Uma divisão territorial do sistema judiciário, correspondendo à jurisdição de um juiz de primeira instância.
+- `Court`: Órgão julgador - Refere-se ao órgão ou instituição responsável por administrar a justiça em um processo específico.
+- `Cover`: Capa - No contexto da nossa API, "Cover" refere-se à capa de um processo judicial, que é um resumo contendo os dados principais do processo. Esses dados podem incluir informações como o número do processo, o número do grau, o juiz responsável, entre outros.
+- `Covers`: Capas - No contexto da nossa API, "Covers" refere-se a uma lista de várias capas de processos. Cada "Cover" na lista representa um processo judicial individual e contém um resumo dos dados principais desse processo.
+- `Distribution Date`: Data de distribuícão - É a data em que um processo é oficialmente distribuído a um juiz ou tribunal para julgamento.
+- `Document`: Documento - No contexto da nossa API, "Document" refere-se ao documento de identificação de uma parte envolvida em um processo judicial. Este documento pode ser um CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, ou um CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas. Este documento é usado para identificar de forma única cada parte em um processo.
+- `Document Type`: Tipo do documento - Utilizado para informar se um documento é CPF ou CNPJ.
+- `Free Justice`: Justiça gratuita - Se um processo percorre através da justiça gratuita.
+- `Id`: Código identificador único - Este é um identificador único que é atribuído a quase todas as classes.
+- `Instance`: Grau - Utilizado para se referir ao grau do processo.
+- `Justice`: Justiça - No contexto da nossa API, "Justice" é o número que representa o ramo da justiça usado no código CNJ de um processo.
+- `Judge`: Juiz - No contexto da nossa API, "judge" refere-se a qualquer pessoa com autoridade legal para julgar e decidir uma causa. Isso pode incluir juízes, desembargadores, ministros, entre outros.
+- `Lawsuit`: Processo ou ação judicial - Este termo é usado em muitos contextos da nossa API para se referir a um processo judicial.
+- `Last Step`: Última movimentação - A movimentação mais recente ligada ao processo.
+- `Lawyer`: Advogado - Representa uma parte em um processo judicial, defendendo seus interesses e apresentando argumentos legais em seu nome.
+- `Main Lawsuit`: Processo Principal - Refere-se ao processo que deu origem ao processo atual.
+- `Name`: Nome - Utilizado no contexto de "Lawsuit" trata-se de uma abreviação das partes do processo a fim de reconhecer mais fácil um processo, já em outros contextos, a descrição de algumas propriedades.
+- `Party`: Parte - No contexto de um processo judicial, "Party" refere-se a um indivíduo ou entidade envolvida no processo. Isso pode incluir o demandante (quem inicia o processo), o réu (quem está sendo processado), ou qualquer outra entidade que tenha um interesse direto no resultado do processo.
+- `Parties`: Partes - No contexto da nossa API, "Parties" refere-se ao conjunto de todas as partes envolvidas em um processo judicial.
+- `Person Type`: Tipo de Pessoa - No contexto de um processo judicial, "Person Type" refere-se ao tipo de papel que uma parte exerce no processo. No polo ativo, podemos ter tipos como Autor, Embargante, Requerente, entre outros. No polo passivo, podemos ter tipos como Réu, Embargado, Requerido, entre outros.
+- `Related Lawsuits`: Processos Relacionados - Estes são processos que têm uma conexão direta com o processo principal. Eles podem representar diferentes etapas ou aspectos do mesmo caso legal, como recursos, apelações, execuções, entre outros.
+- `Request`: "Request" na nossa API é uma solicitação feita pelo usuário contendo dados de Search para realizar uma operação, como uma pesquisa.
+- `Search`: Pesquisa - No contexto da nossa API, "Search" refere-se a uma pesquisa que pode ser realizada. Os tipos de pesquisa são explicados em "Search Type".
+- `Search Key`: Chave de pesquisa - Dado utilizado para realizar um pesquisa. Essa informação varia de acordo com o "Search Type".
+- `Search Type`: Tipo de pesquisa - Os tipos de pesquisa podem incluir CPF, CNPJ, OAB, ID do processo (identificador único do processo na nossa API) e CNJ do processo (código único do processo no sistema judiciário brasileiro). Cada tipo de pesquisa retorna um conjunto específico de dados relacionados ao termo de pesquisa.
+- `Secrecy Level`: Nível de Sigilo - Há 6 níveis de sigilo, variando de 0 (processo público) a 5 (sigilo absoluto).
+- `Side`: Polo - No contexto de um processo judicial, "Side" refere-se ao papel que uma parte desempenha no processo. Isso pode ser o polo ativo (quem inicia o processo, geralmente o demandante), o polo passivo (quem está sendo processado, geralmente o réu) ou o polo interessado (uma parte que tem um interesse direto no resultado do processo, mas que não é nem o demandante nem o réu).
+- `Status`: Status do Processo - Refere-se ao estado atual de um processo judicial conforme definido pelo Conselho Nacional de Justiça (CNJ). Exemplos de status podem incluir "Em andamento", "Concluído", "Arquivado", entre outros.
+- `Step`: Movimentação - Refere-se a cada movimentação ou etapa que um processo judicial passa, incluindo ações como a apresentação de uma petição, a realização de uma audiência, a emissão de uma sentença, entre outros.
+- `Steps`: Movimentações - No contexto da nossa API, "Steps" refere-se ao conjunto de todas as movimentações ou etapas que um processo judicial passa.
+- `Subjects`: Assuntos - No contexto da nossa API, "Subjects" refere-se aos assuntos de um processo conforme definido pelo Conselho Nacional de Justiça (CNJ). Os assuntos são uma forma de categorizar o conteúdo do processo, ajudando a identificar a natureza da disputa.
+- `Tags`: Etiquetas - As "tags" são usadas para classificar as entidades da nossa API, como por exemplo, classificar processos por áreas de atuação.
+- `Tracking`: Monitoramento - No contexto da nossa API, "Tracking" refere-se ao ato de monitorar uma consulta.
+- `Tribunal`: Tribunal - Refere-se ao tribunal onde um processo está sendo julgado.
+- `Tribunal Acronym`: Sigla do tribunal - Uma abreviação do nome do tribunal onde um processo está sendo julgado.
+
+## Serviços JUDIT
+
+- `Crawler`: Serviço responsável por orquestrar os "scrappers", nele é contida toda a nossa inteligência para definir como, qual e quando se acessa os dados de um tribunal.
+- `Lawsuit`: Serviço responsável pela regra de negócio envolvida no contexto de processos, além de realizar o cache das informações.
+- `Request`: Serviço que recebe as solicitações dos usuários, bilheta e as encaminha para os serviços apropriados.
+- `Scrapper`: Serviço responsável por mapear os dados dos tribunais e transformá-los no padrão JUDIT.
+- `Tracking`: Serviço responsável pelo monitoramento de documentos e processos.
+- `User`: Serviço responsável por autenticação e controle dos callbacks.
