@@ -38,7 +38,11 @@
     },
     {
       "group": "Essenciais",
-      "pages": ["essentials/search-lawsuit", "essentials/tracking"]
+      "pages": [
+        "essentials/search-lawsuit",
+        "essentials/tracking",
+        "essentials/glossary"
+      ]
     },
     {
       "group": "Endpoints de exemplo",
