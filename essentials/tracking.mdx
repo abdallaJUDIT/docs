@@ -4,15 +4,15 @@ description: 'Monitore documentos ou processos e se mantenha atualizado sobre to
 icon: 'radar'
 ---
 
-A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB ou número do processo, mantendo-o atualizado sobre qualquer nova movimentação.
+A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB, mantendo-o atualizado sobre qualquer nova movimentação.
 
 O monitoramento é a automatização das consultas processuais do item anterior.
 
-Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ, OAB ou número de processo que você está monitorando.
+Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ, OAB ou Código(CNJ) que você está monitorando.
 
 ## Rota de Monitoramento
 
-Para começar a monitorar um processo, CPF, CNPJ, OAB ou processo, você deve realizar uma solicitação POST para a rota `/tracking`.
+Para começar a monitorar um processo, CPF, CNPJ, OAB ou Código(CNJ), você deve realizar uma solicitação POST para a rota `/tracking`.
 
 ## Payload da Solicitação
 
@@ -87,7 +87,7 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 
 `reference_id`: retorna monitoramentos relacionado ao número do CPF, CNPJ, OAB ou processo informado;
 
-`status`: retorna monitoramentos ao status ou grupo de status 'created', 'updating', 'updated', 'paused', 'deleted';
+`status`: retorna monitoramentos cujo status podem ser 'created', 'updating', 'updated', 'paused' ou 'deleted' ou um array de status ['updating', 'paused'];
 
 `tags`: retorna monitoramentos com as tags informadas;
 
@@ -145,9 +145,9 @@ curl -X POST "https://tracking.prod.judit.io/tracking/{monitoramento}/pause" \
 ```
 
 
-## Retomar um Monitoramento
+## Reativando um Monitoramento
 
-Para retomar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
+Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
