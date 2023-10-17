@@ -1,0 +1,118 @@
+---
+title: 'Chamadas de retorno'
+description: 'Modelo de chamadas de retorno'
+icon: 'radar'
+---
+
+Quando uma busca e feita pela API da JUDIT damos um retorno para cada processo encontrado.
+
+Fazemos uma solicitação POST para cada url de webhook cadastrado no usuário enviando um payload como:
+
+```json
+{
+    "user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
+    "callback_id": "0815b90b-9016-4470-9e1b-d7c8ee837f34",
+    "event_type": "response_created",
+    "reference_type": "request",
+    "reference_id": "6dec567b-c4d7-47cb-ab2c-0393dae9d089",
+    "payload": {
+        "response_id": "11039f4e-9a6b-4d4f-8ad2-b2af01aae795",
+        "request_id": "d9ff8e29-524d-4904-89d7-35389880cb12",
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "response_type": "steps",
+        "response_data": {
+          "code": "0027400-51.2009.5.03.0135",
+          "instance": 1,
+          "lawsuit_id": "91970cc2-7f45-4c58-af9a-89e8b905dea6",
+          "crawler": {
+            "parties": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:45:51.489Z",
+              "weight": 10
+            },
+            "cover": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:45.773Z",
+              "weight": 10
+            },
+            "amount": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:44.054Z",
+              "weight": 0
+            },
+            "classification": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:40.254Z",
+              "weight": 10
+            },
+            "status": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:46.553Z",
+              "weight": 0
+            },
+            "subjects": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:41.713Z",
+              "weight": 10
+            },
+            "attachments": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:50.527Z",
+              "weight": 10
+            },
+            "related_lawsuits": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:47.014Z",
+              "weight": 10
+            },
+            "steps": {
+              "code": "JTrtScrapper",
+              "updated_at": "2023-10-17T19:44:47.951Z",
+              "weight": 10
+            }
+          },
+          "parties": [
+            {
+              "name": "LEONARDO REBBITE",
+              "document": "05196308660",
+              "document_type": "0",
+              "person_type": "Autor",
+              "side": "Active",
+              "lawyers": [
+                {
+                  "name": "LEONARDO REBBITE",
+                  "document": "12345678910",
+                  "document_type": "0",
+                  "license": "RJ100000"
+                }
+              ]
+            }
+          ],
+          "subjects": [],
+          "related_lawsuits": [],
+          "created_at": "2023-10-17T19:44:33.358Z",
+          "updated_at": "2023-10-17T19:45:51.489Z",
+          "classification": {
+            "code": "985",
+            "name": "Ação Trabalhista - Rito Ordinário"
+          },
+          "distribution_date": "2009-03-19T00:00:00.000Z",
+          "free_justice": false,
+          "judge": null,
+          "justice": "5",
+          "last_step": {
+            "step_id": "mEktW9BQ/O+yIHnJnkdQO9t91oWJdhuDq7xums+zcpI=",
+            "step_date": "2023-10-17T18:52:00.000Z",
+            "content": "Arquivados os autos definitivamente",
+            "step_type": "ATOrd"
+          },
+          "secrecy_level": 0,
+          "tags": {},
+          "tribunal": "03",
+          "tribunal_acronym": "TRT3",
+          "tribunal_id": "985",
+          "name": "LEONARDO REBBITE X JUDIT"
+        }
+    }
+}
+```
