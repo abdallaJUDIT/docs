@@ -33,7 +33,7 @@ Exemplo de um payload tipo de resposta, onde o campo `response_data` pode variar
 
 Exemplos:
 
-Se voce realizar uma busca com o response_type campo passando como valor 'lawsuit', o campo `response_data` vai retornar um objeto com o formato parecido com o seguinte;
+Se voce realizar uma busca com o `response_type campo passando como valor 'lawsuit', o campo `response_data` vai retornar um objeto com o formato parecido com o seguinte;
 
 ```json
 {
@@ -165,8 +165,8 @@ Uma busca com o `response_type` campo passando como valor 'parties', 'attachment
           "instance": 1,
           "page": 1,
           "page_data": PageData[],
-          "page_count": 1,
-          "all_count": 1,
+          "page_count": 5,
+          "all_count": 15,
           "all_pages_count": 3
         }
         //...
@@ -204,8 +204,8 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'part
             },
             ...
           ],
-          "page_count": 1,
-          "all_count": 1,
+          "page_count": 5,
+          "all_count": 15,
           "all_pages_count": 3
         }
         //...
@@ -397,7 +397,7 @@ Uma busca com o `response_type` passando como valor 'lawsuits':
 }
 ```
 
-Se voce realizar uma busca com o `search_params` objeto passando como parâmetro o campo `masked_response` sendo true, o campo `response_data` ou `page_data` se for paginado, vai retornar um objeto com as informações minificadas com o formato parecido com o seguinte:
+Se voce realizar uma busca com o `search_params` objeto passando como parâmetro o campo `masked_response` sendo true, o campo `response_data` ou `page_data`, vai retornar um objeto com as informações minificadas com o formato parecido com o seguinte:
 
 ```json
 {
@@ -438,4 +438,4 @@ Se voce realizar uma busca com o `search_params` objeto passando como parâmetro
 }
 ```
 
-Caso o processo consultado de tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados em um array `related_lawsuits.
+Caso o processo consultado que tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados em um array `related_lawsuits.
