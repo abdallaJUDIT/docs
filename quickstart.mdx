@@ -26,11 +26,16 @@ Com a API Key gerada, agora você pode começar a fazer solicitações para a AP
 
 ## Buscando Seu Primeiro Processo
 
-Para buscar um processo, você deverá fazer uma requisição GET para a rota `/lawsuits/{id}`, onde `{id}` deve ser substituído pelo número do processo (Código CNJ) ou do documento (CPF ou CNPJ) que você deseja consultar.
+Para buscar um processo, você deverá fazer uma requisição POST para a rota `/requests`.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://api.judit.io/lawsuits/{id}" \
--H "api-key: YOUR_API_KEY"
+curl -X POST "https://requests.prod.judit.io/requests" \
+-H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{
+    "search_type": "lawsuit_cnj",
+    "search_key": "0010137-92.2023.5.03.0077"
+}'
 ```
