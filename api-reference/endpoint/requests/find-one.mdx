@@ -1,7 +1,7 @@
 ---
 title: "Find One Request"
 openapi: "GET /requests/{request_id}"
-api: "GET https://requests.stage.judit.io/requests"
+api: "GET https://requests.stage.judit.io/requests/{request_id}"
 description: "Esse endpoint consulta uma busca pelo id"
 ---
 
@@ -11,7 +11,7 @@ description: "Esse endpoint consulta uma busca pelo id"
 
 <RequestExample>
     ```bash Request
-    curl -X GET "https://requests.stage.judit.io/requests"
+    curl -X GET "https://requests.stage.judit.io/requests/{request_id}"
     -H "api-key: YOUR_API_KEY"
     ```
 </RequestExample>
