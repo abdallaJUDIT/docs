@@ -54,7 +54,7 @@
       ]
     },
     {
-      "group": "Tracking",
+      "group": "Monitoramento",
       "pages": [
         "api-reference/endpoint/tracking/create",
         "api-reference/endpoint/tracking/find-one",
