@@ -1,0 +1,77 @@
+---
+title: "Create Request"
+openapi: "POST /requests"
+api: "POST https://requests.stage.judit.io/requests"
+description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
+---
+
+<ParamField body="search_type" type="string" required>
+    Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
+</ParamField>
+
+<ParamField body="search_key" type="string" required>
+    Número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
+</ParamField>
+
+<ParamField body="response_type" type="string" required={false}>
+    Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+</ParamField>
+
+<ParamField body="accept_cache" type="boolean" required={false}>
+    Define se o resultado da busca pode ser um cache válido;
+</ParamField>
+
+<ParamField body="cache_ttl_in_days" type="integer" required={false}>
+    Define até quantos dias o resultado da busca pode considerar um cache válido;
+</ParamField>
+
+<ParamField body="search_params" type="object" required={false}>
+    <Expandable title="properties">
+        <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+            Defini a instância em que deseja buscar o processo;
+        </ParamField>
+        <ParamField body="side_filter" name="side_filter" type="string" required={false}>
+            Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X POST "https://requests.stage.judit.io/requests"
+    -H "api-key: YOUR_API_KEY"
+    -H "Content-Type: application/json"
+    -d {
+        "user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
+        "search_type": "lawsuit_cnj",
+        "search_key": "0010137-92.2023.5.03.0077",
+        "response_type": "lawsuit",
+        "accept_cache": "true",
+        "cache_ttl_in_days": 1,
+        "search_params": {
+            "lawsuit_instance": 2,
+            "side_filter": "ACTIVE",
+        },
+    }
+    ```
+</RequestExample>
+
+<ResponseExample>
+    ```json Response
+    {
+        "request_id": "71adfaa6-5485-45ce-a4a1-00d485f8f0f9",
+        "search": {
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "search_params": {},
+        },
+        "origin": "api",
+        "origin_id": "fde89d98-b2b1-4c58-b0b7-13f4f96bba3d",
+        "user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
+        "status": "pending",
+        "tags": {},
+        "created_at": "2023-10-18T18:36:58.775Z",
+        "updated_at": "2023-10-18T18:36:58.775Z"
+    }
+    ```
+</ResponseExample>

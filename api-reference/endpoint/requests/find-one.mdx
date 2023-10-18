@@ -1,0 +1,37 @@
+---
+title: "Find One Request"
+openapi: "GET /requests/{request_id}"
+api: "GET https://requests.stage.judit.io/requests"
+description: "Esse endpoint consulta uma busca pelo id"
+---
+
+<ParamField path="request_id" type="string" required>
+    O ID da busca que você deseja consultar.
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X GET "https://requests.stage.judit.io/requests"
+    -H "api-key: YOUR_API_KEY"
+    ```
+</RequestExample>
+
+<ResponseExample>
+    ```json Response
+    {
+        "request_id": "71adfaa6-5485-45ce-a4a1-00d485f8f0f9",
+        "search": {
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "search_params": {},
+        },
+        "origin": "api",
+        "origin_id": "fde89d98-b2b1-4c58-b0b7-13f4f96bba3d",
+        "user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
+        "status": "pending",
+        "tags": {},
+        "created_at": "2023-10-18T18:36:58.775Z",
+        "updated_at": "2023-10-18T18:36:58.775Z"
+    }
+    ```
+</ResponseExample>
