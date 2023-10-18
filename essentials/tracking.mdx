@@ -4,68 +4,166 @@ description: 'Monitore documentos ou processos e se mantenha atualizado sobre to
 icon: 'radar'
 ---
 
-A JUDIT permite que você monitore processos, CPFs e CNPJs, mantendo-o atualizado sobre qualquer nova movimentação.
+A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB, mantendo-o atualizado sobre qualquer nova movimentação.
 
 O monitoramento é a automatização das consultas processuais do item anterior.
 
-Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ ou número de processo que você está monitorando.
-
-Em breve o periodo de atualização será configurado pelo seu próprio usuário.
+Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ, OAB ou Código(CNJ) que você está monitorando.
 
 ## Rota de Monitoramento
 
-Para começar a monitorar um processo, CPF ou CNPJ, você deve realizar uma solicitação POST para a rota `/tracks`.
+Para começar a monitorar um processo, CPF, CNPJ, OAB ou Código(CNJ), você deve realizar uma solicitação POST para a rota `/tracking`.
 
 ## Payload da Solicitação
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `type`: Esse parâmetro define o tipo de entidade que você quer monitorar. Pode ser `document` para CPF ou CNPJ, ou `lawsuit` para um número de processo.
+- `reference_type`: Esse parâmetro define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' para o número do processo.
 
-- `code`: O número do processo (Código CNJ), CPF ou CNPJ que você deseja monitorar.
+- `reference_id`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja monitorar.
+
+- `recurrence`: A recorrência em dias de atualização dos processos.
+
+- `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 
 Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-  "type": "lawsuit",
-  "code": "0001234-55.2023.8.26.0100"
+  "reference_type": "lawsuit_id",
+  "reference_id": "0001234-55.2023.8.26.0100",
+  "recurrence": 2,
+  "tags": { "category": "any" },
 }
 ```
 
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
 
 ```bash
-curl -X POST "https://api.judit.io/tracks" \
+curl -X POST "https://tracking.prod.judit.io/tracking" \
 -H "api-key: YOUR_API_KEY" \
 -H "Content-Type: application/json" \
 -d '{
-    "type": "lawsuit",
-    "code": "0001234-55.2023.8.26.0100"
+  "reference_type": "lawsuit_id",
+  "reference_id": "0001234-55.2023.8.26.0100",
+  "recurrence": 2,
+  "tags": { "category": "any" },
+}'
+```
+
+## Atualizando um Monitoramento
+
+Para atualizar um monitoramento, você pode fazer uma solicitação PATCH para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja atualizar.
+
+Esta rota aceita dois campos opcionais para atualização do tracking: recurrence e tags.
+
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
+-H "api-key: YOUR_API_KEY"
+-d '{
+  "recurrence": 5,
+  "tags": { "category": "any" },
 }'
 ```
 
 ## Consultando Seus Monitoramentos
 
-Para consultar todos os seus monitoramentos, você pode fazer uma solicitação GET para a rota `/tracks`. Esta rota aceita dois parâmetros de consulta opcionais para paginar os resultados:
+Para consultar todos os seus monitoramentos, você pode fazer uma solicitação GET para a rota `/tracking`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar, ordenar e filtrar os resultados:
 
-page: Define a página dos resultados que você deseja consultar.
-limit: Define o número máximo de resultados que você deseja receber por página.
+`page`: Define a página dos resultados que você deseja consultar.
+
+`pageSize`: Define o número máximo de resultados que você deseja receber por página;
+
+`orderField`: nome do campo em que se deseja ordenar os monitoramentos;
+
+`orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';
+
+`user_id`: ID do usuário, retorna monitoramentos relacionado ao usuário;
+
+`reference_type`: retorna monitoramentos do tipo de referência especificado 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' número do processo;
+
+`reference_id`: retorna monitoramentos relacionado ao número do CPF, CNPJ, OAB ou processo informado;
+
+`status`: retorna monitoramentos cujo status podem ser 'created', 'updating', 'updated', 'paused' ou 'deleted' ou mais de um de status ['updating', 'paused'];
+
+`tags`: retorna monitoramentos com as tags informadas;
+
+`recurrence_gte`: retorna monitoramentos com a recorrência de atualização maior ou igual a informada;
+
+`recurrence_lte`: retorna monitoramentos com a recorrência de atualização menor ou igual a informada;
+
+`created_at_gte`: retorna monitoramentos com a data de criação maior ou igual a informada;
+
+`created_at_lte`: retorna monitoramentos com a data de criação menor ou igual a informada;
+
+`updated_at_gte`: retorna monitoramentos com a data de atualização maior ou igual a informada;
+
+`updated_at_lte`: retorna monitoramentos com a data de atualização menor ou igual a informada;
+
+`updating_at_gte`: retorna monitoramentos com a data de execução do monitoramento maior ou igual a informada;
+
+`updating_at_lte`: retorna monitoramentos com a data de execução do monitoramento menor ou igual a informada;
+
+`paused_at_gte`: retorna monitoramentos com a data de pause do monitoramento maior ou igual a informada;
+
+`paused_at_lte`: retorna monitoramentos com a data de pause do monitoramento menor ou igual a informada;
+
+`deleted_at_gte`: retorna monitoramentos com a data de deleção maior ou igual a informada;
+
+`deleted_at_lte`: retorna monitoramentos com a data de deleção menor ou igual a informada;
+
 Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 
 ```bash
-curl -X GET "https://api.judit.io/tracks?page=1&limit=10" \
+curl -X GET "https://tracking.prod.judit.io/tracking?page=1&pageSize=10" \
 -H "api-key: YOUR_API_KEY"
 ```
 
 ## Consultando Informações de um Monitoramento
 
-Para consultar todas as informações sobre um monitoramento específico, você pode fazer uma solicitação GET para a rota `/tracks/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja consultar.
+Para consultar todas as informações sobre um monitoramento específico, você pode fazer uma solicitação GET para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja consultar.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://api.judit.io/tracks/{monitoramento}" \
+curl -X GET "https://tracking.prod.judit.io/tracking/{monitoramento}" \
+-H "api-key: YOUR_API_KEY"
+```
+
+## Pausando um Monitoramento
+
+Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X POST "https://tracking.prod.judit.io/tracking/{monitoramento}/pause" \
+-H "api-key: YOUR_API_KEY"
+```
+
+
+## Reativando um Monitoramento
+
+Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X POST "https://tracking.prod.judit.io/tracking/{monitoramento}/resume" \
+-H "api-key: YOUR_API_KEY"
+```
+
+## Deletando um Monitoramento
+
+Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X DELETE "https://tracking.prod.judit.io/tracking/{monitoramento}" \
 -H "api-key: YOUR_API_KEY"
 ```
 
