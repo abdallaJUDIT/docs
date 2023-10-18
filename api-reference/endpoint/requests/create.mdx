@@ -37,7 +37,8 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
 </ParamField>
 
 <RequestExample>
-    ```bash Request
+
+    ```bash Curl
     curl -X POST "https://requests.stage.judit.io/requests"
     -H "api-key: YOUR_API_KEY"
     -H "Content-Type: application/json"
@@ -52,6 +53,126 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
             "side_filter": "ACTIVE",
         },
     }
+    ```
+
+    ```node Javascript
+        const options = {
+            method: 'GET',
+            headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
+            body: {
+                "search_type": "lawsuit_cnj",
+                "search_key": "0010137-92.2023.5.03.0077",
+                "response_type": "lawsuit",
+                "accept_cache": "true",
+                "cache_ttl_in_days": 1,
+                "search_params": {
+                    "lawsuit_instance": 2,
+                    "side_filter": "ACTIVE",
+                },
+            }
+        };
+
+        fetch("https://requests.stage.judit.io/requests", options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+    ```
+
+    ```node PHP
+        <?php
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+        CURLOPT_URL => "https://requests.stage.judit.io/requests",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_HTTPHEADER => [
+        "api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'
+        ],
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            echo $response;
+        }
+    ```
+
+    ```go Go
+
+    package main
+
+    import (
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    )
+
+    func main() {
+        const Url = "https://requests.stage.judit.io/requests"
+
+        jsonValue := []byte(`{
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "response_type": "lawsuit",
+            "accept_cache": "true",
+            "cache_ttl_in_days": 1,
+            "search_params": {
+                "lawsuit_instance": 2,
+                "side_filter": "ACTIVE",
+            }
+         }`)
+
+        response, err := http.Post(Url, "application/json", bytes.NewBuffer(jsonValue))
+
+        if err != nil {
+            log.Fatal(err.Error())
+        }
+
+        defer response.Body.Close()
+    }
+    ```
+
+    ```python Python
+    import requests
+
+    url = "https://requests.stage.judit.io/requests"
+
+
+    new_data = {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0010137-92.2023.5.03.0077",
+        "response_type": "lawsuit",
+        "accept_cache": "true",
+        "cache_ttl_in_days": 1,
+        "search_params": {
+            "lawsuit_instance": 2,
+            "side_filter": "ACTIVE",
+        }
+    }
+
+    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
+
+    response = requests.request("POST", url, headers=headers, json=new_data)
+
+    print(response.text)
+    ```
+    ```java Java
+    HttpResponse<String> response = Unirest.post("https://requests.stage.judit.io/requests)
+    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
+    .body("{\"search_type\": \"lawsuit_cnj\",\"search_key\": \"0010137-92.2023.5.03.0077\",\"response_type\": \"lawsuit\",\"response_type\": \"lawsuit\", \"accept_cache\": \"true\",\"cache_ttl_in_days\": \1,\"search_params\":\'{\"lawsuit_instance\": \2,\"side_filter\": \"ACTIVE\",}'}")
+    .asString();
     ```
 </RequestExample>
 
