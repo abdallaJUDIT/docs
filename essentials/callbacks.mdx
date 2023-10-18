@@ -396,46 +396,4 @@ Uma busca com o `response_type` passando como valor 'lawsuits':
     }
 }
 ```
-
-Se voce realizar uma busca com o `search_params` objeto passando como parâmetro o campo `masked_response` sendo true, o campo `response_data` ou `page_data`, vai retornar um objeto com as informações minificadas com o formato parecido com o seguinte:
-
-```json
-{
-    //...
-    "payload": {
-         //...
-        "response_data": {
-          "code": "0027400-51.2009.5.03.0135",
-          "tribunal": "03",
-          "tribunal_acronym": "TRT3",
-          "name": "JUDIT X LEONARDO REBBITE"
-        }
-        //...
-    }
-}
-```
-
-```json
-{
-    //...
-    "payload": {
-         //...
-        "response_data": {
-          //...
-          "page_data": [
-            {
-              "code": "0027400-51.2009.5.03.0135",
-              "tribunal": "03",
-              "tribunal_acronym": "TRT3",
-              "name": "JUDIT X LEONARDO REBBITE"
-            },
-            ...
-          ]
-          //...
-        }
-        //...
-    }
-}
-```
-
 Caso o processo consultado que tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados em um array `related_lawsuits.
