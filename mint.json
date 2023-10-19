@@ -69,8 +69,8 @@
       "group": "Monitoramento",
       "pages": [
         "api-reference/endpoint/tracking/create",
-        "api-reference/endpoint/tracking/find-one",
         "api-reference/endpoint/tracking/find-many",
+        "api-reference/endpoint/tracking/find-one",
         "api-reference/endpoint/tracking/pause",
         "api-reference/endpoint/tracking/resume",
         "api-reference/endpoint/tracking/delete"

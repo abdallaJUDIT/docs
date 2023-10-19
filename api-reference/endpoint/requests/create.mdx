@@ -55,7 +55,7 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
     }
     ```
 
-    ```node Javascript
+    ```request Node
         const options = {
             method: 'GET',
             headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
@@ -78,8 +78,7 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
         .catch(err => console.error(err));
     ```
 
-    ```node PHP
-    $url  = 'http://server.com';
+    ```request PHP
     $data = ['api-key' => 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'];
     $data = [
     'search_type' => 'lawsuit_cnj',
@@ -111,7 +110,7 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
         }
     ```
 
-    ```go Go
+    ```request Go
 
     package main
 
@@ -147,7 +146,7 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
     }
     ```
 
-    ```python Python
+    ```request Python
     import requests
 
     url = "https://requests.stage.judit.io/requests"
@@ -172,7 +171,7 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
     print(response.text)
     ```
 
-    ```java Java
+    ```request Java
 
     HttpResponse<String> response = Unirest.post("https://requests.stage.judit.io/requests)
     .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")

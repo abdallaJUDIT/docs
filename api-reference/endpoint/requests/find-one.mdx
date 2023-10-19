@@ -10,24 +10,16 @@ description: "Esse endpoint consulta uma busca pelo id"
 </ParamField>
 
 <RequestExample>
-
-</RequestExample>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/requests/{request_id}"
+    ```bash Curl
+    curl -X GET "https://requests.stage.judit.io/requests/71adfaa6-5485-45ce-a4a1-00d485f8f0f9"
     -H "api-key: YOUR_API_KEY"
     ```
 
-    ```node Javascript
+    ```request Node
     const options = {
-    method: 'GET',
-    headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
-    query: {
-    "page": 1,
-    "pageSize": 10,
-},
-};
+        method: 'GET',
+        headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
+    };
 
     fetch("https://requests.stage.judit.io/requests", options)
     .then(response => response.json())
@@ -36,15 +28,12 @@ description: "Esse endpoint consulta uma busca pelo id"
     ```
 
     ```request PHP
-    $url  = 'https://requests.stage.judit.io/requests?page=1&pageSize=10';
-
     $ch   = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_URL, 'https://requests.stage.judit.io/requests/71adfaa6-5485-45ce-a4a1-00d485f8f0f9');
     curl_setopt($ch, CURLOPT_GET, 1);
 
-
-    curl_close($ch);
+s    curl_close($ch);
     $result =
 
     $response = curl_exec($ch);
@@ -53,10 +42,10 @@ description: "Esse endpoint consulta uma busca pelo id"
     curl_close($ch);
 
     if ($err) {
-    echo "cURL Error #:" . $err;
-} else {
-    echo $response;
-}
+        echo "cURL Error #:" . $err;
+    } else {
+        echo $response;
+    }
     ```
 
     ```request Go
@@ -71,22 +60,22 @@ description: "Esse endpoint consulta uma busca pelo id"
     )
 
     func main() {
-    const Url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
+    const Url = "https://requests.stage.judit.io/requests/71adfaa6-5485-45ce-a4a1-00d485f8f0f9"
 
     response, err := http.Post(Url, "application/json")
 
     if err != nil {
-    log.Fatal(err.Error())
-}
+        log.Fatal(err.Error())
+    }
 
     defer response.Body.Close()
 }
     ```
 
-    ```python Python
+    ```request Python
     import requests
 
-    url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
+    url = "https://requests.stage.judit.io/requests/71adfaa6-5485-45ce-a4a1-00d485f8f0f9"
 
     headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
 
@@ -96,8 +85,7 @@ description: "Esse endpoint consulta uma busca pelo id"
     ```
 
     ```request Java
-
-    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/requests?page=1&pageSize=10)
+    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/requests/71adfaa6-5485-45ce-a4a1-00d485f8f0f9")
     .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
     .asString();
     ```

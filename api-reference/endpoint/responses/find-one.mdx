@@ -10,9 +10,84 @@ description: "Esse endpoint consulta uma resposta de uma busca pelo id"
 </ParamField>
 
 <RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/responses/{response_id}"
+    ```bash Curl
+    curl -X GET "https://requests.stage.judit.io/responses/d56e8c0a-a1de-4e75-8e4f-add06617035b"
     -H "api-key: YOUR_API_KEY"
+    ```
+
+    ```node Node
+    const options = {
+    method: 'GET',
+    headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
+};
+
+    fetch("https://requests.stage.judit.io/requests", options)
+    .then(response => response.json())
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
+    ```
+
+    ```request PHP
+    $ch   = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://requests.stage.judit.io/responses/d56e8c0a-a1de-4e75-8e4f-add06617035b');
+    curl_setopt($ch, CURLOPT_GET, 1);
+
+    s    curl_close($ch);
+    $result =
+
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+
+    curl_close($ch);
+
+    if ($err) {
+        echo "cURL Error #:" . $err;
+    } else {
+        echo $response;
+    }
+    ```
+
+    ```request Go
+
+    package main
+
+    import (
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    )
+
+    func main() {
+    const Url = "https://requests.stage.judit.io/responses/d56e8c0a-a1de-4e75-8e4f-add06617035b"
+
+    response, err := http.Post(Url, "application/json")
+
+    if err != nil {
+    log.Fatal(err.Error())
+}
+
+    defer response.Body.Close()
+}
+    ```
+
+    ```python Python
+    import requests
+
+    url = "https://requests.stage.judit.io/responses/d56e8c0a-a1de-4e75-8e4f-add06617035b"
+
+    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
+
+    response = requests.request("GET", url, headers=headers)
+
+    print(response.text)
+    ```
+
+    ```java Java
+    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/responses/d56e8c0a-a1de-4e75-8e4f-add06617035b")
+    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
+    .asString();
     ```
 </RequestExample>
 
