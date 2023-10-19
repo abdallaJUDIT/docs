@@ -1,0 +1,214 @@
+---
+title: "Consultar uma Resposta"
+openapi: "GET responses/{response_id}"
+api: "GET https://requests.stage.judit.io/responses/{response_id}"
+description: "Esse endpoint consulta uma resposta de uma busca pelo id"
+---
+
+<ParamField path="response_id" type="string" required>
+    O ID da resposta que você deseja consultar.
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X GET "https://requests.stage.judit.io/responses/{response_id}"
+    -H "api-key: YOUR_API_KEY"
+    ```
+</RequestExample>
+
+<ResponseExample>
+    ```json Response
+    {
+        "request_id": "b16ee08e-2169-4594-8bf4-ff528b5b5b72",
+        "response_id": "d56e8c0a-a1de-4e75-8e4f-add06617035b",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "instance": 1,
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "crawler": {
+        "parties": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:33.894Z",
+            "weight": 10,
+        },
+        "cover": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:34.616Z",
+            "weight": 10,
+    }   ,
+        "amount": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:14.534Z",
+            "weight": 0,
+        },
+        "classification": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:14.948Z",
+            "weight": 10,
+        },
+        "status": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:35.635Z",
+            "weight": 0,
+        },
+        "subjects": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:32.670Z",
+            "weight": 10,
+        },
+        "attachments": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:15.172Z",
+            "weight": 10,
+        },
+        "related_lawsuits": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:12.645Z",
+            "weight": 10,
+        },
+        "steps": {
+            "code": "JTrtScrapper",
+            "updated_at": "2023-10-05T18:13:13.522Z",
+            "weight": 10,
+        },
+    },
+        "parties": [
+            {
+                "name": "ALINE PAULA RAMOS",
+                "document": "05196308660",
+                "document_type": "0",
+                "person_type": "Autor",
+                "side": "Active",
+                "lawyers": [
+            {
+                "name": "RONEI MUNIZ BONFIM",
+                "document": "03344781626",
+                "document_type": "0",
+                "license": "MG100560",
+            }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO",
+        "document": "83359079604",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO - ME",
+        "document": "01618283000100",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "MARCOS VINICIUS MELO",
+        "document": "83642943691",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+            {
+                "document": null,
+                "document_type": "0",
+                "license": "null",
+            }
+        ],
+    },
+    {
+        "name": "MARIA MARTINS MELO",
+        "document": "94472866668",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+            {
+                "document": null,
+                "document_type": "0",
+                "license": "null",
+            }
+                ],
+            },
+            {
+                "name": "MERCEARIA MARTINS & MELO LTDA - ME",
+                "document": "06947237000160",
+                "document_type": "1",
+                "person_type": "Réu",
+                "side": "Passive",
+                "lawyers": [
+            {
+                "name": "JOSE RIBAMAR MATOS AMARAL",
+                "document": "10912797720",
+                "document_type": "0",
+                "license": "MG94008",
+            }
+        ],
+    },
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+        "person_type": "Advogado",
+        "side": "Active",
+        "lawyers": []
+    },
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+        "person_type": "Advogado",
+        "side": "Passive",
+        "lawyers": []
+    }
+        ],
+        "subjects": [],
+        "related_lawsuits": [],
+        "created_at": "2023-10-05T18:12:40.002Z",
+        "updated_at": "2023-10-05T18:13:35.635Z",
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "judge": null,
+        "justice": "5",
+        "secrecy_level": 0,
+        "tribunal": "03",
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:13:36.074Z",
+        "request_status": "pending",
+        "request_created_at": "2023-10-05T18:13:36.074Z"
+    },
+    ```
+</ResponseExample>

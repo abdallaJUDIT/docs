@@ -4,11 +4,11 @@ description: 'Chamadas de retorno'
 icon: 'book'
 ---
 
-Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com os processos encontrados.
+Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontrados.
 
 Fazemos uma solicitação POST para webhooks cadastrado no usuário enviando um payload com a resposta de acordo com sua busca.
 
-Exemplo de um payload tipo de resposta, onde o campo `response_data` pode variar de acordo com os parâmetros da busca.
+Exemplo de um payload do tipo de resposta, onde o campo `response_data` pode variar de acordo com os parâmetros da busca.
 
 ```json
 {
@@ -33,7 +33,7 @@ Exemplo de um payload tipo de resposta, onde o campo `response_data` pode variar
 
 Exemplos:
 
-Se voce realizar uma busca com o `response_type campo passando como valor 'lawsuit', o campo `response_data` vai retornar um objeto com o formato parecido com o seguinte;
+Se voce realizar uma busca com o `response_type` campo passando como valor 'lawsuit', o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
 
 ```json
 {
@@ -153,7 +153,9 @@ Se voce realizar uma busca com o `response_type campo passando como valor 'lawsu
 }
 ```
 
-Uma busca com o `response_type` campo passando como valor 'parties', 'attachments' ou 'lawsuits', o campo `response_data` vai retornar a resposta de forma paginada, onde `page_data` será um array que também pode variar de acordo com o `response_type` informado:
+Uma busca com o `response_type` campo sendo passado como valor **"parties"**, **"attachments"** ou **"lawsuits"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 items e também pode variar seu tipo de acordo com o `response_type` informado.
+
+Se quisermos consultar as respostas para ver um grupo de items específico poderemos realizar uma consulta de respostas passando [filtros e paginação](./requests#consultando-respostas-de-buscas).
 
 ```json
 {
@@ -173,9 +175,10 @@ Uma busca com o `response_type` campo passando como valor 'parties', 'attachment
     }
 }
 ```
+
 Exemplos:
 
-Se voce realizar uma busca com o `response_type` campo passando como valor 'parties', o campo `page_data` vai retornar um array com o formato parecido com o seguinte:
+Se voce realizar uma busca com o `response_type` campo passando como valor 'parties', o campo `page_data` retornará um array com o formato parecido com o seguinte:
 
 ```json
 {
