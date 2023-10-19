@@ -38,7 +38,6 @@ Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-	"user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
     "search_type": "lawsuit_cnj",
     "search_key": "0010137-92.2023.5.03.0077",
     "response_type": "lawsuit",
@@ -47,18 +46,17 @@ Aqui está um exemplo de como um payload pode parecer:
     "search_params": {
         "lawsuit_instance": 2,
         "side_filter": "ACTIVE"
-    },
+    }
 }
 ```
 
 Aqui está um exemplo de como usar esse payload de busca com curl:
 
 ```bash
-curl -X POST "https://requests.prod.judit.io/requests" \
--H "api-key: YOUR_API_KEY" \
--H "Content-Type: application/json" \
+curl -X POST "https://requests.prod.judit.io/requests"
+-H "api-key: YOUR_API_KEY"
+-H "Content-Type: application/json"
 -d '{
-    	"user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
         "search_type": "lawsuit_cnj",
         "search_key": "0010137-92.2023.5.03.0077",
         "response_type": "lawsuit",
@@ -119,7 +117,7 @@ Para consultar todas as suas buscas, você pode fazer uma solicitação GET para
 Aqui está um exemplo de como consultar suas buscas usando curl:
 
 ```bash
-curl -X GET "https://requests.prod.judit.io/requests?page=1&pageSize=10" \
+curl -X GET "https://requests.prod.judit.io/requests?page=1&pageSize=10"
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -130,6 +128,52 @@ Para consultar todas as informações sobre uma busca específica, você pode fa
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://requests.prod.judit.io/requests/{busca}" \
+curl -X GET "https://requests.prod.judit.io/requests/{busca}"
+-H "api-key: YOUR_API_KEY"
+```
+
+## Consultando Respostas de Buscas
+
+Para consultar todas as as respostas de suas buscas, você pode fazer uma solicitação GET para a rota `/requests/responses`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar, ordenar e filtrar os resultados:
+
+`page`: Define a página dos resultados que você deseja consultar.
+
+`pageSize`: Define o número máximo de resultados que você deseja receber por página;
+
+`orderField`: nome do campo em que se deseja ordenar as respostas;
+
+`orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';
+
+`user_id`: ID do usuário, retorna respostas relacionadas ao usuário;
+
+`response_type`: retorna respostas tipo especificado podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+
+`request_id`: retorna respostas relacionadas a uma busca pelo id;
+
+`request_status`: retorna respostas cujo status da busca pode estar em **created**, **"pending"**', **"started"**, **"cancelling"**, **"cancelled"** ou **"completed"**, ou  ou mais de um de status ["started", "completed"];
+
+`created_at_gte`: retorna respostas com a data de criação maior ou igual a informada;
+
+`created_at_lte`: retorna respostas com a data de criação menor ou igual a informada;
+
+`request_created_at_gte`: retorna respostas com a data de criação da busca maior ou igual a informada;
+
+`request_created_at_lte`: retorna respostas com a data de criação da busca menor ou igual a informada;
+
+Aqui está um exemplo de como consultar as respostas de buscas usando curl:
+
+```bash
+curl -X GET "https://requests.prod.judit.io/responses?page=1&pageSize=10"
+-H "api-key: YOUR_API_KEY"
+```
+
+## Consultando Informações de uma Resposta
+
+Para consultar todas as informações sobre uma resposta específica, você pode fazer uma solicitação GET para a rota `/requests/responses/{resposta}`, substituindo `{resposta}` pelo ID da resposta que você deseja consultar.
+
+Aqui está um exemplo de como fazer isso usando curl:
+
+```bash
+curl -X GET "https://requests.prod.judit.io/requests/responses/{resposta}"
 -H "api-key: YOUR_API_KEY"
 ```

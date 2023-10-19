@@ -1,0 +1,55 @@
+---
+title: "Create Tracking"
+openapi: "POST /tracking"
+api: "POST https://tracking.stage.judit.io/tracking"
+description: "Esse endpoint cria um monitoramento de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
+---
+
+<ParamField body="reference_type" type="string" required>
+    Define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' para o número do processo.
+</ParamField>
+
+<ParamField body="reference_id" type="string" required>
+    Número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja monitorar.
+</ParamField>
+
+<ParamField body="recurrence" type="integer" required>
+    Recorrência em dias de atualização dos processos.
+</ParamField>
+
+<ParamField body="tags" type="object" required={false}>
+    <Expandable title="properties">
+        <ParamField body="key" name="tag_name" type="string" required={false}>
+            key
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X POST "https://tracking.stage.judit.io/tracking"
+    -H "api-key: YOUR_API_KEY"
+    -H "Content-Type: application/json"
+    -d '{
+        "reference_type": "lawsuit_id",
+        "reference_id": "0001234-55.2023.8.26.0100",
+        "recurrence": 2,
+        "tags": { "category": "any" },
+    }'
+    ```
+</RequestExample>
+
+<ResponseExample>
+    ```json Response
+    {
+        "tracking_id": "754f02d7-e346-48e2-a23e-4455a11af41e",
+        "user_id": "454bbd51-3f8a-4889-b45f-54a78e312257",
+        "reference_type": "lawsuit_id",
+        "reference_id": "0001234-55.2023.8.26.0100",
+        "status": "created",
+        "recurrence": 1,
+        "created_at": "2023-10-17T15:17:05.826Z",
+        "updated_at": "2023-10-17T15:17:05.826Z"
+    }
+    ```
+</ResponseExample>

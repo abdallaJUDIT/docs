@@ -1,0 +1,2005 @@
+---
+title: "Consultar Respostas"
+openapi: "GET /responses"
+api: "GET https://requests.stage.judit.io/responses"
+description: "Esse endpoint consulta as respostas de buscas realizadas por parâmetros de forma paginada"
+---
+
+<ParamField query="page" type="integer" required={false}>
+    Define a página dos resultados que você deseja consultar.
+</ParamField>
+
+<ParamField query="pageSize" type="integer" required={false}>
+    Define o número máximo de resultados que você deseja receber por página;
+</ParamField>
+
+<ParamField query="orderField" type="string" required={false}>
+    Nome do campo em que se deseja ordenar os buscas;
+</ParamField>
+
+<ParamField query="orderDirection" type="string" required={false}>
+    Sentido da ordenação: ‘ASC’ ou ‘DESC’;
+</ParamField>
+
+<ParamField query="user_id" type="string" required={false}>
+    Retorna buscas relacionadas ao usuário;
+</ParamField>
+
+<ParamField query="response_type" type="string" required={false}>
+    Retorna respostas tipo especificado **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+</ParamField>
+
+<ParamField query="request_id" type="string" required={false}>
+    Retorna respostas relacionadas a uma busca pelo id;
+</ParamField>
+
+<ParamField query="request_status" type="string" required={false}>
+    Retorna respostas em que o status da busca podem estar em created, “pending”‘, “started”, “cancelling”, “cancelled” ou “completed”, ou ou mais de um de status [“started”, “completed”];
+</ParamField>
+
+<ParamField query="created_at_gte" type="date" required={false}>
+    Retorna buscas com a data de criação maior ou igual a informada;
+</ParamField>
+
+<ParamField query="created_at_lte" type="date" required={false}>
+    Retorna buscas com a data de criação menor ou igual a informada;
+</ParamField>
+<ParamField query="request_created_at_gte" type="date" required={false}>
+    Retorna respostas com a data de criação da busca maior ou igual a informada;
+</ParamField>
+
+<ParamField query="request_created_at_lte" type="date" required={false}>
+    Retorna respostas com a data de criação da busca menor ou igual a informada
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X GET "https://requests.stage.judit.io/responses?page=1&pageSize=10"
+    -H "api-key: YOUR_API_KEY"
+    ```
+</RequestExample>
+
+<ResponseExample>
+
+    ```json Response
+    {
+        "page": 1,
+        "page_data": [
+    {
+        "request_id": "b16ee08e-2169-4594-8bf4-ff528b5b5b72",
+        "response_id": "d56e8c0a-a1de-4e75-8e4f-add06617035b",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "instance": 1,
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "crawler": {
+        "parties": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:33.894Z",
+        "weight": 10,
+    },
+        "cover": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:34.616Z",
+        "weight": 10,
+    },
+        "amount": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.534Z",
+        "weight": 0,
+    },
+        "classification": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.948Z",
+        "weight": 10,
+    },
+        "status": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:35.635Z",
+        "weight": 0,
+    },
+        "subjects": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:32.670Z",
+        "weight": 10,
+    },
+        "attachments": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:15.172Z",
+        "weight": 10,
+    },
+        "related_lawsuits": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:12.645Z",
+        "weight": 10,
+    },
+        "steps": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:13.522Z",
+        "weight": 10,
+    },
+    },
+        "parties": [
+    {
+        "name": "ALINE PAULA RAMOS",
+        "document": "05196308660",
+        "document_type": "0",
+        "person_type": "Autor",
+        "side": "Active",
+        "lawyers": [
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO",
+        "document": "83359079604",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO - ME",
+        "document": "01618283000100",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "MARCOS VINICIUS MELO",
+        "document": "83642943691",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MARIA MARTINS MELO",
+        "document": "94472866668",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MERCEARIA MARTINS & MELO LTDA - ME",
+        "document": "06947237000160",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+        "person_type": "Advogado",
+        "side": "Active",
+        "lawyers": []
+    },
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+        "person_type": "Advogado",
+        "side": "Passive",
+        "lawyers": []
+    }
+        ],
+        "subjects": [],
+        "related_lawsuits": [],
+        "created_at": "2023-10-05T18:12:40.002Z",
+        "updated_at": "2023-10-05T18:13:35.635Z",
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "judge": null,
+        "justice": "5",
+        "secrecy_level": 0,
+        "tribunal": "03",
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:13:36.074Z",
+        "request_status": "pending",
+        "request_created_at": "2023-10-05T18:13:36.074Z"
+    },
+    {
+        "request_id": "b16ee08e-2169-4594-8bf4-ff528b5b5b72",
+        "response_id": "3aeb3b72-6300-4a96-807e-85c09f5664d4",
+        "response_type": "steps",
+        "response_data": {
+        "steps": [
+    {
+        "step_id": "mEktW9BQ/O+yIHnJnkdQO9t91oWJdhuDq7xums+zcpI=",
+        "step_date": "2020-12-01T18:52:00.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Arquivados os autos definitivamente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.705Z",
+        "updated_at": "2023-10-05T18:13:10.705Z",
+        "id": "651efcb60986dbe8c0d92203"
+    },
+    {
+        "step_id": "p1FAzGOMWYQBNBLw4jKGD8leQe2pC+w1WqSikg62jKo=",
+        "step_date": "2020-12-01T08:39:33.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Exclusão BNDT | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.724Z",
+        "updated_at": "2023-10-05T18:13:10.724Z",
+        "id": "651efcb60986dbe8c0d92205"
+    },
+    {
+        "step_id": "VXl3dkoyd5hy+wG9JRnLdG2MJoRa6CWuLOJV2Gv7D+Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.764Z",
+        "updated_at": "2023-10-05T18:13:10.764Z",
+        "id": "651efcb60986dbe8c0d92207"
+    },
+    {
+        "step_id": "UnXf6c/5Hf7Hhsd9Rhqpm4EynA2SoLkmKZOcyGBqX/Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.783Z",
+        "updated_at": "2023-10-05T18:13:10.783Z",
+        "id": "651efcb60986dbe8c0d92209"
+    },
+    {
+        "step_id": "0m3qQlSylpBqTFNAV+lyzP5rzysO5FTI575oExMJGgM=",
+        "step_date": "2020-12-01T07:58:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.784Z",
+        "updated_at": "2023-10-05T18:13:10.784Z",
+        "id": "651efcb60986dbe8c0d9220b"
+    },
+    {
+        "step_id": "C6xQLODWZ02lCO50w+dsC/HxMIxdbOrTGgXMAolUSwk=",
+        "step_date": "2020-11-30T21:59:46.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Encerrada a suspensão ou o sobrestamento do processo",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.804Z",
+        "updated_at": "2023-10-05T18:13:10.804Z",
+        "id": "651efcb60986dbe8c0d9220f"
+    },
+    {
+        "step_id": "LDeGyWPnqlupr0ks1SOVeMGm8iRdDwqxpwm8Pd+tmd0=",
+        "step_date": "2020-11-30T22:00:10.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para julgamento Proferir sentença a ALEXANDRE PIMENTA BATISTA PEREIRA",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.802Z",
+        "updated_at": "2023-10-05T18:13:10.802Z",
+        "id": "651efcb60986dbe8c0d9220d"
+    },
+    {
+        "step_id": "5h6IAG/Kp/3QaonryOhNrmMhynU0FEjCj8DBR7szY5E=",
+        "step_date": "2019-01-18T12:05:53.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Suspenso ou sobrestado o processo por decisão judicial",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.842Z",
+        "updated_at": "2023-10-05T18:13:10.842Z",
+        "id": "651efcb60986dbe8c0d92211"
+    },
+    {
+        "step_id": "Gay8+nBU0yaZFiPwAdF0BlAHcdOgMQGzFlTFs5gm+us=",
+        "step_date": "2018-05-08T09:47:40.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.845Z",
+        "updated_at": "2023-10-05T18:13:10.845Z",
+        "id": "651efcb60986dbe8c0d92213"
+    },
+    {
+        "step_id": "n8cnjNyKxA5mcZmmG9+ka2sU9mOKuoUugGsKRcaFWE8=",
+        "step_date": "2018-05-08T09:47:47.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.885Z",
+        "updated_at": "2023-10-05T18:13:10.885Z",
+        "id": "651efcb60986dbe8c0d92219"
+    },
+    {
+        "step_id": "CQ5siX6r6WgPPnBOxt+F1ZGKkpssG8mjoBC0XQIgEsE=",
+        "step_date": "2018-05-08T09:47:41.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.923Z",
+        "updated_at": "2023-10-05T18:13:10.923Z",
+        "id": "651efcb60986dbe8c0d9221b"
+    },
+    {
+        "step_id": "wYsGeN9SQzocLyrgQn5VBEsc7GzXstPGuuqHKXIPSN8=",
+        "step_date": "2018-04-30T01:03:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decorrido o prazo de ALINE PAULA RAMOS em 27/04/2018 23:59:59",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.924Z",
+        "updated_at": "2023-10-05T18:13:10.924Z",
+        "id": "651efcb60986dbe8c0d9221d"
+    },
+    {
+        "step_id": "Acqcp+FZFihX7VaT1wnBomGlXQGgTeCQ+WNSoXS9qy4=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Disponibilizado\n(a) o(a) Notificação no Diário da Justiça Eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.942Z",
+        "updated_at": "2023-10-05T18:13:10.942Z",
+        "id": "651efcb60986dbe8c0d9221f"
+    },
+    {
+        "step_id": "AFXc12/w3sE1B4GEiLbHYKIQwSGYYbZwSpooLjxcJts=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Publicado(a) o(a) Notificação em 27/03/2018",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.944Z",
+        "updated_at": "2023-10-05T18:13:10.944Z",
+        "id": "651efcb60986dbe8c0d92221"
+    },
+    {
+        "step_id": "EuRTl073ntRZBgppRnzhTkqysBiMdBr+qjbBcq5Oa84=",
+        "step_date": "2018-03-26T12:08:25.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.945Z",
+        "updated_at": "2023-10-05T18:13:10.945Z",
+        "id": "651efcb60986dbe8c0d92223"
+    },
+    {
+        "step_id": "cgo2r7NeIk1V8zpncFppAhImM0BkmLTvHDW2buV+71c=",
+        "step_date": "2018-03-26T12:08:20.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.002Z",
+        "updated_at": "2023-10-05T18:13:11.002Z",
+        "id": "651efcb70986dbe8c0d92225"
+    },
+    {
+        "step_id": "g9VrgWxIGhbwZLTKaPWoiHM5m80frXx3D0oLb4kRdck=",
+        "step_date": "2018-03-22T18:45:42.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.004Z",
+        "updated_at": "2023-10-05T18:13:11.004Z",
+        "id": "651efcb70986dbe8c0d92227"
+    },
+    {
+        "step_id": "1IMTkl2aOwtUr07rrrb+Q1IFqxKjEP1OOYL+8BbUMl0=",
+        "step_date": "2018-03-22T18:45:18.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.042Z",
+        "updated_at": "2023-10-05T18:13:11.042Z",
+        "id": "651efcb70986dbe8c0d92229"
+    },
+    {
+        "step_id": "sHg1LNYSLyGxplbqskJlGG7ZLPerwUBdh04Sa3dWGK0=",
+        "step_date": "2018-01-25T08:52:07.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.044Z",
+        "updated_at": "2023-10-05T18:13:11.044Z",
+        "id": "651efcb70986dbe8c0d9222b"
+    },
+    {
+        "step_id": "AM9EWqKyxIbU/Lg3T+hIQ+e3EXe1sH8/yq7tDYBJROk=",
+        "step_date": "2018-03-26T12:08:21.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.082Z",
+        "updated_at": "2023-10-05T18:13:11.082Z",
+        "id": "651efcb70986dbe8c0d9222d"
+    },
+    {
+        "step_id": "lq7cWCQj1g+l69FV6LOBaBOjGy6Tq0CIWcbYqwqKBSc=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.084Z",
+        "updated_at": "2023-10-05T18:13:11.084Z",
+        "id": "651efcb70986dbe8c0d9222f"
+    },
+    {
+        "step_id": "3AiPl5WnJq/n3Xo3YKS4YoOYCb6ZBEG2sfO956dfb54=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.122Z",
+        "updated_at": "2023-10-05T18:13:11.122Z",
+        "id": "651efcb70986dbe8c0d92231"
+    },
+    {
+        "step_id": "qXy87zmlLcbH15xGPxjL6AueHf2zRuAIzlSaygZnvmk=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.125Z",
+        "updated_at": "2023-10-05T18:13:11.125Z",
+        "id": "651efcb70986dbe8c0d92233"
+    },
+    {
+        "step_id": "h87iBZHjXtxGxubQ9f/uq32j04fDSZ8Shy56tQrrPLA=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.143Z",
+        "updated_at": "2023-10-05T18:13:11.143Z",
+        "id": "651efcb70986dbe8c0d92235"
+    },
+    {
+        "step_id": "iPr5ejsaGYaBKZE8n/LsUARcQ6/46QDBoj2TtASqo00=",
+        "step_date": "2018-01-23T14:38:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Notificação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.145Z",
+        "updated_at": "2023-10-05T18:13:11.145Z",
+        "id": "651efcb70986dbe8c0d92237"
+    },
+    {
+        "step_id": "H1ldWhMmDDz1C4gcFLYt0WGWb9eMMj/RlyUSadVhZcM=",
+        "step_date": "2018-01-23T14:38:39.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.242Z",
+        "updated_at": "2023-10-05T18:13:11.242Z",
+        "id": "651efcb70986dbe8c0d92239"
+    },
+    {
+        "step_id": "QLtXiCjQJAUzVScOoVxIeYbuawXXmAPaoqlxyWudxso=",
+        "step_date": "2018-01-23T14:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.244Z",
+        "updated_at": "2023-10-05T18:13:11.244Z",
+        "id": "651efcb70986dbe8c0d9223b"
+    },
+    {
+        "step_id": "XzOu6GaP5FYDp+DyvFB2ttgvRl+pKBhgHCGdWSGBBjk=",
+        "step_date": "2018-01-11T14:45:04.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Convertida a tramitação do processo do meio físico para o eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.342Z",
+        "updated_at": "2023-10-05T18:13:11.342Z",
+        "id": "651efcb70986dbe8c0d92241"
+    },
+    {
+        "step_id": "j6Gm+o9VBszqa7BESj0XbCUIrdgqlu97oRcnRxTpEAQ=",
+        "step_date": "2018-01-23T14:38:37.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Decisão",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.302Z",
+        "updated_at": "2023-10-05T18:13:11.302Z",
+        "id": "651efcb70986dbe8c0d9223d"
+    },
+    {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.345Z",
+        "updated_at": "2023-10-05T18:13:11.345Z",
+        "id": "651efcb70986dbe8c0d92243"
+    },
+    {
+        "step_id": "N++TZkx1LUawku5+LUBINaU9KwAbmicQ0Q+tahkQD0c=",
+        "step_date": "2018-01-22T16:29:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para decisão Geral a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.304Z",
+        "updated_at": "2023-10-05T18:13:11.304Z",
+        "id": "651efcb70986dbe8c0d9223f"
+    },
+    {
+        "step_id": "Aa9p9vNPtaqNcVcc8nu4h/Glj5qLLPkE5jd/tQiZcTM=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Extinta a execução ou o cumprimento da sentença por aplicação da prescrição intercorrente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.484Z",
+        "updated_at": "2023-10-05T18:13:11.484Z",
+        "id": "651efcb70986dbe8c0d92245"
+    },
+    {
+        "step_id": "JXc2cSWA1JUSdxzq9WYMZQi9E1fQuiP5Rek1lmYR/5U=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Sentença | Sentença",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.502Z",
+        "updated_at": "2023-10-05T18:13:11.502Z",
+        "id": "651efcb70986dbe8c0d92247"
+    },
+    {
+        "step_id": "KEE1fjYFgycpJbwSa2VIwZE9BmPyl7+pSnOpoKt8Bvk=",
+        "step_date": "2018-05-03T12:30:28.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.865Z",
+        "updated_at": "2023-10-05T18:13:10.865Z",
+        "id": "651efcb60986dbe8c0d92217"
+    },
+    {
+        "step_id": "qJLwKHla3zeCm26IFqWwmgZlCIntWPcOHEcl7IhK8YI=",
+        "step_date": "2018-05-03T12:31:05.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.863Z",
+        "updated_at": "2023-10-05T18:13:10.863Z",
+        "id": "651efcb60986dbe8c0d92215"
+    }
+        ]
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:13:36.074Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:13:36.074Z"
+    },
+    {
+        "request_id": "1b954b56-aabc-4d8e-af0e-3032de522633",
+        "response_id": "bf07018a-9f7a-437a-a3e3-6f7c4c13846c",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "instance": 1,
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "crawler": {
+        "parties": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:33.894Z",
+        "weight": 10,
+    },
+        "cover": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:34.616Z",
+        "weight": 10,
+    },
+        "amount": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.534Z",
+        "weight": 0,
+    },
+        "classification": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.948Z",
+        "weight": 10,
+    },
+        "status": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:35.635Z",
+        "weight": 0,
+    },
+        "subjects": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:11.655Z",
+        "weight": 10,
+    },
+        "attachments": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:15.172Z",
+        "weight": 10,
+    },
+        "related_lawsuits": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:12.645Z",
+        "weight": 10,
+    },
+        "steps": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:13.522Z",
+        "weight": 10,
+    },
+    },
+        "parties": [
+    {
+        "name": "ALINE PAULA RAMOS",
+        "document": "05196308660",
+        "document_type": "0",
+        "person_type": "Autor",
+        "side": "Active",
+        "lawyers": [
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO",
+        "document": "83359079604",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO - ME",
+        "document": "01618283000100",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "MARCOS VINICIUS MELO",
+        "document": "83642943691",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MARIA MARTINS MELO",
+        "document": "94472866668",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MERCEARIA MARTINS & MELO LTDA - ME",
+        "document": "06947237000160",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+        "person_type": "Advogado",
+        "side": "Active",
+        "lawyers": []
+    },
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+        "person_type": "Advogado",
+        "side": "Passive",
+        "lawyers": []
+    }
+        ],
+        "subjects": [],
+        "related_lawsuits": [],
+        "created_at": "2023-10-05T18:12:40.002Z",
+        "updated_at": "2023-10-05T18:14:11.655Z",
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "judge": null,
+        "justice": "5",
+        "secrecy_level": 0,
+        "tribunal": "03",
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "created_at": "2023-10-05T18:14:11.956Z",
+        "request_status": "pending",
+        "request_created_at": "2023-10-05T18:14:11.956Z"
+    },
+    {
+        "request_id": "1b954b56-aabc-4d8e-af0e-3032de522633",
+        "response_id": "b958291e-6f01-4679-9fcb-fb25f6384b0b",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "instance": 1,
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "crawler": {
+        "parties": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:33.894Z",
+        "weight": 10,
+    },
+        "cover": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:34.616Z",
+        "weight": 10,
+    },
+        "amount": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.534Z",
+        "weight": 0,
+    },
+        "classification": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.948Z",
+        "weight": 10,
+    },
+        "status": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:35.635Z",
+        "weight": 0,
+    },
+        "subjects": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:11.655Z",
+        "weight": 10,
+    },
+        "attachments": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:15.172Z",
+        "weight": 10,
+    },
+        "related_lawsuits": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:12.011Z",
+        "weight": 10,
+    },
+        "steps": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:13.522Z",
+        "weight": 10,
+    },
+    },
+        "parties": [
+    {
+        "name": "ALINE PAULA RAMOS",
+        "document": "05196308660",
+        "document_type": "0",
+        "person_type": "Autor",
+        "side": "Active",
+        "lawyers": [
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO",
+        "document": "83359079604",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO - ME",
+        "document": "01618283000100",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "MARCOS VINICIUS MELO",
+        "document": "83642943691",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MARIA MARTINS MELO",
+        "document": "94472866668",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MERCEARIA MARTINS & MELO LTDA - ME",
+        "document": "06947237000160",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+        "person_type": "Advogado",
+        "side": "Active",
+        "lawyers": []
+    },
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+        "person_type": "Advogado",
+        "side": "Passive",
+        "lawyers": []
+    }
+        ],
+        "subjects": [],
+        "related_lawsuits": [],
+        "created_at": "2023-10-05T18:12:40.002Z",
+        "updated_at": "2023-10-05T18:14:12.011Z",
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "judge": null,
+        "justice": "5",
+        "secrecy_level": 0,
+        "tribunal": "03",
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "created_at": "2023-10-05T18:14:12.451Z",
+        "request_status": "pending",
+        "request_created_at": "2023-10-05T18:14:12.451Z"
+    },
+    {
+        "request_id": "1b954b56-aabc-4d8e-af0e-3032de522633",
+        "response_id": "a581f2a5-df55-49b8-a646-bdcf95e65797",
+        "response_type": "steps",
+        "response_data": {
+        "steps": [
+    {
+        "step_id": "mEktW9BQ/O+yIHnJnkdQO9t91oWJdhuDq7xums+zcpI=",
+        "step_date": "2020-12-01T18:52:00.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Arquivados os autos definitivamente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.705Z",
+        "updated_at": "2023-10-05T18:13:10.705Z",
+        "id": "651efcb60986dbe8c0d92203"
+    },
+    {
+        "step_id": "p1FAzGOMWYQBNBLw4jKGD8leQe2pC+w1WqSikg62jKo=",
+        "step_date": "2020-12-01T08:39:33.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Exclusão BNDT | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.724Z",
+        "updated_at": "2023-10-05T18:13:10.724Z",
+        "id": "651efcb60986dbe8c0d92205"
+    },
+    {
+        "step_id": "VXl3dkoyd5hy+wG9JRnLdG2MJoRa6CWuLOJV2Gv7D+Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.764Z",
+        "updated_at": "2023-10-05T18:13:10.764Z",
+        "id": "651efcb60986dbe8c0d92207"
+    },
+    {
+        "step_id": "UnXf6c/5Hf7Hhsd9Rhqpm4EynA2SoLkmKZOcyGBqX/Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.783Z",
+        "updated_at": "2023-10-05T18:13:10.783Z",
+        "id": "651efcb60986dbe8c0d92209"
+    },
+    {
+        "step_id": "0m3qQlSylpBqTFNAV+lyzP5rzysO5FTI575oExMJGgM=",
+        "step_date": "2020-12-01T07:58:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.784Z",
+        "updated_at": "2023-10-05T18:13:10.784Z",
+        "id": "651efcb60986dbe8c0d9220b"
+    },
+    {
+        "step_id": "C6xQLODWZ02lCO50w+dsC/HxMIxdbOrTGgXMAolUSwk=",
+        "step_date": "2020-11-30T21:59:46.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Encerrada a suspensão ou o sobrestamento do processo",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.804Z",
+        "updated_at": "2023-10-05T18:13:10.804Z",
+        "id": "651efcb60986dbe8c0d9220f"
+    },
+    {
+        "step_id": "LDeGyWPnqlupr0ks1SOVeMGm8iRdDwqxpwm8Pd+tmd0=",
+        "step_date": "2020-11-30T22:00:10.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para julgamento Proferir sentença a ALEXANDRE PIMENTA BATISTA PEREIRA",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.802Z",
+        "updated_at": "2023-10-05T18:13:10.802Z",
+        "id": "651efcb60986dbe8c0d9220d"
+    },
+    {
+        "step_id": "5h6IAG/Kp/3QaonryOhNrmMhynU0FEjCj8DBR7szY5E=",
+        "step_date": "2019-01-18T12:05:53.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Suspenso ou sobrestado o processo por decisão judicial",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.842Z",
+        "updated_at": "2023-10-05T18:13:10.842Z",
+        "id": "651efcb60986dbe8c0d92211"
+    },
+    {
+        "step_id": "Gay8+nBU0yaZFiPwAdF0BlAHcdOgMQGzFlTFs5gm+us=",
+        "step_date": "2018-05-08T09:47:40.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.845Z",
+        "updated_at": "2023-10-05T18:13:10.845Z",
+        "id": "651efcb60986dbe8c0d92213"
+    },
+    {
+        "step_id": "n8cnjNyKxA5mcZmmG9+ka2sU9mOKuoUugGsKRcaFWE8=",
+        "step_date": "2018-05-08T09:47:47.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.885Z",
+        "updated_at": "2023-10-05T18:13:10.885Z",
+        "id": "651efcb60986dbe8c0d92219"
+    },
+    {
+        "step_id": "CQ5siX6r6WgPPnBOxt+F1ZGKkpssG8mjoBC0XQIgEsE=",
+        "step_date": "2018-05-08T09:47:41.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.923Z",
+        "updated_at": "2023-10-05T18:13:10.923Z",
+        "id": "651efcb60986dbe8c0d9221b"
+    },
+    {
+        "step_id": "wYsGeN9SQzocLyrgQn5VBEsc7GzXstPGuuqHKXIPSN8=",
+        "step_date": "2018-04-30T01:03:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decorrido o prazo de ALINE PAULA RAMOS em 27/04/2018 23:59:59",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.924Z",
+        "updated_at": "2023-10-05T18:13:10.924Z",
+        "id": "651efcb60986dbe8c0d9221d"
+    },
+    {
+        "step_id": "Acqcp+FZFihX7VaT1wnBomGlXQGgTeCQ+WNSoXS9qy4=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Disponibilizado\n(a) o(a) Notificação no Diário da Justiça Eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.942Z",
+        "updated_at": "2023-10-05T18:13:10.942Z",
+        "id": "651efcb60986dbe8c0d9221f"
+    },
+    {
+        "step_id": "AFXc12/w3sE1B4GEiLbHYKIQwSGYYbZwSpooLjxcJts=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Publicado(a) o(a) Notificação em 27/03/2018",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.944Z",
+        "updated_at": "2023-10-05T18:13:10.944Z",
+        "id": "651efcb60986dbe8c0d92221"
+    },
+    {
+        "step_id": "EuRTl073ntRZBgppRnzhTkqysBiMdBr+qjbBcq5Oa84=",
+        "step_date": "2018-03-26T12:08:25.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.945Z",
+        "updated_at": "2023-10-05T18:13:10.945Z",
+        "id": "651efcb60986dbe8c0d92223"
+    },
+    {
+        "step_id": "cgo2r7NeIk1V8zpncFppAhImM0BkmLTvHDW2buV+71c=",
+        "step_date": "2018-03-26T12:08:20.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.002Z",
+        "updated_at": "2023-10-05T18:13:11.002Z",
+        "id": "651efcb70986dbe8c0d92225"
+    },
+    {
+        "step_id": "g9VrgWxIGhbwZLTKaPWoiHM5m80frXx3D0oLb4kRdck=",
+        "step_date": "2018-03-22T18:45:42.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.004Z",
+        "updated_at": "2023-10-05T18:13:11.004Z",
+        "id": "651efcb70986dbe8c0d92227"
+    },
+    {
+        "step_id": "1IMTkl2aOwtUr07rrrb+Q1IFqxKjEP1OOYL+8BbUMl0=",
+        "step_date": "2018-03-22T18:45:18.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.042Z",
+        "updated_at": "2023-10-05T18:13:11.042Z",
+        "id": "651efcb70986dbe8c0d92229"
+    },
+    {
+        "step_id": "sHg1LNYSLyGxplbqskJlGG7ZLPerwUBdh04Sa3dWGK0=",
+        "step_date": "2018-01-25T08:52:07.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.044Z",
+        "updated_at": "2023-10-05T18:13:11.044Z",
+        "id": "651efcb70986dbe8c0d9222b"
+    },
+    {
+        "step_id": "AM9EWqKyxIbU/Lg3T+hIQ+e3EXe1sH8/yq7tDYBJROk=",
+        "step_date": "2018-03-26T12:08:21.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.082Z",
+        "updated_at": "2023-10-05T18:13:11.082Z",
+        "id": "651efcb70986dbe8c0d9222d"
+    },
+    {
+        "step_id": "lq7cWCQj1g+l69FV6LOBaBOjGy6Tq0CIWcbYqwqKBSc=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.084Z",
+        "updated_at": "2023-10-05T18:13:11.084Z",
+        "id": "651efcb70986dbe8c0d9222f"
+    },
+    {
+        "step_id": "3AiPl5WnJq/n3Xo3YKS4YoOYCb6ZBEG2sfO956dfb54=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.122Z",
+        "updated_at": "2023-10-05T18:13:11.122Z",
+        "id": "651efcb70986dbe8c0d92231"
+    },
+    {
+        "step_id": "qXy87zmlLcbH15xGPxjL6AueHf2zRuAIzlSaygZnvmk=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.125Z",
+        "updated_at": "2023-10-05T18:13:11.125Z",
+        "id": "651efcb70986dbe8c0d92233"
+    },
+    {
+        "step_id": "h87iBZHjXtxGxubQ9f/uq32j04fDSZ8Shy56tQrrPLA=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.143Z",
+        "updated_at": "2023-10-05T18:13:11.143Z",
+        "id": "651efcb70986dbe8c0d92235"
+    },
+    {
+        "step_id": "iPr5ejsaGYaBKZE8n/LsUARcQ6/46QDBoj2TtASqo00=",
+        "step_date": "2018-01-23T14:38:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Notificação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.145Z",
+        "updated_at": "2023-10-05T18:13:11.145Z",
+        "id": "651efcb70986dbe8c0d92237"
+    },
+    {
+        "step_id": "H1ldWhMmDDz1C4gcFLYt0WGWb9eMMj/RlyUSadVhZcM=",
+        "step_date": "2018-01-23T14:38:39.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.242Z",
+        "updated_at": "2023-10-05T18:13:11.242Z",
+        "id": "651efcb70986dbe8c0d92239"
+    },
+    {
+        "step_id": "QLtXiCjQJAUzVScOoVxIeYbuawXXmAPaoqlxyWudxso=",
+        "step_date": "2018-01-23T14:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.244Z",
+        "updated_at": "2023-10-05T18:13:11.244Z",
+        "id": "651efcb70986dbe8c0d9223b"
+    },
+    {
+        "step_id": "XzOu6GaP5FYDp+DyvFB2ttgvRl+pKBhgHCGdWSGBBjk=",
+        "step_date": "2018-01-11T14:45:04.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Convertida a tramitação do processo do meio físico para o eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.342Z",
+        "updated_at": "2023-10-05T18:13:11.342Z",
+        "id": "651efcb70986dbe8c0d92241"
+    },
+    {
+        "step_id": "j6Gm+o9VBszqa7BESj0XbCUIrdgqlu97oRcnRxTpEAQ=",
+        "step_date": "2018-01-23T14:38:37.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Decisão",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.302Z",
+        "updated_at": "2023-10-05T18:13:11.302Z",
+        "id": "651efcb70986dbe8c0d9223d"
+    },
+    {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.345Z",
+        "updated_at": "2023-10-05T18:13:11.345Z",
+        "id": "651efcb70986dbe8c0d92243"
+    },
+    {
+        "step_id": "N++TZkx1LUawku5+LUBINaU9KwAbmicQ0Q+tahkQD0c=",
+        "step_date": "2018-01-22T16:29:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para decisão Geral a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.304Z",
+        "updated_at": "2023-10-05T18:13:11.304Z",
+        "id": "651efcb70986dbe8c0d9223f"
+    },
+    {
+        "step_id": "Aa9p9vNPtaqNcVcc8nu4h/Glj5qLLPkE5jd/tQiZcTM=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Extinta a execução ou o cumprimento da sentença por aplicação da prescrição intercorrente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.484Z",
+        "updated_at": "2023-10-05T18:13:11.484Z",
+        "id": "651efcb70986dbe8c0d92245"
+    },
+    {
+        "step_id": "JXc2cSWA1JUSdxzq9WYMZQi9E1fQuiP5Rek1lmYR/5U=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Sentença | Sentença",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.502Z",
+        "updated_at": "2023-10-05T18:13:11.502Z",
+        "id": "651efcb70986dbe8c0d92247"
+    },
+    {
+        "step_id": "KEE1fjYFgycpJbwSa2VIwZE9BmPyl7+pSnOpoKt8Bvk=",
+        "step_date": "2018-05-03T12:30:28.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.865Z",
+        "updated_at": "2023-10-05T18:13:10.865Z",
+        "id": "651efcb60986dbe8c0d92217"
+    },
+    {
+        "step_id": "qJLwKHla3zeCm26IFqWwmgZlCIntWPcOHEcl7IhK8YI=",
+        "step_date": "2018-05-03T12:31:05.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.863Z",
+        "updated_at": "2023-10-05T18:13:10.863Z",
+        "id": "651efcb60986dbe8c0d92215"
+    }
+        ]
+    },
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "created_at": "2023-10-05T18:14:11.956Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:14:11.956Z"
+    },
+    {
+        "request_id": "08444130-44c9-4e09-b11d-2bc35a2e3d8a",
+        "response_id": "6de04bd9-d8fa-47b0-9a92-854cf4530b2d",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "instance": 1,
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "crawler": {
+        "parties": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:15.275Z",
+        "weight": 10,
+    },
+        "cover": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:38.090Z",
+        "weight": 10,
+    },
+        "amount": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:14.534Z",
+        "weight": 0,
+    },
+        "classification": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:15.676Z",
+        "weight": 10,
+    },
+        "status": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:38.772Z",
+        "weight": 0,
+    },
+        "subjects": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:37.366Z",
+        "weight": 10,
+    },
+        "attachments": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:16.610Z",
+        "weight": 10,
+    },
+        "related_lawsuits": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:14:12.011Z",
+        "weight": 10,
+    },
+        "steps": {
+        "code": "JTrtScrapper",
+        "updated_at": "2023-10-05T18:13:13.522Z",
+        "weight": 10,
+    },
+    },
+        "parties": [
+    {
+        "name": "ALINE PAULA RAMOS",
+        "document": "05196308660",
+        "document_type": "0",
+        "person_type": "Autor",
+        "side": "Active",
+        "lawyers": [
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO",
+        "document": "83359079604",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "ADRIANA AMELIA DA SILVA MELO - ME",
+        "document": "01618283000100",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "MARCOS VINICIUS MELO",
+        "document": "83642943691",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MARIA MARTINS MELO",
+        "document": "94472866668",
+        "document_type": "0",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "document": null,
+        "document_type": "0",
+        "license": "null",
+    }
+        ],
+    },
+    {
+        "name": "MERCEARIA MARTINS & MELO LTDA - ME",
+        "document": "06947237000160",
+        "document_type": "1",
+        "person_type": "Réu",
+        "side": "Passive",
+        "lawyers": [
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+    }
+        ],
+    },
+    {
+        "name": "RONEI MUNIZ BONFIM",
+        "document": "03344781626",
+        "document_type": "0",
+        "license": "MG100560",
+        "person_type": "Advogado",
+        "side": "Active",
+        "lawyers": []
+    },
+    {
+        "name": "JOSE RIBAMAR MATOS AMARAL",
+        "document": "10912797720",
+        "document_type": "0",
+        "license": "MG94008",
+        "person_type": "Advogado",
+        "side": "Passive",
+        "lawyers": []
+    }
+        ],
+        "subjects": [],
+        "related_lawsuits": [],
+        "created_at": "2023-10-05T18:12:40.002Z",
+        "updated_at": "2023-10-05T18:14:38.772Z",
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "judge": null,
+        "justice": "5",
+        "secrecy_level": 0,
+        "tribunal": "03",
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:15:07.630Z",
+        "request_status": "pending",
+        "request_created_at": "2023-10-05T18:15:07.630Z"
+    },
+    {
+        "request_id": "08444130-44c9-4e09-b11d-2bc35a2e3d8a",
+        "response_id": "48642df9-a025-4b81-b809-adae9bdd1c4c",
+        "response_type": "lawsuit",
+        "response_data": {
+        "steps": [
+    {
+        "step_id": "mEktW9BQ/O+yIHnJnkdQO9t91oWJdhuDq7xums+zcpI=",
+        "step_date": "2020-12-01T18:52:00.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Arquivados os autos definitivamente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.705Z",
+        "updated_at": "2023-10-05T18:13:10.705Z",
+        "id": "651efcb60986dbe8c0d92203"
+    },
+    {
+        "step_id": "p1FAzGOMWYQBNBLw4jKGD8leQe2pC+w1WqSikg62jKo=",
+        "step_date": "2020-12-01T08:39:33.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Exclusão BNDT | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.724Z",
+        "updated_at": "2023-10-05T18:13:10.724Z",
+        "id": "651efcb60986dbe8c0d92205"
+    },
+    {
+        "step_id": "VXl3dkoyd5hy+wG9JRnLdG2MJoRa6CWuLOJV2Gv7D+Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.764Z",
+        "updated_at": "2023-10-05T18:13:10.764Z",
+        "id": "651efcb60986dbe8c0d92207"
+    },
+    {
+        "step_id": "UnXf6c/5Hf7Hhsd9Rhqpm4EynA2SoLkmKZOcyGBqX/Q=",
+        "step_date": "2020-12-01T08:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a exclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.783Z",
+        "updated_at": "2023-10-05T18:13:10.783Z",
+        "id": "651efcb60986dbe8c0d92209"
+    },
+    {
+        "step_id": "0m3qQlSylpBqTFNAV+lyzP5rzysO5FTI575oExMJGgM=",
+        "step_date": "2020-12-01T07:58:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.784Z",
+        "updated_at": "2023-10-05T18:13:10.784Z",
+        "id": "651efcb60986dbe8c0d9220b"
+    },
+    {
+        "step_id": "C6xQLODWZ02lCO50w+dsC/HxMIxdbOrTGgXMAolUSwk=",
+        "step_date": "2020-11-30T21:59:46.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Encerrada a suspensão ou o sobrestamento do processo",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.804Z",
+        "updated_at": "2023-10-05T18:13:10.804Z",
+        "id": "651efcb60986dbe8c0d9220f"
+    },
+    {
+        "step_id": "LDeGyWPnqlupr0ks1SOVeMGm8iRdDwqxpwm8Pd+tmd0=",
+        "step_date": "2020-11-30T22:00:10.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para julgamento Proferir sentença a ALEXANDRE PIMENTA BATISTA PEREIRA",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.802Z",
+        "updated_at": "2023-10-05T18:13:10.802Z",
+        "id": "651efcb60986dbe8c0d9220d"
+    },
+    {
+        "step_id": "5h6IAG/Kp/3QaonryOhNrmMhynU0FEjCj8DBR7szY5E=",
+        "step_date": "2019-01-18T12:05:53.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Suspenso ou sobrestado o processo por decisão judicial",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.842Z",
+        "updated_at": "2023-10-05T18:13:10.842Z",
+        "id": "651efcb60986dbe8c0d92211"
+    },
+    {
+        "step_id": "Gay8+nBU0yaZFiPwAdF0BlAHcdOgMQGzFlTFs5gm+us=",
+        "step_date": "2018-05-08T09:47:40.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.845Z",
+        "updated_at": "2023-10-05T18:13:10.845Z",
+        "id": "651efcb60986dbe8c0d92213"
+    },
+    {
+        "step_id": "n8cnjNyKxA5mcZmmG9+ka2sU9mOKuoUugGsKRcaFWE8=",
+        "step_date": "2018-05-08T09:47:47.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.885Z",
+        "updated_at": "2023-10-05T18:13:10.885Z",
+        "id": "651efcb60986dbe8c0d92219"
+    },
+    {
+        "step_id": "CQ5siX6r6WgPPnBOxt+F1ZGKkpssG8mjoBC0XQIgEsE=",
+        "step_date": "2018-05-08T09:47:41.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.923Z",
+        "updated_at": "2023-10-05T18:13:10.923Z",
+        "id": "651efcb60986dbe8c0d9221b"
+    },
+    {
+        "step_id": "wYsGeN9SQzocLyrgQn5VBEsc7GzXstPGuuqHKXIPSN8=",
+        "step_date": "2018-04-30T01:03:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decorrido o prazo de ALINE PAULA RAMOS em 27/04/2018 23:59:59",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.924Z",
+        "updated_at": "2023-10-05T18:13:10.924Z",
+        "id": "651efcb60986dbe8c0d9221d"
+    },
+    {
+        "step_id": "Acqcp+FZFihX7VaT1wnBomGlXQGgTeCQ+WNSoXS9qy4=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Disponibilizado\n(a) o(a) Notificação no Diário da Justiça Eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.942Z",
+        "updated_at": "2023-10-05T18:13:10.942Z",
+        "id": "651efcb60986dbe8c0d9221f"
+    },
+    {
+        "step_id": "AFXc12/w3sE1B4GEiLbHYKIQwSGYYbZwSpooLjxcJts=",
+        "step_date": "2018-03-27T03:36:01.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Publicado(a) o(a) Notificação em 27/03/2018",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.944Z",
+        "updated_at": "2023-10-05T18:13:10.944Z",
+        "id": "651efcb60986dbe8c0d92221"
+    },
+    {
+        "step_id": "EuRTl073ntRZBgppRnzhTkqysBiMdBr+qjbBcq5Oa84=",
+        "step_date": "2018-03-26T12:08:25.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Notificação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.945Z",
+        "updated_at": "2023-10-05T18:13:10.945Z",
+        "id": "651efcb60986dbe8c0d92223"
+    },
+    {
+        "step_id": "cgo2r7NeIk1V8zpncFppAhImM0BkmLTvHDW2buV+71c=",
+        "step_date": "2018-03-26T12:08:20.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Despacho | Despacho",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.002Z",
+        "updated_at": "2023-10-05T18:13:11.002Z",
+        "id": "651efcb70986dbe8c0d92225"
+    },
+    {
+        "step_id": "g9VrgWxIGhbwZLTKaPWoiHM5m80frXx3D0oLb4kRdck=",
+        "step_date": "2018-03-22T18:45:42.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.004Z",
+        "updated_at": "2023-10-05T18:13:11.004Z",
+        "id": "651efcb70986dbe8c0d92227"
+    },
+    {
+        "step_id": "1IMTkl2aOwtUr07rrrb+Q1IFqxKjEP1OOYL+8BbUMl0=",
+        "step_date": "2018-03-22T18:45:18.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.042Z",
+        "updated_at": "2023-10-05T18:13:11.042Z",
+        "id": "651efcb70986dbe8c0d92229"
+    },
+    {
+        "step_id": "sHg1LNYSLyGxplbqskJlGG7ZLPerwUBdh04Sa3dWGK0=",
+        "step_date": "2018-01-25T08:52:07.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Intimação | Intimação (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.044Z",
+        "updated_at": "2023-10-05T18:13:11.044Z",
+        "id": "651efcb70986dbe8c0d9222b"
+    },
+    {
+        "step_id": "AM9EWqKyxIbU/Lg3T+hIQ+e3EXe1sH8/yq7tDYBJROk=",
+        "step_date": "2018-03-26T12:08:21.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Proferido despacho de mero expediente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.082Z",
+        "updated_at": "2023-10-05T18:13:11.082Z",
+        "id": "651efcb70986dbe8c0d9222d"
+    },
+    {
+        "step_id": "lq7cWCQj1g+l69FV6LOBaBOjGy6Tq0CIWcbYqwqKBSc=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.084Z",
+        "updated_at": "2023-10-05T18:13:11.084Z",
+        "id": "651efcb70986dbe8c0d9222f"
+    },
+    {
+        "step_id": "3AiPl5WnJq/n3Xo3YKS4YoOYCb6ZBEG2sfO956dfb54=",
+        "step_date": "2018-01-24T12:12:36.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Registrada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT com garantia do débito",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.122Z",
+        "updated_at": "2023-10-05T18:13:11.122Z",
+        "id": "651efcb70986dbe8c0d92231"
+    },
+    {
+        "step_id": "qXy87zmlLcbH15xGPxjL6AueHf2zRuAIzlSaygZnvmk=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.125Z",
+        "updated_at": "2023-10-05T18:13:11.125Z",
+        "id": "651efcb70986dbe8c0d92233"
+    },
+    {
+        "step_id": "h87iBZHjXtxGxubQ9f/uq32j04fDSZ8Shy56tQrrPLA=",
+        "step_date": "2018-01-24T12:12:12.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.143Z",
+        "updated_at": "2023-10-05T18:13:11.143Z",
+        "id": "651efcb70986dbe8c0d92235"
+    },
+    {
+        "step_id": "iPr5ejsaGYaBKZE8n/LsUARcQ6/46QDBoj2TtASqo00=",
+        "step_date": "2018-01-23T14:38:44.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Notificação",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.145Z",
+        "updated_at": "2023-10-05T18:13:11.145Z",
+        "id": "651efcb70986dbe8c0d92237"
+    },
+    {
+        "step_id": "H1ldWhMmDDz1C4gcFLYt0WGWb9eMMj/RlyUSadVhZcM=",
+        "step_date": "2018-01-23T14:38:39.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de ADRIANA AMELIA DA SILVA MELO - ME - CNPJ: 01.618.283/0001-00 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.242Z",
+        "updated_at": "2023-10-05T18:13:11.242Z",
+        "id": "651efcb70986dbe8c0d92239"
+    },
+    {
+        "step_id": "QLtXiCjQJAUzVScOoVxIeYbuawXXmAPaoqlxyWudxso=",
+        "step_date": "2018-01-23T14:38:38.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Determinada a inclusão de dados de MERCEARIA MARTINS & MELO LTDA - ME - CNPJ: 06.947.237/0001-60 no BNDT",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.244Z",
+        "updated_at": "2023-10-05T18:13:11.244Z",
+        "id": "651efcb70986dbe8c0d9223b"
+    },
+    {
+        "step_id": "XzOu6GaP5FYDp+DyvFB2ttgvRl+pKBhgHCGdWSGBBjk=",
+        "step_date": "2018-01-11T14:45:04.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Convertida a tramitação do processo do meio físico para o eletrônico",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.342Z",
+        "updated_at": "2023-10-05T18:13:11.342Z",
+        "id": "651efcb70986dbe8c0d92241"
+    },
+    {
+        "step_id": "j6Gm+o9VBszqa7BESj0XbCUIrdgqlu97oRcnRxTpEAQ=",
+        "step_date": "2018-01-23T14:38:37.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decisão | Decisão",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.302Z",
+        "updated_at": "2023-10-05T18:13:11.302Z",
+        "id": "651efcb70986dbe8c0d9223d"
+    },
+    {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.345Z",
+        "updated_at": "2023-10-05T18:13:11.345Z",
+        "id": "651efcb70986dbe8c0d92243"
+    },
+    {
+        "step_id": "N++TZkx1LUawku5+LUBINaU9KwAbmicQ0Q+tahkQD0c=",
+        "step_date": "2018-01-22T16:29:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para decisão Geral a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.304Z",
+        "updated_at": "2023-10-05T18:13:11.304Z",
+        "id": "651efcb70986dbe8c0d9223f"
+    },
+    {
+        "step_id": "Aa9p9vNPtaqNcVcc8nu4h/Glj5qLLPkE5jd/tQiZcTM=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Extinta a execução ou o cumprimento da sentença por aplicação da prescrição intercorrente",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.484Z",
+        "updated_at": "2023-10-05T18:13:11.484Z",
+        "id": "651efcb70986dbe8c0d92245"
+    },
+    {
+        "step_id": "JXc2cSWA1JUSdxzq9WYMZQi9E1fQuiP5Rek1lmYR/5U=",
+        "step_date": "2020-12-01T07:57:51.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Sentença | Sentença",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:11.502Z",
+        "updated_at": "2023-10-05T18:13:11.502Z",
+        "id": "651efcb70986dbe8c0d92247"
+    },
+    {
+        "step_id": "KEE1fjYFgycpJbwSa2VIwZE9BmPyl7+pSnOpoKt8Bvk=",
+        "step_date": "2018-05-03T12:30:28.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Decurso de prazo | Certidão (RESTRITO)",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.865Z",
+        "updated_at": "2023-10-05T18:13:10.865Z",
+        "id": "651efcb60986dbe8c0d92217"
+    },
+    {
+        "step_id": "qJLwKHla3zeCm26IFqWwmgZlCIntWPcOHEcl7IhK8YI=",
+        "step_date": "2018-05-03T12:31:05.000Z",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "content": "Conclusos os autos para despacho  a SILVIA MARIA MATA MACHADO BACCARINI",
+        "step_type": "ATOrd",
+        "created_at": "2023-10-05T18:13:10.863Z",
+        "updated_at": "2023-10-05T18:13:10.863Z",
+        "id": "651efcb60986dbe8c0d92215"
+    }
+        ]
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:15:07.630Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:15:07.630Z"
+    },
+    {
+        "request_id": "83c50e89-d7dc-44ae-b45d-675268afb636",
+        "response_id": "724a554c-7dd2-4932-8ac0-b752ee75dd74",
+        "response_type": "classification",
+        "response_data": {
+        "classification": {
+        "code": "985",
+        "name": "Ação Trabalhista - Rito Ordinário",
+    },
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:15:20.153Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:15:20.153Z"
+    },
+    {
+        "request_id": "d5ea333b-dfb5-4026-bba9-cc13e11193a8",
+        "response_id": "6f296486-1ef2-490a-9795-074664af7af8",
+        "response_type": "steps",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "justice": "5",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "tribunal": "03",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "instance": 1,
+        "judge": null,
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "secrecy_level": 0,
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:19:49.694Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:19:49.694Z"
+    },
+    {
+        "request_id": "d9e34f6b-5598-491b-844f-09811f03f9b9",
+        "response_id": "9c708918-c1b3-4560-a872-29678349d42b",
+        "response_type": "lawsuit",
+        "response_data": {
+        "code": "0027400-51.2009.5.03.0135",
+        "justice": "5",
+        "lawsuit_id": "eb77148d-b0a4-41cd-bad2-d10e38f68a06",
+        "tribunal": "03",
+        "distribution_date": "2009-03-19T00:00:00.000Z",
+        "free_justice": false,
+        "instance": 1,
+        "judge": null,
+        "last_step": {
+        "step_id": "d6hR9sg3XTPkxX3G5bvTq+qnb4aBf2b9VLsqQkc9fzg=",
+        "step_date": "2018-01-11T14:44:24.000Z",
+        "content": "Termo de Abertura de Execução | Termo de Abertura de Execução (RESTRITO)",
+        "step_type": "ATOrd",
+    },
+        "name": "ALINE PAULA RAMOS X ADRIANA AMELIA DA SILVA MELO",
+        "secrecy_level": 0,
+        "tribunal_acronym": "TRT3",
+        "tribunal_id": "985"
+    },
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "created_at": "2023-10-05T18:27:02.982Z",
+        "request_status": "completed",
+        "request_created_at": "2023-10-05T18:27:02.982Z"
+    }
+        ],
+        "page_count": 10,
+        "all_count": 293,
+        "all_pages_count": 30
+    }
+    ```
+</ResponseExample>

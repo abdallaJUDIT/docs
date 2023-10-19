@@ -1,0 +1,202 @@
+---
+title: "Criar uma Busca"
+openapi: "POST /requests"
+api: "POST https://requests.stage.judit.io/requests"
+description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
+---
+
+<ParamField body="search_type" type="string" required>
+    Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
+</ParamField>
+
+<ParamField body="search_key" type="string" required>
+    Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+</ParamField>
+
+<ParamField body="response_type" type="string" required={false}>
+    Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+</ParamField>
+
+<ParamField body="accept_cache" type="boolean" required={false}>
+    Define se o resultado da busca pode ser um cache válido;
+</ParamField>
+
+<ParamField body="cache_ttl_in_days" type="integer" required={false}>
+    Define até quantos dias o resultado da busca pode considerar um cache válido;
+</ParamField>
+
+<ParamField body="search_params" type="object" required={false}>
+    <Expandable title="properties">
+        <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+            Defini a instância em que deseja buscar o processo;
+        </ParamField>
+        <ParamField body="side_filter" name="side_filter" type="string" required={false}>
+            Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+<RequestExample>
+
+    ```bash Curl
+    curl -X POST "https://requests.stage.judit.io/requests"
+    -H "api-key: YOUR_API_KEY"
+    -H "Content-Type: application/json"
+    -d {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0010137-92.2023.5.03.0077",
+        "response_type": "lawsuit",
+        "accept_cache": "true",
+        "cache_ttl_in_days": 1,
+        "search_params": {
+            "lawsuit_instance": 2,
+            "side_filter": "ACTIVE",
+        },
+    }
+    ```
+
+    ```node Javascript
+        const options = {
+            method: 'GET',
+            headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
+            body: {
+                "search_type": "lawsuit_cnj",
+                "search_key": "0010137-92.2023.5.03.0077",
+                "response_type": "lawsuit",
+                "accept_cache": "true",
+                "cache_ttl_in_days": 1,
+                "search_params": {
+                    "lawsuit_instance": 2,
+                    "side_filter": "ACTIVE",
+                },
+            }
+        };
+
+        fetch("https://requests.stage.judit.io/requests", options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+    ```
+
+    ```node PHP
+    $url  = 'http://server.com';
+    $data = ['api-key' => 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'];
+    $data = [
+    'search_type' => 'lawsuit_cnj',
+    'search_key' => '0010137-92.2023.5.03.0077',
+    'response_type' => 'lawsuit',
+    'accept_cache' => 'true',
+    'cache_ttl_in_days' => '1',
+    'search_params' => '"lawsuit_instance":2,"side_filter": "ACTIVE"'];
+
+    $ch   = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, "https://requests.stage.judit.io/requests");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+
+    curl_close($ch);
+    $result =
+
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+
+        curl_close($ch);
+
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            echo $response;
+        }
+    ```
+
+    ```go Go
+
+    package main
+
+    import (
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    )
+
+    func main() {
+        const Url = "https://requests.stage.judit.io/requests"
+
+        jsonValue := []byte(`{
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "response_type": "lawsuit",
+            "accept_cache": "true",
+            "cache_ttl_in_days": 1,
+            "search_params": {
+                "lawsuit_instance": 2,
+                "side_filter": "ACTIVE",
+            }
+         }`)
+
+        response, err := http.Post(Url, "application/json", bytes.NewBuffer(jsonValue))
+
+        if err != nil {
+            log.Fatal(err.Error())
+        }
+
+        defer response.Body.Close()
+    }
+    ```
+
+    ```python Python
+    import requests
+
+    url = "https://requests.stage.judit.io/requests"
+
+
+    new_data = {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0010137-92.2023.5.03.0077",
+        "response_type": "lawsuit",
+        "accept_cache": "true",
+        "cache_ttl_in_days": 1,
+        "search_params": {
+            "lawsuit_instance": 2,
+            "side_filter": "ACTIVE",
+        }
+    }
+
+    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
+
+    response = requests.request("POST", url, headers=headers, json=new_data)
+
+    print(response.text)
+    ```
+
+    ```java Java
+
+    HttpResponse<String> response = Unirest.post("https://requests.stage.judit.io/requests)
+    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
+    .body("{"search_type\": \"lawsuit_cnj\",\"search_key\": \"0010137-92.2023.5.03.0077\",\"response_type\": \"lawsuit\",\"response_type\": \"lawsuit\", \"accept_cache\": \"true\",\"cache_ttl_in_days\": 1,\"search_params\":\{\"lawsuit_instance\": \2,\"side_filter\": \"ACTIVE\"}}"})
+    .asString();
+    ```
+</RequestExample>
+
+<ResponseExample>
+    ```json Response
+    {
+        "request_id": "71adfaa6-5485-45ce-a4a1-00d485f8f0f9",
+        "search": {
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "search_params": {},
+        },
+        "origin": "api",
+        "origin_id": "fde89d98-b2b1-4c58-b0b7-13f4f96bba3d",
+        "user_id": "5ccba00e-1563-4418-91a4-c164b9f02411",
+        "status": "pending",
+        "tags": {},
+        "created_at": "2023-10-18T18:36:58.775Z",
+        "updated_at": "2023-10-18T18:36:58.775Z"
+    }
+    ```
+</ResponseExample>

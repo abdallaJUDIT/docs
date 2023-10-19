@@ -1,0 +1,334 @@
+---
+title: "Consultar Buscas"
+openapi: "GET /requests"
+api: "GET https://requests.stage.judit.io/requests"
+description: "Esse endpoint consulta as buscas realizadas por parâmetros de forma paginada"
+---
+
+<ParamField query="page" type="integer" required={false}>
+    Define a página dos resultados que você deseja consultar.
+</ParamField>
+
+<ParamField query="pageSize" type="integer" required={false}>
+    Define o número máximo de resultados que você deseja receber por página;
+</ParamField>
+
+<ParamField query="orderField" type="string" required={false}>
+    Nome do campo em que se deseja ordenar os buscas;
+</ParamField>
+
+<ParamField query="orderDirection" type="string" required={false}>
+    Sentido da ordenação: ‘ASC’ ou ‘DESC’;
+</ParamField>
+
+<ParamField query="user_id" type="string" required={false}>
+    Retorna buscas relacionadas ao usuário;
+</ParamField>
+
+<ParamField query="search_type" type="string" required={false}>
+    Retorna buscas do tipo de referência especificado “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
+</ParamField>
+
+<ParamField query="search_key" type="string" required={false}>
+    Retorna buscas relacionadas ao número do CPF, CNPJ, OAB ou processo informado;
+</ParamField>
+
+<ParamField query="lawsuit_instance" type="integer" required={false}>
+    Retorna buscas onde a instância do processo na busca está de acordo com a informada;
+</ParamField>
+
+<ParamField query="origin" type="string" required={false}>
+    Retorna buscas cuja origem está de acordo com a informada podendo ser “tracking” ou “api”;
+</ParamField>
+
+<ParamField query="origin_id" type="string" required={false}>
+    Retorna buscas relacionado ao ID da origem que poder ser um tracking_id(ID de um monitoramento) ou um id gerado pela api;
+</ParamField>
+
+<ParamField query="status" type="string" required={false}>
+    Retorna buscas cujo status podem ser created, “pending”‘, “started”, “cancelling”, “cancelled” ou “completed”, ou ou mais de um de status [“started”, “completed”];
+</ParamField>
+
+<ParamField query="created_at_gte" type="date" required={false}>
+    Retorna buscas com a data de criação maior ou igual a informada;
+</ParamField>
+
+<ParamField query="created_at_lte" type="date" required={false}>
+    Retorna buscas com a data de criação menor ou igual a informada;
+</ParamField>
+<ParamField query="updated_at_gte" type="date" required={false}>
+    Retorna buscas com a data de atualização maior ou igual a informada;
+</ParamField>
+
+<ParamField query="updated_at_lte" type="date" required={false}>
+    Retorna buscas com a data de atualização menor ou igual a informada;
+</ParamField>
+
+<ParamField query="started_at_gte" type="date" required={false}>
+    Retorna buscas com a data de execução maior ou igual a informada;
+</ParamField>
+
+<ParamField query="started_at_lte" type="date" required={false}>
+    Retorna buscas com a data de execução menor ou igual a informada;
+</ParamField>
+
+<ParamField query="cancelled_at_gte" type="date" required={false}>
+    Retorna buscas com a data de cancelamento maior ou igual a informada;
+</ParamField>
+
+<ParamField query="cancelled_at_lte" type="date" required={false}>
+    Retorna buscas com a data de cancelamento criação menor ou igual a informada;
+</ParamField>
+
+<ParamField query="completed_at_gte" type="date" required={false}>
+    Retorna buscas com a data de finalização maior ou igual a informada;
+</ParamField>
+
+<ParamField query="completed_at_lte" type="date" required={false}>
+    Retorna buscas com a data finalização criação menor ou igual a informada;
+</ParamField>
+
+<RequestExample>
+    ```bash Request
+    curl -X GET "https://requests.stage.judit.io/requests?page=1&pageSize=10"
+    -H "api-key: YOUR_API_KEY"
+    ```
+
+    ```node Javascript
+    const options = {
+        method: 'GET',
+        headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
+        query: {
+            "page": 1,
+            "pageSize": 10,
+        },
+    };
+
+    fetch("https://requests.stage.judit.io/requests", options)
+    .then(response => response.json())
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
+    ```
+
+    ```request PHP
+    $url  = 'https://requests.stage.judit.io/requests?page=1&pageSize=10';
+
+    $ch   = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_GET, 1);
+
+
+    curl_close($ch);
+    $result =
+
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+
+    curl_close($ch);
+
+    if ($err) {
+    echo "cURL Error #:" . $err;
+} else {
+    echo $response;
+}
+    ```
+
+    ```request Go
+
+    package main
+
+    import (
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    )
+
+    func main() {
+    const Url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
+
+    response, err := http.Post(Url, "application/json")
+
+    if err != nil {
+    log.Fatal(err.Error())
+}
+
+    defer response.Body.Close()
+}
+    ```
+
+    ```python Python
+    import requests
+
+    url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
+
+    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
+
+    response = requests.request("GET", url, headers=headers)
+
+    print(response.text)
+    ```
+
+    ```request Java
+
+    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/requests?page=1&pageSize=10)
+    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
+    .asString();
+    ```
+</RequestExample>
+
+<ResponseExample>
+
+    ```json Response
+    {
+        "page": "1",
+        "page_data":[
+        {
+            "request_id":"3e7f5d47-e7e7-4ae7-a378-21b83a78888c",
+            "search":{
+                "search_type":"cpf",
+                "search_key":"01262577608",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"aa58f5fa-0432-40f3-a551-3fd4743cb881",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"pending",
+            "created_at":"2023-10-05T17:59:11.234Z",
+            "updated_at":"2023-10-05T17:59:11.234Z"
+        },
+        {
+            "request_id":"1b954b56-aabc-4d8e-af0e-3032de522633",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params":  {}
+            },
+            "origin":"api",
+            "origin_id":"9f8b1d34-2cfe-4a4e-8da2-0cb70c02282c",
+            "user_id":"82082593-c664-4d7b-b174-2f0dc4791daf",
+            "status":"completed",
+            "created_at":"2023-10-05T18:12:36.331Z",
+            "updated_at":"2023-10-05T18:14:12.867Z"
+        },
+        {
+            "request_id":"b16ee08e-2169-4594-8bf4-ff528b5b5b72",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params":  {}
+            },
+            "origin":"api",
+            "origin_id":"cefb6df5-bb97-4751-9d34-8f6f3fe6f6b7",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:13:28.266Z",
+            "updated_at":"2023-10-05T18:13:39.988Z"
+        },
+        {
+            "request_id":"08444130-44c9-4e09-b11d-2bc35a2e3d8a",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params":  {}
+            },
+            "origin":"api",
+            "origin_id":"8a3a651d-27cc-400a-bd42-8f4f92d49bf9",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:15:07.209Z",
+            "updated_at":"2023-10-05T18:15:08.187Z"
+        },
+        {
+            "request_id":"83c50e89-d7dc-44ae-b45d-675268afb636",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params":  {}
+            },
+            "origin":"api",
+            "origin_id":"f35f2dfb-e55c-4844-8537-a7ddd2c3c0f6",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:15:20.042Z",
+            "updated_at":"2023-10-05T18:15:20.407Z"
+        },
+        {
+            "request_id":"d5ea333b-dfb5-4026-bba9-cc13e11193a8",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"1ce22c18-c30a-4178-b9f5-ba6dc2028319",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:19:49.285Z",
+            "updated_at":"2023-10-05T18:19:50.226Z"
+        },
+        {
+            "request_id":"d9e34f6b-5598-491b-844f-09811f03f9b9",
+            "search":{
+                "search_type":"lawsuit_cnj",
+                "search_key":"0027400-51.2009.5.03.0135",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"4366966b-6486-453f-b37a-fdc547289bae",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:26:59.283Z",
+            "updated_at":"2023-10-05T18:27:03.765Z"
+        },
+        {
+            "request_id":"eff4bb00-b7c8-4c78-8196-ff89ffe398e6",
+            "search":{
+                "search_type":"cpf",
+                "search_key":"01262577608",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"23486b66-37ae-40d6-883d-bfdfc2d1de7f",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:28:34.028Z",
+            "updated_at":"2023-10-05T18:29:48.945Z"
+        },
+        {
+            "request_id":"317b098b-9ca8-416e-a04e-85260682095a",
+            "search":{
+                "search_type":"cpf",
+                "search_key":"01262577608",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"9deb5092-bd29-46b3-9cfe-3e50828f16c8",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:44:05.048Z",
+            "updated_at":"2023-10-05T18:44:19.251Z"
+        },
+        {
+            "request_id":"1272d6a9-53f0-4219-99e9-bca7ca6f5823",
+            "search":{
+                "search_type":"cpf",
+                "search_key":"01262577608",
+                "search_params": {}
+            },
+            "origin":"api",
+            "origin_id":"e3e8d647-0198-472d-bc13-9674b9fec02b",
+            "user_id":"c0573c15-219b-4a46-acc2-f9225b29c51e",
+            "status":"completed",
+            "created_at":"2023-10-05T18:56:40.807Z",
+            "updated_at":"2023-10-05T18:56:55.340Z"
+        }
+        ],
+        "page_count":10,
+        "all_count":47,
+        "all_pages_count":5
+    }
+    ```
+
+</ResponseExample>
