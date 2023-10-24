@@ -28,24 +28,48 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `search_params`: Um objeto que contém alguns parâmetros da busca como:
 
-        `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo.
+         - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
+         - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas;
 
-        `side_filter` (opcional): Este parâmetro permite definir os tipos de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+        Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
-  Caso o processo consultado de tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
+       - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
+
+                - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+
+                - `distribution_date_gte` (opcional): Este parâmetro permite buscar por resultados com a data de distribuiçao maior ou igual a informada;
+
+                - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
+
+         - `pagination` (opcional): Um objeto que contém dois parâmetros de paginação das respostas da busca:
+
+                - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
+
+                - `pageSize` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
+
+  Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
 Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-    "search_type": "lawsuit_cnj",
-    "search_key": "0010137-92.2023.5.03.0077",
+    "search_type": "cnpj",
+    "search_key": "91.834.554/0001-40",
     "response_type": "lawsuit",
     "accept_cache": "true",
     "cache_ttl_in_days": 1,
     "search_params": {
-        "lawsuit_instance": 2,
-        "side_filter": "ACTIVE"
+     "lawsuit_instance": 1,
+     "masked_response": true,
+     "filter": {
+        "side": "ACTIVE",
+        "distribution_date_gte": "2023-10-18T18:40:23.775Z",
+        "tribunals": [ "STF", "CNJ", "STJ", "CJF"]
+     },
+     "pagination": {
+       "page": 1,
+       "page_size": 5
+     }
     }
 }
 ```
@@ -57,15 +81,24 @@ curl -X POST "https://requests.prod.judit.io/requests"
 -H "api-key: YOUR_API_KEY"
 -H "Content-Type: application/json"
 -d '{
-        "search_type": "lawsuit_cnj",
-        "search_key": "0010137-92.2023.5.03.0077",
+        "search_type": "cnpj",
+        "search_key": "91.834.554/0001-40",
         "response_type": "lawsuit",
         "accept_cache": "true",
         "cache_ttl_in_days": 1,
         "search_params": {
-            "lawsuit_instance": 2,
-            "side_filter": "ACTIVE",
-        },
+         "lawsuit_instance": 1,
+         "masked_response": true,
+         "filter": {
+            "side": "ACTIVE",
+            "distribution_date_gte": "2023-10-18T18:40:23.775Z",
+            "tribunals": ["STF", "CNJ", "STJ", "CJF"]
+         },
+         "pagination": {
+           "page": 1,
+           "page_size": 5
+         }
+        }
 }'
 ```
 ## Consultando Suas Buscas
@@ -76,7 +109,7 @@ Para consultar todas as suas buscas, você pode fazer uma solicitação GET para
 
 `pageSize`: Define o número máximo de resultados que você deseja receber por página;
 
-`orderField`: nome do campo em que se deseja ordenar os buscas;
+`orderField`: nome do campo em que se deseja ordenar as buscas;
 
 `orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';
 
@@ -93,6 +126,10 @@ Para consultar todas as suas buscas, você pode fazer uma solicitação GET para
 `origin_id`: retorna buscas relacionado ao ID da origem que poder ser um tracking_id(ID de um monitoramento) ou um id gerado pela api;
 
 `status`: retorna buscas cujo status podem ser **created**, **"pending"**', **"started"**, **"cancelling"**, **"cancelled"** ou **"completed"**, ou  ou mais de um de status ["started", "completed"];
+
+`tribunals`: retorna buscas realizadas nos tribunais espeficidados na [lista de tribunais](./glossary#lista-de-tribunais) no formato de array [ "STF", "CNJ", "STJ"];
+
+`distribution_date_gte`: retorna buscas com a data de distribuição maior ou igual a informada;
 
 `created_at_gte`: retorna buscas com a data de criação maior ou igual a informada;
 
