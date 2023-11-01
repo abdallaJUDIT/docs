@@ -53,42 +53,15 @@ Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
+  "search": {
     "search_type": "cnpj",
     "search_key": "91.834.554/0001-40",
     "response_type": "lawsuit",
     "accept_cache": "true",
     "cache_ttl_in_days": 1,
     "search_params": {
-     "lawsuit_instance": 1,
-     "masked_response": true,
-     "filter": {
-        "side": "ACTIVE",
-        "distribution_date_gte": "2023-10-18T18:40:23.775Z",
-        "tribunals": ["STF", "CNJ", "STJ", "CJF"]
-     },
-     "pagination": {
-       "page": 1,
-       "page_size": 5
-     }
-    }
-}
-```
-
-Aqui está um exemplo de como usar esse payload de busca com curl:
-
-```bash
-curl -X POST "https://requests.prod.judit.io/requests"
--H "api-key: YOUR_API_KEY"
--H "Content-Type: application/json"
--d '{
-        "search_type": "cnpj",
-        "search_key": "91.834.554/0001-40",
-        "response_type": "lawsuit",
-        "accept_cache": "true",
-        "cache_ttl_in_days": 1,
-        "search_params": {
-         "lawsuit_instance": 1,
-         "masked_response": true,
+      "lawsuit_instance": 1,
+      "masked_response": true,
          "filter": {
             "side": "ACTIVE",
             "distribution_date_gte": "2023-10-18T18:40:23.775Z",
@@ -98,7 +71,37 @@ curl -X POST "https://requests.prod.judit.io/requests"
            "page": 1,
            "page_size": 5
          }
+    }
+  }
+}
+```
+Aqui está um exemplo de como usar esse payload de busca com curl:
+
+```bash
+curl -X POST "https://requests.prod.judit.io/requests"
+-H "api-key: YOUR_API_KEY"
+-H "Content-Type: application/json"
+-d '{
+      "search": {
+        "search_type": "cnpj",
+        "search_key": "91.834.554/0001-40",
+        "response_type": "lawsuit",
+        "accept_cache": "true",
+        "cache_ttl_in_days": 1,
+        "search_params": {
+          "lawsuit_instance": 1,
+          "masked_response": true,
+          "filter": {
+             "side": "ACTIVE",
+             "distribution_date_gte": "2023-10-18T18:40:23.775Z",
+             "tribunals": ["STF", "CNJ", "STJ", "CJF"]
+          },
+          "pagination": {
+            "page": 1,
+            "page_size": 5
+          }
         }
+      }
 }'
 ```
 ## Consultando Suas Buscas
