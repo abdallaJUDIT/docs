@@ -5,33 +5,70 @@ api: "POST https://requests.stage.judit.io/requests"
 description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
 ---
 
-<ParamField body="search_type" type="string" required>
-    Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
-</ParamField>
-
-<ParamField body="search_key" type="string" required>
-    Número do processo (Código CNJ), CPF, CNPJ ou OAB;
-</ParamField>
-
-<ParamField body="response_type" type="string" required={false}>
-    Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
-</ParamField>
-
-<ParamField body="accept_cache" type="boolean" required={false}>
-    Define se o resultado da busca pode ser um cache válido;
-</ParamField>
-
-<ParamField body="cache_ttl_in_days" type="integer" required={false}>
-    Define até quantos dias o resultado da busca pode considerar um cache válido;
-</ParamField>
-
-<ParamField body="search_params" type="object" required={false}>
+<ParamField body="search" type="object" required={false}>
     <Expandable title="properties">
-        <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-            Defini a instância em que deseja buscar o processo;
+
+        <ParamField body="search_type" type="string" required>
+            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
         </ParamField>
-        <ParamField body="side_filter" name="side_filter" type="string" required={false}>
-            Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+
+        <ParamField body="search_key" type="string" required>
+            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={false}>
+            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+        </ParamField>
+
+        <ParamField body="accept_cache" type="boolean" required={false}>
+            Define se o resultado da busca pode ser um cache válido;
+        </ParamField>
+
+        <ParamField body="cache_ttl_in_days" type="integer" required={false}>
+            Define até quantos dias o resultado da busca pode considerar um cache válido;
+        </ParamField>
+
+        <ParamField body="search_params" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Defini a instância em que deseja buscar o processo;
+                </ParamField>
+                <ParamField body="side" name="side" type="string" required={false}>
+                    Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                </ParamField>
+                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
+                    Defini se a resposta virá minificada;
+                </ParamField>
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Defini a instância em que deseja buscar o processo;
+                </ParamField>
+                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
+                    Defini se a resposta virá minificada;
+                </ParamField>
+                <ParamField body="filter" type="object" required={false}>
+                    <Expandable>
+                        <ParamField body="side" name="side" type="string" required={false}>
+                            Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Busca por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais)
+                        </ParamField>
+                    </Expandable>
+                </ParamField>
+                <ParamField body="pagination" type="object" required={false}>
+                    <Expandable>
+                        <ParamField body="page" name="page" type="integer" required={false}>
+                            Defini a página dos itens nas respostas da busca;
+                        </ParamField>
+                        <ParamField body="page_size" name="page_size" type="integer" required={false}>
+                            Defini o número máximo de itens por página nas respostas da busca;
+                        </ParamField>
+                    </Expandable>
+                </ParamField>
+            </Expandable>
         </ParamField>
     </Expandable>
 </ParamField>
