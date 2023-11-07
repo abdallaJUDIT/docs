@@ -1,0 +1,109 @@
+Index: essentials/requests.mdx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>---\ntitle: 'Busca processual'\ndescription: 'Encontre processos judiciais de forma rápida e fácil'\nicon: 'magnifying-glass'\n---\n\nA API da JUDIT oferece a possibilidade de buscar processos judiciais usando a rota `/requests`.\n\n## Rota de Consulta de Processos\n\nNesta rota podem ser buscado Processos (Código CNJ), documentos (CPF ou CNPJ) ou OAB.\n\nPara buscar um processo, você deve realizar uma solicitação POST para a rota `/requests`.\n\n## Payload da Solicitação\n\nA solicitação POST deve incluir um payload com as seguintes propriedades:\n\n- `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **\"cpf\"**,  **\"cnpj\"**, **\"oab\"** ou **\"lawsuit_cnj\"** para um número de processo;\n\n- `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;\n\n- `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **\"lawsuit\"**,**\"parties\"**, **\"attachments\"**, **\"steps\"** ou **\"lawsuits\"**;\n\n- `accept_cache` (opcional): Define se o resultado da busca pode ser um cache válido podendo ser **\"true\"** ou **\"false\"**;\n\n- `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;\n\n- `search_params`: Um objeto que contém alguns parâmetros da busca como:\n\n        `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo.\n\n        `side_filter` (opcional): Este parâmetro permite definir os tipos de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';\n\n  Caso o processo consultado de tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.\n\nAqui está um exemplo de como um payload pode parecer:\n\n```json\n{\n    \"search_type\": \"lawsuit_cnj\",\n    \"search_key\": \"0010137-92.2023.5.03.0077\",\n    \"response_type\": \"lawsuit\",\n    \"accept_cache\": \"true\",\n    \"cache_ttl_in_days\": 1,\n    \"search_params\": {\n        \"lawsuit_instance\": 2,\n        \"side_filter\": \"ACTIVE\"\n    }\n}\n```\n\nAqui está um exemplo de como usar esse payload de busca com curl:\n\n```bash\ncurl -X POST \"https://requests.prod.judit.io/requests\"\n-H \"api-key: YOUR_API_KEY\"\n-H \"Content-Type: application/json\"\n-d '{\n        \"search_type\": \"lawsuit_cnj\",\n        \"search_key\": \"0010137-92.2023.5.03.0077\",\n        \"response_type\": \"lawsuit\",\n        \"accept_cache\": \"true\",\n        \"cache_ttl_in_days\": 1,\n        \"search_params\": {\n            \"lawsuit_instance\": 2,\n            \"side_filter\": \"ACTIVE\",\n        },\n}'\n```\n## Consultando Suas Buscas\n\nPara consultar todas as suas buscas, você pode fazer uma solicitação GET para a rota `/requests`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar, ordenar e filtrar os resultados:\n\n`page`: Define a página dos resultados que você deseja consultar.\n\n`pageSize`: Define o número máximo de resultados que você deseja receber por página;\n\n`orderField`: nome do campo em que se deseja ordenar os buscas;\n\n`orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';\n\n`user_id`: ID do usuário, retorna buscas relacionadas ao usuário;\n\n`search_type`: retorna buscas do tipo de referência especificado **\"cpf\"**, **\"cnpj\"**, **\"oab\"** ou **\"lawsuit_cnj\"**;\n\n`search_key`: retorna buscas relacionadas ao número do CPF, CNPJ, OAB ou processo informado;\n\n`lawsuit_instance`: retorna buscas onde a instância do processo na busca está de acordo com a informada;\n\n`origin`: retorna buscas cuja origem está de acordo com a informada podendo ser **\"tracking\"** ou **\"api\"**;\n\n`origin_id`: retorna buscas relacionado ao ID da origem que poder ser um tracking_id(ID de um monitoramento) ou um id gerado pela api;\n\n`status`: retorna buscas cujo status podem ser **created**, **\"pending\"**', **\"started\"**, **\"cancelling\"**, **\"cancelled\"** ou **\"completed\"**, ou  ou mais de um de status [\"started\", \"completed\"];\n\n`created_at_gte`: retorna buscas com a data de criação maior ou igual a informada;\n\n`created_at_lte`: retorna buscas com a data de criação menor ou igual a informada;\n\n`updated_at_gte`: retorna buscas com a data de atualização maior ou igual a informada;\n\n`updated_at_lte`: retorna buscas com a data de atualização menor ou igual a informada;\n\n`started_at_gte`: retorna buscas com a data de execução da busca maior ou igual a informada;\n\n`started_at_lte`: retorna buscas com a data de execução da busca menor ou igual a informada;\n\n`cancelled_at_gte`: retorna buscas com a data de cancelamento maior ou igual a informada;\n\n`cancelled_at_lte`: retorna buscas com a data de cancelamento menor ou igual a informada;\n\n`completed_at_gte`: retorna buscas com a data de finalização da busca maior ou igual a informada;\n\n`completed_at_lte`: retorna buscas com a data de finalização da busca menor ou igual a informada;\n\nAqui está um exemplo de como consultar suas buscas usando curl:\n\n```bash\ncurl -X GET \"https://requests.prod.judit.io/requests?page=1&pageSize=10\"\n-H \"api-key: YOUR_API_KEY\"\n```\n\n## Consultando Informações de uma Busca\n\nPara consultar todas as informações sobre uma busca específica, você pode fazer uma solicitação GET para a rota `/requests/{busca}`, substituindo `{busca}` pelo ID da busca que você deseja consultar.\n\nAqui está um exemplo de como fazer isso usando curl:\n\n```bash\ncurl -X GET \"https://requests.prod.judit.io/requests/{busca}\"\n-H \"api-key: YOUR_API_KEY\"\n```\n\n## Consultando Respostas de Buscas\n\nPara consultar todas as as respostas de suas buscas, você pode fazer uma solicitação GET para a rota `/requests/responses`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar, ordenar e filtrar os resultados:\n\n`page`: Define a página dos resultados que você deseja consultar.\n\n`pageSize`: Define o número máximo de resultados que você deseja receber por página;\n\n`orderField`: nome do campo em que se deseja ordenar as respostas;\n\n`orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';\n\n`user_id`: ID do usuário, retorna respostas relacionadas ao usuário;\n\n`response_type`: retorna respostas tipo especificado podendo ser **\"lawsuit\"**,**\"parties\"**, **\"attachments\"**, **\"steps\"** ou **\"lawsuits\"**;\n\n`request_id`: retorna respostas relacionadas a uma busca pelo id;\n\n`request_status`: retorna respostas cujo status da busca pode estar em **created**, **\"pending\"**', **\"started\"**, **\"cancelling\"**, **\"cancelled\"** ou **\"completed\"**, ou  ou mais de um de status [\"started\", \"completed\"];\n\n`created_at_gte`: retorna respostas com a data de criação maior ou igual a informada;\n\n`created_at_lte`: retorna respostas com a data de criação menor ou igual a informada;\n\n`request_created_at_gte`: retorna respostas com a data de criação da busca maior ou igual a informada;\n\n`request_created_at_lte`: retorna respostas com a data de criação da busca menor ou igual a informada;\n\nAqui está um exemplo de como consultar as respostas de buscas usando curl:\n\n```bash\ncurl -X GET \"https://requests.prod.judit.io/responses?page=1&pageSize=10\"\n-H \"api-key: YOUR_API_KEY\"\n```\n\n## Consultando Informações de uma Resposta\n\nPara consultar todas as informações sobre uma resposta específica, você pode fazer uma solicitação GET para a rota `/requests/responses/{resposta}`, substituindo `{resposta}` pelo ID da resposta que você deseja consultar.\n\nAqui está um exemplo de como fazer isso usando curl:\n\n```bash\ncurl -X GET \"https://requests.prod.judit.io/requests/responses/{resposta}\"\n-H \"api-key: YOUR_API_KEY\"\n```
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/essentials/requests.mdx b/essentials/requests.mdx
+--- a/essentials/requests.mdx	(revision 40be4045621be8d2b0732c1613de75a4190fae6e)
++++ b/essentials/requests.mdx	(date 1698858328085)
+@@ -38,15 +38,25 @@
+ 
+ ```json
+ {
++  "search": {
+     "search_type": "lawsuit_cnj",
+     "search_key": "0010137-92.2023.5.03.0077",
+     "response_type": "lawsuit",
+     "accept_cache": "true",
+     "cache_ttl_in_days": 1,
+     "search_params": {
+-        "lawsuit_instance": 2,
+-        "side_filter": "ACTIVE"
++    "lawsuit_instance": 2,
++    "masked_response": true,
++    "filter": {
++      "side": "ACTIVE",
++      "distribution_date_gte": "",
++      "tribunals": [""]
++    },
++    "pagination": {
++      "page": 2,
++      "page_size": 10
+     }
++  }
+ }
+ ```
+ 
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+--- /dev/null	(date 1698857953480)
++++ b/.gitignore	(date 1698857953480)
+@@ -0,0 +1,40 @@
++# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
++
++# dependencies
++node_modules
++.pnp
++.pnp.js
++
++# testing
++coverage
++
++# next.js
++.next/
++out/
++build
++.swc/
++
++# misc
++.DS_Store
++*.pem
++
++# debug
++npm-debug.log*
++yarn-debug.log*
++yarn-error.log*
++
++# local env files
++.env.local
++.env.development.local
++.env.test.local
++.env.production.local
++
++# turbo
++.turbo
++
++# ui
++dist/
++
++# Editors
++.idea
++*.iml
+Index: node_modules/.yarn-integrity
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"systemParams\": \"darwin-arm64-108\",\n  \"modulesFolders\": [],\n  \"flags\": [],\n  \"linkedModules\": [],\n  \"topLevelPatterns\": [],\n  \"lockfileEntries\": {},\n  \"files\": [],\n  \"artifacts\": {}\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/node_modules/.yarn-integrity b/node_modules/.yarn-integrity
+--- a/node_modules/.yarn-integrity	(revision 40be4045621be8d2b0732c1613de75a4190fae6e)
++++ b/node_modules/.yarn-integrity	(date 1698857956772)
+@@ -1,6 +1,8 @@
+ {
+-  "systemParams": "darwin-arm64-108",
+-  "modulesFolders": [],
++  "systemParams": "linux-x64-108",
++  "modulesFolders": [
++    "node_modules"
++  ],
+   "flags": [],
+   "linkedModules": [],
+   "topLevelPatterns": [],

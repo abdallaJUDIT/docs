@@ -15,12 +15,6 @@
     "default": "dark",
     "isHidden": true
   },
-  "topbarLinks": [
-    {
-      "name": "Swagger",
-      "url": "https://api.judit.io/api"
-    }
-  ],
   "topbarCtaButton": {
     "name": "Dashboard",
     "url": "https://app.judit.io"
@@ -81,7 +75,7 @@
     "name": "Documentação"
   },
   "api": {
-    "baseUrl": ["https://requests.stage.judit.io", "https://tracking.stage.judit.io"],
+    "baseUrl": ["https://requests.prod.judit.io", "https://tracking.prod.judit.io"],
     "auth": {
       "method": "key",
       "name": "api-key"
