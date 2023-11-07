@@ -70,6 +70,31 @@ description: "Esse endpoint cria uma busca de processos por documento(CPF, CNPJ,
                 </ParamField>
             </Expandable>
         </ParamField>
+
+        <ParamField body="filter" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="side" name="side" type="string" required={false}>
+                    Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                </ParamField>
+                <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                    Defini os resultados com a data de distribuiçao maior ou igual a informada;
+                </ParamField>
+                <ParamField body="tribunals" name="tribunals" type="array" required={false}>
+                    Defini por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais);
+                </ParamField>
+            </Expandable>
+        </ParamField>
+
+        <ParamField body="pagination" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="page" name="page" type="integer" required={false}>
+                    Defini a página dos items na resposta da busca;
+                </ParamField>
+                <ParamField body="pageSize" name="pageSize" type="integer" required={false}>
+                    Defini o número máximo de items na resposta da busca que você deseja receber por página;
+                </ParamField>
+            </Expandable>
+        </ParamField>
     </Expandable>
 </ParamField>
 
