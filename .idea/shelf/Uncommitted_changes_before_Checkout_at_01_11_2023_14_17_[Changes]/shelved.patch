@@ -1,0 +1,17 @@
+Index: node_modules/.yarn-integrity
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"systemParams\": \"linux-x64-115\",\n  \"modulesFolders\": [\n    \"node_modules\"\n  ],\n  \"flags\": [],\n  \"linkedModules\": [],\n  \"topLevelPatterns\": [],\n  \"lockfileEntries\": {},\n  \"files\": [],\n  \"artifacts\": {}\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/node_modules/.yarn-integrity b/node_modules/.yarn-integrity
+--- a/node_modules/.yarn-integrity	(revision e824052a07d419d4ea133fa5be7ded6d5fbf5788)
++++ b/node_modules/.yarn-integrity	(date 1698858970045)
+@@ -1,5 +1,5 @@
+ {
+-  "systemParams": "linux-x64-115",
++  "systemParams": "linux-x64-108",
+   "modulesFolders": [
+     "node_modules"
+   ],

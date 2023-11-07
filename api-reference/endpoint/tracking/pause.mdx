@@ -1,20 +1,13 @@
 ---
-title: "Pause Tracking"
+title: "Pausar um monitoramento"
 openapi: "POST /tracking/{tracking_id}/pause"
-api: "POST https://tracking.stage.judit.io/tracking/{tracking_id}/pause"
+api: "POST https://tracking.prod.judit.io/tracking/{tracking_id}/pause"
 description: "Esse endpoint pausa um monitoramento pelo id"
 ---
 
 <ParamField path="tracking_id" type="string" required>
     O ID do monitoramento que você deseja pausar.
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X POST "https://tracking.stage.judit.io/tracking/{tracking_id}/pause"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

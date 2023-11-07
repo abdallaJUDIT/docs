@@ -1,7 +1,7 @@
 ---
 title: "Consultar Buscas"
 openapi: "GET /requests"
-api: "GET https://requests.stage.judit.io/requests"
+api: "GET https://requests.prod.judit.io/requests"
 description: "Esse endpoint consulta as buscas realizadas por parâmetros de forma paginada"
 ---
 
@@ -49,6 +49,10 @@ description: "Esse endpoint consulta as buscas realizadas por parâmetros de for
     Retorna buscas cujo status podem ser created, “pending”‘, “started”, “cancelling”, “cancelled” ou “completed”, ou ou mais de um de status [“started”, “completed”];
 </ParamField>
 
+<ParamField query="distribution_date_gte" type="date" required={false}>
+    Retorna buscas com a data de distribuição maior ou igual a informada;
+</ParamField>
+
 <ParamField query="created_at_gte" type="date" required={false}>
     Retorna buscas com a data de criação maior ou igual a informada;
 </ParamField>
@@ -87,96 +91,6 @@ description: "Esse endpoint consulta as buscas realizadas por parâmetros de for
 <ParamField query="completed_at_lte" type="date" required={false}>
     Retorna buscas com a data finalização criação menor ou igual a informada;
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/requests?page=1&pageSize=10"
-    -H "api-key: YOUR_API_KEY"
-    ```
-
-    ```node Javascript
-    const options = {
-        method: 'GET',
-        headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
-        query: {
-            "page": 1,
-            "pageSize": 10,
-        },
-    };
-
-    fetch("https://requests.stage.judit.io/requests", options)
-    .then(response => response.json())
-    .then(response => console.log(response))
-    .catch(err => console.error(err));
-    ```
-
-    ```request PHP
-    $url  = 'https://requests.stage.judit.io/requests?page=1&pageSize=10';
-
-    $ch   = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_GET, 1);
-
-
-    curl_close($ch);
-    $result =
-
-    $response = curl_exec($ch);
-    $err = curl_error($ch);
-
-    curl_close($ch);
-
-    if ($err) {
-    echo "cURL Error #:" . $err;
-} else {
-    echo $response;
-}
-    ```
-
-    ```request Go
-
-    package main
-
-    import (
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-    )
-
-    func main() {
-    const Url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
-
-    response, err := http.Post(Url, "application/json")
-
-    if err != nil {
-    log.Fatal(err.Error())
-}
-
-    defer response.Body.Close()
-}
-    ```
-
-    ```python Python
-    import requests
-
-    url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
-
-    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
-
-    response = requests.request("GET", url, headers=headers)
-
-    print(response.text)
-    ```
-
-    ```request Java
-
-    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/requests?page=1&pageSize=10)
-    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
-    .asString();
-    ```
-</RequestExample>
 
 <ResponseExample>
 

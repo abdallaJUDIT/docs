@@ -1,107 +1,13 @@
 ---
 title: "Consulta uma Busca"
 openapi: "GET /requests/{request_id}"
-api: "GET https://requests.stage.judit.io/requests/{request_id}"
+api: "GET https://requests.prod.judit.io/requests/{request_id}"
 description: "Esse endpoint consulta uma busca pelo id"
 ---
 
 <ParamField path="request_id" type="string" required>
     O ID da busca que você deseja consultar.
 </ParamField>
-
-<RequestExample>
-
-</RequestExample>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/requests/{request_id}"
-    -H "api-key: YOUR_API_KEY"
-    ```
-
-    ```node Javascript
-    const options = {
-    method: 'GET',
-    headers: {api-key: 'c194e4c9-af6c-482f-b695-a1267c7d1ee7'},
-    query: {
-    "page": 1,
-    "pageSize": 10,
-},
-};
-
-    fetch("https://requests.stage.judit.io/requests", options)
-    .then(response => response.json())
-    .then(response => console.log(response))
-    .catch(err => console.error(err));
-    ```
-
-    ```request PHP
-    $url  = 'https://requests.stage.judit.io/requests?page=1&pageSize=10';
-
-    $ch   = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_GET, 1);
-
-
-    curl_close($ch);
-    $result =
-
-    $response = curl_exec($ch);
-    $err = curl_error($ch);
-
-    curl_close($ch);
-
-    if ($err) {
-    echo "cURL Error #:" . $err;
-} else {
-    echo $response;
-}
-    ```
-
-    ```request Go
-
-    package main
-
-    import (
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-    )
-
-    func main() {
-    const Url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
-
-    response, err := http.Post(Url, "application/json")
-
-    if err != nil {
-    log.Fatal(err.Error())
-}
-
-    defer response.Body.Close()
-}
-    ```
-
-    ```python Python
-    import requests
-
-    url = "https://requests.stage.judit.io/requests?page=1&pageSize=10"
-
-    headers = {"api-key": "c194e4c9-af6c-482f-b695-a1267c7d1ee7"}
-
-    response = requests.request("GET", url, headers=headers)
-
-    print(response.text)
-    ```
-
-    ```request Java
-
-    HttpResponse<String> response = Unirest.get("https://requests.stage.judit.io/requests?page=1&pageSize=10)
-    .header("api-key", "c194e4c9-af6c-482f-b695-a1267c7d1ee7")
-    .asString();
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

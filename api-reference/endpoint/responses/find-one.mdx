@@ -1,20 +1,13 @@
 ---
 title: "Consultar uma Resposta"
 openapi: "GET responses/{response_id}"
-api: "GET https://requests.stage.judit.io/responses/{response_id}"
+api: "GET https://requests.prod.judit.io/responses/{response_id}"
 description: "Esse endpoint consulta uma resposta de uma busca pelo id"
 ---
 
 <ParamField path="response_id" type="string" required>
     O ID da resposta que você deseja consultar.
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/responses/{response_id}"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

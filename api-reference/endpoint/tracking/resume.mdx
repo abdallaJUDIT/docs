@@ -1,20 +1,13 @@
 ---
-title: "Resume Tracking"
+title: "Reativar um monitoramento"
 openapi: "POST /tracking/{tracking_id}/resume"
-api: "POST https://tracking.stage.judit.io/tracking/{tracking_id}/resume"
-description: "Esse endpoint reativa um monitoramento pelo id"
+api: "POST https://tracking.prod.judit.io/tracking/{tracking_id}/resume"
+description: "Esse endpoint reativar um monitoramento pelo id"
 ---
 
 <ParamField path="tracking_id" type="string" required>
     O ID do monitoramento que você deseja reativar.
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X POST "https://tracking.stage.judit.io/tracking/{tracking_id}/resume"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

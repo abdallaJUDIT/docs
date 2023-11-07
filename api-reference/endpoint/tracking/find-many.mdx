@@ -1,7 +1,7 @@
 ---
-title: "Find Many Tracking"
+title: "Consultar monitoramentos"
 openapi: "GET /tracking"
-api: "GET https://tracking.stage.judit.io/tracking"
+api: "GET https://tracking.prod.judit.io/tracking"
 description: "Esse endpoint consulta monitoramentos por parâmetros de forma paginada"
 ---
 
@@ -88,13 +88,6 @@ description: "Esse endpoint consulta monitoramentos por parâmetros de forma pag
 <ParamField query="deleted_at_lte" type="date" required={false}>
     Retorna monitoramentos com a data de deleção menor ou igual a informada;
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://tracking.stage.judit.io/tracking?page=1&pageSize=10"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

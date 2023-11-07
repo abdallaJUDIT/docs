@@ -1,7 +1,7 @@
 ---
 title: "Consultar Respostas"
 openapi: "GET /responses"
-api: "GET https://requests.stage.judit.io/responses"
+api: "GET https://requests.prod.judit.io/responses"
 description: "Esse endpoint consulta as respostas de buscas realizadas por parâmetros de forma paginada"
 ---
 
@@ -51,13 +51,6 @@ description: "Esse endpoint consulta as respostas de buscas realizadas por parâ
 <ParamField query="request_created_at_lte" type="date" required={false}>
     Retorna respostas com a data de criação da busca menor ou igual a informada
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://requests.stage.judit.io/responses?page=1&pageSize=10"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
 
@@ -252,7 +245,7 @@ description: "Esse endpoint consulta as respostas de buscas realizadas por parâ
         "tribunal_acronym": "TRT3",
         "tribunal_id": "985"
     },
-        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",
+        "user_id": "c0573c15-219b-4a46-acc2-f9225b29c51e",''
         "created_at": "2023-10-05T18:13:36.074Z",
         "request_status": "pending",
         "request_created_at": "2023-10-05T18:13:36.074Z"

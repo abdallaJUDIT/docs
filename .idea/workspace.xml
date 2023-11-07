@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="43e4184f-ead3-4f1a-b0b8-60203b193e19" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/requests/create.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/requests/create.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/requests/find-many.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/requests/find-many.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/requests/find-one.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/requests/find-one.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/responses/find-many.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/responses/find-many.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/responses/find-one.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/responses/find-one.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/create.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/create.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/delete.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/delete.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/find-many.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/find-many.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/find-one.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/find-one.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/pause.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/pause.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-reference/endpoint/tracking/resume.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/api-reference/endpoint/tracking/resume.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mint.json" beforeDir="false" afterPath="$PROJECT_DIR$/mint.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.yarn-integrity" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.yarn-integrity" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feat/requests-api" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2WwkzP6OhZz3MT2wTAyQ0KTcOCP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/api-reference&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/junio-cruz/Documents/judit/api-docs&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: [
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/api-reference/endpoint" />
+      <recent name="$PROJECT_DIR$/api-reference/endpoint/tracking" />
+      <recent name="$PROJECT_DIR$/api-reference/endpoint/requests" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="43e4184f-ead3-4f1a-b0b8-60203b193e19" name="Changes" comment="" />
+      <created>1697651293274</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1697651293274</updated>
+      <workItem from="1697651295619" duration="7959000" />
+      <workItem from="1697659457385" duration="8297000" />
+      <workItem from="1697719679927" duration="11204000" />
+      <workItem from="1697739740914" duration="73000" />
+      <workItem from="1698856730850" duration="3884000" />
+      <workItem from="1698860930853" duration="579000" />
+      <workItem from="1699362812084" duration="742000" />
+    </task>
+    <task id="LOCAL-00001" summary="feat(reference-api): requests endpoints">
+      <option name="closed" value="true" />
+      <created>1697658875161</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1697658875161</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat(reference-api): tracking endpoints">
+      <option name="closed" value="true" />
+      <created>1697660823283</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1697660823283</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat(reference-api): tracking endpoints">
+      <option name="closed" value="true" />
+      <created>1697660952718</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1697660952718</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat(reference-api): adjusts path params endpoints">
+      <option name="closed" value="true" />
+      <created>1697662472933</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1697662472933</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat(reference-api): adjusts path params endpoints">
+      <option name="closed" value="true" />
+      <created>1697662743770</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1697662743770</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat(reference-api): adjusts path params endpoints">
+      <option name="closed" value="true" />
+      <created>1697662997932</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1697662997932</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat(reference-api): remove user_id in craete=ion request">
+      <option name="closed" value="true" />
+      <created>1697663245588</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1697663245588</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat(reference-api): remove user_id in craete=ion request">
+      <option name="closed" value="true" />
+      <created>1697663311243</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1697663311243</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat(reference-api): format response">
+      <option name="closed" value="true" />
+      <created>1697663534433</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1697663534433</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat(reference-api): adjust request methds">
+      <option name="closed" value="true" />
+      <created>1697663729946</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1697663729946</updated>
+    </task>
+    <task id="LOCAL-00011" summary="feat(reference-api): add more request languages">
+      <option name="closed" value="true" />
+      <created>1697666655484</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1697666655484</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat(reference-api): add more request languages">
+      <option name="closed" value="true" />
+      <created>1697667506963</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1697667506963</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat(reference-api): add response endpoints">
+      <option name="closed" value="true" />
+      <created>1697726868701</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1697726868701</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat(reference-api): add response endpoints">
+      <option name="closed" value="true" />
+      <created>1697727393487</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1697727393487</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat(reference-api): add more language request examples">
+      <option name="closed" value="true" />
+      <created>1697729687624</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1697729687624</updated>
+    </task>
+    <task id="LOCAL-00016" summary="feat(requests) update request doc with api v3 create request fields">
+      <option name="closed" value="true" />
+      <created>1698858932955</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1698858932955</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat(api-reference): add more request fields">
+      <option name="closed" value="true" />
+      <created>1698860273063</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1698860273063</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(reference-api): requests endpoints" />
+    <MESSAGE value="feat(reference-api): tracking endpoints" />
+    <MESSAGE value="feat(reference-api): adjusts path params endpoints" />
+    <MESSAGE value="feat(reference-api): remove user_id in craete=ion request" />
+    <MESSAGE value="feat(reference-api): format response" />
+    <MESSAGE value="feat(reference-api): adjust request methds" />
+    <MESSAGE value="feat(reference-api): add more request languages" />
+    <MESSAGE value="feat(reference-api): add response endpoints" />
+    <MESSAGE value="feat(reference-api): add more language request examples" />
+    <MESSAGE value="feat(requests) update request doc with api v3 create request fields" />
+    <MESSAGE value="feat(api-reference): add more request fields" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(api-reference): add more request fields" />
+  </component>
+</project>

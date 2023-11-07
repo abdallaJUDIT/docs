@@ -1,20 +1,13 @@
 ---
-title: "Find One Tracking"
+title: "Consultar um monitoramento"
 openapi: "GET /tracking/{tracking_id}"
-api: "GET https://tracking.stage.judit.io/tracking"
+api: "GET https://tracking.prod.judit.io/tracking/{tracking_id}"
 description: "Esse endpoint consulta um monitoramento pelo id"
 ---
 
 <ParamField path="tracking_id" type="string" required>
     O ID do monitoramento que você deseja consultar.
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X GET "https://tracking.stage.judit.io/tracking/"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

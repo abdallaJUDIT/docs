@@ -1,20 +1,13 @@
 ---
-title: "Delete Tracking"
+title: "Deletar um Monitoramento"
 openapi: "DELETE /tracking/{tracking_id}"
-api: "DELETE https://tracking.stage.judit.io/tracking/{tracking_id}"
+api: "DELETE https://tracking.prod.judit.io/tracking/{tracking_id}"
 description: "Esse endpoint deleta um monitoramento pelo id"
 ---
 
 <ParamField path="tracking_id" type="string" required>
     O ID do monitoramento que você deseja deletar.
 </ParamField>
-
-<RequestExample>
-    ```bash Request
-    curl -X DELETE "https://tracking.stage.judit.io/tracking/{tracking_id}"
-    -H "api-key: YOUR_API_KEY"
-    ```
-</RequestExample>
 
 <ResponseExample>
     ```json Response

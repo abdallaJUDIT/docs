@@ -15,12 +15,6 @@
     "default": "dark",
     "isHidden": true
   },
-  "topbarLinks": [
-    {
-      "name": "Swagger",
-      "url": "https://api.judit.io/api"
-    }
-  ],
   "topbarCtaButton": {
     "name": "Dashboard",
     "url": "https://app.judit.io"
@@ -69,8 +63,8 @@
       "group": "Monitoramento",
       "pages": [
         "api-reference/endpoint/tracking/create",
-        "api-reference/endpoint/tracking/find-one",
         "api-reference/endpoint/tracking/find-many",
+        "api-reference/endpoint/tracking/find-one",
         "api-reference/endpoint/tracking/pause",
         "api-reference/endpoint/tracking/resume",
         "api-reference/endpoint/tracking/delete"
@@ -81,7 +75,7 @@
     "name": "Documentação"
   },
   "api": {
-    "baseUrl": ["https://requests.stage.judit.io", "https://tracking.stage.judit.io"],
+    "baseUrl": ["https://requests.prod.judit.io", "https://tracking.prod.judit.io"],
     "auth": {
       "method": "key",
       "name": "api-key"
