@@ -18,7 +18,7 @@ Para começar a monitorar um processo, CPF, CNPJ, OAB ou Código(CNJ), você dev
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `reference_type`: Esse parâmetro define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' para o número do processo.
+- `reference_type`: Esse parâmetro define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_cnj' para o número do processo.
 
 - `reference_id`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja monitorar.
 
@@ -30,7 +30,7 @@ Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-  "reference_type": "lawsuit_id",
+  "reference_type": "lawsuit_cnj",
   "reference_id": "0001234-55.2023.8.26.0100",
   "recurrence": 2,
   "tags": { "category": "any" },
@@ -44,7 +44,7 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
 -H "api-key: YOUR_API_KEY" \
 -H "Content-Type: application/json" \
 -d '{
-  "reference_type": "lawsuit_id",
+  "reference_type": "lawsuit_cnj",
   "reference_id": "0001234-55.2023.8.26.0100",
   "recurrence": 2,
   "tags": { "category": "any" },
@@ -83,7 +83,7 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 
 `user_id`: ID do usuário, retorna monitoramentos relacionado ao usuário;
 
-`reference_type`: retorna monitoramentos do tipo de referência especificado 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' número do processo;
+`reference_type`: retorna monitoramentos do tipo de referência especificado 'cpf', 'cnpj', 'oab' ou 'lawsuit_cnj' número do processo;
 
 `reference_id`: retorna monitoramentos relacionado ao número do CPF, CNPJ, OAB ou processo informado;
 

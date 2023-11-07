@@ -6,7 +6,7 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
 ---
 
 <ParamField body="reference_type" type="string" required>
-    Define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_id' para o número do processo.
+    Define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_cnj' para o número do processo.
 </ParamField>
 
 <ParamField body="reference_id" type="string" required>
@@ -31,7 +31,7 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
     -H "api-key: YOUR_API_KEY"
     -H "Content-Type: application/json"
     -d '{
-        "reference_type": "lawsuit_id",
+        "reference_type": "lawsuit_cnj",
         "reference_id": "0001234-55.2023.8.26.0100",
         "recurrence": 2,
         "tags": { "category": "any" },
@@ -44,7 +44,7 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
     {
         "tracking_id": "754f02d7-e346-48e2-a23e-4455a11af41e",
         "user_id": "454bbd51-3f8a-4889-b45f-54a78e312257",
-        "reference_type": "lawsuit_id",
+        "reference_type": "lawsuit_cnj",
         "reference_id": "0001234-55.2023.8.26.0100",
         "status": "created",
         "recurrence": 1,
