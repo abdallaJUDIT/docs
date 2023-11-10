@@ -20,7 +20,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
-- `search`: Um objeto que vai para a busca.
+- `search`: Objeto que vai para a busca.
 
    - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"** ou **"lawsuit_cnj"** para um número de processo;
 
@@ -64,7 +64,7 @@ Aqui está um exemplo de como um payload pode parecer:
     "search_type": "lawsuit_cnj",
     "search_key": "0001234-55.2023.8.26.0100",
     "response_type": "lawsuit",
-    "accept_cache": "true",
+    "accept_cache": true,
     "cache_ttl_in_days": 1,
     "search_params": {
       "lawsuit_instance": 1,
@@ -96,7 +96,7 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
     "search_type": "lawsuit_cnj",
     "search_key": "0001234-55.2023.8.26.0100",
     "response_type": "lawsuit",
-    "accept_cache": "true",
+    "accept_cache": true,
     "cache_ttl_in_days": 1,
     "search_params": {
       "lawsuit_instance": 1,
@@ -130,7 +130,7 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
   "recurrence": 5,
   "search": {
     "response_type": "lawsuit",
-    "accept_cache": "false",
+    "accept_cache": false,
     "cache_ttl_in_days": 3,
     "search_params": {
       "lawsuit_instance": 2,
@@ -148,6 +148,7 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
   "tags": { "category": "any" },
 }'
 ```
+Note que os campos `search_type` e `search_key` não são atualizáveis, somente são passados no momento da criação do monitoramento.
 
 ## Consultando Seus Monitoramentos
 
