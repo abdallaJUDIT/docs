@@ -18,11 +18,40 @@ Para começar a monitorar um processo, CPF, CNPJ, OAB ou Código(CNJ), você dev
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `reference_type`: Esse parâmetro define o tipo de entidade que você quer monitorar 'cpf', 'cnpj', 'oab' ou 'lawsuit_cnj' para o número do processo.
-
-- `reference_id`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja monitorar.
-
 - `recurrence`: A recorrência em dias de atualização dos processos.
+
+- `search`: Objeto que vai para a busca.
+
+   - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"** ou **"lawsuit_cnj"** para um número de processo;
+
+   - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
+
+   - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+
+   - `accept_cache` (opcional): Define se o resultado da busca pode ser um cache válido podendo ser **"true"** ou **"false"**;
+
+   - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+
+   - `search_params`: Um objeto que contém alguns parâmetros buscar como:
+
+          - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
+          - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas;
+
+         Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
+
+        - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
+
+                 - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+
+                 - `distribution_date_gte` (opcional): Este parâmetro permite buscar por resultados com a data de distribuiçao maior ou igual a informada;
+
+                 - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
+
+          - `pagination` (opcional): Um objeto que contém dois parâmetros de paginação das respostas da busca:
+
+                 - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
+
+                 - `pageSize` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
 
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 
@@ -30,10 +59,28 @@ Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-  "reference_type": "lawsuit_cnj",
-  "reference_id": "0001234-55.2023.8.26.0100",
   "recurrence": 2,
-  "tags": { "category": "any" },
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0001234-55.2023.8.26.0100",
+    "response_type": "lawsuit",
+    "accept_cache": true,
+    "cache_ttl_in_days": 1,
+    "search_params": {
+      "lawsuit_instance": 1,
+      "masked_response": true,
+         "filter": {
+            "side": "ACTIVE",
+            "distribution_date_gte": "2023-10-18T18:40:23.775Z",
+            "tribunals": ["STF", "CNJ", "STJ", "CJF"]
+         },
+         "pagination": {
+           "page": 1,
+           "page_size": 5
+         }
+    }
+  },
+  "tags": { "category": "any" }
 }
 ```
 
@@ -44,9 +91,26 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
 -H "api-key: YOUR_API_KEY" \
 -H "Content-Type: application/json" \
 -d '{
-  "reference_type": "lawsuit_cnj",
-  "reference_id": "0001234-55.2023.8.26.0100",
   "recurrence": 2,
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0001234-55.2023.8.26.0100",
+    "response_type": "lawsuit",
+    "accept_cache": true,
+    "cache_ttl_in_days": 1,
+    "search_params": {
+      "lawsuit_instance": 1,
+      "masked_response": true,
+      "filter": {
+         "side": "ACTIVE",
+         "distribution_date_gte": "2023-10-18T18:40:23.775Z",
+         "tribunals": ["STF", "CNJ", "STJ", "CJF"]
+      },
+      "pagination": {
+        "page": 1,
+        "page_size": 5
+      }
+  },
   "tags": { "category": "any" },
 }'
 ```
@@ -55,8 +119,7 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
 
 Para atualizar um monitoramento, você pode fazer uma solicitação PATCH para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja atualizar.
 
-Esta rota aceita dois campos opcionais para atualização do tracking: recurrence e tags.
-
+Esta rota campos opcionais para atualização do tracking: `recurrence`, `tags` e o objeto de `search` para a busca com exceção de alguns campos.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
@@ -65,9 +128,27 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
 -H "api-key: YOUR_API_KEY"
 -d '{
   "recurrence": 5,
+  "search": {
+    "response_type": "lawsuit",
+    "accept_cache": false,
+    "cache_ttl_in_days": 3,
+    "search_params": {
+      "lawsuit_instance": 2,
+      "masked_response": false,
+      "filter": {
+         "side": "Passive",
+         "distribution_date_gte": "2023-11-18T18:40:23.775Z",
+         "tribunals": ["STF", "CNJ"]
+      },
+      "pagination": {
+        "page": 1,
+        "page_size": 10
+      }
+  },
   "tags": { "category": "any" },
 }'
 ```
+Note que os campos `search_type` e `search_key` não são atualizáveis, somente são passados no momento da criação do monitoramento.
 
 ## Consultando Seus Monitoramentos
 
@@ -83,13 +164,19 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 
 `user_id`: ID do usuário, retorna monitoramentos relacionado ao usuário;
 
-`reference_type`: retorna monitoramentos do tipo de referência especificado 'cpf', 'cnpj', 'oab' ou 'lawsuit_cnj' número do processo;
+`search_type`: retorna monitoramentos do tipo de referência especificado **"cpf"**, **"cnpj"**, **"oab"** ou **"lawsuit_cnj"**;
 
-`reference_id`: retorna monitoramentos relacionado ao número do CPF, CNPJ, OAB ou processo informado;
+`search_key`: retorna monitoramentos com a buscar relacionadas ao número do CPF, CNPJ, OAB ou processo informado;
 
 `status`: retorna monitoramentos cujo status podem ser 'created', 'updating', 'updated', 'paused' ou 'deleted' ou mais de um de status ['updating', 'paused'];
 
+`lawsuit_instance`: retorna monitoramentos onde a instância do processo na buscar está de acordo com a informada;
+
+`tribunals`: retorna monitoramentos com a buscar realizadas nos tribunais espeficidados na [lista de tribunais](./glossary#lista-de-tribunais) no formato de array [ "STF", "CNJ", "STJ"];
+
 `tags`: retorna monitoramentos com as tags informadas;
+
+`distribution_date_gte`: retorna monitoramentos com a data de distribuição na buscar maior ou igual a informada;
 
 `recurrence_gte`: retorna monitoramentos com a recorrência de atualização maior ou igual a informada;
 
