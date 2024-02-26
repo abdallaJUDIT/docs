@@ -6,17 +6,18 @@ icon: "stamp"
 
 <Steps>
   <Step title="Criação do monitoramento" stepNumber="1">
-   ```bash
-   curl -X POST "https://tracking.prod.judit.io/tracking"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
-   -d "{
-     'search': {
+  ```bash
+  curl --request POST
+    --url "https://tracking.prod.judit.io/tracking"
+    --header "api_key: SUA-API-KEY"
+    --header "Content-Type: application/json"
+    --data "{
+      'search': {
       'search_type': 'lawsuit_cnj',
       'search_key': '0817064-37.2023.8.19.0209'
-     }
+      }
    }"
-   ```
+  ```
 
    Retorno:
    ```json
@@ -55,12 +56,13 @@ icon: "stamp"
   Depois ocorrerá todos os dias úteis no mesmo horário.
   </Step>
   <Step title="Consultar o status do monitoramento" stepNumber="2">
-  Na URL vai o tracking_id retornado na primeira requisição:
+  Na URL vai o <strong>tracking_id</strong> retornado na primeira requisição:
 
    ```bash
-   curl -X GET "https://tracking.prod.judit.io/tracking/{request-id-da-consulta-anterior}"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
+   curl --request GET
+     --url "https://tracking.prod.judit.io/tracking/cb97f8ba-7736-43c7-a961-436b151cd65c"
+     --header "api_key: SUA-API-KEY"
+     --header "Content-Type: application/json"
    ```
 
    Retorno:
@@ -119,17 +121,17 @@ podendo ser:
 monitoramento executou, ou seja, chegou ao status updated.
   </Step>
   <Step title="Consultar o conteúdo da resposta" stepNumber="3">
-  <Steps>
-   <Step title="Alteração encontrada">
-   Na URL vai o request_id retornado na primeira requisição:
+   Na URL vai o <strong>request_id</strong> retornado na primeira requisição:
 
    ```bash
-   curl -X GET "https://requests.prod.judit.io/responses/?{request-id-da-primeira-consulta}"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
+   curl --request GET "https://requests.prod.judit.io/responses/?request_id=ef1ea0fb-cac8-4901-8415-2af08822765b"
+     --header "api_key: SUA-API-KEY"
+     --header "Content-Type: application/json"
    ```
+  <Steps>
+   <Step title="Alteração encontrada">
 
-  <Accordion title="Resultado da consulta">
+  <Accordion title="Exemplo de retorno quando a alteração foi encontrada">
 ```json
 {
   "page": 1,
@@ -301,35 +303,9 @@ monitoramento executou, ou seja, chegou ao status updated.
 }
 ```
   </Accordion>
-
-    <Note>
-    No caso de monitoramento processual a primeira consulta será o
-    retorno do processo que pode ser obtido no array page_data na
-    propriedade response_data.
-    </Note>
-
-    As demais requisições feitas pelo monitoramento só terão resposta
-    caso uma andamento processual novo seja encontrado. O modelo da
-    resposta é igual ao da resposta inicial incluindo o(s) andamento(s)
-    novos.
-
-   <br />
-    O significado de cada campo pode ser encontrado no glossário:
-
-    <a href="https://docs.judit.io/essentials/glossary">
-    https://docs.judit.io/essentials/glossary
-    </a>
    </Step>
    <Step title="Processo não encontrado">
-   Na URL vai o request_id retornado na primeira requisição:
-
-   ```bash
-   curl -X GET "https://requests.prod.judit.io/responses/?{request-id-da-primeira-consulta}"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
-   ```
-
-   Retorno:
+   Exemplo de retorno quando o processo não foi encontrado:
 
    ```json
    {
@@ -358,5 +334,22 @@ monitoramento executou, ou seja, chegou ao status updated.
    ```
    </Step>
   </Steps>
+    <Note>
+    No caso de monitoramento processual a primeira consulta será o
+    retorno do processo que pode ser obtido no array <strong>page_data</strong> na
+    propriedade <strong>response_data</strong>.
+    </Note>
+
+    As demais requisições feitas pelo monitoramento só terão resposta
+    caso uma andamento processual novo seja encontrado. O modelo da
+    resposta é igual ao da resposta inicial incluindo o(s) andamento(s)
+    novos.
+
+   <br />
+    O significado de cada campo pode ser encontrado no glossário:
+
+    <a href="https://docs.judit.io/essentials/glossary">
+    https://docs.judit.io/essentials/glossary
+    </a>
   </Step>
 </Steps>

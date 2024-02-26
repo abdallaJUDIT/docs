@@ -66,12 +66,17 @@
       ]
     },
     {
-     "group": "Consulta Processual",
+     "group": "Fluxo de Consulta Processual",
       "pages": [
-        "api-reference/endpoint/procedural-consultation/by-document",
-        "api-reference/endpoint/procedural-consultation/by-process",
-        "api-reference/endpoint/procedural-consultation/tracking-document",
-        "api-reference/endpoint/procedural-consultation/tracking-process"
+        "api-reference/endpoint/flow-procedural/request-process",
+        "api-reference/endpoint/flow-procedural/tracking-process"
+      ]
+    },
+    {
+     "group": "Fluxo de Consulta por Documento",
+      "pages": [
+        "api-reference/endpoint/flow-document/request-document",
+        "api-reference/endpoint/flow-document/tracking-document"
       ]
     }
   ],

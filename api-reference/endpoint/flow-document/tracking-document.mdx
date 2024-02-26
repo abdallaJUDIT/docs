@@ -7,10 +7,11 @@ icon: "file"
 <Steps>
   <Step title="Criação do monitoramento" stepNumber="1">
    ```bash
-   curl -X POST "https://tracking.prod.judit.io/tracking"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
-   -d "{
+   curl --request POST
+   --url "https://tracking.prod.judit.io/tracking"
+   --header "api_key: SUA-API-KEY"
+   --header "Content-Type: application/json"
+   --data "{
      'search': {
       'search_type': 'cpf',
       'search_key': '092.065.297-22'
@@ -42,26 +43,28 @@ icon: "file"
    }
    ```
 
+  O monitoramento irá ser iniciado a primeira vez, na melhor janela de
+  concorrência de requisição ao tribunal, dentro das próximas 5 horas
+  da data de criação.
+
+  Depois ocorrerá todos os dias úteis no mesmo horário.
+
+  <br />
   Outros parâmetros que podem ser adicionados na requisição, como
   filtros, podem ser encontrados na página:
 
   <a href="https://docs.judit.io/api-reference/endpoint/tracking/create">
   https://docs.judit.io/api-reference/endpoint/tracking/create
   </a>
-
-  O monitoramento irá ser iniciado a primeira vez, na melhor janela de
-  concorrência de requisição ao tribunal, dentro das próximas 5 horas
-  da data de criação.
-
-  Depois ocorrerá todos os dias úteis no mesmo horário.
   </Step>
   <Step title="Consultar o status do monitoramento" stepNumber="2">
-  Na URL vai o tracking_id retornado na primeira requisição:
+  Na URL vai o <strong>tracking_id</strong> retornado na primeira requisição:
 
    ```bash
-   curl -X GET "https://tracking.prod.judit.io/tracking/{request-id-da-consulta-anterior}"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
+   curl --request GET
+   --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+   --header "api_key: SUA-API-KEY"
+   --header "Content-Type: application/json"
    ```
 
    Retorno:
@@ -116,19 +119,20 @@ podendo ser:
    </li>
  </ol>
 
- A propriedade <u>request_id</u> só é criada a partir da primeira vez que o
+ A propriedade <strong>request_id</strong> só é criada a partir da primeira vez que o
 monitoramento executou, ou seja, chegou ao status updated.
   </Step>
   <Step title="Consultar o conteúdo da resposta (nova ação encontrada)" stepNumber="3">
-  Na URL vai o request_id retornado na primeira requisição
+  Na URL vai o <strong>request_id</strong> retornado na primeira requisição:
 
    ```bash
-   curl -X GET "https://requests.prod.judit.io/responses/?request_id={request-id-da-primeira-consulta}&page=1&page_size=10"
-   -H "api_key: SUA-API-KEY"
-   -H "Content-Type: application/json"
+   curl --request GET
+   --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+   --header "api_key: SUA-API-KEY"
+   --header "Content-Type: application/json"
    ```
 
-  <Accordion title="Resultado da consulta">
+  <Accordion title="Exemplo de retorno da Request">
     ```json
   {
     "page": 1,

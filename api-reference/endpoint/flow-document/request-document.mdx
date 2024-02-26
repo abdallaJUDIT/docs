@@ -9,8 +9,8 @@ icon: "file"
    Para realizar a consulta por documento, é necessário primeiramente criar uma requisição para o endpoint de consulta por documento.
 
    ```bash
-   curl --request POST \
-     --url https://requests.prod.judit.io/requests
+   curl --request POST
+     --url 'https://requests.prod.judit.io/requests'
      --header 'Content-Type: application/json'
      --header 'api_key: SUA-API-KEY'
      --data '{
@@ -20,11 +20,9 @@ icon: "file"
          }
         }
       '
-     ```
+    ```
 
-     Com a requisição criada, o próximo passo é aguardar a resposta da consulta.
-
-     A resposta da consulta será um objeto JSON com os dados do documento consultado:
+     A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
 
      ```json
      {
@@ -47,7 +45,9 @@ icon: "file"
        "tags": {}
       }
      ```
-    <Note>Na consulta por documento o search_type pode ser “oab”, “cpf” e “cnpj”.</Note>
+    <Note>
+    Na consulta por documento o search_type pode ser <strong>“oab”, “cpf” e “cnpj”</strong>.
+    </Note>
 
     Outros parâmetros que podem ser adicionados na requisição, como filtros, podem ser
     encontrados na página:
@@ -57,17 +57,19 @@ icon: "file"
     </a>
  </Step>
  <Step title="Consultar o status da request" stepNumber="2">
-     ```bash
-      curl --request GET \
-        --url https://requests.prod.judit.io/requests/{request-id-da-primeira-request}
-        --header 'api_key: SUA-API-KEY'
-        --header 'Content-Type: application/json'
-     ```
-
-   <Warning>
+    <Warning>
    Esta é uma etapa importante para saber quando a consulta terminou,
    já que as respostas serão adicionadas de forma incremental por tribunal.
    </Warning>
+
+     ```bash
+      curl --request GET
+        --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
+        --header 'api_key: SUA-API-KEY'
+        --header 'Content-Type: application/json'
+     ```
+    Retorno:
+
       ```json
      {
         "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
@@ -92,20 +94,20 @@ icon: "file"
      }
    ```
 
-   Através da propriedade status é possível saber se a requisição está completa.
+   Através da propriedade <strong>status</strong> é possível saber se a requisição está completa.
  </Step>
  <Step title="Consultar o conteúdo da resposta"  stepNumber="3">
-   <Steps>
-    <Step title="">
-        ```bash
-        curl --request GET \
-          --url https://requests.prod.judit.io/responses/?request_id={request-id-da-primeira-request}&page=1&page_size=10
-          --header 'api_key: SUA-API-KEY'
-          --header 'Content-Type: application/json'
-        ```
+   Na URL vai o request_id retornado na primeira requisição.
 
-     Retorno quando foi encontrado um processo no tribunal:
-        <Accordion title="Retorno esperado">
+    ```bash
+    curl --request GET \
+      --url 'https://requests.prod.judit.io/responses/?request_id=cb97f8ba-7736-43c7-a961-436b151cd65c&page=1&page_size=10'
+      --header 'api_key: SUA-API-KEY'
+      --header 'Content-Type: application/json'
+    ```
+   <Steps>
+    <Step title="Processo encontrado">
+        <Accordion title="Exemplo de retorno quando o processo foi encontrado no tribunal">
          ```json
          {
           "page": 1,
@@ -521,46 +523,9 @@ icon: "file"
       }
       ```
         </Accordion>
-
-       Os parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
-       percorrer as páginas com os processos, caso venham mais de uma, o
-       que é comum no caso de consulta por documento.
-
-
-
-        <Accordion title="As propriedades de paginação:" defaultOpen>
-            <ParamField body="page" name="page" type="integer" required={false}>
-                Define a página atual da busca.
-            </ParamField>
-            <ParamField body="page_count" name="page_count" type="integer" required={false}>
-                Total de processos na página.
-            </ParamField>
-            <ParamField body="all_count" name="all_count" type="integer" required={false}>
-                Total de processos encontrados
-            </ParamField>
-            <ParamField body="all_pages_count" name="all_pages_count" type="integer" required={false}>
-                Quantidade de páginas de processos
-            </ParamField>
-            <ParamField body="page_data" name="page_data" type="array" required={false}>
-                Array com as respostas e dentro da propriedade response_data o conteúdo do processo.
-            </ParamField>
-        </Accordion>
-
-       O significado de cada campo pode ser encontrado no glossário:
-
-       <a href="https://docs.judit.io/essentials/glossary">
-       https://docs.judit.io/essentials/glossary
-       </a>
     </Step>
-    <Step>
-        ```bash
-        curl --request GET \
-          --url https://requests.prod.judit.io/responses/?request_id={request-id-da-primeira-request}
-          --header 'api_key: SUA-API-KEY'
-          --header 'Content-Type: application/json'
-        ```
-
-      Retorno quando o processo não foi encontrado no tribunal:
+    <Step title="Processo não encontrado">
+      Exemplo de retorno quando o processo não foi encontrado no tribunal:
         ```json
         {
             "page": 1,
@@ -586,13 +551,34 @@ icon: "file"
             "all_pages_count": 1
         }
         ```
-
-        O significado de cada campo pode ser encontrado no glossário:
-
-       <a href="https://docs.judit.io/essentials/glossary">
-       https://docs.judit.io/essentials/glossary
-       </a>
     </Step>
    </Steps>
+    Os parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
+    percorrer as páginas com os processos, caso venham mais de uma, o
+    que é comum no caso de consulta por documento.
+
+    <Accordion title="As propriedades de paginação:" defaultOpen>
+        <ParamField body="page" name="page" type="integer" required={false}>
+            Define a página atual da busca.
+        </ParamField>
+        <ParamField body="page_count" name="page_count" type="integer" required={false}>
+            Total de processos na página.
+        </ParamField>
+        <ParamField body="all_count" name="all_count" type="integer" required={false}>
+            Total de processos encontrados
+        </ParamField>
+        <ParamField body="all_pages_count" name="all_pages_count" type="integer" required={false}>
+            Quantidade de páginas de processos
+        </ParamField>
+        <ParamField body="page_data" name="page_data" type="array" required={false}>
+            Array com as respostas e dentro da propriedade response_data o conteúdo do processo.
+        </ParamField>
+    </Accordion>
+
+   O significado de cada campo pode ser encontrado no glossário:
+
+   <a href="https://docs.judit.io/essentials/glossary">
+   https://docs.judit.io/essentials/glossary
+   </a>
  </Step>
 </Steps>
