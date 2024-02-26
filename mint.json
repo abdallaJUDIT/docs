@@ -40,23 +40,18 @@
       ]
     },
     {
-      "group": "Busca",
+      "group": "Requests",
       "pages": [
-        {
-          "group": "Buscas",
-          "pages": [
-            "api-reference/endpoint/requests/create",
-            "api-reference/endpoint/requests/find-many",
-            "api-reference/endpoint/requests/find-one"
-          ]
-        },
-        {
-          "group": "Respostas",
-          "pages": [
-            "api-reference/endpoint/responses/find-many",
-            "api-reference/endpoint/responses/find-one"
-          ]
-        }
+         "api-reference/endpoint/requests/create",
+         "api-reference/endpoint/requests/find-one",
+         "api-reference/endpoint/requests/find-many"
+       ]
+    },
+    {
+      "group": "Responses",
+      "pages": [
+       "api-reference/endpoint/responses/find-one",
+        "api-reference/endpoint/responses/find-many"
       ]
     },
     {
@@ -68,6 +63,20 @@
         "api-reference/endpoint/tracking/pause",
         "api-reference/endpoint/tracking/resume",
         "api-reference/endpoint/tracking/delete"
+      ]
+    },
+    {
+     "group": "Fluxo de Consulta Processual",
+      "pages": [
+        "api-reference/endpoint/flow-procedural/request-process",
+        "api-reference/endpoint/flow-procedural/tracking-process"
+      ]
+    },
+    {
+     "group": "Fluxo de Consulta por Documento",
+      "pages": [
+        "api-reference/endpoint/flow-document/request-document",
+        "api-reference/endpoint/flow-document/tracking-document"
       ]
     }
   ],
