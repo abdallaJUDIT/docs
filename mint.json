@@ -66,6 +66,12 @@
       ]
     },
     {
+     "group": "Acesso a anexos",
+      "pages": [
+        "api-reference/endpoint/attachments/attachment-access"
+      ]
+    },
+    {
      "group": "Fluxo de Consulta Processual",
       "pages": [
         "api-reference/endpoint/flow-procedural/request-process",
