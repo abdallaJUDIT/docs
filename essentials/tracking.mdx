@@ -47,11 +47,9 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
                  - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
 
-          - `pagination` (opcional): Um objeto que contém dois parâmetros de paginação das respostas da busca:
+        - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
 
-                 - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
-
-                 - `pageSize` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
+        - `page_size` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
 
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 
@@ -74,10 +72,8 @@ Aqui está um exemplo de como um payload pode parecer:
             "distribution_date_gte": "2023-10-18T18:40:23.775Z",
             "tribunals": ["STF", "CNJ", "STJ", "CJF"]
          },
-         "pagination": {
            "page": 1,
            "page_size": 5
-         }
     }
   },
   "tags": { "category": "any" }
@@ -106,10 +102,8 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
          "distribution_date_gte": "2023-10-18T18:40:23.775Z",
          "tribunals": ["STF", "CNJ", "STJ", "CJF"]
       },
-      "pagination": {
         "page": 1,
         "page_size": 5
-      }
   },
   "tags": { "category": "any" },
 }'
@@ -140,10 +134,8 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
          "distribution_date_gte": "2023-11-18T18:40:23.775Z",
          "tribunals": ["STF", "CNJ"]
       },
-      "pagination": {
         "page": 1,
         "page_size": 10
-      }
   },
   "tags": { "category": "any" },
 }'
@@ -156,7 +148,7 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 
 `page`: Define a página dos resultados que você deseja consultar.
 
-`pageSize`: Define o número máximo de resultados que você deseja receber por página;
+`page_size`: Define o número máximo de resultados que você deseja receber por página;
 
 `orderField`: nome do campo em que se deseja ordenar os monitoramentos;
 
@@ -205,7 +197,7 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking?page=1&pageSize=10" \
+curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 -H "api-key: YOUR_API_KEY"
 ```
 
