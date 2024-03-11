@@ -20,10 +20,6 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
             Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
         </ParamField>
 
-        <ParamField body="accept_cache" type="boolean" required={false}>
-            Define se o resultado da busca pode ser um cache válido;
-        </ParamField>
-
         <ParamField body="cache_ttl_in_days" type="integer" required={false}>
             Define até quantos dias o resultado da busca pode considerar um cache válido;
         </ParamField>

@@ -28,8 +28,6 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
    - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
 
-   - `accept_cache` (opcional): Define se o resultado da busca pode ser um cache válido podendo ser **"true"** ou **"false"**;
-
    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
    - `search_params`: Um objeto que contém alguns parâmetros buscar como:
@@ -62,7 +60,6 @@ Aqui está um exemplo de como um payload pode parecer:
     "search_type": "lawsuit_cnj",
     "search_key": "0001234-55.2023.8.26.0100",
     "response_type": "lawsuit",
-    "accept_cache": true,
     "cache_ttl_in_days": 1,
     "search_params": {
       "lawsuit_instance": 1,
@@ -92,7 +89,6 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
     "search_type": "lawsuit_cnj",
     "search_key": "0001234-55.2023.8.26.0100",
     "response_type": "lawsuit",
-    "accept_cache": true,
     "cache_ttl_in_days": 1,
     "search_params": {
       "lawsuit_instance": 1,
@@ -124,7 +120,6 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
   "recurrence": 5,
   "search": {
     "response_type": "lawsuit",
-    "accept_cache": false,
     "cache_ttl_in_days": 3,
     "search_params": {
       "lawsuit_instance": 2,
