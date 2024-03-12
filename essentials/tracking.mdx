@@ -36,6 +36,10 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
           - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
 
+          - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas ou completas;
+              
+            `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+        
          Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
         - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
@@ -45,15 +49,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
                  - `distribution_date_gte` (opcional): Este parâmetro permite buscar por resultados com a data de distribuiçao maior ou igual a informada;
 
                  - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
-
-                 - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas ou completas;
-              
-              `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
-        
-        - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
-
-        - `page_size` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
-
+                 
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 
 Aqui está um exemplo de como um payload pode parecer:
@@ -68,6 +64,32 @@ Aqui está um exemplo de como um payload pode parecer:
   },
 }
 ```
+
+Aqui está um exemplo de retorno esperado ao criar um monitoramento:
+
+```json
+{
+	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+	"status": "created",
+	"recurrence": 1,
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0001234-55.2023.8.26.0100",
+		"response_type": "lawsuits",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"tracked_items_count": 0,
+	"tracked_items_steps_count": 0,
+	"tags": {},
+	"created_at": "2024-02-21T18:26:38.499Z",
+	"updated_at": "2024-02-21T18:26:38.499Z"
+}
+```
+
 
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
 
@@ -105,59 +127,17 @@ Note que os campos `search_type` e `search_key` não são atualizáveis, somente
 
 ## Consultando Seus Monitoramentos
 
-Para consultar todos os seus monitoramentos, você pode fazer uma solicitação GET para a rota `/tracking`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar, ordenar e filtrar os resultados:
+Para consultar todos os seus monitoramentos, você pode fazer uma solicitação GET para a rota `/tracking`. Esta rota aceita alguns parâmetros de consulta opcionais para paginar e filtrar os resultados:
 
 `page`: Define a página dos resultados que você deseja consultar.
 
 `page_size`: Define o número máximo de resultados que você deseja receber por página;
 
-`orderField`: nome do campo em que se deseja ordenar os monitoramentos;
-
-`orderDirection`: sentido da ordenação sendo 'ASC' ou 'DESC';
-
-`user_id`: ID do usuário, retorna monitoramentos relacionado ao usuário;
-
 `search_type`: retorna monitoramentos do tipo de referência especificado **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji**;
-
-  - Obs: `RJI` somente são aceitos no response_type **warrant** (madado de prisão)
 
 `search_key`: retorna monitoramentos com a buscar relacionadas ao número do CPF, CNPJ, OAB ou processo informado;
 
 `status`: retorna monitoramentos cujo status podem ser 'created', 'updating', 'updated', 'paused' ou 'deleted' ou mais de um de status ['updating', 'paused'];
-
-`lawsuit_instance`: retorna monitoramentos onde a instância do processo na buscar está de acordo com a informada;
-
-`tribunals`: retorna monitoramentos com a buscar realizadas nos tribunais espeficidados na [lista de tribunais](./glossary#lista-de-tribunais) no formato de array [ "STF", "CNJ", "STJ"];
-
-`tags`: retorna monitoramentos com as tags informadas;
-
-`distribution_date_gte`: retorna monitoramentos com a data de distribuição na buscar maior ou igual a informada;
-
-`recurrence_gte`: retorna monitoramentos com a recorrência de atualização maior ou igual a informada;
-
-`recurrence_lte`: retorna monitoramentos com a recorrência de atualização menor ou igual a informada;
-
-`with_attachments`: retorna buscas com anexos;
-
-`created_at_gte`: retorna monitoramentos com a data de criação maior ou igual a informada;
-
-`created_at_lte`: retorna monitoramentos com a data de criação menor ou igual a informada;
-
-`updated_at_gte`: retorna monitoramentos com a data de atualização maior ou igual a informada;
-
-`updated_at_lte`: retorna monitoramentos com a data de atualização menor ou igual a informada;
-
-`updating_at_gte`: retorna monitoramentos com a data de execução do monitoramento maior ou igual a informada;
-
-`updating_at_lte`: retorna monitoramentos com a data de execução do monitoramento menor ou igual a informada;
-
-`paused_at_gte`: retorna monitoramentos com a data de pause do monitoramento maior ou igual a informada;
-
-`paused_at_lte`: retorna monitoramentos com a data de pause do monitoramento menor ou igual a informada;
-
-`deleted_at_gte`: retorna monitoramentos com a data de deleção maior ou igual a informada;
-
-`deleted_at_lte`: retorna monitoramentos com a data de deleção menor ou igual a informada;
 
 Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 
@@ -173,8 +153,35 @@ Para consultar todas as informações sobre um monitoramento específico, você 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking/{monitoramento}" \
+curl -X GET "https://tracking.prod.judit.io/tracking?tracking_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
 -H "api-key: YOUR_API_KEY"
+```
+
+
+Aqui está o retorno esperado:
+
+
+```json
+{
+	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+	"status": "updated",
+	"recurrence": 1,
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0001234-55.2023.8.26.0100",
+		"response_type": "lawsuits",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"tracked_items_count": 0,
+	"tracked_items_steps_count": 0,
+	"tags": {},
+	"created_at": "2024-02-21T18:26:38.499Z",
+	"updated_at": "2024-02-21T18:26:38.499Z"
+}
 ```
 
 ## Pausando um Monitoramento
@@ -184,11 +191,34 @@ Para pausar um monitoramento, você pode fazer uma solicitação POST para a rot
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/{monitoramento}/pause" \
+curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
 -H "api-key: YOUR_API_KEY"
 ```
 
+Aqui está um exemplo de retorno do monitoramento pausado:
 
+```json
+{
+	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+	"status": "paused",
+	"recurrence": 1,
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0001234-55.2023.8.26.0100",
+		"response_type": "lawsuits",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"tracked_items_count": 0,
+	"tracked_items_steps_count": 0,
+	"tags": {},
+	"created_at": "2024-02-21T18:26:38.499Z",
+	"updated_at": "2024-02-21T18:26:38.499Z"
+}
+```
 ## Reativando um Monitoramento
 
 Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
@@ -196,8 +226,33 @@ Para reativar um monitoramento pausado, você pode fazer uma solicitação POST 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/{monitoramento}/resume" \
+curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
 -H "api-key: YOUR_API_KEY"
+```
+
+Aqui está um exemplo de retorno do monitoramento **ativo**
+
+```json
+{
+	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+	"status": "updated",
+	"recurrence": 1,
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0001234-55.2023.8.26.0100",
+		"response_type": "lawsuits",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"tracked_items_count": 0,
+	"tracked_items_steps_count": 0,
+	"tags": {},
+	"created_at": "2024-02-21T18:26:38.499Z",
+	"updated_at": "2024-02-21T18:26:38.499Z"
+}
 ```
 
 ## Deletando um Monitoramento
@@ -207,8 +262,34 @@ Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X DELETE "https://tracking.prod.judit.io/tracking/{monitoramento}" \
+curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
 -H "api-key: YOUR_API_KEY"
+```
+
+
+Aqui está um exemplo do retorno do monitoramento deletado:
+
+```json
+{
+	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+	"status": "deleted",
+	"recurrence": 1,
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0001234-55.2023.8.26.0100",
+		"response_type": "lawsuits",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"tracked_items_count": 0,
+	"tracked_items_steps_count": 0,
+	"tags": {},
+	"created_at": "2024-02-21T18:26:38.499Z",
+	"updated_at": "2024-02-21T18:26:38.499Z"
+}
 ```
 
 E é isso! Com esses recursos, você pode manter-se atualizado sobre qualquer movimentação em processos judiciais de seu interesse. Se você tiver alguma dúvida ou encontrar algum problema, nossa equipe de suporte está à disposição para ajudá-lo. Entre em contato conosco através do nosso portal de suporte.
