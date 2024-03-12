@@ -59,6 +59,7 @@ Aqui está um exemplo de como um payload pode parecer:
  "search": {
   "search_type": "cnpj",
   "search_key": "91.834.554/0001-40",
+  "with_attachments": false,
   "search_params": {
    "lawsuit_instance": 1,
    "masked_response": true,
@@ -82,6 +83,7 @@ curl -X POST "https://requests.prod.judit.io/requests"
       "search": {
         "search_type": "cnpj",
         "search_key": "91.834.554/0001-40",
+        "with_attachments": false,
         "search_params": {
           "lawsuit_instance": 1,
           "masked_response": true,
