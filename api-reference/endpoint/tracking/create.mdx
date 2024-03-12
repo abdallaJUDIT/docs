@@ -36,9 +36,6 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
     <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
      Define a instância em que deseja buscar o processo;
     </ParamField>
-    <ParamField body="side" name="side" type="string" required={false}>
-     Define os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
-    </ParamField>
     <ParamField body="masked_response" name="masked_response" type="string" required={false}>
      Define se a resposta virá minificada;
     </ParamField>
@@ -51,7 +48,7 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
     <ParamField body="filter" type="object" required={false}>
      <Expandable>
       <ParamField body="side" name="side" type="string" required={false}>
-       Define os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+       Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
       </ParamField>
       <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
        Retorna buscas com a data de distribuição maior ou igual a informada;
@@ -61,23 +58,13 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
       </ParamField>
      </Expandable>
     </ParamField>
-    <ParamField body="pagination" type="object" required={false}>
-     <Expandable>
-      <ParamField body="page" name="page" type="integer" required={false}>
-       Define a página dos itens nas respostas da busca;
-      </ParamField>
-      <ParamField body="page_size" name="page_size" type="integer" required={false}>
-       Define o número máximo de itens por página nas respostas da busca;
-      </ParamField>
-     </Expandable>
-    </ParamField>
    </Expandable>
   </ParamField>
 
   <ParamField body="filter" type="object" required={false}>
    <Expandable title="properties">
     <ParamField body="side" name="side" type="string" required={false}>
-     Define os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+     Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
     </ParamField>
     <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
      Define os resultados com a data de distribuiçao maior ou igual a informada;
