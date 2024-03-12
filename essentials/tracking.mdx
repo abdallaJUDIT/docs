@@ -22,18 +22,19 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `search`: Objeto que vai para a busca.
 
-   - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"** ou **"lawsuit_cnj"** para um número de processo;
+   - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
 
    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
 
-   - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+   - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"**, **"lawsuits"** ou **warrant**;
 
    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+
+   - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
    - `search_params`: Um objeto que contém alguns parâmetros buscar como:
 
           - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
-          - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas;
 
          Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
@@ -45,6 +46,10 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
                  - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
 
+                 - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas ou completas;
+              
+              `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+        
         - `page` (opcional): Este parâmetro permite definir a página dos itens nas respostas da busca;
 
         - `page_size` (opcional): Este parâmetro permite definir o número máximo de itens por página nas respostas da busca;
@@ -59,21 +64,7 @@ Aqui está um exemplo de como um payload pode parecer:
   "search": {
     "search_type": "lawsuit_cnj",
     "search_key": "0001234-55.2023.8.26.0100",
-    "response_type": "lawsuit",
-    "cache_ttl_in_days": 1,
-    "search_params": {
-      "lawsuit_instance": 1,
-      "masked_response": true,
-         "filter": {
-            "side": "ACTIVE",
-            "distribution_date_gte": "2023-10-18T18:40:23.775Z",
-            "tribunals": ["STF", "CNJ", "STJ", "CJF"]
-         },
-           "page": 1,
-           "page_size": 5
-    }
   },
-  "tags": { "category": "any" }
 }
 ```
 
@@ -87,21 +78,7 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
   "recurrence": 2,
   "search": {
     "search_type": "lawsuit_cnj",
-    "search_key": "0001234-55.2023.8.26.0100",
-    "response_type": "lawsuit",
-    "cache_ttl_in_days": 1,
-    "search_params": {
-      "lawsuit_instance": 1,
-      "masked_response": true,
-      "filter": {
-         "side": "ACTIVE",
-         "distribution_date_gte": "2023-10-18T18:40:23.775Z",
-         "tribunals": ["STF", "CNJ", "STJ", "CJF"]
-      },
-        "page": 1,
-        "page_size": 5
-  },
-  "tags": { "category": "any" },
+    "search_key": "0001234-55.2023.8.26.0100"
 }'
 ```
 
@@ -119,20 +96,7 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
 -d '{
   "recurrence": 5,
   "search": {
-    "response_type": "lawsuit",
-    "cache_ttl_in_days": 3,
-    "search_params": {
-      "lawsuit_instance": 2,
-      "masked_response": false,
-      "filter": {
-         "side": "Passive",
-         "distribution_date_gte": "2023-11-18T18:40:23.775Z",
-         "tribunals": ["STF", "CNJ"]
-      },
-        "page": 1,
-        "page_size": 10
-  },
-  "tags": { "category": "any" },
+    "response_type": "lawsuit"
 }'
 ```
 Note que os campos `search_type` e `search_key` não são atualizáveis, somente são passados no momento da criação do monitoramento.
@@ -151,7 +115,9 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 
 `user_id`: ID do usuário, retorna monitoramentos relacionado ao usuário;
 
-`search_type`: retorna monitoramentos do tipo de referência especificado **"cpf"**, **"cnpj"**, **"oab"** ou **"lawsuit_cnj"**;
+`search_type`: retorna monitoramentos do tipo de referência especificado **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji**;
+
+  - Obs: `RJI` somente são aceitos no response_type **warrant** (madado de prisão)
 
 `search_key`: retorna monitoramentos com a buscar relacionadas ao número do CPF, CNPJ, OAB ou processo informado;
 
@@ -168,6 +134,8 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 `recurrence_gte`: retorna monitoramentos com a recorrência de atualização maior ou igual a informada;
 
 `recurrence_lte`: retorna monitoramentos com a recorrência de atualização menor ou igual a informada;
+
+`with_attachments`: retorna buscas com anexos;
 
 `created_at_gte`: retorna monitoramentos com a data de criação maior ou igual a informada;
 
