@@ -24,6 +24,18 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
    - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
 
+`Obs:` - Para OAB usar o seguinte padrão: UF + 0 + **numerodaOAB**
+
+Exemplo:
+```json
+
+DF012345
+
+Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
+
+DF001234
+```
+
    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
 
    - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"**, **"lawsuits"** ou **warrant**;
@@ -31,7 +43,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
    - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
-
+		- `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
    - `search_params`: Um objeto que contém alguns parâmetros buscar como:
 
           - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
@@ -51,6 +63,29 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
                  - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
                  
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
+	- cadastrar um monitoramento no dash: 
+		- `name`: nome do monitoramento
+		- `dashboard_id`: **238904bd-3b05-4160-bef0-16b329a362f0**
+	
+		Para cadastrar um monitoramento criado via API no dashboard, é necessário a utilização desse propriedade tag.
+
+		Exemplo: 
+		```json
+		{
+		"recurrence": 2,
+		"with_attachments": false,
+		"search": {
+			"search_type": "lawsuit_cnj",
+			"search_key": "0001234-55.2023.8.26.0100",
+		},
+		"tags": {
+			"name": "nome do seu monitoramento",
+			"dasboard_id": "238904bd-3b05-4160-bef0-16b329a362f0"
+		},
+		}
+		```
+
+
 
 Aqui está um exemplo de como um payload pode parecer:
 
@@ -64,6 +99,7 @@ Aqui está um exemplo de como um payload pode parecer:
   },
 }
 ```
+
 
 Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 
@@ -89,6 +125,8 @@ Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 	"updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+
 
 
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
@@ -145,6 +183,60 @@ Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 -H "api-key: YOUR_API_KEY"
 ```
+
+
+## Exemplo de notificação de webhook para monitoramento
+
+**Obs**: Toda movimentação será notificada no webhook o processo por completo, incrementando as últimas movimentações.
+
+```json
+{
+  "_id": {
+    "$oid": "65f0efe046ad3bda5b27be2d"
+  },
+  "callback_id": "be1406d9-d62d-402d-8e0e-8684044645de",
+  "event_type": "response_created",
+  "reference_type": "tracking",
+  "reference_id": "8744cfea-f9d4-4e83-801e-bc05003ebf6b",
+  "user_id": "ac98336e-c493-4609-a058-cf7114f7a2ed",
+  "webhook_id": "2f82201d-1439-436d-8c6a-2e6b3e36a54f",
+  "payload": {
+    "request_id": "7d50b66c-3e86-4d0b-95af-5ff7561d18ff",
+    "response_id": "12576767-d3ea-4ea2-8805-6f2a73ef3439",
+    "response_type": "lawsuit",
+    "response_data": {
+      "code": "0000134-63.2024.8.05.0004",
+      "justice": "8",
+      "tribunal": "05",
+      "instance": 1,
+      "distribution_date": "2024-01-17T15:43:39.000Z",
+      "judge": "AUGUSTO YUZO JOUTI",
+      "tribunal_acronym": "TJBA",
+      "secrecy_level": 0,
+      "tags": {
+        "crawl_id": "f9b29daf-4cd4-48e9-97cd-0cee91400765"
+      },
+      "subjects": [
+        {
+          "code": "7779",
+          "name": "INDENIZAÇÃO POR DANO MORAL"
+        },
+        {
+          "code": "6220",
+          "name": "RESPONSABILIDADE DO FORNECEDOR"
+        },
+        {
+          "code": "1156",
+          "name": "DIREITO DO CONSUMIDOR"
+        }
+	],
+}
+```
+**Obs** Para cadastrar seu webhook deverá seguir esses passos:
+
+`1.` Acessar o portal **app.judit.io**
+
+`2.` Clicar no seu perfil de usuário > Webhook > Editar
 
 ## Consultando Informações de um Monitoramento
 
@@ -293,3 +385,5 @@ Aqui está um exemplo do retorno do monitoramento deletado:
 ```
 
 E é isso! Com esses recursos, você pode manter-se atualizado sobre qualquer movimentação em processos judiciais de seu interesse. Se você tiver alguma dúvida ou encontrar algum problema, nossa equipe de suporte está à disposição para ajudá-lo. Entre em contato conosco através do nosso portal de suporte.
+
+*Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido*.

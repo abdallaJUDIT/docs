@@ -18,6 +18,17 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"** ou **"lawsuit_id"** para um número de processo;
 
+`Obs:` - Para OAB usar o seguinte padrão: UF + 0 + **numerodaOAB**
+
+Exemplo:
+```json
+
+DF012345
+
+Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
+
+DF001234
+```
 - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
 
 - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
@@ -25,6 +36,8 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
+	
+	- `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj** ou **lawsuit_id**.
 
 - `search_params`: Um objeto que contém alguns parâmetros da busca como:
 
@@ -75,6 +88,8 @@ curl -X POST "https://requests.prod.judit.io/requests"
     }
 }'
 ```
+
+
 
 ## Aqui está o exemplo do retorno da criação da sua request
 
@@ -270,3 +285,5 @@ Aqui está um exemplo da resposta da solicitação:
 }
 
 ```
+
+*Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido*.
