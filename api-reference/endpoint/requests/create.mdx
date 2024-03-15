@@ -9,7 +9,9 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
     <Expandable title="properties">
 
         <ParamField body="search_type" type="string" required>
-            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
+            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj”, "name" ou "rji";
+
+            
         </ParamField>
 
         <ParamField body="search_key" type="string" required>
@@ -20,10 +22,6 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
             Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
         </ParamField>
 
-        <ParamField body="accept_cache" type="boolean" required={false}>
-            Define se o resultado da busca pode ser um cache válido;
-        </ParamField>
-
         <ParamField body="cache_ttl_in_days" type="integer" required={false}>
             Define até quantos dias o resultado da busca pode considerar um cache válido;
         </ParamField>
@@ -31,24 +29,15 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">
                 <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-                    Defini a instância em que deseja buscar o processo;
-                </ParamField>
-                <ParamField body="side" name="side" type="string" required={false}>
-                    Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                    Define a instância em que deseja buscar o processo;
                 </ParamField>
                 <ParamField body="masked_response" name="masked_response" type="string" required={false}>
-                    Defini se a resposta virá minificada;
-                </ParamField>
-                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-                    Defini a instância em que deseja buscar o processo;
-                </ParamField>
-                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
-                    Defini se a resposta virá minificada;
+                    Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
                 </ParamField>
                 <ParamField body="filter" type="object" required={false}>
                     <Expandable>
                         <ParamField body="side" name="side" type="string" required={false}>
-                            Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
                         </ParamField>
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
                             Retorna buscas com a data de distribuição maior ou igual a informada;
@@ -58,40 +47,19 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
                         </ParamField>
                     </Expandable>
                 </ParamField>
-                <ParamField body="pagination" type="object" required={false}>
-                    <Expandable>
-                        <ParamField body="page" name="page" type="integer" required={false}>
-                            Defini a página dos itens nas respostas da busca;
-                        </ParamField>
-                        <ParamField body="page_size" name="page_size" type="integer" required={false}>
-                            Defini o número máximo de itens por página nas respostas da busca;
-                        </ParamField>
-                    </Expandable>
-                </ParamField>
             </Expandable>
         </ParamField>
 
         <ParamField body="filter" type="object" required={false}>
             <Expandable title="properties">
                 <ParamField body="side" name="side" type="string" required={false}>
-                    Defini os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
+                    Define os tipos de participantes do processo: ‘Passive’, ‘Active’, ‘Interested’, ‘Unknown’;
                 </ParamField>
                 <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-                    Defini os resultados com a data de distribuiçao maior ou igual a informada;
+                    Define os resultados com a data de distribuiçao maior ou igual a informada;
                 </ParamField>
                 <ParamField body="tribunals" name="tribunals" type="array" required={false}>
-                    Defini por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais);
-                </ParamField>
-            </Expandable>
-        </ParamField>
-
-        <ParamField body="pagination" type="object" required={false}>
-            <Expandable title="properties">
-                <ParamField body="page" name="page" type="integer" required={false}>
-                    Defini a página dos items na resposta da busca;
-                </ParamField>
-                <ParamField body="pageSize" name="pageSize" type="integer" required={false}>
-                    Defini o número máximo de items na resposta da busca que você deseja receber por página;
+                    Define por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais);
                 </ParamField>
             </Expandable>
         </ParamField>
