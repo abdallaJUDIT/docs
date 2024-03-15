@@ -35,7 +35,9 @@ curl -X POST "https://requests.prod.judit.io/requests" \
 -H "api-key: YOUR_API_KEY" \
 -H "Content-Type: application/json" \
 -d '{
-    "search_type": "lawsuit_cnj",
-    "search_key": "0010137-92.2023.5.03.0077"
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "0809570-97.2022.8.19.0002"
+	}
 }'
 ```
