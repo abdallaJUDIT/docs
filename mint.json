@@ -38,6 +38,7 @@
       "pages": [
         "essentials/requests",
         "essentials/tracking",
+        "essentials/warrant",
         "essentials/callbacks",
         "essentials/glossary"
       ]
