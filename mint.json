@@ -40,6 +40,7 @@
         "essentials/tracking",
         "essentials/warrant",
         "essentials/callbacks",
+        "crawlers/cache-judit",
         "essentials/glossary"
       ]
     },
@@ -81,6 +82,12 @@
         "api-reference/endpoint/tracking/pause",
         "api-reference/endpoint/tracking/resume",
         "api-reference/endpoint/tracking/delete"
+      ]
+    },
+    {
+      "group": "Consulta cache JUDIT",
+      "pages": [
+        "api-reference/endpoint/crawler/req-async"
       ]
     },
     {

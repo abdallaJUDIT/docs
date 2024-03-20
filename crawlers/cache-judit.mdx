@@ -1,0 +1,625 @@
+---
+title: "Consulta Cache Judit"
+description: "Essa consulta funciona da seguinte forma, retorna de forma sincrona o que temos na nossa base de dados e em paralelo cria uma request normal que vai consultar os tribunais,"
+icon: "shield"
+---
+
+
+Na resposta sincrona, retornamos apenas dados que já estão em nossa base de dados, com isso ela gera uma resposta mais rapida porém pode haver um delay na completude das informações. É importante consultar a resposta da request criada que vai nos tribunais trazer a informação completa e atualizada.
+
+<Steps>
+ <Step title="Payload" stepNumber="1">
+   Para realizar a consulta de forma sincrona, é necessário primeiramente criar uma requisição para o endpoint.
+
+   ```bash
+ curl --request POST \
+  --url https://crawler.prod.judit.io/crawls \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: <api-key>' \
+  --data '{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99",
+    "search_params": {
+      "page": 1,
+      "page_size": 50
+    }
+  }
+}'
+    ```
+
+
+A resposta dessa requisição será um objeto JSON com os dados de criação:
+
+
+     ```json
+     {
+  "has_lawsuits": true,
+  "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
+  "response_data": [
+    {
+      "code": "0100248-39.2022.5.01.0037",
+      "justice": "5",
+      "tribunal": "01",
+      "instance": 2,
+      "distribution_date": "2023-05-18T11:12:59.000Z",
+      "tribunal_acronym": "TRT1",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "13656",
+          "name": "DOMÉSTICOS"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "1009",
+          "name": "RECURSO ORDINÁRIO TRABALHISTA"
+        }
+      ],
+      "courts": [
+        {
+          "code": "75580",
+          "name": "GAB DES. GLAUCIA ZUCCARI FERNANDES BRAGA"
+        }
+      ],
+      "parties": [
+        {
+          "name": "Jhon Doe",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "09206529702",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Advogada do Autor",
+              "side": "Active",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "Berenice Castro",
+          "side": "Passive",
+          "person_type": "Réu",
+          "document": "05705251765",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome da advogada do réu",
+              "side": "Passive",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Active",
+          "name": "Nome da advogada",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Passive",
+          "name": "Nome do advogado",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.466Z"
+      },
+      "amount": 7685.82,
+      "last_step": {
+        "lawsuit_cnj": "0100248-39.2022.5.01.0037",
+        "lawsuit_instance": 1,
+        "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
+        "step_date": "2024-03-18T19:21:02.466Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "Nome do Autor X Nome do Réu"
+    },
+    {
+      "code": "0100248-39.2022.5.01.0037",
+      "justice": "5",
+      "tribunal": "01",
+      "instance": 1,
+      "distribution_date": "2022-03-30T16:41:24.000Z",
+      "tribunal_acronym": "TRT1",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "13656",
+          "name": "DOMÉSTICOS"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "985",
+          "name": "AÇÃO TRABALHISTA - RITO ORDINÁRIO"
+        }
+      ],
+      "courts": [
+        {
+          "code": "33782",
+          "name": "RIO DE JANEIRO - 37ª VARA DO TRABALHO"
+        }
+      ],
+      "parties": [
+        {
+          "name": "Berenice",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "05705251765",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome do advogado do Autor",
+              "side": "Active",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "Jhon Doe",
+          "side": "Passive",
+          "person_type": "Réu",
+          "document": "09206521722",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome da Advogada do réu",
+              "side": "Passive",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Active",
+          "name": "Nome do Advogado",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Passive",
+          "name": "Nome do Advogado",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.465Z"
+      },
+      "amount": 7685.82,
+      "last_step": {
+        "lawsuit_cnj": "0100248-39.2022.5.01.0037",
+        "lawsuit_instance": 1,
+        "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
+        "step_date": "2024-03-18T19:21:02.465Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "Berenice X Jhon"
+    },
+    {
+      "code": "0817064-37.2023.8.19.0209",
+      "justice": "8",
+      "tribunal": "19",
+      "instance": 1,
+      "distribution_date": "2023-06-06T17:35:50.000Z",
+      "tribunal_acronym": "TJRJ",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "7769",
+          "name": "ABATIMENTO PROPORCIONAL DO PREÇO "
+        },
+        {
+          "code": "7748",
+          "name": "ACIDENTE AÉREO"
+        },
+        {
+          "code": "10435",
+          "name": "ACIDENTE DE TRÂNSITO"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "436",
+          "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+        }
+      ],
+      "courts": [
+        {
+          "code": "13805",
+          "name": "BARRA DA TIJUCA REGIONAL II JUI ESP CIV"
+        }
+      ],
+      "parties": [
+        {
+          "name": "DAVI LUIZ",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "14224726718",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GABRIELLA",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "16663398733",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "JULIANA",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "18250433700",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "LEONARDO",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "14904631781",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "LEONARDO2",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "13726926739",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "LIVIA",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "13482560790",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "LUCAS",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "13726925767",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "MARCO",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "09206529722",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "MARIA",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "50559689829",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "SUELEN",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "13565811706",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "HOTEL LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.466Z"
+      },
+      "amount": 28790,
+      "last_step": {
+        "lawsuit_cnj": "0817064-37.2023.8.19.0209",
+        "lawsuit_instance": 1,
+        "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
+        "step_date": "2024-03-18T19:21:02.466Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "DAVI LUIZ X GRUPO TURISMO LTDA"
+    },
+    {
+      "code": "0824046-82.2023.8.19.0204",
+      "justice": "8",
+      "tribunal": "19",
+      "instance": 1,
+      "tribunal_acronym": "TJRJ",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "7780",
+          "name": "INDENIZAÇÃO POR DANO MATERIAL"
+        },
+        {
+          "code": "7779",
+          "name": "INDENIZAÇÃO POR DANO MORAL"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "436",
+          "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+        }
+      ],
+      "courts": [
+        {
+          "code": "7869",
+          "name": "BANGU REGIONAL XVII JUI ESP CIV"
+        }
+      ],
+      "parties": [
+        {
+          "name": "FERNANDO",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "72472723768",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "MARCO",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "09206529722",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "SUELEN",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "13565811706",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "SUELI",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "02088098720",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "HOTEL TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GRUPO TURISMO LTDA",
+          "side": "Passive",
+          "person_type": "Réu",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.466Z"
+      },
+      "amount": 46831,
+      "last_step": {
+        "lawsuit_cnj": "0824046-82.2023.8.19.0204",
+        "lawsuit_instance": 1,
+        "step_id": "YpIR5rAfSprFSseqRe9oVUPtkKcgQI0Na8RIv1djKZI=",
+        "step_date": "2024-03-18T19:21:02.466Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "FERNANDO X GRUPO TURISMO LTDA"
+    }
+  ]
+}
+     ```
+
+
+     
+Essa consulta irá trazer uma página de cada vez, caso não seja necessário capturar os processos, a requisição pode ser feita sem o objeto pagination, com isso não retornaremos os processos, retornaremos apenas na flag hasLawsuits se tem ou não processo ligado a essa consulta. Essa consulta é comumente utilizada quando se tem a necessidade por um tempo de resposta baixa, como em rotinas de onboarding.
+
+## Exemplo de payload:
+
+```json 
+{
+	"search": {
+		"search_type": "cpf",
+		"search_key": "092.065.297-22"
+	}
+}
+```
+
+## Resposta esperada:
+
+```json 
+{
+	"has_lawsuits": true,
+	"request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
+	"response_data": []
+}
+```
+
+Lembrando que com o request_id você pode consultar a resposta vinda dos tribunais da mesma forma que é feito na criação de requests padrão: https://docs.judit.io/api-reference/endpoint/requests/create
+    
+ </Step>
+</Steps>
