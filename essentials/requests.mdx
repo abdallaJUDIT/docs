@@ -23,11 +23,11 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 Exemplo:
 ```json
 
-DF012345
+DF0012345
 
 Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
 
-DF001234
+DF0001234
 ```
 - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
 
@@ -50,7 +50,7 @@ DF001234
 
         Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
-       - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
+    - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
 
                 - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
 

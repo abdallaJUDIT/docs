@@ -29,11 +29,11 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 Exemplo:
 ```json
 
-DF012345
+DF0012345
 
 Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
 
-DF001234
+DF0001234
 ```
 
    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
@@ -46,22 +46,29 @@ DF001234
 		- `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
    - `search_params`: Um objeto que contém alguns parâmetros buscar como:
 
-          - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
-
-          - `masked_response` (opcional): Este parâmetro permite definir se as respostas da busca poderam ser minificadas ou completas;
+         - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
+         - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual.
+                - masked_response = `true`: retornará uma consulta completa
+                - masked_response = `false`: retornará uma consulta simples
               
-            `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
-        
-         Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
+      `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-        - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
+        Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
-                 - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+    	- `filter` (opcional): Um objeto que contém alguns filtros da busca como:
 
-                 - `distribution_date_gte` (opcional): Este parâmetro permite buscar por resultados com a data de distribuiçao maior ou igual a informada;
+                - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
 
-                 - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
-                 
+                - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
+
+                - `distribution_date_gte`  (opcional): Este filtro permite que você especifique uma data de distribuição mínima. Ele ajuda a filtrar processos com base na data de distribuição, permitindo que você localize processos distribuídos após uma determinada data.
+
+                - `subject_codes` (opcional): Este filtro é uma lista de códigos de assunto. Você pode fornecer uma lista de códigos de assunto para restringir a busca a processos que tenham esses códigos específicos.
+
+                - `classification_codes`: Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos.
+
+  Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
+
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 	- cadastrar um monitoramento no dash: 
 		- `name`: nome do monitoramento
