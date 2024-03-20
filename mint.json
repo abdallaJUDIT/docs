@@ -44,6 +44,20 @@
       ]
     },
     {
+      "group": "Fluxo de Consulta Processual",
+      "pages": [
+        "flow-procedural/request-process",
+        "flow-procedural/tracking-process"
+      ]
+    },
+    {
+      "group": "Fluxo de Consulta por Documento",
+      "pages": [
+        "flow-document/request-document",
+        "flow-document/tracking-document"
+      ]
+    },
+    {
       "group": "Requests",
       "pages": [
         "api-reference/endpoint/requests/create",
@@ -73,20 +87,6 @@
       "group": "Acesso a anexos",
       "pages": [
         "api-reference/endpoint/attachments/attachment-access"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta Processual",
-      "pages": [
-        "api-reference/endpoint/flow-procedural/request-process",
-        "api-reference/endpoint/flow-procedural/tracking-process"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta por Documento",
-      "pages": [
-        "api-reference/endpoint/flow-document/request-document",
-        "api-reference/endpoint/flow-document/tracking-document"
       ]
     }
   ],

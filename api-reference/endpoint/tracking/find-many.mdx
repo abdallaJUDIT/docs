@@ -21,11 +21,6 @@ description: "Esse endpoint consulta monitoramentos por parâmetros de forma pag
     Sentido da ordenação: ‘asc’ ou ‘desc’;
 </ParamField>
 
-<ParamField query="user_id" type="string" required={false}>
-    Retorna buscas relacionadas ao usuário;
-</ParamField>
-
-
 <ParamField query="search_type" type="string" required={false}>
  Retorna monitoramentos do tipo de referência especificado “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
 </ParamField>
@@ -101,7 +96,6 @@ description: "Esse endpoint consulta monitoramentos por parâmetros de forma pag
         "page_data": [
             {
                 "tracking_id": "6adbd1ba-8ef4-47c5-994f-13c017118046",
-                "user_id": "454bbd51-3f8a-4889-b45f-54a78e312257",
                 "status": "updating",
                 "recurrence": 1,
                 "search":{

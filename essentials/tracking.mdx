@@ -24,7 +24,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
    - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
 
-`Obs:` - Para OAB usar o seguinte padrão: UF + 0 + **numerodaOAB**
+`Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
 
 Exemplo:
 ```json

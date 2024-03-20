@@ -8,90 +8,50 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
  Recorrência em dias de atualização dos processos.
 </ParamField>
 
-<ParamField body="search" type="object" required>
- <Expandable title="properties">
-
-  <ParamField body="search_type" type="string" required>
-   Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
-  </ParamField>
-
-  <ParamField body="search_key" type="string" required>
-   Número do processo (Código CNJ), CPF, CNPJ ou OAB;
-  </ParamField>
-
-  <ParamField body="response_type" type="string" required={false}>
-   Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
-  </ParamField>
-
-  <ParamField body="accept_cache" type="boolean" required={false}>
-   Define se o resultado da busca pode ser um cache válido;
-  </ParamField>
-
-  <ParamField body="cache_ttl_in_days" type="integer" required={false}>
-   Define até quantos dias o resultado da busca pode considerar um cache válido;
-  </ParamField>
-
-  <ParamField body="search_params" type="object" required={false}>
-   <Expandable title="properties">
-    <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-     Define a instância em que deseja buscar o processo;
-    </ParamField>
-    <ParamField body="masked_response" name="masked_response" type="string" required={false}>
-     Define se a resposta virá minificada;
-    </ParamField>
-    <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-     Define a instância em que deseja buscar o processo;
-    </ParamField>
-    <ParamField body="masked_response" name="masked_response" type="string" required={false}>
-     Define se a resposta virá minificada;
-    </ParamField>
-    <ParamField body="filter" type="object" required={false}>
-     <Expandable>
-      <ParamField body="side" name="side" type="string" required={false}>
-       Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
-      </ParamField>
-      <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-       Retorna buscas com a data de distribuição maior ou igual a informada;
-      </ParamField>
-      <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-       Busca por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais)
-      </ParamField>
-     </Expandable>
-    </ParamField>
-   </Expandable>
-  </ParamField>
-
-  <ParamField body="filter" type="object" required={false}>
-   <Expandable title="properties">
-    <ParamField body="side" name="side" type="string" required={false}>
-     Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
-    </ParamField>
-    <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-     Define os resultados com a data de distribuiçao maior ou igual a informada;
-    </ParamField>
-    <ParamField body="tribunals" name="tribunals" type="array" required={false}>
-     Define por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais);
-    </ParamField>
-   </Expandable>
-  </ParamField>
-
-  <ParamField body="pagination" type="object" required={false}>
-   <Expandable title="properties">
-    <ParamField body="page" name="page" type="integer" required={false}>
-     Define a página dos items na resposta da busca;
-    </ParamField>
-    <ParamField body="page_size" name="page_size" type="integer" required={false}>
-     Define o número máximo de items na resposta da busca que você deseja receber por página;
-    </ParamField>
-   </Expandable>
-  </ParamField>
- </Expandable>
-</ParamField>
-
-<ParamField body="tags" type="object" required={false}>
+<ParamField body="search" type="object" required={false}>
     <Expandable title="properties">
-        <ParamField body="key" name="tag_name" type="string" required={false}>
-            key
+
+        <ParamField body="search_type" type="string" required>
+            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
+
+            
+        </ParamField>
+
+        <ParamField body="search_key" type="string" required>
+            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={false}>
+            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+        </ParamField>
+
+        <ParamField body="cache_ttl_in_days" type="integer" required={false}>
+            Define até quantos dias o resultado da busca pode considerar um cache válido;
+        </ParamField>
+
+        <ParamField body="search_params" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="filter" type="object" required={false}>
+                    <Expandable>
+                        <ParamField body="side" name="side" type="string" required={false}>
+                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Busca por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais)
+                        </ParamField>
+                    </Expandable>
+                </ParamField>
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Define a instância em que deseja buscar o processo;
+                </ParamField>
+                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
+                    Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
+                </ParamField>
+
+            </Expandable>
         </ParamField>
     </Expandable>
 </ParamField>
