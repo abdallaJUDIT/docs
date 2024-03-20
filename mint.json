@@ -40,7 +40,22 @@
         "essentials/tracking",
         "essentials/warrant",
         "essentials/callbacks",
+        "crawlers/cache-judit",
         "essentials/glossary"
+      ]
+    },
+    {
+      "group": "Fluxo de Consulta Processual",
+      "pages": [
+        "flow-procedural/request-process",
+        "flow-procedural/tracking-process"
+      ]
+    },
+    {
+      "group": "Fluxo de Consulta por Documento",
+      "pages": [
+        "flow-document/request-document",
+        "flow-document/tracking-document"
       ]
     },
     {
@@ -70,23 +85,15 @@
       ]
     },
     {
+      "group": "Consulta cache JUDIT",
+      "pages": [
+        "api-reference/endpoint/crawler/req-async"
+      ]
+    },
+    {
       "group": "Acesso a anexos",
       "pages": [
         "api-reference/endpoint/attachments/attachment-access"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta Processual",
-      "pages": [
-        "api-reference/endpoint/flow-procedural/request-process",
-        "api-reference/endpoint/flow-procedural/tracking-process"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta por Documento",
-      "pages": [
-        "api-reference/endpoint/flow-document/request-document",
-        "api-reference/endpoint/flow-document/tracking-document"
       ]
     }
   ],
