@@ -168,12 +168,12 @@ curl -X GET "https://requests.prod.judit.io/requests/{busca}"
 
 ## Consultando Informações de uma Resposta
 
-Para consultar todas as informações sobre uma resposta específica, você pode fazer uma solicitação GET para a rota `/requests/responses/{resposta}`, substituindo `{resposta}` pelo ID da resposta que você deseja consultar.
+Para consultar todas as informações sobre uma resposta específica, você pode fazer uma solicitação GET para a rota `/responses/{resposta}`, substituindo `{resposta}` pelo ID da resposta que você deseja consultar.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://requests.prod.judit.io/responses?request_id=1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa"
+curl -X GET "https://requests.prod.judit.io/responses/1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa"
 -H "api-key: YOUR_API_KEY"
 ```
 
