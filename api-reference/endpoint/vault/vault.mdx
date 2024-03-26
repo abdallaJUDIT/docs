@@ -1,0 +1,541 @@
+---
+title: "Cofre de Credenciais"
+openapi: "openapi-1 GET /credentials"
+api: "GET https://crawler.prod.judit.io/credentials"
+description: "permite ao cliente parceiro cadastrar em nosso cofre de senhas as credenciais dos seus advogados por sistema e tribunal."
+---
+
+
+<ResponseExample>
+```json
+{
+	"systems": [
+		{
+			"name": "*",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - JFES - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJSC - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJSC - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJTO - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - JFPR - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TNU - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAC - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAC - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJMS - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJSP - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAM - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJCE - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJSP - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJBA - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMG - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJES - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJAP - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJCE - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJDFT - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJDFT - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMA - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - JFRJ - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - JFRS - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMT - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPA - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPB - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPE - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPE - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRJ - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRO - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRO - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRR - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRF1 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRF1 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRF3 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRF3 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT1 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJMG - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - JFSC - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJMG - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJRS - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJRS - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TRF2 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TJTO - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TRF4 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAL - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJCE - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAL - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJMS - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "ESAJ - TJAM - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJAP - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJBA - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJES - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMA - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJCE - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT15 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT15 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT17 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT18 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT18 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT19 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT20 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT21 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT22 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT22 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT23 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT3 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT6 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT7 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRN - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRN - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJRR - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT1 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT10 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT10 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT11 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT11 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT12 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT12 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT13 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT14 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPI - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPI - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT13 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT14 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT16 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT16 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT17 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT19 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT2 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT2 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT20 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT21 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT23 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT24 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT24 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT3 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT4 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT5 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT4 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT5 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT8 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "TJRJ - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJRO - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TST - 3º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJPB - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TST - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJAP - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TST - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJAP - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT8 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT6 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT7 - CE - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT9 - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TRT9 - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJBA - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJES - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJMT - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJRJ - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJEINTER TJPB - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PROJUDI TJBA - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PROJUDI TJBA - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "TJRJ - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMG - 2º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJMT - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPB - 1º grau",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "PJE TJPA - 2º grau",
+			"credential_status": "not exists"
+		}
+	]
+}
+```
+</ResponseExample>
+
+<Accordion title="Tipos de Status das Credenciais">
+*credential_status pode ser*:
+
+`not exists`: Não cadastrada
+
+`active`: Cadastrada e ativa
+
+`inactive`: Cadastrada porém inativa (provável problema com senha ou bloqueio)
+
+
+Caso seja utilizado um cadastro no sistema * (cadastro genérico), essa credencial será utilizada para todos os tribunais que não contenha um outro cadastro, então cuidado com esse tipo de cadastro.
+</Accordion>

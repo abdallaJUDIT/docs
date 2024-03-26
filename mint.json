@@ -95,6 +95,13 @@
       "pages": [
         "api-reference/endpoint/attachments/attachment-access"
       ]
+    },
+    {
+      "group": "Cofre de Credenciais",
+      "pages": [
+        "api-reference/endpoint/vault/vaultcreate",
+        "api-reference/endpoint/vault/vault"
+      ]
     }
   ],
   "primaryTab": {

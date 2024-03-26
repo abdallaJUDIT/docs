@@ -17,14 +17,16 @@ Na resposta sincrona, retornamos apenas dados que já estão em nossa base de da
   --header 'Content-Type: application/json' \
   --header 'api-key: <api-key>' \
   --data '{
-  "search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99",
-    "search_params": {
-      "page": 1,
-      "page_size": 50
-    }
-  }
+	"search": {
+		"search_type": "cpf",
+		"search_key": "999.999.999-99",
+		"search_params": {
+			"pagination": {
+				"page": 1,
+				"page_size": 50
+			}
+		}
+	}
 }'
     ```
 
