@@ -36,8 +36,11 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
                             Retorna buscas com a data de distribuição maior ou igual a informada;
                         </ParamField>
-                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-                            Busca por resultados nos tribunais informados inclusos na [lista de tribunais](../../../essentials/glossary#lista-de-tribunais)
+                        <ParamField body="subjects" name="subjects" type="string" required={false}>
+                            Este filtro é uma lista de códigos de assunto. Você pode fornecer uma lista de códigos de assunto para restringir a busca a processos que tenham esses códigos específicos.
+                        </ParamField>
+                        <ParamField body="classification_codes" name="classification_codes" type="string" required={false}>
+                            Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos
                         </ParamField>
                     </Expandable>
                 </ParamField>
