@@ -4,6 +4,7 @@ openapi: "POST /tracking"
 api: "POST https://tracking.prod.judit.io/tracking"
 description: "Esse endpoint cria um monitoramento de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
 ---
+
 <ParamField body="recurrence" type="integer" required>
  Recorrência em dias de atualização dos processos.
 </ParamField>
@@ -29,6 +30,12 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
 
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Define a instância em que deseja buscar o processo;
+                </ParamField>
+                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
+                    Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
+                </ParamField>
                 <ParamField body="filter" type="object" required={false}>
                     <Expandable>
                         <ParamField body="side" name="side" type="string" required={false}>
@@ -37,23 +44,21 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
                             Retorna buscas com a data de distribuição maior ou igual a informada;
                         </ParamField>
-                          <ParamField body="subjects" name="subjects" type="string" required={false}>
-                            Este filtro é uma lista de códigos de assunto. Você pode fornecer uma lista de códigos de assunto para restringir a busca a processos que tenham esses códigos específicos.
+                         <ParamField body="tribunals" name="tribunals" type="string" required={false}>
+                            Este filtro é uma lista de tribunais. Você pode fornecer uma lista de sigla de tribunais para restringir a busca a processos nos tribunais informados.
+                        </ParamField>
+                        <ParamField body="subjects_code" name="subjects_code" type="string" required={false}>
+                            Este filtro é uma lista de códigos de assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham esses códigos específicos.
                         </ParamField>
                         <ParamField body="classification_codes" name="classification_codes" type="string" required={false}>
                             Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos
                         </ParamField>
                     </Expandable>
                 </ParamField>
-                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-                    Define a instância em que deseja buscar o processo;
-                </ParamField>
-                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
-                    Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
-                </ParamField>
             </Expandable>
         </ParamField>
     </Expandable>
+
 </ParamField>
 
 <ResponseExample>
