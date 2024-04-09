@@ -42,14 +42,37 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
                             Retorna buscas com a data de distribuição maior ou igual a informada;
                         </ParamField>
-                         <ParamField body="tribunals" name="tribunals" type="string" required={false}>
-                            Este filtro é uma lista de tribunais. Você pode fornecer uma lista de sigla de tribunais para restringir a busca a processos nos tribunais informados.
+                         <ParamField body="tribunals" name="tribunals" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
-                        <ParamField body="subjects_code" name="subjects_code" type="string" required={false}>
-                            Este filtro é uma lista de códigos de assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham esses códigos específicos.
+
+                        <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
-                        <ParamField body="classification_codes" name="classification_codes" type="string" required={false}>
-                            Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos
+
+                        <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
                     </Expandable>
                 </ParamField>

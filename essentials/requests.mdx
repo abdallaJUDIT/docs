@@ -36,7 +36,7 @@ DF0001234
 - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
-	
+
 	- `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj** ou **lawsuit_id**.
 
 - `search_params`: Um objeto que contém alguns parâmetros da busca como:
@@ -45,7 +45,7 @@ DF0001234
          - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual.
                 - masked_response = `true`: retornará uma consulta completa
                 - masked_response = `false`: retornará uma consulta simples
-              
+
       `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
         Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
@@ -54,13 +54,19 @@ DF0001234
 
                 - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
 
-                - `tribunals` (opcional): Este parâmetro buscar por resultados nos tribunais informados inclusos na [lista de tribunais](./glossary#lista-de-tribunais);
+                - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
+                    - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./glossary#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+
+                - `subject_codes` (opcional): Um objeto que contém os filtro de assuntos;
+                    - `keys` (opcional): Este filtro é uma lista de códigos assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+
+                - `classification_codes` (opcional): Um objeto que contém os filtro de classes processuais;
+                    - `keys` (opcional): Este filtro é uma lista de códigos de classes processuais. Você pode fornecer uma lista de códigos de classes para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
 
                 - `distribution_date_gte`  (opcional): Este filtro permite que você especifique uma data de distribuição mínima. Ele ajuda a filtrar processos com base na data de distribuição, permitindo que você localize processos distribuídos após uma determinada data.
-
-                - `subject_codes` (opcional): Este filtro é uma lista de códigos de assunto. Você pode fornecer uma lista de códigos de assunto para restringir a busca a processos que tenham esses códigos específicos.
-
-                - `classification_codes`: Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos.
 
   Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
