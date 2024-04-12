@@ -42,6 +42,15 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
                             Retorna buscas com a data de distribuição maior ou igual a informada;
                         </ParamField>
+
+                        <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
+                            Retorna buscas com o valor da causa maior que o valor passado
+                        </ParamField>
+                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
+                            Retorna buscas com o valor da causa menor que o valor passado
+                        </ParamField>
+
+
                          <ParamField body="tribunals" name="tribunals" type="object" required={false}>
                          <Expandable>
                            <ParamField body="keys" name="keys" type="array" required={false}>

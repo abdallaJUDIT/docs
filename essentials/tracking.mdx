@@ -59,6 +59,10 @@ DF0001234
 
 
                 - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+
+                - `amount_gte` (opcional): Este parâmetro permite  buscar por processos com valor da causa maior que o amount_gte;
+                - `amount_lte` (opcional): Este parâmetro permite  buscar por processos com valor da causa menor que o amount_lte;
+
                 - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
                     - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./callbacks.mdx#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
                     - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
