@@ -45,24 +45,52 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
                             Retorna buscas com a data de distribuição maior ou igual a informada;
                         </ParamField>
 
-
                         <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
                             Retorna buscas com o valor da causa maior que o valor passado
                         </ParamField>
                         <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
                             Retorna buscas com o valor da causa menor que o valor passado
                         </ParamField>
-                        
-                         <ParamField body="tribunals" name="tribunals" type="string" required={false}>
-                            Este filtro é uma lista de tribunais. Você pode fornecer uma lista de sigla de tribunais para restringir a busca a processos nos tribunais informados.
+
+
+                         <ParamField body="tribunals" name="tribunals" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
-                        <ParamField body="subjects_code" name="subjects_code" type="string" required={false}>
-                            Este filtro é uma lista de códigos de assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham esses códigos específicos.
+
+                        <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
-                        <ParamField body="classification_codes" name="classification_codes" type="string" required={false}>
-                            Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos
+
+                        <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
                         </ParamField>
                     </Expandable>
+                </ParamField>
+                <ParamField body="credential" type="object" required={false}>
+                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
+                    </ParamField>
                 </ParamField>
             </Expandable>
         </ParamField>
