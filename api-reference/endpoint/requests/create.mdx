@@ -85,6 +85,11 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
                         </ParamField>
                     </Expandable>
                 </ParamField>
+                <ParamField body="credential" type="object" required={false}>
+                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
+                    </ParamField>
+                </ParamField>
             </Expandable>
         </ParamField>
     </Expandable>

@@ -1,123 +1,116 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
-  "name": "JUDIT - Docs",
-  "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
-  },
-  "favicon": "/favicon.png",
-  "colors": {
-    "primary": "#15BE62",
-    "light": "#0CAE56",
-    "dark": "#15BE62"
-  },
-  "modeToggle": {
-    "default": "dark",
-    "isHidden": true
-  },
-  "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://app.judit.io"
-  },
-  "tabs": [
-    {
-      "name": "Referência da API",
-      "url": "api-reference"
-    }
-  ],
-  "navigation": [
-    {
-      "group": "Comece a usar",
-      "pages": [
-        "introduction",
-        "quickstart"
-      ]
-    },
-    {
-      "group": "Essenciais",
-      "pages": [
-        "essentials/requests",
-        "essentials/tracking",
-        "essentials/warrant",
-        "essentials/callbacks",
-        "crawlers/cache-judit",
-        "essentials/glossary"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta Processual",
-      "pages": [
-        "flow-procedural/request-process",
-        "flow-procedural/tracking-process"
-      ]
-    },
-    {
-      "group": "Fluxo de Consulta por Documento",
-      "pages": [
-        "flow-document/request-document",
-        "flow-document/tracking-document"
-      ]
-    },
-    {
-      "group": "Requests",
-      "pages": [
-        "api-reference/endpoint/requests/create",
-        "api-reference/endpoint/requests/find-one",
-        "api-reference/endpoint/requests/find-many"
-      ]
-    },
-    {
-      "group": "Responses",
-      "pages": [
-        "api-reference/endpoint/responses/find-one",
-        "api-reference/endpoint/responses/find-many"
-      ]
-    },
-    {
-      "group": "Monitoramento",
-      "pages": [
-        "api-reference/endpoint/tracking/create",
-        "api-reference/endpoint/tracking/find-many",
-        "api-reference/endpoint/tracking/find-one",
-        "api-reference/endpoint/tracking/pause",
-        "api-reference/endpoint/tracking/resume",
-        "api-reference/endpoint/tracking/delete"
-      ]
-    },
-    {
-      "group": "Consulta cache JUDIT",
-      "pages": [
-        "api-reference/endpoint/crawler/req-async"
-      ]
-    },
-    {
-      "group": "Acesso a anexos",
-      "pages": [
-        "api-reference/endpoint/attachments/attachment-access"
-      ]
-    },
-    {
-      "group": "Cofre de Credenciais",
-      "pages": [
-        "api-reference/endpoint/vault/vaultcreate",
-        "api-reference/endpoint/vault/vault"
-      ]
-    }
-  ],
-  "primaryTab": {
-    "name": "Documentação"
-  },
-  "api": {
-    "baseUrl": [
-      "https://requests.prod.judit.io",
-      "https://tracking.prod.judit.io"
-    ],
-    "auth": {
-      "method": "key",
-      "name": "api-key"
-    },
-    "playground": {
-      "mode": "show"
-    }
+ "$schema": "https://mintlify.com/schema.json",
+ "name": "JUDIT - Docs",
+ "logo": {
+  "dark": "/logo/dark.svg",
+  "light": "/logo/light.svg"
+ },
+ "favicon": "/favicon.png",
+ "colors": {
+  "primary": "#15BE62",
+  "light": "#0CAE56",
+  "dark": "#15BE62"
+ },
+ "modeToggle": {
+  "default": "dark",
+  "isHidden": true
+ },
+ "topbarCtaButton": {
+  "name": "Dashboard",
+  "url": "https://app.judit.io"
+ },
+ "tabs": [
+  {
+   "name": "Referência da API",
+   "url": "api-reference"
   }
+ ],
+ "navigation": [
+  {
+   "group": "Comece a usar",
+   "pages": ["introduction", "quickstart"]
+  },
+  {
+   "group": "Essenciais",
+   "pages": [
+    "essentials/requests",
+    "essentials/tracking",
+    "essentials/warrant",
+    "essentials/callbacks",
+    "crawlers/cache-judit",
+    "essentials/glossary"
+   ]
+  },
+  {
+   "group": "Fluxo de Consulta Processual",
+   "pages": [
+    "flow-procedural/request-process",
+    "flow-procedural/tracking-process"
+   ]
+  },
+  {
+   "group": "Fluxo de Consulta por Documento",
+   "pages": [
+    "flow-document/request-document",
+    "flow-document/tracking-document"
+   ]
+  },
+  {
+   "group": "Requests",
+   "pages": [
+    "api-reference/endpoint/requests/create",
+    "api-reference/endpoint/requests/find-one",
+    "api-reference/endpoint/requests/find-many"
+   ]
+  },
+  {
+   "group": "Responses",
+   "pages": [
+    "api-reference/endpoint/responses/find-one",
+    "api-reference/endpoint/responses/find-many"
+   ]
+  },
+  {
+   "group": "Monitoramento",
+   "pages": [
+    "api-reference/endpoint/tracking/create",
+    "api-reference/endpoint/tracking/find-many",
+    "api-reference/endpoint/tracking/find-one",
+    "api-reference/endpoint/tracking/pause",
+    "api-reference/endpoint/tracking/resume",
+    "api-reference/endpoint/tracking/delete"
+   ]
+  },
+  {
+   "group": "Consulta cache JUDIT",
+   "pages": ["api-reference/endpoint/crawler/req-async"]
+  },
+  {
+   "group": "Acesso a anexos",
+   "pages": ["api-reference/endpoint/attachments/attachment-access"]
+  },
+  {
+   "group": "Cofre de Credenciais",
+   "pages": [
+    "api-reference/endpoint/vault/vault",
+    "api-reference/endpoint/vault/vaultcreate"
+   ]
+  }
+ ],
+ "primaryTab": {
+  "name": "Documentação"
+ },
+ "api": {
+  "baseUrl": [
+   "https://requests.prod.judit.io",
+   "https://tracking.prod.judit.io"
+  ],
+  "auth": {
+   "method": "key",
+   "name": "api-key"
+  },
+  "playground": {
+   "mode": "show"
+  }
+ }
 }

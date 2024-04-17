@@ -1,7 +1,7 @@
 ---
-title: 'Monitoramento'
-description: 'Monitore documentos ou processos e se mantenha atualizado sobre todos os seus processos'
-icon: 'radar'
+title: "Monitoramento"
+description: "Monitore documentos ou processos e se mantenha atualizado sobre todos os seus processos"
+icon: "radar"
 ---
 
 A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB, mantendo-o atualizado sobre qualquer nova movimentação.
@@ -21,12 +21,12 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
 - `search`: Objeto que vai para a busca.
-
-   - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**,  **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
+  - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
 
 `Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
 
 Exemplo:
+
 ```json
 
 DF0012345
@@ -36,115 +36,115 @@ Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
 DF0001234
 ```
 
-   - `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
+- `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
 
-   - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"**, **"lawsuits"** ou **warrant**;
+- `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"**, **"lawsuits"** ou **warrant**;
 
-   - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+- `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
-   - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
-		- `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
-   - `search_params`: Um objeto que contém alguns parâmetros buscar como:
+- `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
-         - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
-         - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual.
-                - masked_response = `true`: retornará uma consulta completa
-                - masked_response = `false`: retornará uma consulta simples
+  - `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
 
-      `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+- `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
-        Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
+  `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-    	- `filter` (opcional): Um objeto que contém alguns filtros da busca como:
+  Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
 
+- `filter` (opcional): Um objeto que contém alguns filtros da busca como:
 
-                - `side` (opcional): Este parâmetro permite  buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
+  - `side` (opcional): Este parâmetro permite buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
 
-                - `amount_gte` (opcional): Este parâmetro permite  buscar por processos com valor da causa maior que o amount_gte;
-                - `amount_lte` (opcional): Este parâmetro permite  buscar por processos com valor da causa menor que o amount_lte;
+  - `amount_gte` (opcional): Este parâmetro permite buscar por processos com valor da causa maior que o amount_gte;
 
-                - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
-                    - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./callbacks.mdx#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+  - `amount_lte` (opcional): Este parâmetro permite buscar por processos com valor da causa menor que o amount_lte;
 
-                - `subject_codes` (opcional): Um objeto que contém os filtro de assuntos;
-                    - `keys` (opcional): Este filtro é uma lista de códigos assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+  - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
 
-                - `classification_codes` (opcional): Um objeto que contém os filtro de classes processuais;
-                    - `keys` (opcional): Este filtro é uma lista de códigos de classes processuais. Você pode fornecer uma lista de códigos de classes para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-                    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+    - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./glossary#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
 
-                - `classification_codes`: Este filtro é uma lista de códigos de classificação. Você pode fornecer uma lista de códigos de classificação para restringir a busca a processos que tenham esses códigos específicos.
+  - `subject_codes` (opcional): Um objeto que contém os filtro de assuntos;
 
-  Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
+    - `keys` (opcional): Este filtro é uma lista de códigos assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+
+  - `classification_codes` (opcional): Um objeto que contém os filtro de classes processuais;
+
+    - `keys` (opcional): Este filtro é uma lista de códigos de classes processuais. Você pode fornecer uma lista de códigos de classes para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
+    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
+
+  - `distribution_date_gte` (opcional): Este filtro permite que você especifique uma data de distribuição mínima. Ele ajuda a filtrar processos com base na data de distribuição, permitindo que você localize processos distribuídos após uma determinada data.
+
+- `credential` (opcional): Objeto para o uso do cofre de credenciais.
+  - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais, não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
+
+Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
-	- cadastrar um monitoramento no dash:
-		- `name`: nome do monitoramento
-		- `dashboard_id`: **238904bd-3b05-4160-bef0-16b329a362f0**
 
-		Para cadastrar um monitoramento criado via API no dashboard, é necessário a utilização desse propriedade tag.
+  - cadastrar um monitoramento no dash:
 
-		Exemplo:
-		```json
-		{
-		"recurrence": 2,
-		"with_attachments": false,
-		"search": {
-			"search_type": "lawsuit_cnj",
-			"search_key": "0001234-55.2023.8.26.0100",
-		},
-		"tags": {
-			"name": "nome do seu monitoramento",
-			"dasboard_id": "238904bd-3b05-4160-bef0-16b329a362f0"
-		},
-		}
-		```
+    - `name`: nome do monitoramento
+    - `dashboard_id`: **238904bd-3b05-4160-bef0-16b329a362f0**
 
+    Para cadastrar um monitoramento criado via API no dashboard, é necessário a utilização desse propriedade tag.
 
+    Exemplo:
+
+    ```json
+    {
+     "recurrence": 2,
+     "with_attachments": false,
+     "search": {
+      "search_type": "lawsuit_cnj",
+      "search_key": "0001234-55.2023.8.26.0100"
+     },
+     "tags": {
+      "name": "nome do seu monitoramento",
+      "dasboard_id": "238904bd-3b05-4160-bef0-16b329a362f0"
+     }
+    }
+    ```
 
 Aqui está um exemplo de como um payload pode parecer:
 
 ```json
 {
-  "recurrence": 2,
-  "with_attachments": false,
-  "search": {
-    "search_type": "lawsuit_cnj",
-    "search_key": "0001234-55.2023.8.26.0100",
-  },
+ "recurrence": 2,
+ "with_attachments": false,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100"
+ }
 }
 ```
-
 
 Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 
 ```json
 {
-	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-	"status": "created",
-	"recurrence": 1,
-	"search": {
-		"search_type": "lawsuit_cnj",
-		"search_key": "0001234-55.2023.8.26.0100",
-		"response_type": "lawsuits",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"tracked_items_count": 0,
-	"tracked_items_steps_count": 0,
-	"tags": {},
-	"created_at": "2024-02-21T18:26:38.499Z",
-	"updated_at": "2024-02-21T18:26:38.499Z"
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "created",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
-
-
-
 
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
 
@@ -178,6 +178,7 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
     "response_type": "lawsuit"
 }'
 ```
+
 Note que os campos `search_type` e `search_key` não são atualizáveis, somente são passados no momento da criação do monitoramento.
 
 ## Consultando Seus Monitoramentos
@@ -200,7 +201,6 @@ Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 -H "api-key: YOUR_API_KEY"
 ```
-
 
 ## Exemplo de notificação de webhook para monitoramento
 
@@ -249,6 +249,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 	],
 }
 ```
+
 **Obs** Para cadastrar seu webhook deverá seguir esses passos:
 
 `1.` Acessar o portal **app.judit.io**
@@ -266,30 +267,28 @@ curl -X GET "https://tracking.prod.judit.io/tracking?tracking_id=15d632c6-a2ab-4
 -H "api-key: YOUR_API_KEY"
 ```
 
-
 Aqui está o retorno esperado:
-
 
 ```json
 {
-	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-	"status": "updated",
-	"recurrence": 1,
-	"search": {
-		"search_type": "lawsuit_cnj",
-		"search_key": "0001234-55.2023.8.26.0100",
-		"response_type": "lawsuits",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"tracked_items_count": 0,
-	"tracked_items_steps_count": 0,
-	"tags": {},
-	"created_at": "2024-02-21T18:26:38.499Z",
-	"updated_at": "2024-02-21T18:26:38.499Z"
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "updated",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
 
@@ -308,26 +307,27 @@ Aqui está um exemplo de retorno do monitoramento pausado:
 
 ```json
 {
-	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-	"status": "paused",
-	"recurrence": 1,
-	"search": {
-		"search_type": "lawsuit_cnj",
-		"search_key": "0001234-55.2023.8.26.0100",
-		"response_type": "lawsuits",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"tracked_items_count": 0,
-	"tracked_items_steps_count": 0,
-	"tags": {},
-	"created_at": "2024-02-21T18:26:38.499Z",
-	"updated_at": "2024-02-21T18:26:38.499Z"
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "paused",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
 ## Reativando um Monitoramento
 
 Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
@@ -343,24 +343,24 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
 
 ```json
 {
-	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-	"status": "updated",
-	"recurrence": 1,
-	"search": {
-		"search_type": "lawsuit_cnj",
-		"search_key": "0001234-55.2023.8.26.0100",
-		"response_type": "lawsuits",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"tracked_items_count": 0,
-	"tracked_items_steps_count": 0,
-	"tags": {},
-	"created_at": "2024-02-21T18:26:38.499Z",
-	"updated_at": "2024-02-21T18:26:38.499Z"
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "updated",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
 
@@ -375,32 +375,31 @@ curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-
 -H "api-key: YOUR_API_KEY"
 ```
 
-
 Aqui está um exemplo do retorno do monitoramento deletado:
 
 ```json
 {
-	"tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-	"user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-	"status": "deleted",
-	"recurrence": 1,
-	"search": {
-		"search_type": "lawsuit_cnj",
-		"search_key": "0001234-55.2023.8.26.0100",
-		"response_type": "lawsuits",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"tracked_items_count": 0,
-	"tracked_items_steps_count": 0,
-	"tags": {},
-	"created_at": "2024-02-21T18:26:38.499Z",
-	"updated_at": "2024-02-21T18:26:38.499Z"
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "deleted",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
 
 E é isso! Com esses recursos, você pode manter-se atualizado sobre qualquer movimentação em processos judiciais de seu interesse. Se você tiver alguma dúvida ou encontrar algum problema, nossa equipe de suporte está à disposição para ajudá-lo. Entre em contato conosco através do nosso portal de suporte.
 
-*Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido*.
+_Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.

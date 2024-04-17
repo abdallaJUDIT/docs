@@ -5,7 +5,6 @@ api: "POST https://crawler.prod.judit.io/credentials"
 description: "Para cadastrar uma credencial ou alterar um cadastro já feito, deve-se usar a rota abaixo"
 ---
 
-
 <ParamField body="credentials" type="object" required={false}>
     <Expandable title="properties">
 
@@ -13,65 +12,77 @@ description: "Para cadastrar uma credencial ou alterar um cadastro já feito, de
         PJE TJBA - 1º grau ou * (coringa)
         </ParamField>
 
-        <ParamField body="username" type="string" required>
-         999.999.999-99 (cpf)
-        </ParamField>
+    	<ParamField body="customer_key" type="string" required>
+    	00000001 (utilizar a sua forma de identificar um cliente)
+    	</ParamField>
+
+    	<ParamField body="username" type="string" required>
+    	999.999.999-99 (cpf)
+    	</ParamField>
 
         <ParamField body="password" type="string" required>
          Senha123
         </ParamField>
     </Expandable>
+
 </ParamField>
 
 <Accordion title="Observação criteriosa sobre o cadastro de credencial">
 `Credencial Coringa`:  *
 
 Se cadastrar alguma credencial nela, todos os tribunais que não tenham uma outra credencial cadastrada, irá utilizar a credencial coringa
+
+Caso não seja informada nenhuma customer_key, será criado uma customer_key `vazia`.
+
 </Accordion>
 
-
-Caso queira excluir a credencial de algum system, deverá usar passar o username e password como vazio. (editado) 
-
-
+Caso queira excluir a credencial de algum system, deverá usar passar o username e password como vazio. (editado)
 
 <ResponseExample>
 ```json 
 [
 	{
 		"system_name": "PJEINTER TJBA - 1º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PJE TJMT - 1º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PJE TJBA - 2º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PJEINTER TJMT - 1º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PROJUDI TJBA - 1º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PJE TJBA - 1º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PJE TJMT - 2º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	},
 	{
 		"system_name": "PROJUDI TJBA - 2º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	}
 ]
 ```
 </ResponseExample>
-
 
 **Se a credencial já existir, a message será CREDENTIAL_UPDATED**
