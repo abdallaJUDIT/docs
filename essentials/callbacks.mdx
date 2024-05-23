@@ -6,7 +6,7 @@ icon: 'book'
 
 Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontradas. O Webhook pode ser configurado atráves do nosso dashboard acessando: https://app.judit.io/
 
-Fazemos uma solicitação POST para webhooks com a resposta de acordo com sua busca.
+Fazemos uma solicitação POST para webhooks com a resposta de acordo com sua busca. O retorno ao webhook será feito após o status da requisição estar como **"completed"**.
 
 Exemplo de um payload do tipo de resposta, onde o campo `reference_type` pode variar entre **"request"** ou **"tracking"**
 
