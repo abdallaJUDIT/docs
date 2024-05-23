@@ -33,7 +33,7 @@ Exemplo de um payload do tipo de resposta, onde o campo `reference_type` pode va
 
 Exemplos:
 
-Se voce realizar uma consulta processual com o campo `search_type` passando como valor **"lawsuit_cnj"**', o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
+Se voce realizar uma consulta processual com o campo `response_type` passando como valor **"lawsuit"**, o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
 
 ```json
 {
@@ -153,8 +153,8 @@ Se voce realizar uma consulta processual com o campo `search_type` passando como
 }
 ```
 
-Uma busca com o campo `search_type` sendo passado como valor **"cpf"**, **"cnpj"**,**"oab"**,**"steps"**,**"attachments"** ou **"parties"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 itens e também pode variar seu tipo de acordo com o `search_type` informado.
-Caso informado **"cpf"**, **"cnpj"**,**"oab"**, o retorno sempre será um array de lawsuit.
+Uma busca com o campo `response_type` retornar o valor **"steps"**,**"attachments"** ou **"parties"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 itens e também pode variar seu tipo de acordo com o `search_type` informado.
+
 
 Se quisermos consultar as respostas para ver um grupo de itens específicos poderemos realizar uma consulta de respostas passando [filtros e paginação](./requests#consultando-respostas-de-buscas).
 
@@ -217,7 +217,7 @@ Se voce realizar uma busca com o `response_type` campo passando como valor **"pa
 }
 ```
 
-Uma busca com o `search_type` passando como valor **"steps"**:
+Uma busca com o `response_type` passando como valor **"steps"**:
 
 ```json
 {
@@ -246,7 +246,7 @@ Uma busca com o `search_type` passando como valor **"steps"**:
 }
 ```
 
-Uma busca com o `search_type` passando como valor **"attachments"**:
+Uma busca com o `response_type` passando como valor **"attachments"**:
 
 Alguns campos podem não está inclusos como 'attachment_type', 'step_id' ou 'extension'.
 
@@ -274,7 +274,7 @@ Alguns campos podem não está inclusos como 'attachment_type', 'step_id' ou 'ex
 }
 ```
 
-Uma busca com o `response_type` passando como valor 'lawsuits':
+Uma busca com o `response_type` passando como valor **"lawsuits"**:
 
 ```json
 {
