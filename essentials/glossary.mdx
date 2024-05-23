@@ -13,63 +13,87 @@ Esperamos que este glossário seja uma ferramenta útil para você. Se tiver alg
 ## Termos
 
 - `Accept Cache`: Aceita cache - Esta propriedade permite que a API retorne dados armazenados em cache, acelerando a resposta. O período de armazenamento em cache é definido pela propriedade "Cache TTL in Days". Após esse período, os dados são atualizados.
+- `All Count`: Indica a quantidade total de processos que estão sendo exibidos na consulta atual.
+- `All Pages Count`: Indica a quantidade total de páginas encontradas na consulta atual.
 - `Amount`: Valor da Causa - É o valor monetário que está em disputa no processo. Este valor é geralmente definido pelo demandante no início do processo.
 - `Attachments`: Anexos - São documentos associados a um processo judicial na nossa API. Incluem autos processuais, decisões, despachos, entre outros materiais relevantes.
+- `Attachment Id`: Refere-se a identificação do anexo encontrado no tribunal.
 - `Cache TTL in Days`: Tempo de Vida Útil do Cache em Dias - Este é o número de dias que a informação pode ser armazenada e recuperada do cache pela função "Accept Cache". Depois desse período, a informação é considerada desatualizada e uma nova solicitação é feita para obter dados atualizados.
 - `Classification`: Classificação - Refere-se à categorização do processo segundo critérios do CNJ.
+- `Content`: No contexto de nossa API, "Content" representa o conteúdo relacionado à fase ou etapa específica daquele processo.
 - `Code`: Código - Código - No contexto de "Lawsuit", refere-se ao código CNJ. Em outros contextos, pode se referir ao código único de certas propriedades.
 - `County`: Comarca - Uma divisão territorial do sistema judiciário, correspondendo à jurisdição de um juiz de primeira instância.
 - `Court`: Órgão julgador - Refere-se ao órgão ou instituição responsável por administrar a justiça em um processo específico.
 - `Cover`: Capa - No contexto da nossa API, "Cover" refere-se à capa de um processo judicial, que é um resumo contendo os dados principais do processo. Esses dados podem incluir informações como o número do processo, o número do grau, o juiz responsável, entre outros.
 - `Covers`: Capas - No contexto da nossa API, "Covers" refere-se a uma lista de várias capas de processos. Cada "Cover" na lista representa um processo judicial individual e contém um resumo dos dados principais desse processo.
+- `Crawl Id`: Referece ao npumero de identificação do robô que realiza o processo de busca daquele resultado.
+- `Crawler`: Refere-se às informações sobre o robô responsável por realizar buscas nos tribunais.
 - `Distribution Date`: Data de distribuícão - É a data em que um processo é oficialmente distribuído a um juiz ou tribunal para julgamento.
-- `Document`: Documento - No contexto da nossa API, "Document" refere-se ao documento de identificação de uma parte envolvida em um processo judicial. Este documento pode ser um CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, ou um CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas. Este documento é usado para identificar de forma única cada parte em um processo.
-- `Document Type`: Tipo do documento - Utilizado para informar se um documento é CPF ou CNPJ.
+- `Document`: Documento - No contexto da nossa API, "Document" refere-se ao documento de identificação de uma parte envolvida em um processo judicial. Este documento pode ser um CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, um CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas ou OAB (Ordem dos Advogados do Brasil), no caso de advogados. Este documento é usado para identificar de forma única cada parte em um processo.
+- `Documents`: Documentos - No contexto da nossa API, "Documents" refere-se aos documentos de identificação de uma parte envolvida em um processo judicial. Estes documentos podem conter CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, um CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas ou OAB (Ordem dos Advogados do Brasil), no caso de advogados. Este documento é usado para identificar de forma única cada parte em um processo.
+- `Document Type`: Tipo do documento - Utilizado para informar se um documento é CPF, CNPJ ou OAB.
+- `Extension`: Representa o formato do arquivo anexado, indicado pela sua extensão, como .pdf ou .HTML.
 - `Free Justice`: Justiça gratuita - Se um processo percorre através da justiça gratuita.
 - `Id`: Código identificador único - Este é um identificador único que é atribuído a quase todas as classes.
 - `Instance`: Grau - Utilizado para se referir ao grau do processo.
 - `Justice`: Justiça - No contexto da nossa API, "Justice" é o número que representa o ramo da justiça usado no código CNJ de um processo.
 - `Judge`: Juiz - No contexto da nossa API, "judge" refere-se a qualquer pessoa com autoridade legal para julgar e decidir uma causa. Isso pode incluir juízes, desembargadores, ministros, entre outros.
-- `Lawsuit`: Processo ou ação judicial - Este termo é usado em muitos contextos da nossa API para se referir a um processo judicial.
 - `Last Step`: Última movimentação - A movimentação mais recente ligada ao processo.
+- `Lawsuit`: Processo ou ação judicial - Este termo é usado em muitos contextos da nossa API para se referir a um processo judicial.
+- `Lawsuit Cnj`: Processo ou ação judicial - Este termo é usado para se referir a um processo judicial.
+- `Lawsuit Instance`: No contexto da nossa API, "lawsuit_instance" se refere ao grau específico da etapa daquele processo em questão e é encontrado dentro do objeto "steps".
 - `Lawyer`: Advogado - Representa uma parte em um processo judicial, defendendo seus interesses e apresentando argumentos legais em seu nome.
+- `Lawyers`: Advogados - Representantes de uma das partes em um processo judicial, defendendo seus interesses e apresentando argumentos legais em seu nome.
+- `Licence`:Documento - No contexto da nossa API, "Licence" refere-se ao documento de identificação do advogado representante da parte. Este documento é representado pela OAB (Ordem dos Advogados do Brasil).
 - `Main Lawsuit`: Processo Principal - Refere-se ao processo que deu origem ao processo atual.
+- `Main Document`: No contexto da nossa API, "main_document" tem como valor o número que representa (Cadastro de Pessoas Físicas), no caso de indivíduos ou CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas.
 - `Name`: Nome - Utilizado no contexto de "Lawsuit" trata-se de uma abreviação das partes do processo a fim de reconhecer mais fácil um processo, já em outros contextos, a descrição de algumas propriedades.
 - `Party`: Parte - No contexto de um processo judicial, "Party" refere-se a um indivíduo ou entidade envolvida no processo. Isso pode incluir o demandante (quem inicia o processo), o réu (quem está sendo processado), ou qualquer outra entidade que tenha um interesse direto no resultado do processo.
 - `Parties`: Partes - No contexto da nossa API, "Parties" refere-se ao conjunto de todas as partes envolvidas em um processo judicial.
 - `Person Type`: Tipo de Pessoa - No contexto de um processo judicial, "Person Type" refere-se ao tipo de papel que uma parte exerce no processo. No polo ativo, podemos ter tipos como Autor, Embargante, Requerente, entre outros. No polo passivo, podemos ter tipos como Réu, Embargado, Requerido, entre outros.
+- `Page`: Referencia a página que está sendo exibida naquela consulta.
+- `Page Count`: Refere-se a página que está sendo exibida.
+- `Phase`: Indica a etapa atual do processo em questão.
+- `Private`: Indica se etapa do processo em questão está sob segredo de justiça. Este campo é representado pelo valor "true" quando o processo é sigiloso e "false" quando não está sob sigilo.
 - `Related Lawsuits`: Processos Relacionados - Estes são processos que têm uma conexão direta com o processo principal. Eles podem representar diferentes etapas ou aspectos do mesmo caso legal, como recursos, apelações, execuções, entre outros.
 - `Request`: "Request" na nossa API é uma solicitação feita pelo usuário contendo dados de Search para realizar uma operação, como uma pesquisa.
+- `Request Id`: É a identificação de uma solicitação feita pelo usuário contendo dados de Search para realizar uma operação, como uma pesquisa.
+- `Response Type`: Refere-se ao tipo de documentos que serão retornados na busca. Isso pode variar de "lawsuits" para buscas por CPF, CNPJ ou OAB, "lawsuit" para buscas por CNJ (Número do processo) ou "warrant" para buscas por mandado.
 - `Search`: Pesquisa - No contexto da nossa API, "Search" refere-se a uma pesquisa que pode ser realizada. Os tipos de pesquisa são explicados em "Search Type".
 - `Search Key`: Chave de pesquisa - Dado utilizado para realizar um pesquisa. Essa informação varia de acordo com o "Search Type".
 - `Search Type`: Tipo de pesquisa - Os tipos de pesquisa podem incluir CPF, CNPJ, OAB, ID do processo (identificador único do processo na nossa API) e CNJ do processo (código único do processo no sistema judiciário brasileiro). Cada tipo de pesquisa retorna um conjunto específico de dados relacionados ao termo de pesquisa.
 - `Secrecy Level`: Nível de Sigilo - Há 6 níveis de sigilo, variando de 0 (processo público) a 5 (sigilo absoluto).
 - `Side`: Polo - No contexto de um processo judicial, "Side" refere-se ao papel que uma parte desempenha no processo. Isso pode ser o polo ativo (quem inicia o processo, geralmente o demandante), o polo passivo (quem está sendo processado, geralmente o réu) ou o polo interessado (uma parte que tem um interesse direto no resultado do processo, mas que não é nem o demandante nem o réu).
+- `Situation`: Uma breve descrição sobre a etapa atual do processo em questão.
+- `Source Name`: "source_name" é o termo usado para se referir a fonte em que a pesquisa foi conduzida.
 - `Status`: Status do Processo - Refere-se ao estado atual de um processo judicial conforme definido pelo Conselho Nacional de Justiça (CNJ). Exemplos de status podem incluir "Em andamento", "Concluído", "Arquivado", entre outros.
 - `Step`: Movimentação - Refere-se a cada movimentação ou etapa que um processo judicial passa, incluindo ações como a apresentação de uma petição, a realização de uma audiência, a emissão de uma sentença, entre outros.
 - `Steps`: Movimentações - No contexto da nossa API, "Steps" refere-se ao conjunto de todas as movimentações ou etapas que um processo judicial passa.
+- `Steps Count`: Refere-se à quantidade de etapas que o processo possui.
+- `Step Id`: É a identificação única da etapa do processo atualmente exibida. Essa identificação pode ser útil para localizar um anexo específico relacionado à etapa atual.
 - `Subjects`: Assuntos - No contexto da nossa API, "Subjects" refere-se aos assuntos de um processo conforme definido pelo Conselho Nacional de Justiça (CNJ). Os assuntos são uma forma de categorizar o conteúdo do processo, ajudando a identificar a natureza da disputa.
 - `Tags`: Etiquetas - As "tags" são usadas para classificar as entidades da nossa API, como por exemplo, classificar processos por áreas de atuação.
 - `Tracking`: Monitoramento - No contexto da nossa API, "Tracking" refere-se ao ato de monitorar uma consulta.
 - `Tribunal`: Tribunal - Refere-se ao tribunal onde um processo está sendo julgado.
 - `Tribunal Acronym`: Sigla do tribunal - Uma abreviação do nome do tribunal onde um processo está sendo julgado.
+- `User Id`: Refere-se ao registro de identificação do usuário que está realizando a requisição.
 
 # Termos Mandados
 
-- `warrant_id`: uuid interno
-- `entity_id`: id da entitade (pessoa)
-- `entity`: entitade (pessoa) - não grava no banco
-- `tribunal_id`: id do bnmp
-- `individual_id`: numero do indivíduo
-- `warrant_type`: tipo da peça
-- `arrest_type`: tipo da prisão
+- `warrant_id`: uuid interno.
+- `entity_id`: id da entitade (pessoa).
+- `entity`: entitade (pessoa) - não grava no banco.
+- `tribunal_id`: id do bnmp.
+- `individual_id`: numero do indivíduo.
+- `warrant_type`: tipo da peça.
+- `arrest_type`: tipo da prisão.
 - `law_type`: LawType;
-- `number`: numero da peça - possui o cnj
-- `previous_number`: número da peça anterior
-- `issue_date`: data de expedição no bnmp
-- `create_date`: data de criação no bnmp
-- `expiration_date`?: data de validade
-- `status`: status da prisão
+- `number`: numero da peça - possui o cnj.
+- `previous_number`: número da peça anterior.
+- `issue_date`: data de expedição no bnmp.
+- `create_date`: data de criação no bnmp.
+- `expiration_date`?: data de validade.
+- `status`: status da prisão.
 - `code`: Código - Código - No contexto de "mandado", refere-se ao código warrant. Em outros contextos, pode se referir ao código único de certas propriedades.
 - `instance`: Grau - Utilizado para se referir ao grau do processo.
 - `tribunal`: Tribunal - Refere-se ao tribunal onde um processo está sendo julgado.
