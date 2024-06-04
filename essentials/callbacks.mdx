@@ -1,14 +1,14 @@
 ---
-title: 'Callback'
+title: 'Callback / Webhook'
 description: 'callbacks'
 icon: 'book'
 ---
 
-Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontrados.
+Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontradas. O Webhook pode ser configurado atráves do nosso dashboard acessando: https://app.judit.io/
 
-Fazemos uma solicitação POST para webhooks cadastrado no usuário enviando um payload com a resposta de acordo com sua busca.
+Fazemos uma solicitação POST para webhooks com a resposta de acordo com sua busca. O retorno ao webhook será feito após o status da requisição estar como **"completed"**.
 
-Exemplo de um payload do tipo de resposta, onde o campo `response_data` pode variar de acordo com os parâmetros da busca.
+Exemplo de um payload do tipo de resposta, onde o campo `reference_type` pode variar entre **"request"** ou **"tracking"**
 
 ```json
 {
@@ -33,7 +33,7 @@ Exemplo de um payload do tipo de resposta, onde o campo `response_data` pode var
 
 Exemplos:
 
-Se voce realizar uma busca com o `response_type` campo passando como valor 'lawsuit', o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
+Se voce realizar uma consulta processual com o campo `response_type` passando como valor **"lawsuit"**, o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
 
 ```json
 {
@@ -94,15 +94,15 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'laws
           "parties": [
             {
               "name": "ALINE PAULA RAMOS",
-              "document": "05196308660",
-              "document_type": "0",
+              "main_document": "05196308660",
+              "document_type": "cpf",
               "person_type": "Autor",
               "side": "Active",
               "lawyers": [
                 {
                   "name": "RONEI MUNIZ BONFIM",
                   "document": "03344781626",
-                  "document_type": "0",
+                  "document_type": "cpf",
                   "license": "MG100560",
                 }
               ]
@@ -110,14 +110,14 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'laws
             {
               "name": "ADRIANA AMELIA DA SILVA MELO",
               "document": "83359079604",
-              "document_type": "0",
+              "document_type": "cpf",
               "person_type": "Réu",
               "side": "Passive",
               "lawyers": [
                 {
                   "name": "JOSE RIBAMAR MATOS AMARAL",
                   "document": "10912797720",
-                  "document_type": "0",
+                  "document_type": "cpf",
                   "license": "MG94008"
                 }
               ]
@@ -153,9 +153,10 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'laws
 }
 ```
 
-Uma busca com o `response_type` campo sendo passado como valor **"parties"**, **"attachments"** ou **"lawsuits"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 items e também pode variar seu tipo de acordo com o `response_type` informado.
+Quando uma busca com o campo `response_type` retornar o valor **"steps"**,**"attachments"** ou **"parties"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 itens e também pode variar seu tipo de acordo com o `search_type` informado.
 
-Se quisermos consultar as respostas para ver um grupo de items específico poderemos realizar uma consulta de respostas passando [filtros e paginação](./requests#consultando-respostas-de-buscas).
+
+Se quisermos consultar as respostas para ver um grupo de itens específicos poderemos realizar uma consulta de respostas passando [filtros e paginação](./requests#consultando-respostas-de-buscas).
 
 ```json
 {
@@ -178,7 +179,7 @@ Se quisermos consultar as respostas para ver um grupo de items específico poder
 
 Exemplos:
 
-Se voce realizar uma busca com o `response_type` campo passando como valor 'parties', o campo `page_data` retornará um array com o formato parecido com o seguinte:
+Se voce realizar uma busca com o `response_type` campo passando como valor **"parties"**, o campo `page_data` retornará um array com o formato parecido com o seguinte:
 
 ```json
 {
@@ -193,14 +194,14 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'part
             {
               "name": "JUDIT IO",
               "document": "05196308660",
-              "document_type": "0",
+              "document_type": "cpf",
               "person_type": "Autor",
               "side": "Active",
               "lawyers": [
                 {
                   "name": "LEONARDO REBBITE",
                   "document": "12345678910",
-                  "document_type": "0",
+                  "document_type": "cpf",
                   "license": "MG100560"
                 }
               ]
@@ -216,7 +217,7 @@ Se voce realizar uma busca com o `response_type` campo passando como valor 'part
 }
 ```
 
-Uma busca com o `response_type` passando como valor 'steps':
+Uma busca com o `response_type` passando como valor **"steps"**:
 
 ```json
 {
@@ -245,7 +246,7 @@ Uma busca com o `response_type` passando como valor 'steps':
 }
 ```
 
-Uma busca com o `response_type` passando como valor 'attachments':
+Uma busca com o `response_type` passando como valor **"attachments"**:
 
 Alguns campos podem não está inclusos como 'attachment_type', 'step_id' ou 'extension'.
 
@@ -273,7 +274,7 @@ Alguns campos podem não está inclusos como 'attachment_type', 'step_id' ou 'ex
 }
 ```
 
-Uma busca com o `response_type` passando como valor 'lawsuits':
+Uma busca com o `response_type` passando como valor **"lawsuits"**:
 
 ```json
 {
@@ -338,14 +339,14 @@ Uma busca com o `response_type` passando como valor 'lawsuits':
                 {
                   "name": "ALINE PAULA RAMOS",
                   "document": "05196308660",
-                  "document_type": "0",
+                  "document_type": "cpf",
                   "person_type": "Autor",
                   "side": "Active",
                   "lawyers": [
                     {
                       "name": "RONEI MUNIZ BONFIM",
                       "document": "03344781626",
-                      "document_type": "0",
+                      "document_type": "cpf",
                       "license": "MG100560",
                     }
                   ]
@@ -353,14 +354,14 @@ Uma busca com o `response_type` passando como valor 'lawsuits':
                 {
                   "name": "ADRIANA AMELIA DA SILVA MELO",
                   "document": "83359079604",
-                  "document_type": "0",
+                  "document_type": "cpf",
                   "person_type": "Réu",
                   "side": "Passive",
                   "lawyers": [
                     {
                       "name": "JOSE RIBAMAR MATOS AMARAL",
                       "document": "10912797720",
-                      "document_type": "0",
+                      "document_type": "cpf",
                       "license": "MG94008"
                     }
                   ]
