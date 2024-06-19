@@ -77,7 +77,7 @@ DF0001234
 
   Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
-Aqui está um exemplo de como um payload pode parecer:
+Aqui está um exemplo de como um payload pode aparecer em uma busca por documento:
 
 ```json
 {
@@ -87,8 +87,19 @@ Aqui está um exemplo de como um payload pode parecer:
  }
 }
 ```
+Aqui está um exemplo de como um payload pode aparecer em uma busca por cnj com retorno de anexos:
 
-Aqui está um exemplo de como usar esse payload de busca com curl:
+```json
+{
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100"
+ },
+ "with_attachments": true
+}
+```
+
+Aqui está um exemplo de como usar esse payload de busca por documento com curl:
 
 ```bash
 curl -X POST "https://requests.prod.judit.io/requests"
@@ -101,8 +112,22 @@ curl -X POST "https://requests.prod.judit.io/requests"
     }
 }'
 ```
+Aqui está um exemplo de como usar esse payload de busca por lawsuit_cnj com curl:
 
-## Aqui está o exemplo do retorno da criação da sua request
+```bash
+curl -X POST "https://requests.prod.judit.io/requests"
+-H "api-key: YOUR_API_KEY"
+-H "Content-Type: application/json"
+-d 
+'{
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0001234-55.2023.8.26.0100"
+  },
+  "with_attachments": true
+}'
+```
+## Aqui está o exemplo do retorno da criação da sua request feita por documento
 
 ```json
 {
@@ -126,9 +151,38 @@ curl -X POST "https://requests.prod.judit.io/requests"
 }
 ```
 
+## Aqui está o exemplo do retorno da criação da sua request feita por cnj
+
+```json
+{
+    "request_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0001234-08.2023.8.26.0100",
+        "response_type": "lawsuit",
+        "search_params": {
+            "public_search": false,
+            "filter": {},
+            "pagination": {}
+        }
+    },
+    "with_attachments": true,
+    "callback_url": "https://webhook.site/789d7e03-f06b-4371-bd07-880bbc635564",
+    "origin": "api",
+    "origin_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
+    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+    "status": "completed",
+    "created_at": "2024-06-18T22:03:35.560Z",
+    "updated_at": "2024-06-18T22:03:41.247Z",
+    "tags": {
+        "dashboard_id": null
+    }
+}
+```
+
 ## Consultando sua request
 
-Aqui está um exemplo de como consultar suas buscas usando curl:
+Aqui está um exemplo de como consultar suas buscas usando curl de uma requisição:
 
 ```bash
 curl -X GET "https://requests.prod.judit.io/requests/1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa"
@@ -146,7 +200,7 @@ curl -X GET "https://requests.prod.judit.io/requests/{busca}"
 -H "api-key: YOUR_API_KEY"
 ```
 
-## Retorno Esperado
+## Retorno Esperado esperado de uma consulta por cpf
 
 ```json
 {
@@ -167,6 +221,34 @@ curl -X GET "https://requests.prod.judit.io/requests/{busca}"
  "created_at": "2024-03-12T18:40:35.523Z",
  "updated_at": "2024-03-12T18:40:35.523Z",
  "tags": {}
+}
+```
+
+## Retorno Esperado esperado de uma consulta por cpf
+
+```json
+{
+ "request_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0001234-55.2023.8.26.0100",
+  "response_type": "lawsuits",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "with_attachments": true,
+    "callback_url": "https://webhook.site/789d7e03-f06b-4371-bd07-880bbc635564",
+    "origin": "api",
+    "origin_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
+    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+    "status": "completed",
+    "created_at": "2024-06-18T22:03:35.560Z",
+    "updated_at": "2024-06-18T22:03:41.247Z",
+    "tags": {
+        "dashboard_id": null
+    }
 }
 ```
 
