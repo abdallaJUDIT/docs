@@ -1,0 +1,111 @@
+---
+title: "Cofre de Credenciais"
+description: "Acesse os Tribunais com Suas Próprias Credenciais"
+icon: "vault"
+---
+
+A JUDIT permite adicionar as credenciais dos advogados de sua preferência, possibilitando o acesso, por meio dessas credenciais, a processos em segredo de justiça de autoria dos respectivos advogados.
+
+## Rota para cadastrar suas chaves no cofre de Credenciais
+
+Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
+
+## Payload da Solicitação
+
+A solicitação POST deve incluir um payload com as seguintes propriedades: 
+
+- `system_name`: A sigla do [tribunal e sistema](./glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+
+- `customer_key`: A forma que o cliente será identificado.
+
+- `username`: CPF (Cadastro de Pessoas Físicas) do usuário que irá logar no tribunal.
+
+- `password`: Senha cadastrada no respectivo tribunal.
+
+`Obs:` As credenciais são criptografadas, não sendo possível acessar os dados cadastrados posteriormente. Caso seja necessário alterar algum dado cadastrado, basta sobrescrever a credencial com um novo cadastro.
+
+Exemplo de payload para cadastro de credenciais:
+
+```json
+
+{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "00000001",
+      "username": "999.999.999-99",
+      "password": "Senha123"
+    },
+    {
+      "system_name": "ESAJ - TJAC - 1º grau",
+      "customer_key": "00000002",
+      "username": "999.999.999-99",
+      "password": "Senha123"
+    }
+  ]
+}
+```
+
+Exemplo de resposta a solicitação:
+
+```json
+
+[
+    {
+        "system_name": "ESAJ - TJAC - 1º grau",
+        "message": "CREDENTIAL_CREATED"
+    },
+    {
+        "system_name": "PJE TJBA - 1º grau",
+        "message": "CREDENTIAL_CREATED"
+    }
+]
+```
+
+## Rota para verificar credenciais cadastradas
+
+Para visualizar todas as credenciais atreladas ao seu usuário, você deve realizar uma solicitação GET para a rota `crawler.prod.judit.io/credentials`.
+
+Será retornado todas as credenciais disponíveis no cofre de credenciais. O campo `credential_status` indicará o status de cada credencial, sendo `active` para credenciais cadastradas e `not exists` para credenciais não cadastradas.
+
+Exemplo de resposta com alguns tribunais e sistemas:
+
+```json
+
+{
+  "systems": [
+    {
+      "name": "ESAJ - TJSP - 2º grau",
+      "customer_key": "",
+      "credential_status": "not exists"
+    },
+    {
+      "name": "PJE INTER TJBA - 1º grau",
+      "customer_key": "",
+      "credential_status": "active"
+    },
+    {
+      "name": "PJE TJAP - 1º grau",
+      "customer_key": "",
+      "credential_status": "not exists"
+    },
+    {
+      "name": "PJE TJAP - 2º grau",
+      "customer_key": "",
+      "credential_status": "not exists"
+    },
+    {
+      "name": "PJE TJBA - 1º grau",
+      "customer_key": "",
+      "credential_status": "active"
+    },
+    {
+      "name": "PJE TJBA - 2º grau",
+      "customer_key": "",
+      "credential_status": "active"
+    },
+    ...
+  ]
+}
+```
+Não nos responsabilizamos pela atualização das credenciais nos tribunais. Portanto, é de inteira responsabilidade do usuário realizar o cadastro no tribunal correspondente à credencial que deseja adicionar ao seu cofre de credenciais.
