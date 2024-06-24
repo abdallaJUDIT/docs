@@ -15,7 +15,7 @@ Para começar a utilizar o cofre de credeniais, você deve realizar uma solicita
 A solicitação POST deve incluir um payload com as seguintes propriedades: 
 
 - `system_name`: A sigla do [tribunal e sistema](./glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
-
+  - `Obs:` Poderá ser cadastrada uma credencial coringa `"system_name": "*"`. Se uma credencial for cadastrada nela, todos os tribunais que não tiverem outra credencial cadastrada utilizarão a credencial coringa.
 - `customer_key`: A forma que o cliente será identificado.
 
 - `username`: CPF (Cadastro de Pessoas Físicas) do usuário que irá logar no tribunal.
