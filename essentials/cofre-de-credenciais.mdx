@@ -62,7 +62,7 @@ Exemplo de resposta a solicitação:
 ]
 ```
 
-## Rota para verificar credenciais cadastradas
+## Rota Verificação de Credenciais Cadastradas
 
 Para visualizar todas as credenciais atreladas ao seu usuário, você deve realizar uma solicitação GET para a rota `crawler.prod.judit.io/credentials`.
 
@@ -107,5 +107,18 @@ Exemplo de resposta com alguns tribunais e sistemas:
     ...
   ]
 }
+
 ```
+
+Filtrando por credencial:
+
+Para realizar um filtro consultando uma credencial especifica cadastrada basta adicionar `?customer_key=<Valor cadastrado>` ao endpoint.
+
+Exemplo de endpoint com filtro por credencial:
+
+```json
+crawler.prod.judit.io/credentials?customer_key=00000001
+```
+
+
 Não nos responsabilizamos pela atualização das credenciais nos tribunais. Portanto, é de inteira responsabilidade do usuário realizar o cadastro no tribunal correspondente à credencial que deseja adicionar ao seu cofre de credenciais.
