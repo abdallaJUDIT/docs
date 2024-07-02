@@ -81,7 +81,7 @@ Exemplo de resposta com alguns tribunais e sistemas:
     },
     {
       "name": "PJE INTER TJBA - 1º grau",
-      "customer_key": "",
+      "customer_key": "00000001",
       "credential_status": "active"
     },
     {
@@ -96,12 +96,12 @@ Exemplo de resposta com alguns tribunais e sistemas:
     },
     {
       "name": "PJE TJBA - 1º grau",
-      "customer_key": "",
+      "customer_key": "00000002",
       "credential_status": "active"
     },
     {
       "name": "PJE TJBA - 2º grau",
-      "customer_key": "",
+      "customer_key": "00000002",
       "credential_status": "active"
     },
     ...
@@ -118,6 +118,23 @@ Exemplo de endpoint com filtro por credencial:
 
 ```json
 crawler.prod.judit.io/credentials?customer_key=00000001
+```
+Exemplo de resposta para consulta com filtro por credencial:
+```json
+{
+	"systems": [
+		{
+			"name": "*",
+			"customer_key": "",
+			"credential_status": "not exists"
+		},
+		{
+			"name": "EPROC - TRF4 - 2º grau",
+			"customer_key": "00000001",
+			"credential_status": "active"
+		}
+	]
+}
 ```
 
 A atualização das credenciais nos tribunais é de inteira responsabilidade do usuário. Portanto, cabe ao usuário realizar o cadastro da credencial no tribunal correspondente e acompanhar a validade e a situação da mesma para garantir que ela não seja suspensa ou invalidada.
