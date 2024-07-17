@@ -10,7 +10,7 @@ A JUDIT permite adicionar as credenciais dos advogados de sua preferência, poss
 
 Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
 
-## Payload da Solicitação
+### Payload da Solicitação
 
 A solicitação POST deve incluir um payload com as seguintes propriedades: 
 
@@ -136,5 +136,26 @@ Exemplo de resposta para consulta com filtro por credencial:
 	]
 }
 ```
+## Rota para deletar uma chave no cofre de Credenciais
+
+Para deletar um sitema no cofre de credeniais, você deve realizar uma solicitação DELETE para a rota `crawler.prod.judit.io/credentials`.
+
+### Payload da Solicitação
+
+A solicitação DELETE deve incluir um payload com a seguinte propriedade: 
+
+- `system_name`: A sigla do [tribunal e sistema](./glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+
+Exemplo de payload para deletar credencial:
+
+```json
+
+{
+  "system_name": "PJE TJBA - 1º grau"
+}
+
+```
+- Caso a solicitação seja bem sucedida a resposta será um objeto vazio.
+
 
 A atualização das credenciais nos tribunais é de inteira responsabilidade do usuário. Portanto, cabe ao usuário realizar o cadastro da credencial no tribunal correspondente e acompanhar a validade e a situação da mesma para garantir que ela não seja suspensa ou invalidada.
