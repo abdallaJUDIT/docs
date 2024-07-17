@@ -5,9 +5,9 @@ api: "POST https://crawler.prod.judit.io/credentials"
 description: "Para cadastrar uma credencial ou alterar um cadastro já feito, deve-se usar a rota abaixo"
 ---
 
-<ParamField body="credentials" type="object" required={false}>
+<ParamField body="credentials" type="array" required={false}>
     <Expandable title="properties">
-
+		<ParamField body"" type="object" required>
         <ParamField body="system_name" type="string" required>
         PJE TJBA - 1º grau ou * (coringa)
         </ParamField>

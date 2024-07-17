@@ -38,6 +38,7 @@
     "essentials/warrant",
     "essentials/callbacks",
     "crawlers/cache-judit",
+    "essentials/cofre-de-credenciais",
     "essentials/glossary"
    ]
   },
