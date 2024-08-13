@@ -22,9 +22,15 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `password`: Senha cadastrada no respectivo tribunal.
 
+Propriedades necessárias apenas nos casos de tribunais que exigem autenticação de dois fatores:
+
+- `custom_data`: Campo obrigatório para adicionar elementos opcionais.
+
+- `secret`: Token de autenticação de dois fatores do sistema a ser cadastrado.
+
 `Obs:` As credenciais são criptografadas, não sendo possível acessar os dados cadastrados posteriormente. Caso seja necessário alterar algum dado cadastrado, basta sobrescrever a credencial com um novo cadastro.
 
-Exemplo de payload para cadastro de credenciais:
+Exemplo de payload para cadastro de credenciais sem autenticação de dois fatores:
 
 ```json
 
@@ -41,6 +47,25 @@ Exemplo de payload para cadastro de credenciais:
       "customer_key": "00000002",
       "username": "999.999.999-99",
       "password": "Senha123"
+    }
+  ]
+}
+```
+
+Exemplo de payload para cadastro de credenciais com autenticação de dois fatores:
+
+```json
+
+{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "00000001",
+      "username": "999.999.999-99",
+      "password": "Senha123",
+      "custom_data": {
+				"secret": "<TOKEN>"
+			}
     }
   ]
 }
