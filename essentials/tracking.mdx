@@ -46,7 +46,12 @@ DF0001234
 
   - `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
 
-- `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
+- `search_params`: Um objeto que contém alguns parâmetros da busca como: 
+  - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; 
+    
+    `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente a instância mais recente do processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca considerará a segunda instância, por ser a mais atualizada.
+  
+  - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
   `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
