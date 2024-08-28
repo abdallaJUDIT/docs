@@ -1,0 +1,20 @@
+name: Deploy to GitBook
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Deploy to GitBook
+      uses: Flytreeleft/gitbook-action@v1.0
+      with:
+        gitbook_version: '3.2.3'
+        token: ${{ secrets.GITBOOK_TOKEN }} # Add your GitBook token in the GitHub repository secrets
