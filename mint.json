@@ -43,17 +43,11 @@
    ]
   },
   {
-   "group": "Fluxo de Consulta Processual",
-   "pages": [
-    "flow-procedural/request-process",
-    "flow-procedural/tracking-process"
-   ]
-  },
-  {
    "group": "Fluxo de Consulta por Documento",
    "pages": [
     "flow-document/request-document",
-    "flow-document/tracking-document"
+    "flow-document/tracking-document",
+    "flow-document/request-name"
    ]
   },
   {

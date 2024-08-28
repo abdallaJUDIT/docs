@@ -8,7 +8,7 @@ A API da JUDIT oferece a possibilidade de buscar processos judiciais usando a ro
 
 ## Rota de Consulta de Processos
 
-Nesta rota podem ser buscado Processos (Código CNJ), documentos (CPF ou CNPJ) ou OAB.
+Nesta rota podem ser buscado Processos (Código CNJ), documentos (CPF ou CNPJ), OAB ou Nome.
 
 Para buscar um processo, você deve realizar uma solicitação POST para a rota `/requests`.
 
@@ -16,7 +16,7 @@ Para buscar um processo, você deve realizar uma solicitação POST para a rota 
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"** ou **"lawsuit_id"** para um número de processo;
+- `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **name**, **"lawsuit_cnj"** ou **"lawsuit_id"** para um número de processo;
 
 `Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
 
@@ -31,7 +31,7 @@ Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
 DF0001234
 ```
 
-- `search_key`: O número do processo (Código CNJ), CPF, CNPJ ou OAB que você deseja buscar;
+- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
 
 - `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
 
@@ -45,7 +45,7 @@ DF0001234
 
       `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-        Para buscas por documento onde o `search_type` seja "cpf", "cnpj" ou "oab".
+        Para buscas por documento onde o `search_type` seja "cpf", "cnpj", "oab" ou "name".
 
   - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
 
