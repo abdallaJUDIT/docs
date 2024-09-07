@@ -1,0 +1,108 @@
+---
+title: "Relatório de consumo"
+description: "Gere relatório sobre seu consumo"
+icon: "chart-pie"
+---
+
+Com a API da JUDIT, é possível consultar o consumo em um determinado período.
+
+## Rota para gerar relatório de consumo.
+
+Para gerar um relatório de consumo, realize uma solicitação GET para a rota: 
+
+`https://requests.prod.judit.io/requests`
+
+### Parâmetros obrigatórios
+
+A solicitação GET deve incluir os seguintes parâmetros:
+
+- `created_at_gte`: Data inicial do período para o filtro do relatório.
+- `created_at_lte`: Data final do período para o filtro do relatório.
+
+### Parâmetros opcionais:
+
+Além dos parâmetros obrigatórios, você pode utilizar os seguintes parâmetros opcionais:
+
+- `page_size`: Define a quantidade de itens na resposta que deseja receber por página.
+- `page`: Define o número da página, caso deseje dividir o total de itens gerados na resposta.
+
+
+### Resposta da solicitação
+
+```json
+
+{
+    "page": 1,
+    "page_data": [
+        {
+            "request_id": "966c72d3-5da6-4e0d-abb9-5c4399b6ab48",
+            "search": {
+                "search_type": "cnpj",
+                "search_key": "50.535.760/0001-71",
+                "response_type": "lawsuits",
+                "search_params": {
+                    "public_search": false,
+                    "filter": {},
+                    "pagination": {}
+                }
+            },
+            "with_attachments": false,
+            "callback_url": "https://webhook.site/4da01e6c-e77c-45e8-809c-68a0c3cd9f67",
+            "origin": "api",
+            "origin_id": "966c72d3-5da6-4e0d-abb9-5c4399b6ab48",
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "status": "completed",
+            "created_at": "2024-09-06T19:21:32.452Z",
+            "updated_at": "2024-09-06T19:22:05.095Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        },
+        {
+            "request_id": "82046407-25f9-468a-b269-bdbcc5a9281d",
+            "search": {
+                "search_type": "lawsuit_cnj",
+                "search_key": "0001234-55.2023.8.26.0100",
+                "response_type": "lawsuit",
+                "search_params": {
+                    "public_search": false,
+                    "filter": {},
+                    "pagination": {}
+                }
+            },
+            "with_attachments": true,
+            "origin": "tracking",
+            "origin_id": "1f6c6a9d-fdca-4d3d-b5e4-5f72a90d1db0",
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "status": "completed",
+            "created_at": "2024-09-06T23:59:13.184Z",
+            "updated_at": "2024-09-06T23:59:21.840Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        }
+    ],
+    "page_count": 1,
+    "all_count": 2,
+    "all_pages_count": 1
+}
+
+```
+
+####  Entendendo a resposta
+
+A resposta da API conterá os seguintes campos:
+
+- `request_id`: Identificador único da busca gerada.
+- `search`: Informações sobre o filtro realizado na solicitação.
+- `with_attachments`: Indica se a busca incluiu a captura de anexos.
+- `callback_url`: URL do webhook cadastrado para notificações dessa busca, se houver.
+- `origin`: Origem da solicitação, podendo ser:
+  - `API`: Representa uma requisição feita diretamente pela rota de requests.
+  - `TRACKING`: Indica que a requisição foi feita via monitoramento.
+  - `WARRANT`: Indica que a requisição foi feita via busca por mandado.
+- `status`: Indica o status da solicitação, ou seja, se foi concluída ou ainda está em andamento.
+- `created_at`: Data e hora em que a solicitação foi criada.
+- `page_count`: Número de respostas retornadas por página.
+- `all_count`: Quantidade total de respostas consultadas no período solicitado.
+- `all_pages_count`: Número total de páginas geradas pela consulta.
