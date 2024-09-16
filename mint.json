@@ -39,6 +39,7 @@
     "essentials/callbacks",
     "crawlers/cache-judit",
     "essentials/cofre-de-credenciais",
+    "essentials/consumption",
     "essentials/glossary"
    ]
   },
