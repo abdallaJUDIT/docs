@@ -13,71 +13,119 @@ Esperamos que este glossário seja uma ferramenta útil para você. Se tiver alg
 ## Termos
 
 - `Accept Cache`: Aceita cache - Esta propriedade permite que a API retorne dados armazenados em cache, acelerando a resposta. O período de armazenamento em cache é definido pela propriedade "Cache TTL in Days". Após esse período, os dados são atualizados.
+- `Addresses`: Indica o endereço encontrado para o CPF/CNPJ consultado. 
+- `Aka_names`: No contexto da nossa API, este campo indica outros nomes associados ao CPF/CNPJ consultado.
 - `All Count`: Indica a quantidade total de processos que estão sendo exibidos na consulta atual.
 - `All Pages Count`: Indica a quantidade total de páginas encontradas na consulta atual.
 - `Amount`: Valor da Causa - É o valor monetário que está em disputa no processo. Este valor é geralmente definido pelo demandante no início do processo.
+- `Age_group`: No contexto da nossa API, "age_group" indica a faixa etária dos indivíduos relacionados à consulta do CPF ou dos sócios da empresa no caso de CNPJ.
+- `Associated_people`: No contexto das consultas cadastrais em nossa API, "Associated_people" indica as pessoas associadas encontradas para o CPF/CNPJ consultado.
 - `Attachments`: Anexos - São documentos associados a um processo judicial na nossa API. Incluem autos processuais, decisões, despachos, entre outros materiais relevantes.
 - `Attachment Id`: Refere-se a identificação do anexo encontrado no tribunal.
+- `Branch_activities`: No contexto de nossa API, "branch_activities" indica as atividades exercidas pelo CNPJ consultado.
+- `Birth_date`: Indica a data de nascimmento do CPF/CNPJ consultado.
 - `Cache TTL in Days`: Tempo de Vida Útil do Cache em Dias - Este é o número de dias que a informação pode ser armazenada e recuperada do cache pela função "Accept Cache". Depois desse período, a informação é considerada desatualizada e uma nova solicitação é feita para obter dados atualizados.
+- `City`: Indica a cidade encontrada para o CPF/CNPJ consultado. 
 - `Classification`: Classificação - Refere-se à categorização do processo segundo critérios do CNJ.
+- `Contacts`: Indicam os contatos telefônicos encontrados para o CPF/CNPJ consultado.
+- `Contact_type`: Indica o tipo e contato telefônico encontrado para o CPF/CNPJ consultado. 
 - `Content`: No contexto de nossa API, "Content" representa o conteúdo relacionado à fase ou etapa específica daquele processo.
 - `Code`: Código - Código - No contexto de "Lawsuit", refere-se ao código CNJ. Em outros contextos, pode se referir ao código único de certas propriedades.
+- `Complement`: Indica o complemento do endereço encontrado para o CPF/CNPJ consultado. 
 - `County`: Comarca - Uma divisão territorial do sistema judiciário, correspondendo à jurisdição de um juiz de primeira instância.
+- `Country`: Indica o país relacionado ao endereço encontrado para o CPF/CNPJ consultado. 
 - `Court`: Órgão julgador - Refere-se ao órgão ou instituição responsável por administrar a justiça em um processo específico.
 - `Cover`: Capa - No contexto da nossa API, "Cover" refere-se à capa de um processo judicial, que é um resumo contendo os dados principais do processo. Esses dados podem incluir informações como o número do processo, o número do grau, o juiz responsável, entre outros.
 - `Covers`: Capas - No contexto da nossa API, "Covers" refere-se a uma lista de várias capas de processos. Cada "Cover" na lista representa um processo judicial individual e contém um resumo dos dados principais desse processo.
 - `Crawl Id`: Refere-se ao npumero de identificação do robô que realiza o processo de busca daquele resultado.
 - `Crawler`: Refere-se às informações sobre o robô responsável por realizar buscas nos tribunais.
+- `Deceased`: No contexto de nossa API, o termo "deceased" indica se o portador do CPF em questão é falecido.
+- `Description`: No contexto da consulta por dados cadastrais, indica o valor do contato telefônico encontrado para o CPF/CNPJ consultado. 
+- `Deficiency`: No contexto da nossa API, o campo `deficiency` descreve o tipo de deficiência, se aplicável.
+- `Disabled_person`: No contexto da nossa API, o campo `disabled_person` indica se a pessoa possui alguma deficiência.
 - `Distribution Date`: Data de distribuícão - É a data em que um processo é oficialmente distribuído a um juiz ou tribunal para julgamento.
 - `Dictionary_updated_at`: Refere-se a data da última atualização dos dicionários(tags). 
 - `Document`: Documento - No contexto da nossa API, "Document" refere-se ao documento de identificação de uma parte envolvida em um processo judicial. Este documento pode ser um CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, um CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas ou OAB (Ordem dos Advogados do Brasil), no caso de advogados. Este documento é usado para identificar de forma única cada parte em um processo.
 - `Documents`: Documentos - No contexto da nossa API, "Documents" refere-se aos documentos de identificação de uma parte envolvida em um processo judicial. Estes documentos podem conter CPF (Cadastro de Pessoas Físicas), no caso de indivíduos, CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas ou OAB (Ordem dos Advogados do Brasil), no caso de advogados. Este documento é usado para identificar de forma única cada parte em um processo.
 - `Document Type`: Tipo do documento - Utilizado para informar se um documento é CPF, CNPJ ou OAB.
+- `Education`: No contexto de nossa API, o campo "education" indica o nível de escolaridade da pessoa.
+- `Ethnic_racial_identification`: No contexto da nossa API, o campo "Ethnic_racial_identification" Identifica a etnia ou raça da pessoa.
 - `Extension`: Representa o formato do arquivo anexado, indicado pela sua extensão, como .pdf ou .HTML.
+- `Foreigner`: No contexto da nossa API, o campo `foreigner` indica se a pessoa é estrangeira.
 - `Free Justice`: Justiça gratuita - Se um processo percorre através da justiça gratuita.
+- `ibge_code`: No contesto da nossa API, "ibge_code" indica o código do município onde a empresa está registrada, conforme o cadastro oficial do IBGE.
 - `Id`: Código identificador único - Este é um identificador único que é atribuído a quase todas as classes.
+- `Gender`: No contexto de nossa API, "Gender" indica o sexo do CPF encontrado na consulta.
+- `Gender_identity`: No contexto de nossa API, "gender_identity" indica a identidade de gênero da pessoa.
+- `Has_lawsuits`: Sempre terá o valor "false" e não será considerado para este tipo de consulta no contexto atual.
+- `head_office`: Indica se o CNPJ consultado pertence à matriz da empresa. Pode assumir valores como "true" (se for a matriz) ou "false" (se for uma filial).
 - `Instance`: Grau - Utilizado para se referir ao grau do processo.
+- `Interdicted`: No contexto da nossa API, o campo `interdicted` indica se a pessoa está legalmente interditada.
 - `Justice`: Justiça - No contexto da nossa API, "Justice" é o número que representa o ramo da justiça usado no código CNJ de um processo.
 - `Judge`: Juiz - No contexto da nossa API, "judge" refere-se a qualquer pessoa com autoridade legal para julgar e decidir uma causa. Isso pode incluir juízes, desembargadores, ministros, entre outros.
+- `Kinship`: No contexto das consultas cadastrais em nossa API, "Kinship" indica o grau de parentesco dentro do grupo familiar encontrado para o CPF/CNPJ consultado.
 - `Last Step`: Última movimentação - A movimentação mais recente ligada ao processo.
 - `Lawsuit`: Processo ou ação judicial - Este termo é usado em muitos contextos da nossa API para referir-se a um processo judicial.
 - `Lawsuit Cnj`: Processo ou ação judicial - Este termo é usado para refere-se ao processo judicial.
 - `Lawsuit Instance`: No contexto da nossa API, "lawsuit_instance" refere-se ao grau específico da etapa daquele processo em questão.
 - `Lawyer`: Advogado - Representa uma parte em um processo judicial, defendendo seus interesses e apresentando argumentos legais em seu nome.
 - `Lawyers`: Advogados - Representantes de uma das partes em um processo judicial, defendendo seus interesses e apresentando argumentos legais em seu nome.
+- `legal_nature`: No contexto de nossa API, "legal_nature" indica a natureza jurídica da empresa, ou seja, a forma legal sob a qual o CNPJ foi constituído, como sociedade limitada, sociedade anônima, ou outra estrutura legal
 - `Licence`:Documento - No contexto da nossa API, "Licence" refere-se ao documento de identificação do advogado representante da parte. Este documento é representado pela OAB (Ordem dos Advogados do Brasil).
 - `Main Lawsuit`: Processo Principal - Refere-se ao processo que deu origem ao processo atual.
 - `Main Document`: No contexto da nossa API, "main_document" tem como valor o número que representa (Cadastro de Pessoas Físicas), no caso de indivíduos ou CNPJ (Cadastro Nacional da Pessoa Jurídica), no caso de empresas.
+- `Marital_status`: No contexto de nossa API, o campo "marital_status" indica o estado civil da pessoa.
+- `Mei_option`: No contexto da nossa API, o campo `mei_option` indica se a empresa é optante pelo MEI (Microempreendedor Individual).
 - `Name`: Nome - Utilizado no contexto de "Lawsuit" trata-se de uma abreviação das partes do processo a fim de reconhecer mais fácil um processo, já em outros contextos, a descrição de algumas propriedades.
+- `Nationality`: Indica a nacionalidade do CPF/CNPJ encontrado para o documento consultado.
+- `Neighborhood`: Indica o bairro do endereço encontrado para o CPF/CNPJ consultado. 
+- `Number`: Indica o número do endereço encontrado para o CPF/CNPJ consultado. 
+- `Occupation_nature`: No contexto de nossa API, o campo "occupation_nature" descreve a natureza da ocu
+- `Parents`: No contexto das consultas cadastrais em nossa API, "Parnts" Indica o aas pessoas que possuem vinculo familiar encontrado para o CPF/CNPJ consultado. 
+- `partners`: Lista os sócios da empresa consultada, contendo informações como nome, CPF/CNPJ, participação societária e outros dados relevantes sobre cada sócio.
 - `Party`: Parte - No contexto de um processo judicial, "Party" refere-se a um indivíduo ou entidade envolvida no processo. Isso pode incluir o demandante (quem inicia o processo), o réu (quem está sendo processado), ou qualquer outra entidade que tenha um interesse direto no resultado do processo.
 - `Parties`: Partes - No contexto da nossa API, "Parties" refere-se ao conjunto de todas as partes envolvidas em um processo judicial.
-- `Person Type`: Tipo de Pessoa - No contexto de um processo judicial, "Person Type" refere-se ao tipo de papel que uma parte exerce no processo. No polo ativo, podemos ter tipos como Autor, Embargante, Requerente, entre outros. No polo passivo, podemos ter tipos como Réu, Embargado, Requerido, entre outros.
 - `Page`: Referencia a página que está sendo exibida naquela consulta.
 - `Page Count`: Refere-se a página que está sendo exibida.
 - `Phase`: Indica a etapa atual do processo em questão.
+- `Position`: Indica o cargo ocupado na empresa epresentada pelo CNPJ consultado.
+- `Person Type`: Tipo de Pessoa - No contexto de um processo judicial, "Person Type" refere-se ao tipo de papel que uma parte exerce no processo. No polo ativo, podemos ter tipos como Autor, Embargante, Requerente, entre outros. No polo passivo, podemos ter tipos como Réu, Embargado, Requerido, entre outros.
 - `Private`: Indica se etapa do processo em questão está sob segredo de justiça. Este campo é representado pelo valor "true" quando o processo é sigiloso e "false" quando não está sob sigilo.
 - `Related Lawsuits`: Processos Relacionados - Estes são processos que têm uma conexão direta com o processo principal. Eles podem representar diferentes etapas ou aspectos do mesmo caso legal, como recursos, apelações, execuções, entre outros.
 - `Request`: "Request" na nossa API é uma solicitação feita pelo usuário contendo dados de Search para realizar uma operação, como uma pesquisa.
 - `Request Id`: É a identificação de uma solicitação feita pelo usuário contendo dados de Search para realizar uma operação, como uma pesquisa.
 - `Response Type`: Refere-se ao tipo de documentos que serão retornados na busca. Isso pode variar de "lawsuits" para buscas por CPF, CNPJ ou OAB, "lawsuit" para buscas por CNJ (Número do processo) ou "warrant" para buscas por mandado.
+- `Revenue_service_active`: No contexto da nossa API, "revenue_service_active" indica se a empresa consultada está ativa e regular perante a Receita Federal ou órgão equivalente. Pode assumir valores como "true" (ativa) ou "false" (inativa ou irregular).
+- `revenue_update_date`: No contexto da nossa API, "revenue_update_date" indica data da ultima atualizacao na receita.
 - `Search`: Pesquisa - No contexto da nossa API, "Search" refere-se a uma pesquisa que pode ser realizada. Os tipos de pesquisa são explicados em "Search Type".
 - `Search Key`: Chave de pesquisa - Dado utilizado para realizar um pesquisa. Essa informação varia de acordo com o "Search Type".
 - `Search Type`: Tipo de pesquisa - Os tipos de pesquisa podem incluir CPF, CNPJ, OAB, ID do processo (identificador único do processo na nossa API) e CNJ do processo (código único do processo no sistema judiciário brasileiro). Cada tipo de pesquisa retorna um conjunto específico de dados relacionados ao termo de pesquisa.
 - `Secrecy Level`: Nível de Sigilo - Há 6 níveis de sigilo, variando de 0 (processo público) a 5 (sigilo absoluto).
+- `Sexual_orientation`: No contexto de nossa API, o campo `sexual_orientation` informa a orientação sexual da pessoa.
+- `Share_capital`: No contexto de nossa API, "share_capital" indica o valor do capital social da empresa, ou seja, o montante total investido pelos sócios ou acionistas no CNPJ consultado.
+- `size`: No contexto da nossa API, "size" indica o porte da empresa consultada, podendo assumir valores como "ME" (Microempresa), "EPP" (Empresa de Pequeno Porte) ou "DEMAIS", que representa empresas de maior porte ou fora dessas categorias.
+- `special_status_date`: No contexto de nossa API, este campo indica a data em que o status especial do CNPJ consultado foi atribuído ou atualizado.
 - `Side`: Polo - No contexto de um processo judicial, "Side" refere-se ao papel que uma parte desempenha no processo. Isso pode ser o polo ativo (quem inicia o processo, geralmente o demandante), o polo passivo (quem está sendo processado, geralmente o réu) ou o polo interessado (uma parte que tem um interesse direto no resultado do processo, mas que não é nem o demandante nem o réu).
+- `Simple_option`: No contexto da nossa API, o campo `simple_option` indica se a empresa é optante pelo Simples Nacional e pode ser encontrado dentro do campo tags.
 - `Situation`: Uma breve descrição sobre a etapa atual do processo em questão.
+- `Social_name`: Indica o nome fantasia do CNPJ consultado.
 - `Source Name`: "source_name" é o termo usado referir-se a fonte em que a pesquisa foi conduzida.
+- `Special_status`: No contexto da nossa API, "special_status" indica a classificaçao atual do CNPJ consultado na receita federal.
+- `State`: Indica o estado encontrado para o CPF/CNPJ consultado. 
 - `Status`: Status do Processo - Refere-se ao estado atual de um processo judicial conforme definido pelo Conselho Nacional de Justiça (CNJ). Exemplos de status podem incluir "Em andamento", "Concluído", "Arquivado", entre outros.
 - `Step`: Movimentação - Refere-se a cada movimentação ou etapa que um processo judicial passa, incluindo ações como a apresentação de uma petição, a realização de uma audiência, a emissão de uma sentença, entre outros.
 - `Steps`: Movimentações - No contexto da nossa API, "Steps" refere-se ao conjunto de todas as movimentações ou etapas que um processo judicial passa.
 - `Steps Count`: Refere-se à quantidade de etapas que o processo possui.
 - `Step Id`: É a identificação única da etapa do processo atualmente exibida. Essa identificação pode ser útil para localizar um anexo específico relacionado à etapa atual.
+- `Street`: Indica o logradouro encontrado para o CPF/CNPJ consultado. 
 - `Subjects`: Assuntos - No contexto da nossa API, "Subjects" refere-se aos assuntos de um processo conforme definido pelo Conselho Nacional de Justiça (CNJ). Os assuntos são uma forma de categorizar o conteúdo do processo, ajudando a identificar a natureza da disputa.
 - `Tags`: Etiquetas - As "tags" são usadas para classificar as entidades da nossa API, como por exemplo, classificar processos por áreas de atuação.
 - `Tracking`: Monitoramento - No contexto da nossa API, "Tracking" refere-se ao ato de monitorar uma consulta.
 - `Tribunal`: Tribunal - Refere-se ao tribunal onde um processo está sendo julgado.
 - `Tribunal Acronym`: Sigla do tribunal - Uma abreviação do nome do tribunal onde um processo está sendo julgado.
+- `twin_brother`: No contexto de nossa API, o campo "twin_brother" indica se a pessoa possui irmão gêmeo.
 - `User Id`: Refere-se ao registro de identificação do usuário que está realizando a requisição.
+- `Zip_code`: Indica o CEP encontrado relacionado ao endereço encontrado para o CPF/CNPJ consultado. 
 
 # Termos Mandados
 
