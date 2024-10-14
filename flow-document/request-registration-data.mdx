@@ -1,0 +1,213 @@
+---
+title: "Consulta por Dados Cadastrais"
+description: "Esta página tem como objetivo mostrar o fluxo de Consulta por dados cadastrais."
+icon: "file"
+---
+<Steps>
+ <Step title="Criação de Request" stepNumber="1">
+   Para consultar dados cadastrais via CPF ou CNPJ, a requisição deve ser feita utilizando o endpoint `/requests/create` da API de lawsuits.
+
+   **Exemplo de Consulta por CPF:**
+
+   ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "cpf",
+            "search_key": "09206529722",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    **Exemplo de Consulta por CNPJ:**
+
+    ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "CNPJ",
+            "search_key": "76535764123892",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    <Note>
+    Na consulta por dados cadastrais, o search_type deve ser <strong>'CPF'</strong> ou <strong>'CNPJ'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
+    </Note>
+
+    Abaixo está um exemplo de resposta JSON para uma consulta por CPF/CNPJ, onde as informações detalhadas do portador serão retornadas conforme solicitado.
+
+    ***Resposta por CPF***
+
+     ```json
+    {
+        "has_lawsuits": false,
+        "request_id": "5c618521-2ecc-4176-a573-431d2e0edeb2",
+        "response_data": [
+            {
+                "entity_id": "",
+                "entity_type": "person",
+                "main_document": "09206529722",
+                "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                "addresses": [
+                    {
+                        "street": "RUA PEDRO DE CARVALHO",
+                        "number": "503",
+                        "complement": "",
+                        "neighborhood": "MEIER",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "country": "Brasil",
+                        "zip_code": "20723230",
+                        "ibge_code": 3304557
+                    }
+                ],
+                "aka_names": [],
+                "contacts": [
+                    {
+                        "description": "21974097771",
+                        "contact_type": "phone"
+                    }
+                ],
+                "documents": [],
+                "parents": [
+                    {
+                        "name": "ROZIMERI DE OLIVEIRA SANTOS RODRIGUES",
+                        "kinship": "mother"
+                    }
+                ],
+                "partners": [],
+                "associated_people": [],
+                "tags": {
+                    "revenue_update_date": "2022-05-30T00:00:00.000Z"
+                },
+                "created_at": "2024-10-12T13:28:59.051Z",
+                "updated_at": "2024-10-12T13:28:59.051Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1981-08-07T00:00:00.000Z",
+                "gender": "male",
+                "revenue_service_active": true
+            }
+        ]
+    }
+     ```
+
+    ***Resposta por CNPJ***
+
+     ```json
+    {
+        "has_lawsuits": false,
+        "request_id": "6e5a24f7-f874-4234-8acc-419142e2b066",
+        "response_data": [
+            {
+                "entity_id": "",
+                "entity_type": "company",
+                "main_document": "98562764000143",
+                "name": "OI S.A. - EM RECUPERACAO JUDICIAL",
+                "social_name": "FING",
+                "addresses": [
+                    {
+                        "street": "RUA DO JOÃO CIRILO",
+                        "number": "71",
+                        "complement": "ANDAR 2",
+                        "neighborhood": "CENTRO",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "country": "BRASIL",
+                        "zip_code": "20231133",
+                        "ibge_code": 1253647
+                    }
+                ],
+                "aka_names": [],
+                "contacts": [
+                    {
+                        "description": "613072345",
+                        "contact_type": "phone"
+                    },
+                    {
+                        "description": "3131314444",
+                        "contact_type": "phone"
+                    },
+                    {
+                        "description": "ouvidoria@fing.net.br",
+                        "contact_type": "email"
+                    }
+                ],
+                "documents": [],
+                "parents": [],
+                "partners": [
+                    {
+                        "entity_id": "",
+                        "entity_type": "company",
+                        "main_document": "***478107**",
+                        "name": "JOÃO DE SOUZA FILHO",
+                        "position": "CONSELHEIRO DE ADMINISTRAÇÃO",
+                        "addresses": [],
+                        "aka_names": [],
+                        "contacts": [],
+                        "documents": [],
+                        "parents": [],
+                        "partners": [],
+                        "branch_activities": [],
+                        "associated_people": [],
+                        "tags": {
+                            "age_group": "Entre 61 a 70 anos",
+                            "start_date": "2018-09-25T00:00:00.000Z"
+                        },
+                        "created_at": "2024-10-12T13:32:25.135Z",
+                        "updated_at": "2024-10-12T13:32:25.135Z"
+                    }
+                ],
+                "branch_activities": [
+                    {
+                        "code": "6110801",
+                        "name": "SERVIÇOS DE TELEFONIA FIXA COMUTADA - STFC",
+                        "active": true,
+                        "main_activity": true,
+                        "tree_history": ""
+                    },
+                    {
+                        "code": "4221904",
+                        "name": "CONSTRUÇÃO DE ESTAÇÕES E REDES DE TELECOMUNICAÇÕES",
+                        "active": true,
+                        "main_activity": false,
+                        "tree_history": ""
+                    }
+                ],
+                "associated_people": [],
+                "tags": {
+                    "revenue_update_date": "2005-11-03T00:00:00.000Z"
+                },
+                "created_at": "2024-10-12T13:32:25.134Z",
+                "updated_at": "2024-10-12T13:32:25.134Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1966-09-26T00:00:00.000Z",
+                "size": "DEMAIS",
+                "legal_nature": {
+                    "code": "2046",
+                    "name": "SOCIEDADE ANÔNIMA ABERTA",
+                    "active": true
+                },
+                "head_office": true,
+                "revenue_service_active": true,
+                "special_status": "RECUPERACAO JUDICIAL",
+                "special_status_date": "2016-06-29T00:00:00.000Z",
+                "share_capital": 32538234000
+            }
+        ]
+    }
+     ```
+
+   O significado de cada campo pode ser encontrado no glossário:
+
+   <a href="https://docs.judit.io/essentials/glossary">
+   https://docs.judit.io/essentials/glossary
+   </a>
+ </Step>
+</Steps>

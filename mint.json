@@ -48,7 +48,8 @@
    "pages": [
     "flow-document/request-document",
     "flow-document/tracking-document",
-    "flow-document/request-name"
+    "flow-document/request-name",
+    "flow-document/request-registration-data"
    ]
   },
   {
