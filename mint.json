@@ -68,6 +68,12 @@
    ]
   },
   {
+    "group": "Fluxo de dados cadastrais",
+    "pages": [
+     "api-reference/endpoint/registrationData/create"
+    ]
+   },
+  {
    "group": "Monitoramento",
    "pages": [
     "api-reference/endpoint/tracking/create",
