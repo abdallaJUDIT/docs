@@ -1,0 +1,31 @@
+---
+title: "Criar uma requisição"
+openapi: "openapi-1 POST /requests/create"
+api: "POST https://lawsuits.prod.judit.io/requests/create"
+description: "Esse endpoint realiza consulta de dados cadastrais por CPF, nome ou RJI"
+---
+
+<ParamField body="search" type="object" required={false}>
+    <Expandable title="properties">
+
+        <ParamField body="search_type" type="string" required>
+            Define o tipo de entidade que você quer buscar: “cpf”, “nome” ou “RJI”;
+
+
+        </ParamField>
+
+        <ParamField body="search_key" type="string" required>
+            Número do CPF, RJI ou nome;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={true}>
+            Este campo sempre será definido como "entity";
+        </ParamField>
+
+        <ParamField body="cache_ttl_in_days" type="integer" required={false}>
+            Define até quantos dias o resultado da busca pode considerar um cache válido;
+        </ParamField>
+
+    </Expandable>
+
+</ParamField>

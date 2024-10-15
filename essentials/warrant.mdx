@@ -1,23 +1,22 @@
 ---
-title: 'Mandados'
+title: 'Mandados de Prisão'
 description: 'Entenda como funciona a consulta de mandados'
 icon: 'handcuffs'
 ---
 
 
 
-Esta API permite que partes interessadas verifiquem apenas mandados com o response_type como warrant, garantindo a precisão e a relevância das informações consultadas.
+Esta API permite que partes interessadas verifiquem mandados de prisão utilizando CPF (Cadastro de Pessoa Física), nome ou RJI (numeração atribuída pelo BNMP 2.0 à pessoa), assegurando a precisão e relevância das informações obtidas.
 
+# Exemplo de request de criação de um mandado de prisão
 
-# Exemplo de request de criação de um mandado
-
-Aqui está um exemplo da criação de uma request de mandado por CPF:
+Aqui está um exemplo da criação de uma request de mandado de prisão por CPF:
 
 ```json
 {
 	"search": {
 		"search_type": "cpf",
-		"search_key": "60986058319",
+		"search_key": "999.999.999-99",
 		"response_type": "warrant"
 	},
 	"with_attachments": true
@@ -25,17 +24,21 @@ Aqui está um exemplo da criação de uma request de mandado por CPF:
 
 ```
 
+<Note>
+    Na consulta por mandado de prisão, o search_type deve ser <strong>'CPF'</strong>, <strong>'name'</strong> ou <strong>RJI</strong>, já o campo response_type deverá sempre ser <strong>'warrant'</strong>.
+ </Note>
 
-# Retorno da criação de um mandado
 
-Aqui está um exemplo do retorno do mandado de prisão pelo cpf:
+# Retorno da criação de um mandado de prisão
+
+Aqui está um exemplo do retorno do mandado de prisão por cpf:
 
 ```json
 {
 	"request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
 	"search": {
 		"search_type": "cpf",
-		"search_key": "60986058319",
+		"search_key": "999.999.999-99",
 		"response_type": "warrant",
 		"search_params": {
 			"filter": {},
@@ -54,10 +57,10 @@ Aqui está um exemplo do retorno do mandado de prisão pelo cpf:
 ```
 
 
-# Consultando respostas do mandado
+# Consultando respostas do mandado de prisão
 
 
-Exemplo para consultar as respostas de um mandado
+Exemplo para consultar as respostas de um mandado de prisão
 
 -- 
 
@@ -102,8 +105,8 @@ Exemplo de retorno da resposta:
 				"justice": "8",
 				"tribunal_acronym": "TJMA",
 				"court": "Tribunal de Justiça do Estado do Maranhão",
-				"judge": "LUÍS CARLOS DUTRA DOS SANTOS",
-				"judgementSummary": "O MINISTÉRIO PÚBLICO ESTADUAL, através da douta Promotora de Justiça com exercício nesta Unidade Jurisdicional, lastreada em Inquérito Policial ofereceu denúncia contra DANIEL SOUZA TRINDADE, brasileiro, solteiro, natural de Cedral/MA, nascido em 17/07/1995, RG n.º 043796872011-0 SSPMA, filho de Eduardo José Trindade e Maria da Conceição Souza Trindade, residente na Rua da Paz, n.º 32, bairro Vila Palmeira, São Luís/MA, incursando-o no crime tipificado no art. 157, § 2º, I e II, do Código Penal.Ante o exposto, julgo procedente a denúncia e CONDENO o acusado DANIEL SOUZA TRINDADE, supraqualificado, nas penas do artigo 157, § 2º, I e II, do Código Penal. Não ocorre causa de diminuição de pena. Por outro lado, presente a causa de aumento de pena pelo emprego de arma e concurso de pessoas, pelo que elevo a reprimenda no patamar mínimo de 1/3 (um terço), ou seja, 01 ano e 04 (quatro) meses de reclusão e 03 (três) dias multa, resultando na reprimenda definitiva de 05 (CINCO) ANOS E 04 (QUATRO) MESES DE RECLUSÃO E 13 (TREZE) DIAS MULTA, a qual deverá ser cumprida em regime inicialmente semiaberto, na Penitenciária Agrícola de Pedrinhas. Com o trânsito em julgado desta, o nome do condenado deverá ser inscrito no Livro Rol dos Culpados, calculada a pena de multa e intimado para pagamento, oficiando-se ao TRE para as providências quanto a sua situação eleitoral, bem como expedida carta de guia definitiva e mandado de prisão.",
+				"judge": "JOÃO SILVA",
+				"judgementSummary": "O MINISTÉRIO PÚBLICO ESTADUAL, através da douta Promotora de Justiça com exercício nesta Unidade Jurisdicional, lastreada em Inquérito Policial ofereceu denúncia contra LUÍS SOUZA, brasileiro, solteiro, natural de Cedral/MA, nascido em 17/07/1995, RG n.º 999999999999-9 SSPMA, filho de Eduardo Silva Trindade e Maria da Conceição Silva, residente na Rua centro, n.º 99, bairro Centro, São Luís/MA, incursando-o no crime tipificado no art. 157, § 2º, I e II, do Código Penal.Ante o exposto, julgo procedente a denúncia e CONDENO o acusado LUÍS SOUZA, supraqualificado, nas penas do artigo 157, § 2º, I e II, do Código Penal. Não ocorre causa de diminuição de pena. Por outro lado, presente a causa de aumento de pena pelo emprego de arma e concurso de pessoas, pelo que elevo a reprimenda no patamar mínimo de 1/3 (um terço), ou seja, 01 ano e 04 (quatro) meses de reclusão e 03 (três) dias multa, resultando na reprimenda definitiva de 05 (CINCO) ANOS E 04 (QUATRO) MESES DE RECLUSÃO E 13 (TREZE) DIAS MULTA, a qual deverá ser cumprida em regime inicialmente semiaberto, na Penitenciária Agrícola de Pedrinhas. Com o trânsito em julgado desta, o nome do condenado deverá ser inscrito no Livro Rol dos Culpados, calculada a pena de multa e intimado para pagamento, oficiando-se ao TRE para as providências quanto a sua situação eleitoral, bem como expedida carta de guia definitiva e mandado de prisão.",
 				"duration": "5 ano(s) 4 mês(es) 0 dia(s).",
 				"duration_years": 5,
 				"duration_months": 4,
@@ -124,33 +127,33 @@ Exemplo de retorno da resposta:
 					"_id": "65f29d5c48f9210b7040b59b",
 					"entity_id": "09c91d1b-fba7-4b0e-bfc3-e87a8b092802",
 					"entity_type": "person",
-					"name": "DANIEL SOUZA TRINDADE",
-					"main_document": "60986058319",
+					"name": "JOÃO SILVA",
+					"main_document": "99999999999",
 					"documents": [
 						{
-							"document": "60986058319",
+							"document": "99999999999",
 							"document_type": "cpf",
 							"_id": "65f29d5c48f9210b7040b59c"
 						},
 						{
-							"document": "043796872011-0",
+							"document": "99999999999-9",
 							"document_type": "rg",
 							"_id": "65f29d5c48f9210b7040b59d"
 						},
 						{
-							"document": "181556479-70",
+							"document": "99999999999-9",
 							"document_type": "rji",
 							"_id": "65f29d5c48f9210b7040b59e"
 						}
 					],
 					"addresses": [
 						{
-							"street": "RUA DA PAZ",
-							"number": "32",
-							"neighborhood": "VILA PALMEIRA",
+							"street": "RUA CENTRO",
+							"number": "99",
+							"neighborhood": "CENTRO",
 							"city": "Sao Luis",
 							"state": "MA",
-							"ibge_code": 2111300,
+							"ibge_code": 9999999,
 							"country": "Brasil",
 							"_id": "65f29d5c48f9210b7040b59f"
 						}
@@ -161,12 +164,12 @@ Exemplo de retorno da resposta:
 					],
 					"parents": [
 						{
-							"name": "EDUARDO JOSÉ TRINDADE",
+							"name": "JOSÉ SILVA",
 							"kinship": "father",
 							"_id": "65f29d5c48f9210b7040b5a0"
 						},
 						{
-							"name": "MARIA DA CONCEIÇÃO SOUZA TRINDADE",
+							"name": "MARIA SILVA",
 							"kinship": "mother",
 							"_id": "65f29d5c48f9210b7040b5a1"
 						}
