@@ -8,9 +8,9 @@ icon: 'handcuffs'
 
 Esta API permite que partes interessadas verifiquem mandados de prisão utilizando CPF (Cadastro de Pessoa Física), nome ou RJI (numeração atribuída pelo BNMP 2.0 à pessoa), assegurando a precisão e relevância das informações obtidas.
 
-# Exemplo de request de criação de um mandado de prisão
+# Exemplo de request de criação para mandado de prisão
 
-Aqui está um exemplo da criação de uma request de mandado de prisão por CPF:
+Aqui está um exemplo da criação de uma request para mandado de prisão por CPF:
 
 ```json
 {
@@ -18,18 +18,17 @@ Aqui está um exemplo da criação de uma request de mandado de prisão por CPF:
 		"search_type": "cpf",
 		"search_key": "999.999.999-99",
 		"response_type": "warrant"
-	},
-	"with_attachments": true
+	}
 }
 
 ```
 
 <Note>
-    Na consulta por mandado de prisão, o search_type deve ser <strong>'CPF'</strong>, <strong>'name'</strong> ou <strong>RJI</strong>, já o campo response_type deverá sempre ser <strong>'warrant'</strong>.
+    Na consulta por mandado de prisão, o search_type deve ser <strong>'cpf'</strong>, <strong>'name'</strong> ou <strong>rji</strong>, já o campo response_type deverá sempre ser <strong>'warrant'</strong>.
  </Note>
 
 
-# Retorno da criação de um mandado de prisão
+# Retorno de uma requisição realizada para mandado de prisão
 
 Aqui está um exemplo do retorno do mandado de prisão por cpf:
 
@@ -68,7 +67,7 @@ Exemplo para consultar as respostas de um mandado de prisão
 https://requests.prod.judit.io/responses?request_id={request_id}
 ```
 
-Aqui abaixo está um exemplo de retorno da resposta da consulta:
+Segue abaixo um exemplo de resposta da consulta:
 
 ```json
 Exemplo de retorno da resposta:
@@ -99,13 +98,13 @@ Exemplo de retorno da resposta:
 				"create_date": "2018-05-28T12:05:09.040Z",
 				"expiration_date": "2028-11-27T00:00:00.000Z",
 				"status": "Pendente de Cumprimento",
-				"code": "0007826-65.2016.8.10.0001",
+				"code": "99999999-99.9999.9.99.9999",
 				"instance": 1,
 				"tribunal": "10",
 				"justice": "8",
 				"tribunal_acronym": "TJMA",
 				"court": "Tribunal de Justiça do Estado do Maranhão",
-				"judge": "JOÃO SILVA",
+				"judge": "USUÁRIO TESTE",
 				"judgementSummary": "O MINISTÉRIO PÚBLICO ESTADUAL, através da douta Promotora de Justiça com exercício nesta Unidade Jurisdicional, lastreada em Inquérito Policial ofereceu denúncia contra LUÍS SOUZA, brasileiro, solteiro, natural de Cedral/MA, nascido em 17/07/1995, RG n.º 999999999999-9 SSPMA, filho de Eduardo Silva Trindade e Maria da Conceição Silva, residente na Rua centro, n.º 99, bairro Centro, São Luís/MA, incursando-o no crime tipificado no art. 157, § 2º, I e II, do Código Penal.Ante o exposto, julgo procedente a denúncia e CONDENO o acusado LUÍS SOUZA, supraqualificado, nas penas do artigo 157, § 2º, I e II, do Código Penal. Não ocorre causa de diminuição de pena. Por outro lado, presente a causa de aumento de pena pelo emprego de arma e concurso de pessoas, pelo que elevo a reprimenda no patamar mínimo de 1/3 (um terço), ou seja, 01 ano e 04 (quatro) meses de reclusão e 03 (três) dias multa, resultando na reprimenda definitiva de 05 (CINCO) ANOS E 04 (QUATRO) MESES DE RECLUSÃO E 13 (TREZE) DIAS MULTA, a qual deverá ser cumprida em regime inicialmente semiaberto, na Penitenciária Agrícola de Pedrinhas. Com o trânsito em julgado desta, o nome do condenado deverá ser inscrito no Livro Rol dos Culpados, calculada a pena de multa e intimado para pagamento, oficiando-se ao TRE para as providências quanto a sua situação eleitoral, bem como expedida carta de guia definitiva e mandado de prisão.",
 				"duration": "5 ano(s) 4 mês(es) 0 dia(s).",
 				"duration_years": 5,
@@ -164,7 +163,7 @@ Exemplo de retorno da resposta:
 					],
 					"parents": [
 						{
-							"name": "JOSÉ SILVA",
+							"name": "USUÁRIO TESTE",
 							"kinship": "father",
 							"_id": "65f29d5c48f9210b7040b5a0"
 						},
