@@ -4,7 +4,7 @@ description: "Monitore documentos ou processos e se mantenha atualizado sobre to
 icon: "radar"
 ---
 
-A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB, mantendo-o atualizado sobre qualquer nova movimentação.
+A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB ou Código(CNJ), mantendo-o atualizado sobre qualquer nova movimentação.
 
 O monitoramento é a automatização das consultas processuais do item anterior.
 
@@ -21,7 +21,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
 - `search`: Objeto que vai para a busca.
-  - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"**, **name** ou **rji** para um número de processo;
+  - `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **"lawsuit_cnj"** OU **"name"** para um número de processo;
 
 `Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
 
@@ -36,11 +36,9 @@ Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
 DF0001234
 ```
 
-- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
+- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
 
-- `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"**, **"lawsuits"** ou **warrant**;
-
-- `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+- `response_type` (opcional): No contexto de monitoramento esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
@@ -94,7 +92,7 @@ Caso o processo tenha um ou mais processos relacionado ou em alguma outra instâ
     - `name`: nome do monitoramento
     - `dashboard_id`: **238904bd-3b05-4160-bef0-16b329a362f0**
 
-    Para cadastrar um monitoramento criado via API no dashboard, é necessário a utilização desse propriedade tag.
+    Para cadastrar um monitoramento criado via API, é necessário a utilização desse propriedade tag.
 
     Exemplo:
 
@@ -104,7 +102,7 @@ Caso o processo tenha um ou mais processos relacionado ou em alguma outra instâ
      "with_attachments": false,
      "search": {
       "search_type": "lawsuit_cnj",
-      "search_key": "0001234-55.2023.8.26.0100"
+      "search_key": "9999999-99.9999.9.99.9999"
      },
      "tags": {
       "name": "nome do seu monitoramento",
@@ -121,7 +119,7 @@ Aqui está um exemplo de como um payload pode parecer:
  "with_attachments": false,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100"
+  "search_key": "9999999-99.9999.9.99.9999"
  }
 }
 ```
@@ -136,7 +134,7 @@ Aqui está um exemplo de retorno esperado ao criar um monitoramento:
  "recurrence": 1,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100",
+  "search_key": "9999999-99.9999.9.99.9999",
   "response_type": "lawsuits",
   "search_params": {
    "filter": {},
@@ -162,7 +160,7 @@ curl -X POST "https://tracking.prod.judit.io/tracking" \
   "with_attachments": false,
   "search": {
     "search_type": "lawsuit_cnj",
-    "search_key": "0001234-55.2023.8.26.0100"
+    "search_key": "9999999-99.9999.9.99.9999"
 }'
 ```
 
@@ -209,7 +207,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 
 ## Exemplo de notificação de webhook para monitoramento
 
-**Obs**: Toda movimentação será notificada no webhook o processo por completo, incrementando as últimas movimentações.
+**Obs**: Toda movimentação serão notificadas via webhook contendo o processo por completo, incrementando as últimas movimentações.
 
 ```json
 {
@@ -227,7 +225,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
     "response_id": "12576767-d3ea-4ea2-8805-6f2a73ef3439",
     "response_type": "lawsuit",
     "response_data": {
-      "code": "0000134-63.2024.8.05.0004",
+      "code": "9999999-99.9999.9.99.9999",
       "justice": "8",
       "tribunal": "05",
       "instance": 1,
@@ -255,11 +253,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 }
 ```
 
-**Obs** Para cadastrar seu webhook deverá seguir esses passos:
-
-`1.` Acessar o portal **app.judit.io**
-
-`2.` Clicar no seu perfil de usuário > Webhook > Editar
+**Obs** Para cadastrar seu webhook, entre em contato com a equipe de [suporte](https://api.whatsapp.com/send/?phone=5521976748865) e solicite a criação.
 
 ## Consultando Informações de um Monitoramento
 
@@ -282,7 +276,7 @@ Aqui está o retorno esperado:
  "recurrence": 1,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100",
+  "search_key": "9999999-99.9999.9.99.9999",
   "response_type": "lawsuits",
   "search_params": {
    "filter": {},
@@ -301,7 +295,7 @@ Aqui está o retorno esperado:
 
 Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
 
-Aqui está um exemplo de como fazer isso usando curl:
+Aqui está um exemplo de como pausar o monitoramento usando o curl:
 
 ```bash
 curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
@@ -318,7 +312,7 @@ Aqui está um exemplo de retorno do monitoramento pausado:
  "recurrence": 1,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100",
+  "search_key": "9999999-99.9999.9.99.9999",
   "response_type": "lawsuits",
   "search_params": {
    "filter": {},
@@ -337,7 +331,7 @@ Aqui está um exemplo de retorno do monitoramento pausado:
 
 Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
 
-Aqui está um exemplo de como fazer isso usando curl:
+Aqui está um exemplo de como reativar um monitoramento usando curl:
 
 ```bash
 curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
@@ -354,7 +348,7 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
  "recurrence": 1,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100",
+  "search_key": "9999999-99.9999.9.99.9999",
   "response_type": "lawsuits",
   "search_params": {
    "filter": {},
@@ -373,7 +367,7 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
 
 Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
 
-Aqui está um exemplo de como fazer isso usando curl:
+Aqui está um exemplo de como deletar um monitoramento usando curl:
 
 ```bash
 curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
@@ -390,7 +384,7 @@ Aqui está um exemplo do retorno do monitoramento deletado:
  "recurrence": 1,
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100",
+  "search_key": "9999999-99.9999.9.99.9999",
   "response_type": "lawsuits",
   "search_params": {
    "filter": {},
