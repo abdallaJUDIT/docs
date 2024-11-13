@@ -27,6 +27,24 @@ Aqui está um exemplo da criação de uma request para execução penal por CPF:
     Na consulta por execução penal, o search_type deve ser <strong>'cpf'</strong>, <strong>'cnpj'</strong>, <strong>'name'</strong> ou <strong>lawsuit_cnj</strong>, já o campo response_type deverá sempre ser <strong>'execution'</strong>.
  </Note>
 
+Aqui está um exemplo da criação de uma request para execução penal por CNJ:
+
+```json
+{
+	"search": {
+		"search_type": "cpf",
+		"search_key": "999.999.999-99",
+		"response_type": "execution"
+	}
+    "with_attachments": true
+}
+
+```
+
+<Note>
+    Na consulta por processos (Código CNJ), o parâmetro <strong>with_attachments</strong> Indica se a busca incluiu a captura de anexos.
+</Note>
+
 
 # Retorno da requisição realizada para execução penal
 
@@ -69,7 +87,7 @@ Exemplo de como consultar a resposta gerada para execução penal
 https://requests.prod.judit.io/responses?request_id={request_id}
 ```
 
-Segue abaixo um exemplo de resposta da consulta da consulta por CPF:
+Segue abaixo um exemplo de resposta da consulta por CPF:
 
 ```json
 Exemplo de retorno da resposta:
@@ -180,7 +198,7 @@ Exemplo de retorno da resposta:
 }
 ```
 
-Segue abaixo um exemplo de resposta da consulta da consulta por CNJ:
+Segue abaixo um exemplo de resposta da consulta por CNJ:
 
 ```json
 Exemplo de retorno da resposta:
