@@ -4,11 +4,22 @@ description: 'callbacks'
 icon: 'book'
 ---
 
-Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontradas. O Webhook pode ser configurado atráves do nosso suporte: [Judit](https://api.whatsapp.com/send/?phone=5521976748865)
+Quando uma busca ou um monitoramento e feito pela API da JUDIT enviamos um retorno com as informações encontradas. Para que todas as respostas das solicitações sejam enviadas a um único webhook, o cadstro deve ser realizado entrando em contato com nosso suporte: [Judit](https://api.whatsapp.com/send/?phone=5521976748865). Alternativamente, o webhook também pode ser especificado adicionando o parâmetro <strong>callback_url</strong> no payload da requisição, conforme o exemplo abaixo:
 
-Fazemos uma solicitação POST para webhooks com a resposta de acordo com sua busca. O retorno ao webhook será feito após o status da requisição estar como **"completed"**.
+```json
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "9999999-99.9999.9.99.9999"
+    },
+    "callback_url": "https://webhook.site/b0ac6522-5bfc-42fa-bebf-a8c2b5ec0999",
+    "with_attachments": true
+}
+```
 
-Exemplo de um payload do tipo de resposta, onde o campo `reference_type` pode variar entre **"request"** ou **"tracking"**
+Realizamos uma solicitação POST para o webhook, enviando uma resposta conforme os resultados da sua busca. O retorno ao webhook ocorre assim que o status da requisição é atualizado para **"completed"**.
+
+Exemplo de payload com o tipo de resposta, onde o campo `reference_type` pode variar entre **"request"** ou **"tracking"**
 
 ```json
 {
@@ -33,7 +44,20 @@ Exemplo de um payload do tipo de resposta, onde o campo `reference_type` pode va
 
 Exemplos:
 
-Se voce realizar uma consulta processual com o campo `response_type` passando como valor **"lawsuit"**, o campo `response_data` retornará a resposta com o formato parecido com o seguinte:
+O `response_type` tem como valor padrão ***lawsuit***, contudo, esse valor pode ser configurado para outros tipos, conforme necessário. As opções disponíveis são **"steps"**,**"attachments"** ou **"parties"** como mostrado no exemplo abaixo:
+
+```json
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "9999999-99.9999.9.99.9999",
+        "response_type": "steps"
+    },
+    "with_attachments": true
+}
+```
+
+Se for realizado uma consulta processual com o campo `response_type` definido como **"lawsuit"** ou se esse parâmetro não for incluído no payload, o campo `response_data` retornará uma resposta no formato abaixo:
 
 ```json
 {
@@ -41,7 +65,7 @@ Se voce realizar uma consulta processual com o campo `response_type` passando co
     "payload": {
          //...
         "response_data": {
-          "code": "0027400-51.2009.5.03.0135",
+          "code": "9999999-99.9999.9.99.9999",
           "instance": 1,
           "lawsuit_cnj": "91970cc2-7f45-4c58-af9a-89e8b905dea6",
           "crawler": {
@@ -93,30 +117,30 @@ Se voce realizar uma consulta processual com o campo `response_type` passando co
           },
           "parties": [
             {
-              "name": "ALINE PAULA RAMOS",
-              "main_document": "05196308660",
+              "name": "USUÁRIO TESTE",
+              "main_document": "99999999999",
               "document_type": "cpf",
               "person_type": "Autor",
               "side": "Active",
               "lawyers": [
                 {
-                  "name": "RONEI MUNIZ BONFIM",
-                  "document": "03344781626",
+                  "name": "USUÁRIO TESTE 2",
+                  "document": "99999999999",
                   "document_type": "cpf",
-                  "license": "MG100560",
+                  "license": "MG999999",
                 }
               ]
             },
             {
-              "name": "ADRIANA AMELIA DA SILVA MELO",
-              "document": "83359079604",
+              "name": "USUÁRIO TESTE RÉU",
+              "document": "99999999999",
               "document_type": "cpf",
               "person_type": "Réu",
               "side": "Passive",
               "lawyers": [
                 {
-                  "name": "JOSE RIBAMAR MATOS AMARAL",
-                  "document": "10912797720",
+                  "name": "USUÁRIO TESTE ADV",
+                  "document": "99999999999",
                   "document_type": "cpf",
                   "license": "MG94008"
                 }
@@ -146,14 +170,14 @@ Se voce realizar uma consulta processual com o campo `response_type` passando co
           "tribunal": "03",
           "tribunal_acronym": "TRT3",
           "tribunal_id": "985",
-          "name": "JUDIT X LEONARDO REBBITE"
+          "name": "JUDIT X USUÁRIO TESTE"
         }
         //...
     }
 }
 ```
 
-Quando uma busca com o campo `response_type` retornar o valor **"steps"**,**"attachments"** ou **"parties"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 itens e também pode variar seu tipo de acordo com o `search_type` informado.
+Quanto ao retorno no webhook, o `response_type` poderá retornar o valor **"lawsuit"**, **"steps"**,**"attachments"** ou **"parties"**, o campo `response_data` irá gerar as respostas de forma paginada, onde `page_data` será um array que poderá conter no máximo 50 itens e também pode variar seu tipo de acordo com o `search_type` informado.
 
 
 Se quisermos consultar as respostas para ver um grupo de itens específicos poderemos realizar uma consulta de respostas passando [filtros e paginação](./requests#consultando-respostas-de-buscas).
@@ -164,7 +188,7 @@ Se quisermos consultar as respostas para ver um grupo de itens específicos pode
     "payload": {
          //...
         "response_data": {
-          "code": "0027400-51.2009.5.03.0135",
+          "code": "9999999-99.9999.9.99.9999",
           "instance": 1,
           "page": 1,
           "page_data": PageData[],
@@ -179,7 +203,7 @@ Se quisermos consultar as respostas para ver um grupo de itens específicos pode
 
 Exemplos:
 
-Se voce realizar uma busca com o `response_type` campo passando como valor **"parties"**, o campo `page_data` retornará um array com o formato parecido com o seguinte:
+Se for realizado uma busca com o `response_type` passando como valor **"parties"**, o campo `page_data` retornará um array com o formato parecido com o seguinte:
 
 ```json
 {
@@ -187,22 +211,22 @@ Se voce realizar uma busca com o `response_type` campo passando como valor **"pa
     "payload": {
          //...
         "response_data": {
-          "code": "0027400-51.2009.5.03.0135",
+          "code": "9999999-99.9999.9.99.9999",
           "instance": 1,
           "page": 1,
           "page_data": [
             {
               "name": "JUDIT IO",
-              "document": "05196308660",
+              "document": "99999999999",
               "document_type": "cpf",
               "person_type": "Autor",
               "side": "Active",
               "lawyers": [
                 {
-                  "name": "LEONARDO REBBITE",
-                  "document": "12345678910",
+                  "name": "USUÁRIO TESTE",
+                  "document": "99999999999",
                   "document_type": "cpf",
-                  "license": "MG100560"
+                  "license": "MG999999"
                 }
               ]
             },
@@ -285,7 +309,7 @@ Uma busca com o `response_type` passando como valor **"lawsuits"**:
           //...
           "page_data": [
             {
-              "code": "0027400-51.2009.5.03.0135",
+              "code": "9999999-99.9999.9.99.9999",
               "instance": 1,
               "lawsuit_cnj": "91970cc2-7f45-4c58-af9a-89e8b905dea6",
               "crawler": {
@@ -352,17 +376,17 @@ Uma busca com o `response_type` passando como valor **"lawsuits"**:
                   ]
                 },
                 {
-                  "name": "ADRIANA AMELIA DA SILVA MELO",
-                  "document": "83359079604",
+                  "name": "USUÁRIO TESTE",
+                  "document": "99999999999",
                   "document_type": "cpf",
                   "person_type": "Réu",
                   "side": "Passive",
                   "lawyers": [
                     {
-                      "name": "JOSE RIBAMAR MATOS AMARAL",
-                      "document": "10912797720",
+                      "name": "ADV TESTE",
+                      "document": "99999999999",
                       "document_type": "cpf",
-                      "license": "MG94008"
+                      "license": "MG99999
                     }
                   ]
                 }
@@ -390,7 +414,7 @@ Uma busca com o `response_type` passando como valor **"lawsuits"**:
               "tribunal": "03",
               "tribunal_acronym": "TRT3",
               "tribunal_id": "985",
-              "name": "JUDIT X LEONARDO REBBITE"
+              "name": "JUDIT X USUÁRIO TESTEE"
             },
             ...
           ]
@@ -400,4 +424,34 @@ Uma busca com o `response_type` passando como valor **"lawsuits"**:
     }
 }
 ```
-Caso o processo consultado que tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados em um array `related_lawsuits.
+
+As respostas podem ser enviadas de forma paginada para o webhook configurado. No entanto, ao término do envio completo, uma mensagem de confirmação será enviada, indicando que toda a resposta foram entregues. Essa mensagem final incluirá o statusCode 600 e a mensagem `request_completed`, conforme mostrado abaixo:
+
+```json
+{
+  "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+  "callback_id": "c2c79ac8-8ac7-41fd-a3d5-a4dddb013cfb",
+  "event_type": "response_created",
+  "reference_type": "request",
+  "reference_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
+  "payload": {
+    "request_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
+    "response_id": "5084577b-075c-48ea-b772-934032a9a7af",
+    "origin": "api",
+    "origin_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
+    "request_created_at": "2024-11-14T13:11:22.578Z",
+    "response_type": "application_info",
+    "response_data": {
+      "code": 600,
+      "message": "REQUEST_COMPLETED"
+    },
+    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+    "created_at": "2024-11-14T13:11:57.234Z",
+    "tags": {
+      "dashboard_id": null
+    }
+  }
+}
+```
+
+Caso o processo consultado tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados em um array `related_lawsuits.
