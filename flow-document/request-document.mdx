@@ -6,7 +6,9 @@ icon: "file"
 
 <Steps>
  <Step title="Criação de Request" stepNumber="1">
-   Para realizar a consulta por documento, é necessário primeiramente criar uma requisição para o endpoint de consulta por documento.
+   Para realizar a consulta por documento, é necessário criar uma requisição ao endpoint de consulta correspondente. Essa consulta pode ser realizada em nossa base de dados ou diretamente no tribunal. Vale destacar que os dados disponíveis em nossa base podem estar sujeitos a um atraso de atualização de até 30 dias.
+
+   Exemplo de consulta por documento em nossa base de dados:
 
    ```bash
    curl --request POST
@@ -17,12 +19,36 @@ icon: "file"
        "search": {
           "search_type": "cpf",
           "search_key": "092.065.297-22"
-         }
         }
+      }
       '
     ```
 
-     A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
+    Exemplo de consulta por documento diretamente no tribunal:
+
+     ```bash
+    curl --request POST
+        --url 'https://requests.prod.judit.io/requests'
+        --header 'Content-Type: application/json'
+        --header 'api_key: SUA-API-KEY'
+        --data '{
+            "search": {
+                "search_type": "cpf",
+                "search_key": "092.065.297-22",
+                "on_demand": true
+            }
+        }
+        '
+    ```
+
+    <Note>
+        Em consultas diretamento no tribunal é adicionado a propriedade ***on-demand*** com o booleano ***true***.
+    </Note>
+
+
+     A resposta dessa requisição será um objeto JSON com os dados de criação da Request.
+
+     Abaixo, apresentamos um exemplo de resposta para uma busca realizada em nossa base de dados sem filtros aplicados:
 
      ```json
      {
@@ -107,7 +133,7 @@ icon: "file"
     ```
    <Steps>
     <Step title="Processo encontrado">
-        <Accordion title="Exemplo de retorno quando o processo foi encontrado no tribunal">
+        <Accordion title="Exemplo de retorno quando o processo foi encontrado em nossa base de dados ou tribunal">
          ```json
          {
           "page": 1,
@@ -525,30 +551,14 @@ icon: "file"
         </Accordion>
     </Step>
     <Step title="Processo não encontrado">
-      Exemplo de retorno quando o processo não foi encontrado no tribunal:
+      Exemplo de retorno quando o processo não foi encontrado em nossa base de dados ou tribunal:
         ```json
         {
             "page": 1,
-            "page_data": [
-                {
-                    "request_id": "ef1ea0fb-cac8-4901-8415-2af08822765b",
-                    "response_id": "4ecdf43c-4a21-4138-969b-5f7e6b21654d",
-                    "response_type": "application_error",
-                    "response_data": {
-                        "code": 2,
-                        "message": "LAWSUIT_NOT_FOUND"
-                    },
-                    "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-                    "created_at": "2024-02-21T17:28:05.659Z",
-                    "request_status": "completed",
-                    "tags": {
-                        "dashboard_id": null
-                    }
-                }
-            ],
-            "page_count": 1,
-            "all_count": 1,
-            "all_pages_count": 1
+            "page_data": [],
+            "page_count": 0,
+            "all_count": 0,
+            "all_pages_count": 0
         }
         ```
     </Step>
