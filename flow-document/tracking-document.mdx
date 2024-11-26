@@ -1,6 +1,6 @@
 ---
 title: "Monitoramento de Documento"
-description: "Essa página tem como objetivo mostrar o fluxo de Monitoramento de Documento."
+description: "Essa página tem como objetivo mostrar o fluxo de Monitoramento de novas ações por documento."
 icon: "file"
 ---
 
@@ -12,12 +12,17 @@ icon: "file"
    --header "api_key: SUA-API-KEY"
    --header "Content-Type: application/json"
    --data "{
+     'recurrence': 1,
      'search': {
       'search_type': 'cpf',
-      'search_key': '092.065.297-22'
+      'search_key': '999.999.999-99'
      }
    }"
    ```
+
+   <Note>
+    Todas os monitoramentos de novas ações processuais cadastradas como monitoramento são realizadas ***on-demand***. Recomendamos verificar as condições de custo associadas a este serviço antes de sua utilização.
+   </Note>
 
    Retorno:
    ```json
@@ -47,11 +52,10 @@ icon: "file"
   concorrência de requisição ao tribunal, dentro das próximas 5 horas
   da data de criação.
 
-  Depois ocorrerá todos os dias úteis no mesmo horário.
+  Depois ocorrerá de acordo com a frequeência cadastrada no campo ***recurrence***.
 
   <br />
-  Outros parâmetros que podem ser adicionados na requisição, como
-  filtros, podem ser encontrados na página:
+  Filtros podem ser adicionados na requisição. Os filtros disponíveis podem ser encontrados na página:
 
   <a href="https://docs.judit.io/api-reference/endpoint/tracking/create">
   https://docs.judit.io/api-reference/endpoint/tracking/create
