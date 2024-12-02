@@ -6,7 +6,7 @@ icon: "vault"
 
 A JUDIT permite adicionar as credenciais dos advogados de sua preferência, possibilitando o acesso, por meio dessas credenciais, a processos em segredo de justiça de autoria dos respectivos advogados.
 
-## Rota para cadastrar suas chaves no cofre de Credenciais
+## Rota para cadastrar suas chaves no cofre de credenciais
 
 Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
 
@@ -16,19 +16,19 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `system_name`: A sigla do [tribunal e sistema](./glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
   - `Obs:` Poderá ser cadastrada uma credencial coringa `"system_name": "*"`. Se uma credencial for cadastrada nela, todos os tribunais que não tiverem outra credencial cadastrada utilizarão a credencial coringa.
-- `customer_key`: A forma que o cliente será identificado.
+- `customer_key`: Identificador personalizado para associar a credencial a um cliente ou advogado. Pode ser qualquer nome ou rótulo definido pelo responsável pelo cadastro, facilitando a organização e o gerenciamento das credenciais.
 
-- `username`: O CPF (Cadastro de Pessoas Físicas) ou o número da OAB (Ordem dos Advogados do Brasil), conforme o sistema do tribunal onde o usuário irá realizar o login.
+- `username`: CPF (Cadastro de Pessoas Físicas) ou número da OAB (Ordem dos Advogados do Brasil), conforme exigido pelo sistema do tribunal onde o login será realizado.
 
 - `password`: Senha cadastrada no respectivo tribunal.
 
 Propriedades necessárias apenas nos casos de tribunais que exigem autenticação de dois fatores:
 
-- `custom_data`: Campo obrigatório para adicionar elementos opcionais.
+- `custom_data`: Objeto opcional destinado a armazenar informações adicionais específicas para o sistema ou contexto de uso. Pode incluir campos personalizados como, por exemplo, um secret necessário para autenticação ou outras configurações específicas.
 
 - `secret`: Token de autenticação de dois fatores do sistema a ser cadastrado.
 
-`Obs:` As credenciais são criptografadas, não sendo possível acessar os dados cadastrados posteriormente. Caso seja necessário alterar algum dado cadastrado, basta sobrescrever a credencial com um novo cadastro.
+`Obs:` As credenciais cadastradas são criptografadas, garantindo a segurança dos dados, e não podem ser acessadas posteriormente. Para modificar informações já cadastradas, basta criar um novo registro utilizando o mesmo `customer_key` e o mesmo `system_name`. O novo cadastro substituirá automaticamente a credencial existente.
 
 Exemplo de payload para cadastro de credenciais sem autenticação de dois fatores:
 
@@ -87,96 +87,67 @@ Exemplo de resposta a solicitação:
 ]
 ```
 
-## Rota Verificação de Credenciais Cadastradas
+## Rota de verificação de credenciais cadastradas
 
-Para visualizar todas as credenciais atreladas ao seu usuário, você deve realizar uma solicitação GET para a rota `crawler.prod.judit.io/credentials`.
+Para verificar se uma credencial está cadastrada, envie uma solicitação GET para o endpoint `crawler.prod.judit.io/credentials`, incluindo o parâmetro `customer_key` correspondente à credencial que deseja consultar.
 
-Será retornado todas as credenciais disponíveis no cofre de credenciais. O campo `credential_status` indicará o status de cada credencial, sendo `active` para credenciais cadastradas e `not exists` para credenciais não cadastradas.
+A resposta retornará todas as credenciais disponíveis no cofre associadas à `customer_key` consultada. O campo `credential_status` indicará o status de cada credencial:
 
-Exemplo de resposta com alguns tribunais e sistemas:
+- active: Credencial cadastrada e ativa.
+- not exists: Credencial não encontrada no sistema.
+
+Segue um exemplo de solicitação GET para verificar a existência de uma credencial:
+
+```json
+
+curl --location 'https://crawler.prod.judit.io/credentials?customer_key=teste_01' \
+--header 'api-key: <API-KEY>'
+
+```
+
+Segue um exemplo de resposta para a solicitação GET realizada:
 
 ```json
 
 {
-  "systems": [
-    {
-      "name": "ESAJ - TJSP - 2º grau",
-      "customer_key": "",
-      "credential_status": "not exists"
-    },
-    {
-      "name": "PJE INTER TJBA - 1º grau",
-      "customer_key": "00000001",
-      "credential_status": "active"
-    },
-    {
-      "name": "PJE TJAP - 1º grau",
-      "customer_key": "",
-      "credential_status": "not exists"
-    },
-    {
-      "name": "PJE TJAP - 2º grau",
-      "customer_key": "",
-      "credential_status": "not exists"
-    },
-    {
-      "name": "PJE TJBA - 1º grau",
-      "customer_key": "00000002",
-      "credential_status": "active"
-    },
-    {
-      "name": "PJE TJBA - 2º grau",
-      "customer_key": "00000002",
-      "credential_status": "active"
-    },
-    ...
-  ]
+    "systems": [
+        {
+            "name": "*",
+            "customer_key": "",
+            "credential_status": "not exists"
+        },
+        {
+            "name": "ESAJ - TJAM - 1º grau",
+            "customer_key": "teste_01",
+            "credential_status": "active"
+        },
+        {
+            "name": "PROJUDI TJGO - 1º grau",
+            "customer_key": "teste_01",
+            "credential_status": "active"
+        }
+    ]
 }
 
-```
-
-Filtrando por credencial:
-
-Para realizar um filtro consultando uma credencial especifica cadastrada basta adicionar `?customer_key=<Valor cadastrado>` ao endpoint.
-
-Exemplo de endpoint com filtro por credencial:
-
-```json
-crawler.prod.judit.io/credentials?customer_key=00000001
-```
-Exemplo de resposta para consulta com filtro por credencial:
-```json
-{
-	"systems": [
-		{
-			"name": "*",
-			"customer_key": "",
-			"credential_status": "not exists"
-		},
-		{
-			"name": "EPROC - TRF4 - 2º grau",
-			"customer_key": "00000001",
-			"credential_status": "active"
-		}
-	]
-}
 ```
 ## Rota para deletar uma chave no cofre de Credenciais
 
-Para deletar um sitema no cofre de credeniais, você deve realizar uma solicitação DELETE para a rota `crawler.prod.judit.io/credentials`.
+Para deletar um sistema no cofre de credenciais, você deve realizar uma solicitação DELETE para a rota `crawler.prod.judit.io/credentials`.
 
 ### Payload da Solicitação
 
 A solicitação DELETE deve incluir um payload com a seguinte propriedade: 
 
 - `system_name`: A sigla do [tribunal e sistema](./glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+- `customer_key`: Identificador personalizado adicionado no momento do cadastro da credencial.
 
 Exemplo de payload para deletar credencial:
 
 ```json
 
 {
-  "system_name": "PJE TJBA - 1º grau"
+	"system_name": "PROJUDI TJGO - 1º grau",
+    "customer_key":"teste_01"
 }
 
 ```
