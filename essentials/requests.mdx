@@ -8,111 +8,43 @@ A API da JUDIT oferece a possibilidade de buscar processos judiciais usando a ro
 
 ## Rota de Consulta de Processos
 
-Nesta rota podem ser buscado Processos (Código CNJ), documentos (CPF ou CNPJ), OAB ou Nome.
-
+Nesta rota, é possível buscar processos (Código CNJ), documentos (CPF ou CNPJ), OAB ou nome. Nesta seção, abordaremos exclusivamente as buscas processuais.
 Para buscar um processo, você deve realizar uma solicitação POST para a rota `/requests`.
 
 ## Payload da Solicitação
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `search_type`: Esse campo define o tipo de entidade que você quer buscar. Pode ser **"cpf"**, **"cnpj"**, **"oab"**, **name**, **"lawsuit_cnj"** ou **"lawsuit_id"** para um número de processo;
+search_type: Este campo define o tipo de entidade que será buscada. Os valores possíveis são: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` ou `lawsuit_id`. Para buscas processuais, utilizaremos especificamente `lawsuit_cnj` ou `lawsuit_id`, que correspondem ao número do processo.
 
-`Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
-
-Exemplo:
-
-```json
-
-DF0012345
-
-Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
-
-DF0001234
-```
-
-- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
-
-- `response_type` (opcional): Esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar, para busca processual será sempre o número do processo;
 
 - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
-  - `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj** ou **lawsuit_id**.
-
 - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
       `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-        Para buscas por documento onde o `search_type` seja "cpf", "cnpj", "oab" ou "name".
-
-  - `filter` (opcional): Um objeto que contém alguns filtros da busca como:
-
-    - `side` (opcional): Este parâmetro permite buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
-
-    - `amount_gte` (opcional): Este parâmetro permite buscar por processos com valor da causa maior que o amount_gte;
-
-    - `amount_lte` (opcional): Este parâmetro permite buscar por processos com valor da causa menor que o amount_lte;
-
-    - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
-
-      - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./glossary#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-      - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-    - `subject_codes` (opcional): Um objeto que contém os filtro de assuntos;
-
-      - `keys` (opcional): Este filtro é uma lista de códigos assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-      - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-    - `classification_codes` (opcional): Um objeto que contém os filtro de classes processuais;
-
-      - `keys` (opcional): Este filtro é uma lista de códigos de classes processuais. Você pode fornecer uma lista de códigos de classes para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-      - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-    - `distribution_date_gte` (opcional): Este filtro permite que você especifique uma data de distribuição mínima. Ele ajuda a filtrar processos com base na data de distribuição, permitindo que você localize processos distribuídos após uma determinada data.
-
-  - `credential` (opcional): Objeto para o uso do cofre de credenciais.
-    - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais, não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
-
   Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
-Aqui está um exemplo de como um payload pode aparecer em uma busca por documento:
-
-```json
-{
- "search": {
-  "search_type": "cpf",
-  "search_key": "092.065.297-22"
- }
-}
-```
-Aqui está um exemplo de como um payload pode aparecer em uma busca por cnj com retorno de anexos:
+Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com anexos:
 
 ```json
 {
  "search": {
   "search_type": "lawsuit_cnj",
-  "search_key": "0001234-55.2023.8.26.0100"
+  "search_key": "0009999-99.9999.8.26.9999"
  },
  "with_attachments": true
 }
 ```
+<Note>
+  O parâmetro `with_attachments` determina se a busca incluirá ou não os anexos, conforme o valor booleano especificado.
+</Note>
 
-Aqui está um exemplo de como usar esse payload de busca por documento com curl:
-
-```bash
-curl -X POST "https://requests.prod.judit.io/requests"
--H "api-key: YOUR_API_KEY"
--H "Content-Type: application/json"
--d '{
-      "search": {
-        "search_type": "cpf",
-        "search_key": "092.065.297-22"
-    }
-}'
-```
-Aqui está um exemplo de como usar esse payload de busca por lawsuit_cnj com curl:
+Aqui está um exemplo de como de payload para busca por lawsuit_cnj com curl:
 
 ```bash
 curl -X POST "https://requests.prod.judit.io/requests"
@@ -122,33 +54,10 @@ curl -X POST "https://requests.prod.judit.io/requests"
 '{
   "search": {
     "search_type": "lawsuit_cnj",
-    "search_key": "0001234-55.2023.8.26.0100"
+    "search_key": "0009999-99.9999.8.26.9999"
   },
   "with_attachments": true
 }'
-```
-## Aqui está o exemplo do retorno da criação da sua request feita por documento
-
-```json
-{
- "request_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
- "search": {
-  "search_type": "cpf",
-  "search_key": "092.065.297-22",
-  "response_type": "lawsuits",
-  "search_params": {
-   "filter": {},
-   "pagination": {}
-  }
- },
- "origin": "api",
- "origin_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
- "user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
- "status": "pending",
- "created_at": "2024-03-12T18:40:35.523Z",
- "updated_at": "2024-03-12T18:40:35.523Z",
- "tags": {}
-}
 ```
 
 ## Aqui está o exemplo do retorno da criação da sua request feita por cnj
@@ -180,90 +89,58 @@ curl -X POST "https://requests.prod.judit.io/requests"
 }
 ```
 
+## Consultar o status da request
+
+  <Warning>
+    Esta é uma etapa importante para saber quando a consulta terminou,
+    já que as respostas serão adicionadas de forma incremental por tribunal.
+  </Warning>
+
+    ```bash
+    curl --request GET
+      --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
+      --header 'api_key: SUA-API-KEY'
+      --header 'Content-Type: application/json'
+    ```
+  Retorno:
+
+    ```json
+    {
+      "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+      "search": {
+          "search_type": "lawsuit",
+          "search_key": "9999999-99.9999.9.99.9999",
+          "response_type": "lawsuits",
+          "search_params": {
+            "filter": {},
+            "pagination": {}
+          }
+      },
+      "origin": "api",
+      "origin_id": "46fac09a-b34f-4dfd-a24f-b358bf04dfd4",
+      "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+      "status": "completed",
+      "created_at": "2024-02-21T17:33:22.876Z",
+      "updated_at": "2024-02-21T17:33:26.316Z",
+      "tags": {
+          "dashboard_id": null
+      }
+    }
+  ```
+
+  Através da propriedade <strong>status</strong> é possível saber se a requisição está completa.
+
 ## Consultando sua request
 
-Aqui está um exemplo de como consultar suas buscas usando curl de uma requisição:
+Aqui está um exemplo de como consultar suas buscas usando curl de uma requisição através do `request_id`:
 
 ```bash
 curl -X GET "https://requests.prod.judit.io/responses?request_id=1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa"
 -H "api-key: YOUR_API_KEY"
 ```
-
-## Consultando Informações de uma Busca
-
-Para consultar todas as informações sobre uma busca específica, você pode fazer uma solicitação GET para a rota `/requests/{busca}`, substituindo `{busca}` pelo ID da busca que você deseja consultar.
-
-Aqui está um exemplo de como fazer isso usando curl:
-
-```bash
-curl -X GET "https://requests.prod.judit.io/requests/{busca}"
--H "api-key: YOUR_API_KEY"
-```
-
-## Retorno Esperado esperado de uma consulta por cpf
-
-```json
-{
- "request_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
- "search": {
-  "search_type": "cpf",
-  "search_key": "999.999.999-99",
-  "response_type": "lawsuits",
-  "search_params": {
-   "filter": {},
-   "pagination": {}
-  }
- },
- "origin": "api",
- "origin_id": "a02d0cd6-21c7-45ca-b905-704df6afd151",
- "user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
- "status": "completed",
- "created_at": "2024-03-12T18:40:35.523Z",
- "updated_at": "2024-03-12T18:40:35.523Z",
- "tags": {}
-}
-```
-
-## Retorno Esperado esperado de uma consulta por cpf
-
-```json
-{
- "request_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "9999999-99.9999.9.99.9999",
-  "response_type": "lawsuits",
-  "search_params": {
-   "filter": {},
-   "pagination": {}
-  }
- },
- "with_attachments": true,
-    "callback_url": "https://webhook.site/789d7e03-f06b-4371-bd07-880bbc635564",
-    "origin": "api",
-    "origin_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
-    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-    "status": "completed",
-    "created_at": "2024-06-18T22:03:35.560Z",
-    "updated_at": "2024-06-18T22:03:41.247Z",
-    "tags": {
-        "dashboard_id": null
-    }
-}
-```
-
-- A resposta é asyncrona, logo deverá ser esperado o status da solicitação como completed.
-
-## Consultando Informações de uma Resposta
-
-Para consultar todas as informações sobre uma resposta específica, você pode fazer uma solicitação GET para a rota `/responses/{resposta}`, substituindo `{resposta}` pelo ID da resposta que você deseja consultar.
-
-Aqui está um exemplo de como fazer isso usando curl:
-
-```bash
-curl -X GET "https://requests.prod.judit.io/responses/1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa"
--H "api-key: YOUR_API_KEY"
-```
+<Note>
+  O parâmetro `request_id` é o mesmo gerado na resposta criação da request.
+</Note>
 
 ## Exemplo de response da solicitação GET acima
 
@@ -274,6 +151,7 @@ Aqui está um exemplo da resposta da solicitação:
  "page": 1,
  "page_data": [
   {
+   "request_status": "completed",
    "request_id": "1e6cd05b-c91a-4c14-b445-2ca96dd8a6fa",
    "response_id": "e553465d-74d2-4c70-926d-a669e0ab5173",
    "origin": "api",
@@ -374,4 +252,8 @@ Aqui está um exemplo da resposta da solicitação:
 }
 ```
 
-_Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.
+<Warning>
+    Verifique o parâmetro `request_status` para garantir que a resposta foi processada com sucesso. O valor deve ser **completed**. Caso contrário, a solicitação ainda está em processamento.
+</Warning>
+
+_Não nos responsabilizamos por consulta por CNJ inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.

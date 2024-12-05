@@ -1,15 +1,16 @@
 ---
-title: "Consulta Cache Judit"
-description: "Essa consulta funciona da seguinte forma, retorna de forma sincrona o que temos na nossa base de dados e em paralelo cria uma request normal que vai consultar os tribunais,"
+title: "Consulta Histórica Rápida"
+description: "Consulta Síncrona"
 icon: "shield"
 ---
 
+A consulta síncrona permite verificar rapidamente se um CPF, CNPJ, OAB ou nome possui processos registrados em nosso datalake. Ela retorna, de forma ágil, uma resposta indicando a existência ou não de processos. Paralelamente, uma consulta completa é acionada no datalake, cuja resposta detalhada pode ser acessada posteriormente, de maneira semelhante à consulta assíncrona.
 
-Na resposta sincrona, retornamos apenas dados que já estão em nossa base de dados, com isso ela gera uma resposta mais rapida porém pode haver um delay na completude das informações. É importante consultar a resposta da request criada que vai nos tribunais trazer a informação completa e atualizada.
+Na consulta síncrona, são retornados apenas os dados já disponíveis em nossa base, garantindo uma resposta mais rápida. Contudo, isso pode resultar em um pequeno atraso na obtenção de informações mais completas. Para acessar dados atualizados e abrangentes, é fundamental realizar uma consulta assíncrona, que buscará diretamente nos tribunais trazendo as informações atualizadas.
 
 <Steps>
  <Step title="Payload" stepNumber="1">
-   Para realizar a consulta de forma sincrona, é necessário primeiramente criar uma requisição para o endpoint.
+  Para realizar a consulta de forma síncrona, é necessário primeiro criar uma requisição para o endpoint de <strong>lawsuits</strong>. Abaixo, segue um exemplo de como fazer essa requisição utilizando o cURL.
 
    ```bash
  curl --request POST \
@@ -30,8 +31,38 @@ Na resposta sincrona, retornamos apenas dados que já estão em nossa base de da
 }'
     ```
 
+Se desejar receber um grupo de itens específicos, a consulta pode ser realizada passando os [filtros](./requests#consultando-respostas-de-buscas) desejados.
 
-A resposta dessa requisição será um objeto JSON com os dados de criação:
+Segue um exemplo de request utilizando filtro para ```TJRJ```:
+  ```bash
+ curl --request POST \
+  --url https://lawsuits.prod.judit.io/requests/create \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: <api-key>' \
+  --data '{
+	"search": {
+		"search_type": "cpf",
+		"search_key": "999.999.999-99",
+		"search_params": {
+      "filter": {
+        "tribunals": {
+              "keys": ["TJRJ"],
+            "not_equal": false
+          }
+      },
+			"pagination": {
+				"page": 1,
+				"page_size": 50
+			}
+		}
+	}
+}'
+  ```
+<Note>
+  A resposta da requisição deverá ter um tamanho máximo de 50 itens por página (page_size).
+</Note>
+
+A resposta dessa requisição será um objeto JSON com os dados da resposta:
 
 
      ```json
@@ -40,7 +71,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
   "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
   "response_data": [
     {
-      "code": "0100248-39.2022.5.01.0037",
+      "code": "9999999-99.9999.9.99.9999",
       "justice": "5",
       "tribunal": "01",
       "instance": 2,
@@ -71,10 +102,10 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       ],
       "parties": [
         {
-          "name": "Jhon Doe",
+          "name": "Usuário teste",
           "side": "Active",
           "person_type": "Autor",
-          "document": "09206529702",
+          "document": "99999999999",
           "document_type": "CPF",
           "lawyers": [
             {
@@ -88,10 +119,10 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           }
         },
         {
-          "name": "Berenice Castro",
+          "name": "Usuário teste",
           "side": "Passive",
           "person_type": "Réu",
-          "document": "05705251765",
+          "document": "99999999999",
           "document_type": "CPF",
           "lawyers": [
             {
@@ -132,7 +163,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       },
       "amount": 7685.82,
       "last_step": {
-        "lawsuit_cnj": "0100248-39.2022.5.01.0037",
+        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
         "lawsuit_instance": 1,
         "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
         "step_date": "2024-03-18T19:21:02.466Z",
@@ -144,7 +175,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       "name": "Nome do Autor X Nome do Réu"
     },
     {
-      "code": "0100248-39.2022.5.01.0037",
+      "code": "9999999-99.9999.9.99.9999",
       "justice": "5",
       "tribunal": "01",
       "instance": 1,
@@ -178,7 +209,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "Berenice",
           "side": "Active",
           "person_type": "Autor",
-          "document": "05705251765",
+          "document": "99999999999",
           "document_type": "CPF",
           "lawyers": [
             {
@@ -195,7 +226,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "Jhon Doe",
           "side": "Passive",
           "person_type": "Réu",
-          "document": "09206521722",
+          "document": "99999999999",
           "document_type": "CPF",
           "lawyers": [
             {
@@ -245,10 +276,10 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       },
       "phase": "Inicial",
       "status": "Ativo",
-      "name": "Berenice X Jhon"
+      "name": "Autor X Réu"
     },
     {
-      "code": "0817064-37.2023.8.19.0209",
+      "code": "8888888-88.8888.8.88.8888",
       "justice": "8",
       "tribunal": "19",
       "instance": 1,
@@ -287,10 +318,10 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       ],
       "parties": [
         {
-          "name": "DAVI LUIZ",
+          "name": "USUÁRIO TESTE",
           "side": "Active",
           "person_type": "Autor",
-          "document": "14224726718",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -301,7 +332,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "GABRIELLA",
           "side": "Active",
           "person_type": "Autor",
-          "document": "16663398733",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -312,7 +343,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "JULIANA",
           "side": "Active",
           "person_type": "Autor",
-          "document": "18250433700",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -323,7 +354,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "LEONARDO",
           "side": "Active",
           "person_type": "Autor",
-          "document": "14904631781",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -334,7 +365,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "LEONARDO2",
           "side": "Active",
           "person_type": "Autor",
-          "document": "13726926739",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -345,7 +376,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "LIVIA",
           "side": "Active",
           "person_type": "Autor",
-          "document": "13482560790",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -356,7 +387,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "LUCAS",
           "side": "Active",
           "person_type": "Autor",
-          "document": "13726925767",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -367,7 +398,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "MARCO",
           "side": "Active",
           "person_type": "Autor",
-          "document": "09206529722",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -378,7 +409,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "MARIA",
           "side": "Active",
           "person_type": "Autor",
-          "document": "50559689829",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -389,7 +420,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "SUELEN",
           "side": "Active",
           "person_type": "Autor",
-          "document": "13565811706",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -504,7 +535,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "MARCO",
           "side": "Active",
           "person_type": "Autor",
-          "document": "09206529722",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -515,7 +546,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "SUELEN",
           "side": "Active",
           "person_type": "Autor",
-          "document": "13565811706",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -526,7 +557,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
           "name": "SUELI",
           "side": "Active",
           "person_type": "Autor",
-          "document": "02088098720",
+          "document": "88888888888",
           "document_type": "CPF",
           "lawyers": [],
           "tags": {
@@ -581,7 +612,7 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       },
       "amount": 46831,
       "last_step": {
-        "lawsuit_cnj": "0824046-82.2023.8.19.0204",
+        "lawsuit_cnj": "7777777-77.7777.7.77.7777",
         "lawsuit_instance": 1,
         "step_id": "YpIR5rAfSprFSseqRe9oVUPtkKcgQI0Na8RIv1djKZI=",
         "step_date": "2024-03-18T19:21:02.466Z",
@@ -590,15 +621,13 @@ A resposta dessa requisição será um objeto JSON com os dados de criação:
       },
       "phase": "Inicial",
       "status": "Ativo",
-      "name": "FERNANDO X GRUPO TURISMO LTDA"
+      "name": "FERNANDO X GRUPO TESTE"
     }
   ]
 }
      ```
-
-
      
-Essa consulta irá trazer uma página de cada vez, caso não seja necessário capturar os processos, a requisição pode ser feita sem o objeto pagination, com isso não retornaremos os processos, retornaremos apenas na flag hasLawsuits se tem ou não processo ligado a essa consulta. Essa consulta é comumente utilizada quando se tem a necessidade por um tempo de resposta baixa, como em rotinas de onboarding.
+Essa consulta retornará uma página por vez. Caso não seja necessário capturar os processos, a requisição pode ser realizada sem o objeto pagination. Nessa situação, os processos não serão retornados, sendo fornecida apenas a flag hasLawsuits, que indica se há ou não processos vinculados à consulta. Essa abordagem é comumente utilizada quando há a necessidade de tempos de resposta rápidos, como em rotinas de onboarding.
 
 ## Exemplo de payload:
 
@@ -606,10 +635,14 @@ Essa consulta irá trazer uma página de cada vez, caso não seja necessário ca
 {
 	"search": {
 		"search_type": "cpf",
-		"search_key": "092.065.297-22"
+		"search_key": "999.999.999-99"
 	}
 }
 ```
+
+<Note>
+  Na consulta utilizando a flag hasLawsuits, não será possível aplicar filtros.
+</Note>
 
 ## Resposta esperada:
 
