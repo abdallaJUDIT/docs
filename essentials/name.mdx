@@ -51,12 +51,68 @@ icon: "jxl"
     Na consulta por nome o search_type deve ser <strong>“name”</strong>.
     </Note>
 
-    Outros parâmetros que podem ser adicionados na requisição, como filtros, podem ser
-    encontrados na página:
+    Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
 
-    <a href="https://docs.judit.io/api-reference/endpoint/requests/create">
-     https://docs.judit.io/api-reference/endpoint/requests/create
-    </a>
+    - `filter` (opcional): Um objeto que contém os filtros para a busca, como:
+
+    - `side` (opcional): Permite buscar por tipos de participantes do processo, podendo ser: 'Passive', 'Active', 'Interested', 'Unknown';
+
+    - `amount_gte` (opcional): Filtra processos com valor da causa maior ou igual ao especificado em `amount_gte`;
+
+    - `amount_lte` (opcional): Filtra processos com valor da causa menor ou igual ao especificado em `amount_lte`;
+
+    - `tribunals` (opcional): Um objeto que contém os filtros de tribunais:
+
+        - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](./glossary#lista-de-tribunais). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+
+    - `subject_codes` (opcional): Um objeto que contém os filtros de assuntos:
+
+        - `keys` (opcional): Lista de códigos de assuntos. Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+
+    - `classification_codes` (opcional): Um objeto que contém os filtros de classes processuais:
+
+        - `keys` (opcional): Lista de códigos de classes processuais. Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+
+    - `distribution_date_gte` (opcional): Permite especificar uma data mínima de distribuição. Este filtro localiza processos distribuídos após a data informada.
+
+    - `credential` (opcional): Objeto para o uso do cofre de credenciais:
+    - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
+
+
+    Exemplo de consulta por documento com filtros:
+
+   ```bash
+    curl --location 'https://requests.prod.judit.io/requests' \
+    --header 'api-key: <API-KEY>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "search": {
+            "search_type": "name",
+            "search_key": "usuário teste",
+            "search_params": {
+                "filter": {
+                    "side": "Passive",
+                    "tribunals": {
+                        "keys": ["TJBA"],
+                        "not_equal": false
+                    },
+                    "subject_codes": {
+                        "keys": ["10433"],
+                        "not_equal": false
+                    },
+                    "classification_codes": {
+                        "keys": ["985"],
+                        "not_equal": false
+                    }
+                }
+            }
+        }    
+    }
+    '
+    ```
  </Step>
  <Step title="Consultar o status da request" stepNumber="2">
     <Warning>

@@ -34,8 +34,10 @@
    "group": "Essenciais",
    "pages": [
     "essentials/requests",
+    "essentials/request-document",
     "essentials/name",
     "essentials/tracking",
+    "essentials/tracking-document",
     "essentials/warrant",
     "essentials/criminal-execution",
     "essentials/callbacks",
@@ -45,13 +47,6 @@
     "essentials/consumption",
     "essentials/glossary",
     "essentials/flow-sheet"
-   ]
-  },
-  {
-   "group": "Fluxo de Consulta por Documento",
-   "pages": [
-    "flow-document/request-document",
-    "flow-document/tracking-document"
    ]
   },
   {

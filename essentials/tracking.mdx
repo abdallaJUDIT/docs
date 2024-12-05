@@ -1,5 +1,5 @@
 ---
-title: "Monitoramento"
+title: "Monitoramento Processual"
 description: "Monitore documentos ou processos e se mantenha atualizado sobre todos os seus processos"
 icon: "radar"
 ---
@@ -12,7 +12,7 @@ Diariamente, nossa API busca em todos os tribunais do Brasil processos relaciona
 
 ## Rota de Monitoramento
 
-Para começar a monitorar um processo, CPF, CNPJ, OAB ou Código(CNJ), você deve realizar uma solicitação POST para a rota `/tracking`.
+Para começar a monitorar um processo, você deve realizar uma solicitação POST para a rota `/tracking`.
 
 ## Payload da Solicitação
 
@@ -38,8 +38,6 @@ DF0001234
 
 - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
 
-- `response_type` (opcional): No contexto de monitoramento esse campo define o tipo de retorno dos dados da busca podendo ser **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
-
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
   - `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
@@ -52,33 +50,6 @@ DF0001234
   - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
   `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
-
-  Para buscas por documento onde o `search_type` seja "cpf", "cnpj", "oab" ou "name".
-
-- `filter` (opcional): Um objeto que contém alguns filtros da busca como:
-
-  - `side` (opcional): Este parâmetro permite buscar por tipo de participantes do processo podendo ser 'Passive', 'Active', 'Interested', 'Unknown';
-
-  - `amount_gte` (opcional): Este parâmetro permite buscar por processos com valor da causa maior que o amount_gte;
-
-  - `amount_lte` (opcional): Este parâmetro permite buscar por processos com valor da causa menor que o amount_lte;
-
-  - `tribunals` (opcional): Um objeto que contém os filtro de tribunais;
-
-    - `keys` (opcional): Este filtro é uma lista de códigos de tribunais inclusos na [lista de tribunais](./glossary#lista-de-tribunais). Você pode fornecer uma lista de códigos de tribunais para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-  - `subject_codes` (opcional): Um objeto que contém os filtro de assuntos;
-
-    - `keys` (opcional): Este filtro é uma lista de códigos assuntos. Você pode fornecer uma lista de códigos de assuntos para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-  - `classification_codes` (opcional): Um objeto que contém os filtro de classes processuais;
-
-    - `keys` (opcional): Este filtro é uma lista de códigos de classes processuais. Você pode fornecer uma lista de códigos de classes para restringir a busca a processos que tenham ou não tenham esses códigos específicos;
-    - `not_equal` (opcional): Um valor booleano que define se o filtro será para processos que contenham os valores em keys ou que não contenham os valores em keys
-
-  - `distribution_date_gte` (opcional): Este filtro permite que você especifique uma data de distribuição mínima. Ele ajuda a filtrar processos com base na data de distribuição, permitindo que você localize processos distribuídos após uma determinada data.
 
 - `credential` (opcional): Objeto para o uso do cofre de credenciais.
   - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais, não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
