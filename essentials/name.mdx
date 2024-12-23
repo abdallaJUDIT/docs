@@ -3,13 +3,30 @@ title: "Consulta por Nome"
 description: "Essa página tem como objetivo mostrar o fluxo de Consulta por Nome."
 icon: "jxl"
 ---
+
+Para realizar a consulta por nome, é necessário criar uma requisição ao endpoint de consulta correspondente. Essa consulta pode ser realizada em nossa base de dados ou diretamente no tribunal. Vale destacar que os dados disponíveis em nossa base podem estar sujeitos a um atraso de atualização de até 30 dias.
+
+   ### Diferença entre Consulta On-Demand e Consulta Direto na Base de Dados
+    Para realizar a consulta por nome, é necessário criar uma requisição ao endpoint correspondente. Há duas opções disponíveis para a origem dos dados:
+
+    #### Consulta na Base de Dados:
+
+    - Os dados são recuperados diretamente de nossa base de dados.
+    Esta opção oferece respostas mais rápidas, pois não depende de uma nova consulta ao tribunal.
+
+    #### Consulta On Demand:
+
+    - A consulta é feita diretamente no tribunal no momento da solicitação.
+    Para utilizar esta opção, o parâmetro `on_demand` deve ser incluído no payload da solicitação com o valor `true`.
+    Esta abordagem garante acesso aos dados mais atualizados, realizando comunicação direto com o tribunal.
     <Warning>
-        Em uma consulta por nome, podem ocorrer homônimos.
+        As consultas On-Demand podem ter valores diferentes em relação às consultas realizadas na base de dados. Consulte nossa tabela de preços ou entre em contato com o suporte para mais detalhes.
    </Warning>
 <Steps>
  <Step title="Criação de Request" stepNumber="1">
    Para realizar a consulta por nome, é necessário primeiramente criar uma requisição para o endpoint de consulta nome.
 
+   Exemplo da criação da request por nome em nossa base de dados:
    ```bash
    curl --request POST
      --url 'https://requests.prod.judit.io/requests'
@@ -18,10 +35,27 @@ icon: "jxl"
      --data '{
        "search": {
           "search_type": "name",
-          "search_key": "MARCO ANTONIO DE OLIVEIRA RODRIGUES"
+          "search_key": "USUÁRIO TESTE"
          }
         }
       '
+    ```
+
+    Exemplo de criação da request por documento diretamente no tribunal, adicionando o parâmetro `on_demand`:
+
+      ```bash
+    curl --request POST
+        --url 'https://requests.prod.judit.io/requests'
+        --header 'Content-Type: application/json'
+        --header 'api_key: <API-KEY>'
+        --data '{
+            "search": {
+                "search_type": "name",
+                "search_key": "USUÁRIO TESTE",
+                "on_demand": true
+            }
+        }
+        '
     ```
 
      A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
@@ -31,7 +65,7 @@ icon: "jxl"
        "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
        "search": {
          "search_type": "name",
-         "search_key": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+         "search_key": "USUÁRIO TESTE",
          "response_type": "lawsuits",
          "search_params": {
            "filter": {},
