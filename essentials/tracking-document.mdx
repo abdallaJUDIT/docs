@@ -48,8 +48,8 @@ icon: "satellite-dish"
 
     - `subject_codes` (opcional): Um objeto que contém os filtros de assuntos:
 
-        - `keys` (opcional): Lista de códigos de assuntos. Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
-        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+        - `contains` (opcional): Lista de códigos de assuntos. Restringe a busca a processos que incluam os códigos especificados.
+        - `not_contains` (opcional): Lista de códigos de assuntos. Exclui processos que contenham os códigos especificados.
 
     - `classification_codes` (opcional): Um objeto que contém os filtros de classes processuais:
 
@@ -60,6 +60,15 @@ icon: "satellite-dish"
 
     - `credential` (opcional): Objeto para o uso do cofre de credenciais:
     - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
+    - `last_step_date_gte` (opcional): Restringe a busca a processos cuja data da última movimentação seja maior que à data fornecida.
+    - `last_step_date_lte` (opcional): Restringe a busca a processos cuja data da última movimentação seja menor que à data fornecida.
+    - `party_names` (opcional): Lista de nomes que restringe a busca a processos que os contenham em alguma das partes.
+
+        `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição dessas partes, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
+
+    - `party_documents` (opcional): Lista de documentos que restringe a busca a processos que os contenham em alguma das partes.
+
+        `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
 
    ```bash
    curl --request POST
