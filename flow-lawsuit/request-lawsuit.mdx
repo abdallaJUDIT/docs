@@ -12,7 +12,7 @@ icon: "stamp"
   curl --request POST
     --url https://requests.prod.judit.io/requests
     --header 'Content-Type: application/json'
-    --header 'api_key: SUA-API-KEY'
+    --header 'api-key: SUA-API-KEY'
     --data '{
       "search": {
        "search_type": "lawsuit_cnj",
@@ -61,7 +61,7 @@ icon: "stamp"
   curl --request GET
     --url https://requests.prod.judit.io/requests/cb97f8ba-7736-43c7-a961-436b151cd65c
     --header 'Content-Type: application/json'
-    --header 'api_key: SUA-API-KEY'
+    --header 'api-key: SUA-API-KEY'
   ```
 
  Resposta:
@@ -98,7 +98,7 @@ icon: "stamp"
   ```bash
   curl --request GET
     --url https://requests.prod.judit.io/responses/?request_id=cb97f8ba-7736-43c7-a961-436b151cd65c
-    --header 'api_key: SUA-API-KEY'
+    --header 'api-key: SUA-API-KEY'
     --header 'Content-Type: application/json'
   ```
   <Steps>

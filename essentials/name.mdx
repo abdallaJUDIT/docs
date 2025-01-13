@@ -31,7 +31,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
    curl --request POST
      --url 'https://requests.prod.judit.io/requests'
      --header 'Content-Type: application/json'
-     --header 'api_key: SUA-API-KEY'
+     --header 'api-key: SUA-API-KEY'
      --data '{
        "search": {
           "search_type": "name",
@@ -47,7 +47,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     curl --request POST
         --url 'https://requests.prod.judit.io/requests'
         --header 'Content-Type: application/json'
-        --header 'api_key: <API-KEY>'
+        --header 'api-key: <API-KEY>'
         --data '{
             "search": {
                 "search_type": "name",
@@ -168,7 +168,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
      ```bash
       curl --request GET
         --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
-        --header 'api_key: SUA-API-KEY'
+        --header 'api-key: SUA-API-KEY'
         --header 'Content-Type: application/json'
      ```
     Retorno:
@@ -205,7 +205,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     ```bash
     curl --request GET \
       --url 'https://requests.prod.judit.io/responses/?request_id=cb97f8ba-7736-43c7-a961-436b151cd65c&page=1&page_size=10'
-      --header 'api_key: SUA-API-KEY'
+      --header 'api-key: SUA-API-KEY'
       --header 'Content-Type: application/json'
     ```
    <Steps>
