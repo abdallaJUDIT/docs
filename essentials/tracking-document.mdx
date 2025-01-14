@@ -73,7 +73,7 @@ icon: "satellite-dish"
    ```bash
    curl --request POST
    --url "https://tracking.prod.judit.io/tracking"
-   --header "api_key: SUA-API-KEY"
+   --header "api-key: SUA-API-KEY"
    --header "Content-Type: application/json"
    --data "{
      'recurrence': 1,
@@ -125,7 +125,7 @@ icon: "satellite-dish"
       ```bash
       curl --request GET
       --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
-      --header "api_key: SUA-API-KEY"
+      --header "api-key: SUA-API-KEY"
       --header "Content-Type: application/json"
       ```
 
@@ -190,7 +190,7 @@ icon: "satellite-dish"
     ```bash
     curl --request GET
     --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
-    --header "api_key: SUA-API-KEY"
+    --header "api-key: SUA-API-KEY"
     --header "Content-Type: application/json"
     ```
 
@@ -655,7 +655,7 @@ icon: "satellite-dish"
 
     ```bash
     curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
-    -H "api-key: YOUR_API_KEY"
+    -H "api-key: YOUR-API_KEY"
     ```
 
     Aqui está um exemplo de retorno do monitoramento pausado:
