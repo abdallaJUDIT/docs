@@ -648,7 +648,42 @@ icon: "satellite-dish"
     https://docs.judit.io/essentials/glossary
     </a>
   </Step>
-  <Step title="Pausando um Monitoramento" stepNumber="4">
+  <Step title="Atualizando um Monitoramento de novas ações" stepNumber="4">
+
+    Para atualizar um monitoramento, você pode fazer uma solicitação PATCH para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja atualizar.
+
+    Esta rota permite atualizar o tracking com campos opcionais, como `recurrence` e o objeto `search`. No objeto `search`, podem ser fornecidos os campos `search_key` e os filtros definidos em `search_params`.
+
+    Aqui está um exemplo de como fazer isso usando curl:
+
+    ```bash
+    curl --request PATCH \
+      --url https://tracking.prod.judit.io/tracking/412cf8d8-c4bc-4fe2-b6e3-570000000001 \
+      --header 'Content-Type: application/json' \
+      --header 'api-key: <YOUR-API-KEY>' \
+      --data '{
+      "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/0009",
+        "search_params": {
+          "filter": {
+            "side": "Active",
+            "classification_codes": {
+              "keys": [
+                "7",
+                "40",
+                "159"
+              ],
+            },
+          },
+        }
+      }
+    }'
+    ```
+  </Step>
+
+
+  <Step title="Pausando um Monitoramento" stepNumber="5">
     Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
 
     Aqui está um exemplo de como pausar o monitoramento usando o curl:
@@ -683,7 +718,7 @@ icon: "satellite-dish"
     }
     ```
   </Step>
-  <Step title="Reativando um Monitoramento" stepNumber="5">
+  <Step title="Reativando um Monitoramento" stepNumber="6">
     Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
 
     Aqui está um exemplo de como reativar um monitoramento usando curl:
@@ -718,7 +753,7 @@ icon: "satellite-dish"
     }
     ```
   </Step>
-  <Step title="Deletando um Monitoramento" stepNumber="6">
+  <Step title="Deletando um Monitoramento" stepNumber="7">
       Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
 
       Aqui está um exemplo de como deletar um monitoramento usando curl:
