@@ -1,16 +1,26 @@
 ---
-title: "Consulta Customizada"
-description: "Essa página tem como objetivo mostrar o fluxo de Consulta customizada."
-icon: "filter"
+title: "Monitoramento customizado"
+description: "Essa página tem como objetivo mostrar o fluxo de Monitoramento cutomizado"
+icon: "searchengin"
 ---
 
 A consulta customizada permite realizar buscas utilizando filtros específicos, retornando processos de todos os tribunais que correspondem aos critérios definidos. Essa consulta é ideal para identificar processos com características específicas em um amplo espectro de jurisdições. Para utilizá-la, é necessário enviar uma requisição ao endpoint correspondente.
 
 <Steps>
- <Step title="Criação de Request" stepNumber="1">
-   Para realizar a consulta customizada, é necessário primeiramente criar uma requisição para o endpoint de requests.
+  <Step title="Criação do monitoramento" stepNumber="1">
+    ## Payload da Solicitação
 
-   Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
+    A solicitação POST deve incluir um payload com as seguintes propriedades:
+
+    search_type: Este campo define o tipo de entidade que será buscada, para monitoramento customizado, terá sempre o valor `custom`;
+
+    - `search_key`: Este campo define o valor da entidade que será buscada, para monitoramento customizado, terá sempre o valor `custom`;
+    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+    - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
+
+      `*Obs` Consulte as condições comerciais desses diferentes tipos de monitoramento customizado.
+
+    Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
 
     - `filter` (opcional): Um objeto que contém os filtros para a busca, como:
 
@@ -49,60 +59,65 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
 
         `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
 
-   Exemplo da criação da request por nome em nossa base de dados:
    ```bash
-   curl --location --request POST 'https://requests.prod.judit.io/requests' \
+   curl --location 'https://tracking.prod.judit.io/tracking' \
 --header 'api-key: <API-KEY>' \
 --header 'Content-Type: application/json' \
 --data '{
-    "search": {
-        "search_type": "custom",
-        "search_key": "",
-        "search_params": {
-            "filter": {
-                "subject_codes": {
-                    "contains": [
-                        "5953",
-                        "6017",
-                        "10394",
-                        "12989",
-                        "5953",
-                        "5951",
-                        "5971",
-                        "14",
-                        "030213"
-                    ]
-                },
-                "classification_codes": {
-                    "keys": [
-                        "1116",
-                        "12785"
-                    ],
-                    "not_equal": false
-                },
-                "party_documents": [
-                    "99.999.999/0009-99",
-                    "88.888.888/0008-88"
-                ]
-            }
-        }
-    }
+ "recurrence": 2,
+ "search": {
+     "search_type": "custom",
+     "search_key": "",
+     "search_params": {
+         "filter": {
+             "subject_codes": {
+                 "contains": [
+                     "5953",
+                     "6017",
+                     "10394",
+                     "12989",
+                     "5953",
+                     "5951",
+                     "5971",
+                     "14",
+                     "030213"
+                 ]
+             },
+             "classification_codes": {
+                 "keys": [
+                     "1116",
+                     "12785"
+                 ],
+                 "not_equal": false
+             },
+             "party_documents": [
+                 "99.999.999/0009-99",
+                 "88.888.888/0008-88"
+             ]
+         }
+     }
+ }
 }'
-    ```
+   ```
 
-     A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
+   <Note>
+    Todos os monitoramentos customizados cadastradas são realizadas ***on-demand***. Recomendamos verificar as condições de custo associadas a este serviço antes de sua utilização.
+   </Note>
 
-     ```json
-     {
-    "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+   Retorno:
+   ```json
+   {
+    "tracking_id": "72084866-499f-4aff-b28a-14d43b8b7d70",
+    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+    "status": "created",
+    "recurrence": 2,
     "search": {
-        "on_demand": false,
         "search_type": "custom",
         "search_key": "custom",
         "response_type": "lawsuits",
         "search_params": {
-            "public_search": false,
             "filter": {
+                "distribution_date_gte": "2025-02-04T16:56:39.158Z",
                 "subject_codes": {
                     "contains": [
                         "5953",
@@ -116,7 +131,7 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
                         "030213"
                     ],
                     "not_contains": [],
-                    "_id": "67a218dcdda75bfdaac49e6e"
+                    "_id": "67a246c76efb879208114303"
                 },
                 "classification_codes": {
                     "keys": [
@@ -124,7 +139,7 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
                         "12785"
                     ],
                     "not_equal": false,
-                    "_id": "67a218dcdda75bfdaac49e6d"
+                    "_id": "67a246c76efb879208114302"
                 },
                 "party_names": [],
                 "party_documents": [
@@ -135,105 +150,128 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
             "pagination": {}
         }
     },
-    "callback_url": "",
-    "origin": "api",
-    "origin_id": "88899999-71d5-48a7-a8f1-ad3020egdtssxx",
-    "user_id": "098768485943-4891-428d-9456-dedfc12ff850",
-    "status": "pending",
-    "created_at": "2025-02-04T13:40:44.337Z",
-    "updated_at": "2025-02-04T13:40:44.337Z"
-}
-     ```
-    <Note>
-    Na consulta customizada o search_type deve ser <strong>“custom”</strong>.
-    </Note>
- </Step>
- <Step title="Consultar o status da request" stepNumber="2">
-    <Warning>
-   Esta é uma etapa importante para saber quando a consulta terminou,
-   já que as respostas serão adicionadas de forma incremental por tribunal.
-   </Warning>
-
-     ```bash
-      curl --request GET
-        --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
-        --header 'api-key: SUA-API-KEY'
-        --header 'Content-Type: application/json'
-     ```
-    Retorno:
-
-      ```json
-     {
-    "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
-    "search": {
-        "on_demand": false,
-        "search_type": "custom",
-        "search_key": "custom",
-        "response_type": "lawsuits",
-        "search_params": {
-            "public_search": false,
-            "filter": {
-                "subject_codes": {
-                    "contains": [
-                        "5953",
-                        "6017",
-                        "10394",
-                        "12989",
-                        "5953",
-                        "5951",
-                        "5971",
-                        "14",
-                        "030213"
-                    ],
-                    "not_contains": [],
-                    "_id": "67a218dcdda75bfdaac49e6e"
-                },
-                "classification_codes": {
-                    "keys": [
-                        "1116",
-                        "12785"
-                    ],
-                    "not_equal": false,
-                    "_id": "67a218dcdda75bfdaac49e6d"
-                },
-                "party_names": [],
-                "party_documents": [
-                    "99.999.999/0009-99",
-                    "88.888.888/0008-88"
-                ]
-            },
-            "pagination": {}
-        }
-    },
-    "callback_url": "",
-    "origin": "api",
-    "origin_id": "iajija773884-48a7-a8f1-ad61b02ff461",
-    "user_id": "999998888-4891-428d-9456-ded74637hdus7",
-    "status": "completed",
-    "created_at": "2025-02-04T13:40:44.337Z",
-    "updated_at": "2025-02-04T13:49:34.312Z",
-    "tags": {
-        "dashboard_id": null
-    }
+    "tracked_items_count": 0,
+    "tracked_items_steps_count": 0,
+    "tags": {},
+    "created_at": "2025-02-04T16:56:39.158Z",
+    "updated_at": "2025-02-04T16:56:39.158Z"
 }
    ```
 
-   Através da propriedade <strong>status</strong> é possível saber se a requisição está completa.
- </Step>
- <Step title="Consultar o conteúdo da resposta"  stepNumber="3">
-   Na URL vai o request_id retornado na primeira requisição.
+    O monitoramento irá ser iniciado a primeira vez, na melhor janela de
+    concorrência de requisição ao tribunal, dentro das próximas 5 horas
+    da data de criação.
+
+    Depois ocorrerá de acordo com a frequeência cadastrada no campo ***recurrence***.
+  </Step>
+
+  <Step title="Consultar o status do monitoramento" stepNumber="2">
+      Na URL vai o <strong>tracking_id</strong> retornado na primeira requisição:
+
+      ```bash
+      curl --request GET
+      --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+      --header "api-key: SUA-API-KEY"
+      --header "Content-Type: application/json"
+      ```
+
+      Retorno:
+      ```json
+      {
+    "tracking_id": "72866-499f-4aff-b28a-14d43b8b7d70",
+    "user_id": "7999999995a3-4891-428d-9456-dedfc12ff850",
+    "status": "created",
+    "recurrence": 2,
+    "search": {
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuits",
+        "search_params": {
+            "filter": {
+                "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a246c76efb879208114303"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a246c76efb879208114302"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+    },
+    "tracked_items_count": 0,
+    "tracked_items_steps_count": 0,
+    "tags": {
+        "dashboard_id": null
+    },
+    "created_at": "2025-02-04T16:56:39.158Z",
+    "updated_at": "2025-02-04T16:56:39.158Z"
+}
+      ```
+
+      A propriedade status informa a situação atual do monitoramento,
+    podendo ser:
+
+    <ol type="a">
+      <li>
+        <strong>created</strong>: Monitoramento criado, porém nunca executado.
+      </li>
+      <li>
+        <strong>updating</strong>: Está com uma requisição em processamento.
+      </li>
+      <li>
+      <strong>updated</strong>: Monitoramento atualizado já com alguma resposta
+      disponível. O campo <u>updated_at</u> pode informar a data de última
+      atualização do monitoramento e a propriedade <u>request_id</u> o id
+      da última request feita pelo monitoramento.
+      </li>
+      <li>
+        <strong>paused</strong>: Monitoramento pausado, podendo ainda ser reativado.
+      </li>
+      <li>
+        <strong>deleted</strong>: Monitoramento cancelado e não pode mais ser
+      reativado.
+      </li>
+    </ol>
+
+    A propriedade <strong>request_id</strong> só é criada a partir da primeira vez que o
+    monitoramento executou, ou seja, chegou ao status updated.
+  </Step>
+  <Step title="Consultar o conteúdo da resposta (nova ação encontrada)" stepNumber="3">
+    Na URL vai o <strong>request_id</strong> retornado na primeira requisição:
 
     ```bash
-    curl --request GET \
-      --url 'https://requests.prod.judit.io/responses/?request_id=cb97f8ba-7736-43c7-a961-436b151cd65c&page=1&page_size=10'
-      --header 'api-key: SUA-API-KEY'
-      --header 'Content-Type: application/json'
+    curl --request GET
+    --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+    --header "api-key: SUA-API-KEY"
+    --header "Content-Type: application/json"
     ```
-   <Steps>
-    <Step title="Processo encontrado">
-        <Accordion title="Exemplo de retorno quando o processo foi encontrado no tribunal">
-         ```json
-         {
+
+    <Accordion title="Exemplo de retorno da Request">
+    ```json
+     {
     "request_status": "completed",
     "page": 1,
     "page_count": 1,
@@ -492,13 +530,12 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
         }
     ]
 }
-      ```
-        </Accordion>
-    </Step>
-   </Steps>
-    Os parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
+    ```
+    </Accordion>
+
+      O parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
     percorrer as páginas com os processos, caso venham mais de uma, o
-    que é comum no caso de consulta por nome.
+    que é comum no caso de consulta por documento.
 
     <Accordion title="As propriedades de paginação:" defaultOpen>
         <ParamField body="page" name="page" type="integer" required={false}>
@@ -518,10 +555,211 @@ A consulta customizada permite realizar buscas utilizando filtros específicos, 
         </ParamField>
     </Accordion>
 
-   O significado de cada campo pode ser encontrado no glossário:
+    <Note>
+    No caso de monitoramento customizadoo, ele sempre será de novas
+    ações, ou seja, as requisições só gerarão respostas caso um novo
+    processo seja distribuído a partir da data em que foi cadastrado.
+    </Note>
+    O significado de cada campo pode ser encontrado no glossário:
 
-   <a href="https://docs.judit.io/essentials/glossary">
-   https://docs.judit.io/essentials/glossary
-   </a>
- </Step>
+    <a href="https://docs.judit.io/essentials/glossary">
+    https://docs.judit.io/essentials/glossary
+    </a>
+  </Step>
+  <Step title="Pausando um Monitoramento" stepNumber="4">
+    Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
+
+    Aqui está um exemplo de como pausar o monitoramento usando o curl:
+
+    ```bash
+    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+    -H "api-key: YOUR-API_KEY"
+    ```
+
+    Aqui está um exemplo de retorno do monitoramento pausado:
+
+    ```json
+    {
+    "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+    "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+    "status": "paused",
+    "recurrence": 1,
+    "search": {
+      "search_type": "custom",
+      "search_key": "custom",
+      "response_type": "lawsuits",
+      "search_params": {
+            "filter": {
+                "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a246c76efb879208114303"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a246c76efb879208114302"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+    },
+    "tracked_items_count": 0,
+    "tracked_items_steps_count": 0,
+    "tags": {},
+    "created_at": "2024-02-21T18:26:38.499Z",
+    "updated_at": "2024-02-21T18:26:38.499Z"
+    }
+    ```
+  </Step>
+  <Step title="Reativando um Monitoramento" stepNumber="5">
+    Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
+
+    Aqui está um exemplo de como reativar um monitoramento usando curl:
+
+    ```bash
+    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+    -H "api-key: YOUR_API_KEY"
+    ```
+
+    Aqui está um exemplo de retorno do monitoramento **ativo**
+
+    ```json
+    {
+    "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+    "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+    "status": "updated",
+    "recurrence": 1,
+    "search": {
+      "search_type": "custom",
+      "search_key": "custom",
+      "response_type": "lawsuits",
+      "search_params": {
+            "filter": {
+                "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a246c76efb879208114303"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a246c76efb879208114302"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+    },
+    "tracked_items_count": 0,
+    "tracked_items_steps_count": 0,
+    "tags": {},
+    "created_at": "2024-02-21T18:26:38.499Z",
+    "updated_at": "2024-02-21T18:26:38.499Z"
+    }
+    ```
+  </Step>
+  <Step title="Deletando um Monitoramento" stepNumber="6">
+      Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
+
+      Aqui está um exemplo de como deletar um monitoramento usando curl:
+
+      ```bash
+      curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+      -H "api-key: YOUR_API_KEY"
+      ```
+
+      Aqui está um exemplo do retorno do monitoramento deletado:
+
+      ```json
+      {
+      "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+      "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+      "status": "deleted",
+      "recurrence": 1,
+      "search": {
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuits",
+        "search_params": {
+            "filter": {
+                "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a246c76efb879208114303"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a246c76efb879208114302"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+      },
+      "tracked_items_count": 0,
+      "tracked_items_steps_count": 0,
+      "tags": {},
+      "created_at": "2024-02-21T18:26:38.499Z",
+      "updated_at": "2024-02-21T18:26:38.499Z"
+      }
+    ```
+  </Step>
+
 </Steps>
