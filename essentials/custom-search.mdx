@@ -1,0 +1,527 @@
+---
+title: "Consulta Customizada"
+description: "Essa página tem como objetivo mostrar o fluxo de Consulta customizada."
+icon: "filter"
+---
+
+A consulta customizada permite realizar buscas utilizando filtros específicos, retornando processos de todos os tribunais que correspondem aos critérios definidos. Essa consulta é ideal para identificar processos com características específicas em um amplo espectro de jurisdições. Para utilizá-la, é necessário enviar uma requisição ao endpoint correspondente.
+
+<Steps>
+ <Step title="Criação de Request" stepNumber="1">
+   Para realizar a consulta por nome, é necessário primeiramente criar uma requisição para o endpoint de consulta nome.
+
+   Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
+
+    - `filter` (opcional): Um objeto que contém os filtros para a busca, como:
+
+    - `side` (opcional): Permite buscar por tipos de participantes do processo, podendo ser: 'Passive', 'Active', 'Interested', 'Unknown';
+
+    - `amount_gte` (opcional): Filtra processos com valor da causa maior ou igual ao especificado em `amount_gte`;
+
+    - `amount_lte` (opcional): Filtra processos com valor da causa menor ou igual ao especificado em `amount_lte`;
+
+    - `tribunals` (opcional): Um objeto que contém os filtros de tribunais:
+
+        - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](./glossary#lista-de-tribunais). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+
+    - `subject_codes` (opcional): Um objeto que contém os filtros de assuntos:
+
+        - `contains` (opcional): Lista de códigos de assuntos. Restringe a busca a processos que incluam os códigos especificados.
+        - `not_contains` (opcional): Lista de códigos de assuntos. Exclui processos que contenham os códigos especificados.
+
+    - `classification_codes` (opcional): Um objeto que contém os filtros de classes processuais:
+
+        - `keys` (opcional): Lista de códigos de classes processuais. Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
+
+    - `distribution_date_gte` (opcional): Permite especificar uma data mínima de distribuição. Este filtro localiza processos distribuídos após a data informada.
+
+    - `credential` (opcional): Objeto para o uso do cofre de credenciais:
+    - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
+    - `last_step_date_gte` (opcional): Restringe a busca a processos cuja data da última movimentação seja maior que à data fornecida.
+    - `last_step_date_lte` (opcional): Restringe a busca a processos cuja data da última movimentação seja menor que à data fornecida.
+    - `party_names` (opcional): Lista de nomes que restringe a busca a processos que os contenham em alguma das partes.
+
+        `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição dessas partes, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
+
+    - `party_documents` (opcional): Lista de documentos que restringe a busca a processos que os contenham em alguma das partes.
+
+        `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
+
+   Exemplo da criação da request por nome em nossa base de dados:
+   ```bash
+   curl --location --request POST 'https://requests.prod.judit.io/requests' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "search": {
+        "search_type": "custom",
+        "search_key": "",
+        "search_params": {
+            "filter": {
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ]
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false
+                },
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            }
+        }
+    }
+}'
+    ```
+
+     A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
+
+     ```json
+     {
+    "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+    "search": {
+        "on_demand": false,
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuits",
+        "search_params": {
+            "public_search": false,
+            "filter": {
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a218dcdda75bfdaac49e6e"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a218dcdda75bfdaac49e6d"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+    },
+    "callback_url": "",
+    "origin": "api",
+    "origin_id": "88899999-71d5-48a7-a8f1-ad3020egdtssxx",
+    "user_id": "098768485943-4891-428d-9456-dedfc12ff850",
+    "status": "pending",
+    "created_at": "2025-02-04T13:40:44.337Z",
+    "updated_at": "2025-02-04T13:40:44.337Z"
+}
+     ```
+    <Note>
+    Na consulta customixada o search_type deve ser <strong>“custom”</strong>.
+    </Note>
+ </Step>
+ <Step title="Consultar o status da request" stepNumber="2">
+    <Warning>
+   Esta é uma etapa importante para saber quando a consulta terminou,
+   já que as respostas serão adicionadas de forma incremental por tribunal.
+   </Warning>
+
+     ```bash
+      curl --request GET
+        --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
+        --header 'api-key: SUA-API-KEY'
+        --header 'Content-Type: application/json'
+     ```
+    Retorno:
+
+      ```json
+     {
+    "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+    "search": {
+        "on_demand": false,
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuits",
+        "search_params": {
+            "public_search": false,
+            "filter": {
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ],
+                    "not_contains": [],
+                    "_id": "67a218dcdda75bfdaac49e6e"
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false,
+                    "_id": "67a218dcdda75bfdaac49e6d"
+                },
+                "party_names": [],
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            },
+            "pagination": {}
+        }
+    },
+    "callback_url": "",
+    "origin": "api",
+    "origin_id": "iajija773884-48a7-a8f1-ad61b02ff461",
+    "user_id": "999998888-4891-428d-9456-ded74637hdus7",
+    "status": "completed",
+    "created_at": "2025-02-04T13:40:44.337Z",
+    "updated_at": "2025-02-04T13:49:34.312Z",
+    "tags": {
+        "dashboard_id": null
+    }
+}
+   ```
+
+   Através da propriedade <strong>status</strong> é possível saber se a requisição está completa.
+ </Step>
+ <Step title="Consultar o conteúdo da resposta"  stepNumber="3">
+   Na URL vai o request_id retornado na primeira requisição.
+
+    ```bash
+    curl --request GET \
+      --url 'https://requests.prod.judit.io/responses/?request_id=cb97f8ba-7736-43c7-a961-436b151cd65c&page=1&page_size=10'
+      --header 'api-key: SUA-API-KEY'
+      --header 'Content-Type: application/json'
+    ```
+   <Steps>
+    <Step title="Processo encontrado">
+        <Accordion title="Exemplo de retorno quando o processo foi encontrado no tribunal">
+         ```json
+         {
+    "request_status": "completed",
+    "page": 1,
+    "page_count": 1,
+    "all_pages_count": 1,
+    "all_count": 2,
+    "page_data": [
+        {
+            "request_id": "8534hyt6ujk-71d5-48a7-a8f1-ad61b02ff461",
+            "response_id": "26098ui81f-e0ed-4d41-8f43-4c548d8799bb",
+            "origin": "api",
+            "origin_id": "8534oiklj89-71d5-48a7-a8f1-ad61b02ff461",
+            "response_type": "lawsuit",
+            "response_data": {
+                "amount": 17456.15,
+                "attachments": [],
+                "classifications": [
+                    {
+                        "code": "1116",
+                        "name": "EXECUÇÃO FISCAL"
+                    }
+                ],
+                "code": "6666666-66.2025.6.66.6666",
+                "county": "CAPITAL 12 VARA FAZ PUBLICA",
+                "city": "RIO DE JANEIRO",
+                "state": "RJ",
+                "area": "NÃO INFORMADO",
+                "justice_description": "JUSTIÇA ESTADUAL",
+                "created_at": "2025-01-27T16:09:19.112Z",
+                "updated_at": "2025-02-04T13:41:08.013Z",
+                "metadata": {},
+                "courts": [
+                    {
+                        "code": "79705",
+                        "name": " CAPITAL 17 FAZ PUBLICA"
+                    }
+                ],
+                "crawler": {
+                    "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                    "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a",
+                    "weight": 0,
+                    "updated_at": "2025-02-04T13:40:48.782Z"
+                },
+                "distribution_date": "2025-01-24T17:08:03.000Z",
+                "free_justice": false,
+                "instance": 1,
+                "justice": "8",
+                "last_step": {
+                    "lawsuit_cnj": "6666666-66.2025.8.19.66666",
+                    "lawsuit_instance": 1,
+                    "private": false,
+                    "step_id": "5d93c333",
+                    "step_date": "2025-01-27T10:30:20.000Z",
+                    "content": "Expedição de Carta pelo Correio - 1 carta",
+                    "step_type": "60",
+                    "tags": {
+                        "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                    },
+                    "steps_count": 1
+                },
+                "name": "ESTADO DO RIO DE JANEIRO X BANCO BV S A",
+                "parties": [
+                    {
+                        "side": "Active",
+                        "name": "USUARIO TESTE",
+                        "main_document": "42498600000171",
+                        "person_type": "EXEQUENTE",
+                        "entity_type": "company",
+                        "documents": [
+                            {
+                                "document": "99999999999",
+                                "document_type": "CNPJ"
+                            }
+                        ],
+                        "lawyers": [
+                            {
+                                "name": "USER ONE",
+                                "main_document": "99999999999",
+                                "documents": [
+                                    {
+                                        "document": "99999999999",
+                                        "document_type": "cpf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                        }
+                    },
+                    {
+                        "side": "Passive",
+                        "name": "BANCO TESTE S A",
+                        "main_document": "99999999999",
+                        "person_type": "EXECUTADO",
+                        "entity_type": "company",
+                        "documents": [
+                            {
+                                "document": "99999999999",
+                                "document_type": "CNPJ"
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                        },
+                        "lawyers": []
+                    }
+                ],
+                "related_lawsuits": [],
+                "secrecy_level": 0,
+                "status": "Ativo",
+                "phase": "Inicial",
+                "steps": [],
+                "subjects": [
+                    {
+                        "code": "6017",
+                        "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                    },
+                    {
+                        "code": "5953",
+                        "name": "IPVA - IMPOSTO SOBRE PROPRIEDADE DE VEÍCULOS AUTOMOTORES"
+                    }
+                ],
+                "tags": {
+                    "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a",
+                    "dictionary_updated_at": "2025-02-04T13:41:02.586Z"
+                },
+                "tribunal": "19",
+                "tribunal_acronym": "TJRJ"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2025-02-04T13:41:01.175Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        },
+        {
+            "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+            "response_id": "2ddaf881-d0be-42bb-9ae9-74d76447e1b2",
+            "origin": "api",
+            "origin_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+            "response_type": "lawsuit",
+            "response_data": {
+                "amount": 13687.36,
+                "attachments": [
+                    {
+                        "attachment_id": "191737998765785327022384570650",
+                        "attachment_date": "2025-01-27T14:26:56.000Z",
+                        "attachment_name": "DESPACHO/DECISÃO 1 - Sem Sigilo (Nível 0) - 62.30KB",
+                        "step_id": "a1369a99",
+                        "extension": "html",
+                        "status": "done",
+                        "tags": {
+                            "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d"
+                        },
+                        "user_data": null
+                    }
+                ],
+                "classifications": [
+                    {
+                        "code": "1116",
+                        "name": "EXECUÇÃO FISCAL"
+                    }
+                ],
+                "code": "3000133-12.2025.8.19.0001",
+                "county": "CAPITAL 12 VARA FAZ PUBLICA",
+                "city": "RIO DE JANEIRO",
+                "state": "RJ",
+                "area": "NÃO INFORMADO",
+                "justice_description": "JUSTIÇA ESTADUAL",
+                "created_at": "2025-01-23T16:09:20.134Z",
+                "updated_at": "2025-02-04T13:41:06.691Z",
+                "metadata": {},
+                "courts": [
+                    {
+                        "code": "7798",
+                        "name": "CAPITAL 11 VARA FAZ PUBLICA"
+                    },
+                    {
+                        "name": "Juízo da 11ª Vara da Fazenda Pública da Comarca da Capital"
+                    }
+                ],
+                "crawler": {
+                    "source_name": "JEproc - TJRJ - RJ - Lawsuit - Auth - 1 instance",
+                    "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d",
+                    "updated_at": "2025-01-31T19:53:08.995Z",
+                    "weight": 10
+                },
+                "distribution_date": "2025-01-22T15:19:46.000Z",
+                "free_justice": false,
+                "instance": 1,
+                "judge": "Alexandre Oliveira Camacho de Franca",
+                "justice": "8",
+                "last_step": {
+                    "step_id": "7db05f9a",
+                    "step_date": "2025-01-29T03:48:25.000Z",
+                    "content": "7 - Confirmada a intimação eletrônica - Refer. ao Evento: 6",
+                    "steps_count": 7
+                },
+                "name": "ESTADO DO RIO DE JANEIRO X BANCO BV S A",
+                "parties": [
+                    {
+                        "name": "Estado do Rio de Janeiro",
+                        "main_document": "42498600000171",
+                        "documents": [
+                            {
+                                "document": "42498600000171",
+                                "document_type": "CNPJ"
+                            }
+                        ],
+                        "person_type": "Exequente",
+                        "side": "Active",
+                        "lawyers": [
+                            {
+                                "name": "Gustavo Areal Pires",
+                                "documents": []
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Banco Bv S a",
+                        "main_document": "01858774000110",
+                        "documents": [
+                            {
+                                "document": "01858774000110",
+                                "document_type": "CNPJ"
+                            }
+                        ],
+                        "person_type": "Executado",
+                        "side": "Passive",
+                        "lawyers": []
+                    }
+                ],
+                "related_lawsuits": [],
+                "secrecy_level": 0,
+                "status": "Ativo",
+                "phase": "Inicial",
+                "steps": [],
+                "subjects": [
+                    {
+                        "code": "6017",
+                        "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                    }
+                ],
+                "tags": {
+                    "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d",
+                    "dictionary_updated_at": "2025-01-31T19:53:09.783Z"
+                },
+                "tribunal": "19",
+                "tribunal_acronym": "TJRJ"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2025-02-04T13:41:01.175Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        }
+    ]
+}
+      ```
+        </Accordion>
+    </Step>
+   </Steps>
+    Os parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
+    percorrer as páginas com os processos, caso venham mais de uma, o
+    que é comum no caso de consulta por nome.
+
+    <Accordion title="As propriedades de paginação:" defaultOpen>
+        <ParamField body="page" name="page" type="integer" required={false}>
+            Define a página atual da busca.
+        </ParamField>
+        <ParamField body="page_count" name="page_count" type="integer" required={false}>
+            Total de processos na página.
+        </ParamField>
+        <ParamField body="all_count" name="all_count" type="integer" required={false}>
+            Total de processos encontrados
+        </ParamField>
+        <ParamField body="all_pages_count" name="all_pages_count" type="integer" required={false}>
+            Quantidade de páginas de processos
+        </ParamField>
+        <ParamField body="page_data" name="page_data" type="array" required={false}>
+            Array com as respostas e dentro da propriedade response_data o conteúdo do processo.
+        </ParamField>
+    </Accordion>
+
+   O significado de cada campo pode ser encontrado no glossário:
+
+   <a href="https://docs.judit.io/essentials/glossary">
+   https://docs.judit.io/essentials/glossary
+   </a>
+ </Step>
+</Steps>
