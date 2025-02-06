@@ -25,8 +25,7 @@ icon: "satellite-dish"
     DF0001234
     ```
 
-    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
-    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+    - `search_key`: O número do documento(CPF, CNPJ, OAB ou name) que você deseja buscar;
     - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
       `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
