@@ -9,7 +9,7 @@ icon: "stamp"
   ```bash
   curl --request POST
     --url "https://tracking.prod.judit.io/tracking"
-    --header "api_key: SUA-API-KEY"
+    --header "api-key: SUA-API-KEY"
     --header "Content-Type: application/json"
     --data "{
       'search': {
@@ -61,7 +61,7 @@ icon: "stamp"
    ```bash
    curl --request GET
      --url "https://tracking.prod.judit.io/tracking/cb97f8ba-7736-43c7-a961-436b151cd65c"
-     --header "api_key: SUA-API-KEY"
+     --header "api-key: SUA-API-KEY"
      --header "Content-Type: application/json"
    ```
 
@@ -125,7 +125,7 @@ monitoramento executou, ou seja, chegou ao status updated.
 
    ```bash
    curl --request GET "https://requests.prod.judit.io/responses/?request_id=ef1ea0fb-cac8-4901-8415-2af08822765b"
-     --header "api_key: SUA-API-KEY"
+     --header "api-key: SUA-API-KEY"
      --header "Content-Type: application/json"
    ```
   <Steps>
