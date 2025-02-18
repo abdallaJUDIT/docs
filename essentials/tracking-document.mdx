@@ -25,7 +25,8 @@ icon: "satellite-dish"
     DF0001234
     ```
 
-    - `search_key`: O número do documento(CPF, CNPJ, OAB ou name) que você deseja buscar;
+    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
+    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
     - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
       `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
@@ -647,42 +648,7 @@ icon: "satellite-dish"
     https://docs.judit.io/essentials/glossary
     </a>
   </Step>
-  <Step title="Atualizando um Monitoramento de novas ações" stepNumber="4">
-
-    Para atualizar um monitoramento, você pode fazer uma solicitação PATCH para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja atualizar.
-
-    Esta rota permite atualizar o tracking com campos opcionais, como `recurrence` e o objeto `search`. No objeto `search`, podem ser fornecidos os campos `search_key` e os filtros definidos em `search_params`.
-
-    Aqui está um exemplo de como fazer isso usando curl:
-
-    ```bash
-    curl --request PATCH \
-      --url https://tracking.prod.judit.io/tracking/412cf8d8-c4bc-4fe2-b6e3-570000000001 \
-      --header 'Content-Type: application/json' \
-      --header 'api-key: <YOUR-API-KEY>' \
-      --data '{
-      "search": {
-        "search_type": "cnpj",
-        "search_key": "99.999.999/0009",
-        "search_params": {
-          "filter": {
-            "side": "Active",
-            "classification_codes": {
-              "keys": [
-                "7",
-                "40",
-                "159"
-              ],
-            },
-          },
-        }
-      }
-    }'
-    ```
-  </Step>
-
-
-  <Step title="Pausando um Monitoramento" stepNumber="5">
+  <Step title="Pausando um Monitoramento" stepNumber="4">
     Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
 
     Aqui está um exemplo de como pausar o monitoramento usando o curl:
@@ -717,7 +683,7 @@ icon: "satellite-dish"
     }
     ```
   </Step>
-  <Step title="Reativando um Monitoramento" stepNumber="6">
+  <Step title="Reativando um Monitoramento" stepNumber="5">
     Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
 
     Aqui está um exemplo de como reativar um monitoramento usando curl:
@@ -752,7 +718,7 @@ icon: "satellite-dish"
     }
     ```
   </Step>
-  <Step title="Deletando um Monitoramento" stepNumber="7">
+  <Step title="Deletando um Monitoramento" stepNumber="6">
       Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
 
       Aqui está um exemplo de como deletar um monitoramento usando curl:
