@@ -48,7 +48,8 @@
     "essentials/registration-data",
     "essentials/consumption",
     "essentials/glossary",
-    "essentials/flow-sheet"
+    "essentials/flow-sheet",
+    "essentials/postman-collection"
    ]
   },
   {
