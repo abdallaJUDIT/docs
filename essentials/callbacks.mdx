@@ -179,6 +179,9 @@ Exemplo de resposta de uma busca com o <strong>"search_type"</strong> contendo o
     }
 }
 ```
+<Warning>
+  É possível que o webhook receba duas respostas com conteúdos semelhantes. Isso ocorre porque, inicialmente, pode ser enviada uma resposta cacheada `cached_response: true`. Posteriormente, uma nova resposta completa é gerada e enviada com `cached_response: false`, contendo todas as informações disponíveis.
+</Warning>
 
 Aqui está um exemplo de resposta enviada ao término do envio completo, com a mensagem de confirmação indicando que todas as respostas foram entregues. Essa mensagem final inclui o statusCode <strong>"600"</strong> e a mensagem <strong>"request_completed"</strong>, conforme ilustrado abaixo:
 
