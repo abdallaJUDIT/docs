@@ -12,19 +12,6 @@ icon: "satellite-dish"
 
     search_type: Este campo define o tipo de entidade que será buscada. Os valores possíveis são: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` ou `lawsuit_id`. Para buscas processuais, utilizaremos especificamente `cpf`, `cnpj` ou `oab`, que correspondem ao número do processo.
 
-    `Obs:` - O formato da OAB é sempre UF mais 7 digitos do numero da OAB, adicionar zeros a esquerda até atingir 7 dígitos.
-
-    Exemplo:
-
-    ```json
-
-    DF0012345
-
-    Caso a OAB tenha apenas 4 dígitos, adicionar mais um zero:
-
-    DF0001234
-    ```
-
     - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
     - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
     - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
@@ -69,6 +56,8 @@ icon: "satellite-dish"
     - `party_documents` (opcional): Lista de documentos que restringe a busca a processos que os contenham em alguma das partes.
 
         `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
+        
+    - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 
    ```bash
    curl --request POST
