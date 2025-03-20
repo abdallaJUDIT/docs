@@ -21,9 +21,8 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
 - `search`: Objeto que vai para a busca.
-  - `search_type`: No contexto de monitoramento processual, o valor dsse campo sempre será `lawsuit_cnj`.
-
-- `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
+    - `search_type`: No contexto de monitoramento processual, o valor dsse campo sempre será `lawsuit_cnj`.
+    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
@@ -39,6 +38,29 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 
+- `step_terms`: Esta propriedade é um array de strings que permite filtrar as movimentações processuais com base em termos específicos. Quando utilizada em conjunto com o monitoramento via webhook, o usuário receberá notificações apenas se algum dos termos especificados for encontrado em uma nova movimentação processual.
+
+Este parâmetro deve ser incluído dentro do objeto chamado notification_filters.
+
+Exemplo de udo:
+
+```json
+
+{
+	"search": {
+		"search_type": "cpf",
+		"search_key": "09206529722"
+	},
+	"recurrence": 1,
+	"notification_filters": {
+		"step_terms": [
+			'petição',
+			'acordo'
+		]
+	}
+}
+
+```
 
 - `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
 
