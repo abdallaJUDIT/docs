@@ -56,7 +56,7 @@ icon: "satellite-dish"
     - `party_documents` (opcional): Lista de documentos que restringe a busca a processos que os contenham em alguma das partes.
 
         `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
-        
+
     - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 
    ```bash
@@ -100,10 +100,11 @@ icon: "satellite-dish"
    "updated_at": "2024-02-21T18:26:38.499Z"
    }
    ```
-
-    O monitoramento irá ser iniciado a primeira vez, na melhor janela de
-    concorrência de requisição ao tribunal, dentro das próximas 5 horas
-    da data de criação.
+    <Note>
+      O monitoramento irá ser iniciado a primeira vez, na melhor janela de
+      concorrência de requisição ao tribunal, dentro das próximas 24 horas
+      da data de criação.
+    </Note>
 
     Depois ocorrerá de acordo com a frequeência cadastrada no campo ***recurrence***.
   </Step>

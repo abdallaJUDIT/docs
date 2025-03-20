@@ -1,8 +1,8 @@
 ---
-title: "Consulta True / False"
+title: "Consulta histórica agrupada"
 openapi: "openapi-1 POST /requests"
-api: "POST https://lawsuits.prod.judit.io/requests/create" 
-description: "Consultando a Existência de Processos para o Documento em nosso datalake"
+api: "POST https://lawsuits.prod.judit.io/requests/create/grouped" 
+description: "Retorna o total de processos relacionados a uma parte, agrupando esse número pelas informações da capa processual."
 ---
 
 
@@ -11,12 +11,14 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
 
         <ParamField body="search_type" type="string" required>
             Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
-
-
         </ParamField>
 
         <ParamField body="search_key" type="string" required>
             Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={false}>
+            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
         </ParamField>
 
         <ParamField body="search_params" type="object" required={false}>
@@ -93,7 +95,10 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
                                                 
                     </Expandable>
                 </ParamField>
-                <ParamField body="create_complete_request" type="boolean" required={false}>
+                <ParamField body="credential" type="object" required={false}>
+                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
+                    </ParamField>
                 </ParamField>
             </Expandable>
         </ParamField>
@@ -106,9 +111,135 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
 <ResponseExample>
 ```json
 {
-	"has_lawsuits": true,
-	"request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
-	"response_data": []
+    "classifications": [
+        {
+            "count": 1,
+            "value": "PROCEDIMENTO COMUM CÍVEL"
+        },
+        {
+            "count": 1,
+            "value": "HOMOLOGAçãO DE TRANSAçãO EXTRAJUDICIAL"
+        },
+        {
+            "count": 1,
+            "value": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+        }
+    ],
+    "subjects": [
+        {
+            "count": 1,
+            "value": "ÔNUS DA PROVA"
+        },
+        {
+            "count": 1,
+            "value": "ACIDENTE DE TRâNSITO"
+        },
+        {
+            "count": 1,
+            "value": "COISAS"
+        }
+    ],
+    "areas": [
+        {
+            "count": 4,
+            "value": "DIREITO CIVIL"
+        },
+        {
+            "count": 2,
+            "value": "DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO"
+        }
+    ],
+    "tribunals": [
+        {
+            "count": 1,
+            "value": "TRF2"
+        },
+        {
+            "count": 8,
+            "value": "TRT1"
+        },
+        {
+            "count": 1,
+            "value": "TRF1"
+        }
+    ],
+    "justices": [
+        {
+            "count": 7,
+            "value": "NÃO INFORMADO"
+        },
+        {
+            "count": 8,
+            "value": "JUSTIÇA ESTADUAL"
+        },
+        {
+            "count": 5,
+            "value": "JUSTIÇA FEDERAL"
+        }
+    ],
+    "phases": [
+        {
+            "count": 11,
+            "value": "INICIAL"
+        },
+        {
+            "count": 3,
+            "value": "TRâNSITO EM JULGADO OU ACORDO"
+        },
+        {
+            "count": 9,
+            "value": "ARQUIVADO"
+        }
+    ],
+    "states": [
+        {
+            "count": 11,
+            "value": "RJ"
+        },
+        {
+            "count": 1,
+            "value": "MG"
+        },
+        {
+            "count": 10,
+            "value": "SP"
+        }
+    ],
+    "instances": [
+        {
+            "count": 24,
+            "value": 1
+        },
+        {
+            "count": 3,
+            "value": 2
+        }
+    ],
+    "sides": [
+        {
+            "count": 8,
+            "value": "PASSIVE"
+        },
+        {
+            "count": 6,
+            "value": "INTERESTED"
+        }
+    ],
+    "person_types": [
+        {
+            "count": 1,
+            "value": "IMPETRANTE"
+        },
+        {
+            "count": 1,
+            "value": "VITIMA"
+        },
+        {
+            "count": 2,
+            "value": "REQUERENTE"
+        }
+    ],
+    "lawsuits_count": 27
 }
 ```
 </ResponseExample>

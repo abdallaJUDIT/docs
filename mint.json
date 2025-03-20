@@ -86,7 +86,7 @@
   },
   {
    "group": "Consulta cache JUDIT",
-   "pages": ["api-reference/endpoint/crawler/req-async"]
+   "pages": ["api-reference/endpoint/crawler/req-async", "api-reference/endpoint/crawler/req-count", "api-reference/endpoint/crawler/req-hotStorage", "api-reference/endpoint/crawler/req-grouped"]
   },
   {
    "group": "Acesso a anexos",
