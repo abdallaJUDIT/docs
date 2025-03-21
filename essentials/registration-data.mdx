@@ -5,7 +5,11 @@ icon: "Readme"
 ---
 <Steps>
  <Step title="Criação de Request" stepNumber="1">
-   Para consultar dados cadastrais via CPF ou CNPJ, a requisição deve ser feita utilizando o endpoint `/requests/create` da API de lawsuits.
+   Para consultar dados cadastrais via CPF ou CNPJ, a requisição deve ser realizada através do endpoint `/requests/create` da API de lawsuits. A consulta por dados cadastrais pode ser realizada diretamente em nosso datalake ou em tempo real na receita federal, para que sejam consultados os dados em tempo real, basta adicionar o parâmentro `on-demand` com o valor `true` no payload da requisção.
+
+    <Note>
+    Na consulta por dados cadastrais, o search_type deve ser <strong>'CPF'</strong> ou <strong>'CNPJ'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
+    </Note>
 
    **Exemplo de Consulta por CPF:**
 
@@ -37,11 +41,9 @@ icon: "Readme"
     }'
     ```
 
-    <Note>
-    Na consulta por dados cadastrais, o search_type deve ser <strong>'CPF'</strong> ou <strong>'CNPJ'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
+     <Note>
+    Ao realizar uma consulta por CNPJ, é possível obter informações detalhadas, incluindo dados não mascarados dos sócios associados ao CNPJ consultado. Para acessar essas informações, basta incluir a propriedade `reveal_partners_documents` e definir seu valor como `true`.
     </Note>
-
-    Abaixo está um exemplo de resposta JSON para uma consulta por CPF/CNPJ, onde as informações detalhadas do portador serão retornadas conforme solicitado.
 
     ***Resposta por CPF***
 

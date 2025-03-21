@@ -1,8 +1,8 @@
 ---
-title: "Consulta True / False"
+title: "Consultando a quantidade de processos"
 openapi: "openapi-1 POST /requests"
-api: "POST https://lawsuits.prod.judit.io/requests/create" 
-description: "Consultando a Existência de Processos para o Documento em nosso datalake"
+api: "POST https://lawsuits.prod.judit.io/requests/count" 
+description: "Consulta a quantidade de processos em nosso datalake"
 ---
 
 
@@ -17,6 +17,10 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
 
         <ParamField body="search_key" type="string" required>
             Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={false}>
+            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
         </ParamField>
 
         <ParamField body="search_params" type="object" required={false}>
@@ -93,7 +97,10 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
                                                 
                     </Expandable>
                 </ParamField>
-                <ParamField body="create_complete_request" type="boolean" required={false}>
+                <ParamField body="credential" type="object" required={false}>
+                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
+                    </ParamField>
                 </ParamField>
             </Expandable>
         </ParamField>
@@ -105,10 +112,8 @@ description: "Consultando a Existência de Processos para o Documento em nosso d
 
 <ResponseExample>
 ```json
-{
-	"has_lawsuits": true,
-	"request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
-	"response_data": []
-}
+    {
+        "total": 2
+    }
 ```
 </ResponseExample>
