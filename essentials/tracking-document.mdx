@@ -59,6 +59,8 @@ icon: "satellite-dish"
 
     - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 
+    Exemplo de payload sem filtros:
+
    ```bash
    curl --request POST
    --url "https://tracking.prod.judit.io/tracking"
@@ -74,6 +76,42 @@ icon: "satellite-dish"
    ```
 
    <Note>
+      O monitoramento irá ser iniciado a primeira vez, na melhor janela de
+      concorrência de requisição ao tribunal, dentro das próximas 24 horas
+      da data de criação.
+    </Note>
+
+    Depois ocorrerá de acordo com a frequeência cadastrada no campo ***recurrence***.
+
+   Exemplo de payload com alguns filtros opcionais:
+
+   ```bash
+   curl --location 'https://tracking.prod.judit.io/tracking' \
+    --header 'api-key: e8f62c5c-7465-426c-abc5-9735c67f25b1' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "recurrence": 1,
+        "search": {
+            "search_type": "cnpj",
+            "search_key": "00.000.000/0001-00",
+            "search_params": {
+                "filter": {
+                    "subject_codes": {
+                        "keys": ["10433"],
+                        "not_equal": false
+                    },
+                    "classification_codes": {
+                        "keys": ["985"],
+                        "not_equal": false
+                    }
+                }
+            }
+        }
+    }'
+
+```
+
+   <Note>
     Todas os monitoramentos de novas ações processuais cadastradas são realizadas ***on-demand***. Recomendamos verificar as condições de custo associadas a este serviço antes de sua utilização.
    </Note>
 
@@ -85,14 +123,15 @@ icon: "satellite-dish"
    "status": "created",
    "recurrence": 1,
    "search": {
-     "search_type": "cpf",
-     "search_key": "092.065.297-22",
+     "search_type": "cnpj",
+     "search_key": "00.000.000/0001-00",
      "response_type": "lawsuits",
      "search_params": {
        "filter": {},
        "pagination": {}
      }
    },
+   "hour_range": 21,
    "tracked_items_count": 0,
    "tracked_items_steps_count": 0,
    "tags": {},
@@ -100,13 +139,11 @@ icon: "satellite-dish"
    "updated_at": "2024-02-21T18:26:38.499Z"
    }
    ```
-    <Note>
-      O monitoramento irá ser iniciado a primeira vez, na melhor janela de
-      concorrência de requisição ao tribunal, dentro das próximas 24 horas
-      da data de criação.
-    </Note>
 
-    Depois ocorrerá de acordo com a frequeência cadastrada no campo ***recurrence***.
+  <Note>
+   Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta aos tribunais serão realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
+  </Note>
+    
   </Step>
   <Step title="Consultar o status do monitoramento" stepNumber="2">
       Na URL vai o <strong>tracking_id</strong> retornado na primeira requisição:
@@ -126,8 +163,8 @@ icon: "satellite-dish"
         "status": "created",
         "recurrence": 1,
         "search": {
-          "search_type": "cpf",
-          "search_key": "092.065.297-22",
+          "search_type": "cnpj",
+          "search_key": "00.000.000/0001-00",
           "response_type": "lawsuits",
           "search_params": {
             "filter": {},
@@ -372,7 +409,7 @@ icon: "satellite-dish"
           "response_id": "66da2fca-6f5d-4664-9e46-0d34f80746c2",
           "response_type": "lawsuit",
           "response_data": {
-            "code": "0100248-39.2022.5.01.0037",
+            "code": "1111111-04.1111.1.11.1111",
             "justice": "5",
             "tribunal": "01",
             "tribunal_acronym": "TRT1",
@@ -409,28 +446,28 @@ icon: "satellite-dish"
             "amount": 7685.82,
             "parties": [
               {
-                "name": "VIVIANE DA SILVA SALOMAO",
+                "name": "USUÁRIO 1",
                 "side": "Active",
                 "person_type": "Autor",
-                "document": "05705252765",
+                "document": "000.000.000-00",
                 "document_type": "CPF",
                 "lawyers": [
                   {
-                    "name": "EDUARDO BIOSCA LIMA DE OLIVEIRA",
+                    "name": "USUÁRIO 2",
                     "side": "Active",
                     "person_type": "Advogado"
                   }
                 ]
               },
               {
-                "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                "name": "USUÁRIO 3",
                 "side": "Passive",
                 "person_type": "Réu",
-                "document": "09206529722",
+                "document": "000.000.000-00",
                 "document_type": "CPF",
                 "lawyers": [
                   {
-                    "name": "PAULA GUERRA DA CRUZ",
+                    "name": "ADVOGADO 2",
                     "side": "Passive",
                     "person_type": "Advogado"
                   }
@@ -439,12 +476,12 @@ icon: "satellite-dish"
               {
                 "person_type": "Advogado",
                 "side": "Active",
-                "name": "EDUARDO BIOSCA LIMA DE OLIVEIRA"
+                "name": "ADVOGADO 1"
               },
               {
                 "person_type": "Advogado",
                 "side": "Passive",
-                "name": "PAULA GUERRA DA CRUZ"
+                "name": "ADVOGADO 2"
               }
             ],
             "attachments": [],
@@ -458,7 +495,7 @@ icon: "satellite-dish"
               "private": false,
               "steps_count": 1
             },
-            "name": "VIVIANE DA SILVA SALOMAO X MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+            "name": "USUÁRIO 4",
             "distribution_date": "2022-03-30T16:41:24.000Z",
             "phase": "Inicial",
             "status": "Ativo"
@@ -475,7 +512,7 @@ icon: "satellite-dish"
           "response_id": "5f83741e-97f4-4c3b-84fb-6c49e4cfe494",
           "response_type": "lawsuit",
           "response_data": {
-            "code": "0824046-82.2023.8.19.0204",
+            "code": "1111111-04.1111.1.11.1111",
             "justice": "8",
             "tribunal": "19",
             "tribunal_acronym": "TJRJ",
@@ -516,59 +553,29 @@ icon: "satellite-dish"
             "amount": 46831,
             "parties": [
               {
-                "name": "FERNANDO SILVA DE SOUZA",
+                "name": "USUÁRIO 1",
                 "side": "Active",
                 "person_type": "Autor",
-                "document": "72472723768",
+                "document": "000.000.000-00",
                 "document_type": "CPF",
                 "lawyers": []
               },
               {
-                "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                "name": "USUÁRIO 2",
                 "side": "Active",
                 "person_type": "Autor",
-                "document": "09206529722",
+                "document": "000.000.000-00",
                 "document_type": "CPF",
                 "lawyers": []
               },
               {
-                "name": "SUELEN CLARINDO DOS SANTOS",
-
-
-                "side": "Active",
-                "person_type": "Autor",
-                "document": "13565811706",
-                "document_type": "CPF",
-                "lawyers": []
-              },
-              {
-                "name": "SUELI DE BARROS CLARINDO",
-                "side": "Active",
-                "person_type": "Autor",
-                "document": "02088098720",
-                "document_type": "CPF",
-                "lawyers": []
-              },
-              {
-                "name": "GRUPO HURB VIAGENS E TURISMO S/A",
+                "name": "USUÁRIO 4",
                 "side": "Passive",
                 "person_type": "Réu",
                 "lawyers": []
               },
               {
-                "name": "HOTEL URBANO VIAGENS E TURISMO S.A.",
-                "side": "Passive",
-                "person_type": "Réu",
-                "lawyers": []
-              },
-              {
-                "name": "HURB TECHNOLIGIES S.A.",
-                "side": "Passive",
-                "person_type": "Réu",
-                "lawyers": []
-              },
-              {
-                "name": "HURB TECHNOLOGIES S.A.",
+                "name": "USUÁRIO 5",
                 "side": "Passive",
                 "person_type": "Réu",
                 "lawyers": []
@@ -578,14 +585,14 @@ icon: "satellite-dish"
             "steps": [],
             "related_lawsuits": [],
             "last_step": {
-              "lawsuit_cnj": "0824046-82.2023.8.19.0204",
+              "lawsuit_cnj": "1111111-04.1111.1.11.1111",
               "lawsuit_instance": 1,
               "step_id": "YpIR5rAfSprFSseqRe9oVUPtkKcgQI0Na8RIv1djKZI=",
               "step_date": "2024-02-21T17:33:24.063Z",
               "private": false,
               "steps_count": 1
             },
-            "name": "FERNANDO SILVA DE SOUZA X GRUPO HURB VIAGENS E TURISMO S/A",
+            "name": "USUÁRIO 1",
             "phase": "Inicial",
             "status": "Ativo"
           },

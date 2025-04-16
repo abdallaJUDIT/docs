@@ -42,16 +42,16 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 Este parâmetro deve ser incluído dentro do objeto chamado notification_filters.
 
-Exemplo de udo:
+Exemplo de payload com alguns filtros opcionais:
 
 ```json
-
 {
-	"search": {
-		"search_type": "cpf",
-		"search_key": "09206529722"
-	},
 	"recurrence": 1,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "1111111-04.1111.1.11.1111"
+    },
+    "notification_emails": ["teste@teste.com"]
 	"notification_filters": {
 		"step_terms": [
 			'petição',
@@ -62,83 +62,71 @@ Exemplo de udo:
 
 ```
 
-- `tags`(opcional): Um objeto de valor-chave genérico para armazenar parâmetros de agrupamento.
-
-  - cadastrar um monitoramento no dash:
-
-    - `name`: nome do monitoramento
-    - `dashboard_id`: **238904bd-3b05-4160-bef0-16b329a362f0**
-
-    Para cadastrar um monitoramento criado via API, é necessário a utilização desse propriedade tag.
-
-    Exemplo:
-
-    ```json
-    {
-     "recurrence": 2,
-     "with_attachments": false,
-     "search": {
-      "search_type": "lawsuit_cnj",
-      "search_key": "9999999-99.9999.9.99.9999"
-     },
-     "tags": {
-      "name": "nome do seu monitoramento",
-      "dasboard_id": "238904bd-3b05-4160-bef0-16b329a362f0"
-     }
-    }
-    ```
-
-Aqui está um exemplo de como um payload pode parecer:
+Exemplo de payload sem filtros:
 
 ```json
+
 {
- "recurrence": 2,
- "with_attachments": false,
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "9999999-99.9999.9.99.9999"
- }
+    "recurrence": 1,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "1111111-04.1111.1.11.1111"
+    }
 }
+
 ```
 
 Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 
 ```json
 {
- "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
- "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
- "status": "created",
- "recurrence": 1,
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "9999999-99.9999.9.99.9999",
-  "response_type": "lawsuits",
-  "search_params": {
-   "filter": {},
-   "pagination": {}
-  }
- },
- "tracked_items_count": 0,
- "tracked_items_steps_count": 0,
- "tags": {},
- "created_at": "2024-02-21T18:26:38.499Z",
- "updated_at": "2024-02-21T18:26:38.499Z"
+    "tracking_id": "d923253e-45c1-46e5-ac70-164839d9851c",
+    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+    "status": "created",
+    "recurrence": 1,
+    "notification_emails": [
+        "teste@teste.com"
+    ],
+    "notification_filters": {
+        "step_terms": [],
+        "_id": "67ffb7a1062277871357743f"
+    },
+    "with_attachments": false,
+    "plan_config_type": "simple_lawsuit_tracking",
+    "fixed_time": false,
+    "hour_range": 21,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "1111111-04.1111.1.11.1111",
+        "response_type": "lawsuits",
+        "search_params": {
+            "filter": {},
+            "pagination": {}
+        }
+    },
+    "tags": {},
+    "created_at": "2025-04-16T13:58:56.352Z",
+    "updated_at": "2025-04-16T13:58:56.352Z"
 }
 ```
+
+<Note>
+   Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta ao tribunal será realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
+</Note>
+
 
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking" \
--H "api-key: YOUR_API_KEY" \
--H "Content-Type: application/json" \
--d '{
-  "recurrence": 2,
-  "with_attachments": false,
-  "search": {
-    "search_type": "lawsuit_cnj",
-    "search_key": "9999999-99.9999.9.99.9999"
-  }
+curl --location 'https://tracking.prod.judit.io/tracking' \
+--header 'api-key: <API-KEY>>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "recurrence": 1,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "1111111-04.1111.1.11.1111"
+    }
 }'
 ```
 <Note>
@@ -161,8 +149,8 @@ curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
 -d '{
   "recurrence": 5,
   "search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99"
+    "search_type": "lawsuit_cnj",
+    "search_key": "1111111-04.1111.1.11.1111"
   }
 }'
 ```
@@ -236,7 +224,19 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 }
 ```
 
-**Obs** Para cadastrar seu webhook, entre em contato com a equipe de [suporte](https://api.whatsapp.com/send/?phone=5521976748865) e solicite a criação.
+**Obs** Para cadastrar seu webhook, entre em contato com a equipe de [suporte](https://api.whatsapp.com/send/?phone=5521976748865) e solicite a criação. Alternativamente, o webhook também pode ser especificado adicionando o parâmetro callback_url no payload da requisição, conforme o exemplo abaixo:
+
+```
+{
+    "recurrence": 1,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "1111111-04.1111.1.11.1111"
+    },
+    "callback_url": "https://webhook.site/b0ac6522-5bfc-42fa-bebf-a8c2b5ec0999",
+    "notification_emails": ["teste@teste.com"],
+    "with_attachments": true
+}
 
 ## Consultando Informações de um Monitoramento
 
