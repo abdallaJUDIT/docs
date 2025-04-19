@@ -5,10 +5,10 @@ icon: "Readme"
 ---
 <Steps>
  <Step title="Criação de Request" stepNumber="1">
-   Para consultar dados cadastrais via CPF ou CNPJ, a requisição deve ser realizada através do endpoint `/requests/create` da API de lawsuits. A consulta por dados cadastrais pode ser realizada diretamente em nosso datalake ou em tempo real na receita federal, para que sejam consultados os dados em tempo real, basta adicionar o parâmentro `on-demand` com o valor `true` no payload da requisção.
+   Para consultar dados cadastrais via CPF, CNPJ ou Nome, a requisição deve ser realizada através do endpoint `/requests/create` da API de lawsuits. A consulta por dados cadastrais pode ser realizada diretamente em nosso datalake ou em tempo real na receita federal, para que sejam consultados os dados em tempo real, basta adicionar o parâmentro `on-demand` com o valor `true` no payload da requisção.
 
     <Note>
-    Na consulta por dados cadastrais, o search_type deve ser <strong>'CPF'</strong> ou <strong>'CNPJ'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
+    Na consulta por dados cadastrais, o search_type deve ser <strong>'cpf'</strong>, <strong>'cnpj'</strong> ou <strong>'name'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
     </Note>
 
    **Exemplo de Consulta por CPF:**
@@ -34,14 +34,33 @@ icon: "Readme"
     --header 'api-key: <API-KEY>' \
     --data '{
         "search": {
-            "search_type": "CNPJ",
+            "search_type": "cnpj",
             "search_key": "99.999.999/9999-99",
             "response_type": "entity"
 	    }
     }'
     ```
 
-     <Note>
+    **Exemplo de Consulta por Nome:**
+
+    <Warning>
+    Ao realizar consultas por nome na busca de dados cadastrais, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Recomendamos que, sempre que possível, utilize identificadores únicos, como CPF ou CNPJ, para garantir maior precisão nos resultados.
+    </Warning>
+
+   ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "name",
+            "search_key": "Nome teste",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    <Note>
     Ao realizar uma consulta por CNPJ, é possível obter informações detalhadas, incluindo dados não mascarados dos sócios associados ao CNPJ consultado. Para acessar essas informações, basta incluir a propriedade `reveal_partners_documents` e definir seu valor como `true`.
     </Note>
 
@@ -205,6 +224,44 @@ icon: "Readme"
         ]
     }
      ```
+
+     ***Resposta por Nome***
+
+     ```json
+     {
+        "request_id": "223458ec-f3a1-4851-8d2b-19672066565c",
+        "response_data": [
+            {
+                "entity_id": "999.999.999-99",
+                "entity_type": "person",
+                "main_document": "999.999.999-99",
+                "name": "Usuário Teste",
+                "addresses": [],
+                "aka_names": [],
+                "contacts": [],
+                "documents": [],
+                "parents": [
+                    {
+                        "name": "Usuário teste 1",
+                        "kinship": "mother"
+                    }
+                ],
+                "partners": [],
+                "associated_people": [],
+                "tags": {},
+                "created_at": "2025-04-19T00:14:56.561Z",
+                "updated_at": "2025-04-19T00:14:56.561Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1989-12-25T00:00:00.000Z",
+                "gender": "male"
+            }
+        ]
+    }
+     ```
+
+     <Note>
+    Ao realizar uma consulta por CNPJ, é possível obter informações detalhadas, incluindo dados não mascarados dos sócios associados ao CNPJ consultado. Para acessar essas informações, basta incluir a propriedade `reveal_partners_documents` e definir seu valor como `true`.
+    </Note>
 
    O significado de cada campo pode ser encontrado no glossário:
 
