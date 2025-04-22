@@ -48,18 +48,30 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
                 "keys": ["TJRJ"],
               "not_equal": false
             }
-        },
-        "pagination": {
-          "page": 1,
-          "page_size": 50
         }
       }
     }
   }'
     ```
   <Note>
-    A resposta da requisição deverá ter um tamanho máximo de 50 itens por página (page_size).
+    É possivel através da consulta datalake obter no retorno os campo ```status``` e ```phase``` na consulta histórica, para obter esse retorno basta adicionar o parâmetro ```process_status``` com o valor ```true```.
   </Note>
+
+  Segue um exemplo de request solicitando o retorno da fase e o status do processo:
+
+   ```bash
+  curl --request POST \
+    --url https://lawsuits.prod.judit.io/lawsuits \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <api-key>' \
+    --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    },
+    "process_status": true
+  }'
+    ```
 
   A resposta dessa requisição será um objeto JSON com os dados da resposta:
 

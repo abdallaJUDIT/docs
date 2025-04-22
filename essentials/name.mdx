@@ -41,7 +41,11 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
       '
     ```
 
-    Exemplo de criação da request por documento diretamente no tribunal, adicionando o parâmetro `on_demand`:
+    <Warning>
+    Ao realizar consultas por nome, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Recomendamos que, sempre que possível, utilize identificadores únicos, como CPF ou CNPJ, para garantir maior precisão nos resultados.
+    </Warning>
+
+    Exemplo de criação da request por nome diretamente no tribunal, adicionando o parâmetro `on_demand`:
 
       ```bash
     curl --request POST
@@ -177,8 +181,8 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
      {
         "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
         "search": {
-           "search_type": "cpf",
-           "search_key": "09206529722",
+           "search_type": "name",
+           "search_key": "usuário teste",
            "response_type": "lawsuits",
            "search_params": {
              "filter": {},
@@ -220,7 +224,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                   "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
                   "response_type": "lawsuit",
                   "response_data": {
-                      "code": "0817064-37.2023.8.19.0209",
+                      "code": "9999999-99.9999.9.99.9999",
                       "justice": "8",
                       "tribunal": "19",
                       "tribunal_acronym": "TJRJ",
@@ -265,107 +269,27 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 28790,
                       "parties": [
                           {
-                              "name": "DAVID WILLIAM CONCEICAO DE OLIVEIRA",
+                              "name": "Usuário teste",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "14224726718",
+                              "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": []
                           },
                           {
-                              "name": "GABRIELLA OLIVEIRA DA MATA",
+                              "name": "usuário teste 2",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "16663398733",
+                              "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": []
                           },
                           {
-                              "name": "JULIANA OLIVEIRA CARVALHO",
+                              "name": "usuário teste 3",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "18250433700",
+                              "document": "99999999999",
                               "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "LEONARDO MENDES LIMA",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "14904631781",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "LEONARDO OLIVEIRA DE LIMA",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "13726926739",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "LIVIA BEATRIZ LIMA DA COSTA DA SILVA",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "13482560790",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "LUCAS OLIVEIRA DE LIMA",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "13726925767",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "09206529722",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "MARIA DE FATIMA GABRIELA PIVA",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "50559689829",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "SUELEN CLARINDO DOS SANTOS",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "13565811706",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "GRUPO HURB VIAGENS E TURISMO S/A",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HOTEL URBANO VIAGENS E TURISMO S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HURB TECHNOLIGIES S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HURB TECHNOLOGIES S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
                               "lawyers": []
                           }
                       ],
@@ -373,14 +297,14 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "steps": [],
                       "related_lawsuits": [],
                       "last_step": {
-                          "lawsuit_cnj": "0817064-37.2023.8.19.0209",
+                          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
                           "lawsuit_instance": 1,
                           "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
                           "step_date": "2024-02-21T17:33:24.064Z",
                           "private": false,
                           "steps_count": 1
                       },
-                      "name": "DAVID WILLIAM CONCEICAO DE OLIVEIRA X GRUPO HURB VIAGENS E TURISMO S/A",
+                      "name": "usuário 1 E usuário 2",
                       "distribution_date": "2023-06-06T17:35:50.000Z",
                       "phase": "Inicial",
                       "status": "Ativo"
@@ -397,7 +321,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                   "response_id": "66da2fca-6f5d-4664-9e46-0d34f80746c2",
                   "response_type": "lawsuit",
                   "response_data": {
-                      "code": "0100248-39.2022.5.01.0037",
+                      "code": "9999999-99.9999.9.99.9999",
                       "justice": "5",
                       "tribunal": "01",
                       "tribunal_acronym": "TRT1",
@@ -434,56 +358,47 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 7685.82,
                       "parties": [
                           {
-                              "name": "VIVIANE DA SILVA SALOMAO",
+                              "name": "usuário teste",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "05705252765",
+                              "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": [
                                   {
-                                      "name": "EDUARDO BIOSCA LIMA DE OLIVEIRA",
+                                      "name": "usuário teste 2",
                                       "side": "Active",
                                       "person_type": "Advogado"
                                   }
                               ]
                           },
                           {
-                              "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                              "name": "usuário teste 3",
                               "side": "Passive",
                               "person_type": "Réu",
-                              "document": "09206529722",
+                              "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": [
                                   {
-                                      "name": "PAULA GUERRA DA CRUZ",
+                                      "name": "usuário teste 4",
                                       "side": "Passive",
                                       "person_type": "Advogado"
                                   }
                               ]
                           },
-                          {
-                              "person_type": "Advogado",
-                              "side": "Active",
-                              "name": "EDUARDO BIOSCA LIMA DE OLIVEIRA"
-                          },
-                          {
-                              "person_type": "Advogado",
-                              "side": "Passive",
-                              "name": "PAULA GUERRA DA CRUZ"
-                          }
+                          
                       ],
                       "attachments": [],
                       "steps": [],
                       "related_lawsuits": [],
                       "last_step": {
-                          "lawsuit_cnj": "0100248-39.2022.5.01.0037",
+                          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
                           "lawsuit_instance": 1,
                           "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
                           "step_date": "2024-02-21T17:33:24.063Z",
                           "private": false,
                           "steps_count": 1
                       },
-                      "name": "VIVIANE DA SILVA SALOMAO X MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                      "name": "usuário teste",
                       "distribution_date": "2022-03-30T16:41:24.000Z",
                       "phase": "Inicial",
                       "status": "Ativo"
@@ -541,59 +456,19 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 46831,
                       "parties": [
                           {
-                              "name": "FERNANDO SILVA DE SOUZA",
+                              "name": "usuário teste 5",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "72472723768",
+                              "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": []
                           },
                           {
-                              "name": "MARCO ANTONIO DE OLIVEIRA RODRIGUES",
+                              "name": "usuário teste 6",
                               "side": "Active",
                               "person_type": "Autor",
-                              "document": "09206529722",
+                              "document": "99999999999",
                               "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "SUELEN CLARINDO DOS SANTOS",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "13565811706",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "SUELI DE BARROS CLARINDO",
-                              "side": "Active",
-                              "person_type": "Autor",
-                              "document": "02088098720",
-                              "document_type": "CPF",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "GRUPO HURB VIAGENS E TURISMO S/A",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HOTEL URBANO VIAGENS E TURISMO S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HURB TECHNOLIGIES S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
-                              "lawyers": []
-                          },
-                          {
-                              "name": "HURB TECHNOLOGIES S.A.",
-                              "side": "Passive",
-                              "person_type": "Réu",
                               "lawyers": []
                           }
                       ],

@@ -63,6 +63,10 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
 
         `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
 
+    <Note>
+        Todos os monitoramentos customizados cadastradas são realizadas ***on-demand***. Recomendamos verificar as condições de custo associadas a este serviço antes de sua utilização.
+    </Note>
+
    ```bash
    curl --location 'https://tracking.prod.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
@@ -105,7 +109,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
     ```
 
     <Note>
-        Todos os monitoramentos customizados cadastradas são realizadas ***on-demand***. Recomendamos verificar as condições de custo associadas a este serviço antes de sua utilização.
+        Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta ao tribunal será realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
     </Note>
 
     Retorno:
