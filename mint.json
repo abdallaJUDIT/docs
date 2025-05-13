@@ -46,6 +46,7 @@
     "crawlers/cache-judit",
     "essentials/cofre-de-credenciais",
     "essentials/registration-data",
+    "essentials/file-transfer",
     "essentials/consumption",
     "essentials/glossary",
     "essentials/flow-sheet",

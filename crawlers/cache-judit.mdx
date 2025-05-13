@@ -21,7 +21,7 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
 
     ```bash
   curl --request POST \
-    --url https://lawsuits.prod.judit.io/lawsuits \
+    --url https://lawsuits.production.judit.io/lawsuits \
     --header 'Content-Type: application/json' \
     --header 'api-key: <api-key>' \
     --data '{
@@ -35,7 +35,7 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
   Segue um exemplo de request utilizando filtro para ```TJRJ```:
     ```bash
   curl --request POST \
-    --url https://lawsuits.prod.judit.io/lawsuits \
+    --url https://lawsuits.production.judit.io/lawsuits \
     --header 'Content-Type: application/json' \
     --header 'api-key: <api-key>' \
     --data '{
@@ -57,11 +57,37 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
     É possivel através da consulta datalake obter no retorno os campo ```status``` e ```phase``` na consulta histórica, para obter esse retorno basta adicionar o parâmetro ```process_status``` com o valor ```true```.
   </Note>
 
+### Valores possíveis para `phase`
+
+| Phase                          | Descrição                      |
+|-------------------------------|-------------------------------|
+| Aguardando execução ou julgamento | O processo está em espera para ser julgado. |
+| Arquivado                     | O processo foi arquivado.     |
+| Cancelado                     | O processo foi cancelado.     |
+| Execução                      | O processo está em fase de execução. |
+| Execução ou cumprimento       | O processo está sendo executado ou cumprido. |
+| Inicial                       | O processo está em fase inicial. |
+| Reativado                     | O processo foi reativado após arquivamento. |
+| Recurso                       | O processo está em fase de recurso. |
+| Sentença                      | O processo recebeu uma sentença. |
+| Trânsito em julgado ou acordo | O processo está em trânsito ou foi acordado. |
+
+---
+
+### Valores possíveis para `status`
+
+| Status     | Descrição                      |
+|------------|-------------------------------|
+| Ativo      | O processo está ativo e em andamento. |
+| Finalizado | O processo foi finalizado.    |
+
+
+
   Segue um exemplo de request solicitando o retorno da fase e o status do processo:
 
    ```bash
   curl --request POST \
-    --url https://lawsuits.prod.judit.io/lawsuits \
+    --url https://lawsuits.production.judit.io/lawsuits \
     --header 'Content-Type: application/json' \
     --header 'api-key: <api-key>' \
     --data '{
@@ -376,7 +402,7 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
   ### Exemplo de payload:
 
   ```json 
-    curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    curl --location 'https://lawsuits.production.judit.io/requests/create' \
   --header 'Content-Type: application/json' \
   --header 'api-key: <API-KEY>' \
   --data '{
@@ -399,10 +425,10 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
  </Step>
  <Step title="Consultando a quantidade de processos no datalake" stepNumber="3">
 
-  É possivel consultar a quantidade de processos atrelados a um documento salvos em nosso datalake, para isso, basta realizar um requisição `POST` para o endpojnt `https://lawsuits.prod.judit.io/requests/count` adicionando `search_type` e `search_key` no payload.
+  É possivel consultar a quantidade de processos atrelados a um documento salvos em nosso datalake, para isso, basta realizar um requisição `POST` para o endpojnt `https://lawsuits.production.judit.io/requests/count` adicionando `search_type` e `search_key` no payload.
 
   ```json
-  curl --location 'https://lawsuits.prod.judit.io/requests/count' \
+  curl --location 'https://lawsuits.production.judit.io/requests/count' \
   --header 'Content-Type: application/json' \
   --header 'User-Agent: insomnia/8.5.1' \
   --header 'api-key: <API-KEY>' \
@@ -427,10 +453,10 @@ Todas as consultas históricas síncronas podem incluir filtros específicos par
 
   Através da consulta histórica agrupada é possível receber de forma sintética o número total de processos relacionados a uma parte, agrupando esse número pelas informações da capa processual.
 
-  Para realização da consulta histórica agrupada basta realizar um requisição `POST` para o endpojnt `https://lawsuits.prod.judit.io/requests/create/grouped` adicionando `search_type` e `search_key` no payload.
+  Para realização da consulta histórica agrupada basta realizar um requisição `POST` para o endpojnt `https://lawsuits.production.judit.io/requests/create/grouped` adicionando `search_type` e `search_key` no payload.
 
   ```json
-    curl --location 'https://lawsuits.prod.judit.io/requests/create/grouped' \
+    curl --location 'https://lawsuits.production.judit.io/requests/create/grouped' \
   --header 'api-key: <API-KEY>>' \
   --header 'Content-Type: application/json' \
   --data '{
