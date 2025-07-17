@@ -25,9 +25,11 @@ search_type: Este campo define o tipo de entidade que será buscada. Os valores 
 
 - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
-      `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+  `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-  Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
+- `judit-ia`(opcional): Array de strings que define quais análises da Judit IA devem ser aplicadas à consulta. Atualmente, é possível utilizar o valor "summary" para obter um resumo automático do processo retornado na consulta processual.
+
+Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
 Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com anexos:
 
@@ -43,6 +45,24 @@ Abaixo está o exemplo de como construir o payload para realizar uma busca por C
 <Note>
   O parâmetro `with_attachments` determina se a busca incluirá ou não os anexos, conforme o valor booleano especificado.
 </Note>
+
+Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com judit IA:
+
+```json
+{
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0009999-99.9999.8.26.9999"
+ },
+ "judit_ia": [
+		"summary"
+	]
+}
+```
+
+<Warning>
+A funcionalidade **Judit IA** está em versão *Beta* e ainda se encontra em fase de testes.
+</Warning>
 
 Aqui está um exemplo de como de payload para busca por lawsuit_cnj com curl:
 
