@@ -12,20 +12,27 @@ Esta API permite que partes interessadas verifiquem mandados de prisão utilizan
 
 Aqui está um exemplo da criação de uma request para mandado de prisão por CPF:
 
+<Note>
+Caso deseje a captura do anexo no mandado de prisão, basta adicionar o parâmetro <strong>with_attachments</strong> com o valor <strong>true</strong>.
+</Note>
+
 ```json
 {
 	"search": {
 		"search_type": "cpf",
 		"search_key": "999.999.999-99",
 		"response_type": "warrant"
-	}
+	},
+	"with_attachments": false
 }
 
 ```
 
-<Note>
+<Warning>
     Na consulta por mandado de prisão, o search_type deve ser <strong>'cpf'</strong>, <strong>'name'</strong> ou <strong>rji</strong>, já o campo response_type deverá sempre ser <strong>'warrant'</strong>.
- </Note>
+ </Warning>
+
+
 
 
 # Retorno de uma requisição realizada para mandado de prisão
@@ -53,6 +60,14 @@ Aqui está um exemplo do retorno do mandado de prisão por cpf:
 	"updated_at": "2024-03-14T07:35:14.272Z",
 	"tags": {}
 }
+```
+
+# Consultar anexo do mandado de prisão
+
+```bash
+curl -X POST --location 'https://lawsuits.production.judit.io/warrants/<número do processo>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>'
+
 ```
 
 

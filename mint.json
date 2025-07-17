@@ -91,7 +91,7 @@
   },
   {
    "group": "Acesso a anexos",
-   "pages": ["api-reference/endpoint/attachments/attachment-access"]
+   "pages": ["api-reference/endpoint/attachments/attachment-access", "api-reference/endpoint/attachments/attachment-access-warrant"]
   },
   {
    "group": "Cofre de Credenciais",

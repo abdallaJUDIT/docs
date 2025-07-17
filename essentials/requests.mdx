@@ -260,4 +260,12 @@ Aqui está um exemplo da resposta da solicitação:
     Verifique o parâmetro `request_status` para garantir que a resposta foi processada com sucesso. O valor deve ser **completed**. Caso contrário, a solicitação ainda está em processamento.
 </Warning>
 
+## Consultando anexo capturado
+```bash
+curl -X GET --location 'https://lawsuits.production.judit.io/lawsuits/<número do processo>/<intancia>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
+```
+
 _Não nos responsabilizamos por consulta por CNJ inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.
