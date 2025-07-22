@@ -2,22 +2,17 @@
 title: "Guia Rápido"
 description: "Tutorial completo para fazer sua primeira consulta na Judit API"
 ---
-
-# Guia Rápido
-
-Este guia mostra como fazer sua primeira consulta judicial usando a Judit API em poucos minutos.
-
 ## Fluxo Básico
 
 A Judit API funciona com um padrão assíncrono:
 
 1. **Criar requisição** (`POST /requests`) - Inicia a consulta
-2. **Aguardar processamento** - A API busca os dados nos tribunais
+2. **Aguardar processamento** (`GET /requests`) - A API busca os dados nos tribunais
 3. **Consultar resultado** (`GET /responses`) - Obtém os dados processados
 
 ## Pré-requisitos
 
-- API Key válida (solicite acesso conosco)
+- API Key válida [(solicite acesso conosco)](https://api.whatsapp.com/send/?phone=55219852841438865)
 - Ferramenta para fazer requisições HTTP (cURL, Postman, ou código)
 
 ## Exemplo Completo
@@ -40,7 +35,7 @@ curl -X POST "$JUDIT_BASE_URL/requests" \
   -d '{
     "search": {
       "search_type": "cpf",
-      "search_key": "12345678901",
+      "search_key": "999.999.999-99",
       "response_type": "lawsuit",
       "cache_ttl_in_days": 7
     }
@@ -64,7 +59,7 @@ headers = {
 payload = {
     "search": {
         "search_type": "cpf",
-        "search_key": "12345678901",
+        "search_key": "999.999.999-99",
         "response_type": "lawsuit",
         "cache_ttl_in_days": 7
     }
@@ -92,7 +87,7 @@ const headers = {
 const payload = {
     search: {
         search_type: 'cpf',
-        search_key: '12345678901',
+        search_key: '999.999.999-99',
         response_type: 'lawsuit',
         cache_ttl_in_days: 7
     }
@@ -124,7 +119,7 @@ $headers = [
 $payload = [
     'search' => [
         'search_type' => 'cpf',
-        'search_key' => '12345678901',
+        'search_key' => '999.999.999-99',
         'response_type' => 'lawsuit',
         'cache_ttl_in_days' => 7
     ]
@@ -178,7 +173,7 @@ func main() {
     // Criar requisição
     payload := SearchRequest{}
     payload.Search.SearchType = "cpf"
-    payload.Search.SearchKey = "12345678901"
+    payload.Search.SearchKey = "999.999.999-99"
     payload.Search.ResponseType = "lawsuit"
     payload.Search.CacheTTLInDays = 7
     
@@ -414,7 +409,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "cpf",
-    "search_key": "12345678901",
+    "search_key": "999.999.999-99",
     "response_type": "lawsuit"
   }
 }
@@ -424,7 +419,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "cnpj",
-    "search_key": "12345678000195",
+    "search_key": "999.999/99999-99",
     "response_type": "lawsuit"
   }
 }
@@ -434,7 +429,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "oab",
-    "search_key": "123456-SP",
+    "search_key": "999999-SP",
     "response_type": "lawsuit"
   }
 }
@@ -444,7 +439,17 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "lawsuit_cnj",
-    "search_key": "1234567-89.2023.1.23.4567",
+    "search_key": "9999999-99.9999.9.99.9999",
+    "response_type": "lawsuit"
+  }
+}
+```
+
+```json Por NOME
+{
+  "search": {
+    "search_type": "name",
+    "search_key": "Nome teste",
     "response_type": "lawsuit"
   }
 }
@@ -462,13 +467,13 @@ if statusData["status"] == "completed" {
 
 ## Filtros Avançados
 
-Para consultas mais específicas, use filtros:
+Para consultas mais específicas por <strong>documento</strong>, é possivel utilizar [filtros](/essentials/request-document):
 
 ```json
 {
   "search": {
     "search_type": "cpf",
-    "search_key": "12345678901",
+    "search_key": "999.999.999-99",
     "response_type": "lawsuit",
     "search_params": {
       "filter": {
@@ -491,7 +496,7 @@ Para consultas mais específicas, use filtros:
 Configure `cache_ttl_in_days` para evitar consultas desnecessárias:
 ```json
 {
-  "cache_ttl_in_days": 7  // Usar cache por 7 dias
+  "cache_ttl_in_days": 7  // Usar cache por até 7 dias
 }
 ```
 
@@ -525,9 +530,8 @@ if int(remaining) < 10:
 
 ## Próximos Passos
 
-- **[Autenticação](/authentication)**: Configure a autenticação adequada
-- **[Endpoints](/endpoints/requests)**: Explore todos os endpoints disponíveis
+- **[Autenticação](introduction/authentication)**: Configure a autenticação adequada
+- **[Endpoints](/api-reference)**: Explore todos os endpoints disponíveis
 - **[SDK Python](/sdk)**: Use nossa biblioteca oficial
-- **[Monitoramento](/endpoints/tracking)**: Configure alertas automáticos
 
 > **Dica**: Para desenvolvimento, use o [Postman Collection](https://postman.com) com exemplos prontos da Judit API.

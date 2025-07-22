@@ -3,11 +3,13 @@ title: "Judit API"
 description: "API completa para consultas judiciais automatizadas no Brasil"
 ---
 
-# Visão Geral
+![title](/images/judit-api-charts.png)
+
+## Visão Geral
 
 A **Judit API** é uma solução completa para automação de consultas judiciais no Brasil, oferecendo acesso programático a dados processuais, monitoramento de processos e gestão de credenciais de tribunais.
 
-## O que é a Judit API?
+### O que é a Judit API?
 
 A Judit API permite que desenvolvedores integrem funcionalidades de consulta judicial em suas aplicações, oferecendo:
 
@@ -20,70 +22,69 @@ A Judit API permite que desenvolvedores integrem funcionalidades de consulta jud
 - **Consulta por execução penal:**: Obtenha dados precisos e relevantes sobre processos de execução penal, garantindo acesso rápido a informações essenciais.
 - **JUDIT IA:**: Recurso que gera automaticamente um resumo da capa do processo, destacando as principais informações de forma clara e rápida.
 
-## Casos de Uso Principais
+### Casos de Uso Principais
 
-### 1. Escritórios de Advocacia
+#### 1. Escritórios de Advocacia
 - Monitoramento automático de processos
 - Consulta rápida de andamentos processuais
 - Download automatizado de documentos
 
-### 2. Departamentos Jurídicos
+#### 2. Departamentos Jurídicos
 - Acompanhamento de processos corporativos
 - Relatórios automatizados de status processual
 - Integração com sistemas internos
 
-### 3. Fintechs e Bureaus de Crédito
+#### 3. Fintechs e Bureaus de Crédito
 - Verificação de processos judiciais para análise de risco
 - Consultas em massa para due diligence
 - Monitoramento contínuo de clientes
 
-## Primeiros Passos
+### Primeiros Passos
 
 Para começar a usar a Judit API:
 
-1. **Obtenha sua API Key**: Entre em contato conosco para solicitar acesso
+1. **Obtenha sua API Key**: Entre em contato com nosso setor [comercial](https://api.whatsapp.com/send/?phone=55219852841438865) para solicitar acesso
 2. **Leia o [Guia Rápido](/quickstart)**: Aprenda o fluxo básico de consultas
 3. **Configure a [Autenticação](/authentication)**: Implemente a autenticação correta
 4. **Explore os [Endpoints](/endpoints/requests)**: Conheça todas as funcionalidades disponíveis
 
-## Vantagens da Judit API
+### Vantagens da Judit API
 
-### ⚡ **Performance Superior**
+#### ⚡ **Performance Superior**
 - Cache inteligente com TTL configurável
 - Respostas otimizadas para diferentes casos de uso
 - Infraestrutura distribuída para alta disponibilidade
 
-### 🔒 **Segurança Avançada**
+#### 🔒 **Segurança Avançada**
 - Autenticação via API Key
 - Cofre seguro para credenciais de tribunais
 - Criptografia end-to-end para dados sensíveis
 
-### 📊 **Dados Estruturados**
+#### 📊 **Dados Estruturados**
 - Respostas padronizadas em JSON
 - Filtros avançados para consultas específicas
 - Metadados ricos para cada processo
 
-### 🔄 **Monitoramento Inteligente**
+#### 🔄 **Monitoramento Inteligente**
 - Notificações automáticas de mudanças
 - Configuração flexível de recorrência
 - Controle granular de pausar/reativar
 
-## Arquitetura da API
+### Arquitetura da API
 
 A Judit API é composta por diferentes serviços especializados:
 
 - **Requests Service** (`requests.prod.judit.io`): Criação e consulta de requisições
 - **Lawsuits Service** (`lawsuits.production.judit.io`): Acesso ao datalake de processos
 - **Tracking Service** (`tracking.prod.judit.io`): Monitoramento de processos
-- **Crawler Service** (`crawler.prod.judit.io`): Coleta de dados dos tribunais
 
-## Rate Limits
+### Rate Limits
 
 - **Limite padrão**: 500 requisições por minuto
 - **Monitoramento**: Headers de rate limit em todas as respostas
 - **Upgrade**: Limites personalizados disponíveis mediante contrato
 
-## Suporte e Documentação
+### Suporte e Documentação
 
 - **Documentação completa**: Explore todos os endpoints e exemplos
 - **SDK Python**: Biblioteca oficial para integração rápida

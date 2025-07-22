@@ -10,7 +10,7 @@ A Judit API implementa **rate limiting** para garantir uso justo dos recursos e 
 ## Limites Padrão
 
 ### Limite Global
-- **500 requisições por minuto** por API Key
+- **180 requisições por minuto** por API Key
 - **Janela deslizante** de 60 segundos
 - **Reset automático** a cada minuto
 
@@ -18,32 +18,11 @@ A Judit API implementa **rate limiting** para garantir uso justo dos recursos e 
 
 | Endpoint | Limite Específico | Observações |
 |----------|------------------|-------------|
-| `POST /requests` | 100/min | Criação de novas consultas |
-| `GET /requests` | 200/min | Listagem de requisições |
-| `GET /responses` | 200/min | Consulta de resultados |
-| `POST /tracking` | 50/min | Criação de monitoramentos |
-| `GET /tracking` | 100/min | Listagem de monitoramentos |
-
-## Headers de Rate Limit
-
-A API retorna informações sobre rate limit em todos os responses:
-
-```http
-HTTP/1.1 200 OK
-X-RateLimit-Limit: 500
-X-RateLimit-Remaining: 487
-X-RateLimit-Reset: 1640995200
-X-RateLimit-Window: 60
-```
-
-### Significado dos Headers
-
-| Header | Descrição |
-|--------|-----------|
-| `X-RateLimit-Limit` | Limite total de requisições |
-| `X-RateLimit-Remaining` | Requisições restantes na janela atual |
-| `X-RateLimit-Reset` | Timestamp Unix do próximo reset |
-| `X-RateLimit-Window` | Tamanho da janela em segundos |
+| `POST /requests` | 180/min | Criação de novas consultas |
+| `GET /requests` | 180/min | Listagem de requisições |
+| `GET /responses` | 180/min | Consulta de resultados |
+| `POST /tracking` | 180/min | Criação de monitoramentos |
+| `GET /tracking` | 180/min | Listagem de monitoramentos |
 
 ## Monitoramento de Rate Limit
 
