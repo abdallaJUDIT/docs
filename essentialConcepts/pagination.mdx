@@ -1,0 +1,1009 @@
+---
+title: "Paginação & Cursor"
+description: "Como implementar paginação eficiente na Judit API com cursor e links"
+---
+
+# Paginação & Cursor
+
+A Judit API utiliza paginação baseada em **cursor** para navegar através de grandes conjuntos de dados de forma eficiente e consistente.
+
+## Como Funciona a Paginação
+
+### Parâmetros de Paginação
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|-----------|------|--------|-----------|
+| `page` | integer | 1 | Número da página (baseado em 1) |
+| `page_size` | integer | 20 | Quantidade de itens por página (máx: 100) |
+
+### Estrutura da Resposta
+
+```json
+{
+  "page_data": [
+    // Array com os dados da página atual
+  ],
+  "links": {
+    "next": "https://requests.prod.judit.io/requests?page=2&page_size=20",
+    "prev": "https://requests.prod.judit.io/requests?page=1&page_size=20",
+    "first": "https://requests.prod.judit.io/requests?page=1&page_size=20",
+    "last": "https://requests.prod.judit.io/requests?page=10&page_size=20"
+  },
+  "meta": {
+    "current_page": 2,
+    "total_pages": 10,
+    "total_items": 200,
+    "per_page": 20,
+    "has_next": true,
+    "has_prev": true
+  }
+}
+```
+
+## Exemplos Práticos
+
+### Consulta Básica com Paginação
+
+<CodeGroup>
+
+```bash cURL
+# Primeira página
+curl -X GET "https://requests.prod.judit.io/requests?page=1&page_size=10" \
+  -H "api-key: $JUDIT_API_KEY"
+
+# Página específica
+curl -X GET "https://requests.prod.judit.io/requests?page=3&page_size=25" \
+  -H "api-key: $JUDIT_API_KEY"
+```
+
+```python Python
+import requests
+import os
+
+api_key = os.getenv('JUDIT_API_KEY')
+base_url = "https://requests.prod.judit.io"
+
+headers = {
+    'api-key': api_key,
+    'Content-Type': 'application/json'
+}
+
+def get_requests_page(page=1, page_size=20):
+    """Busca uma página específica de requisições"""
+    params = {
+        'page': page,
+        'page_size': page_size
+    }
+    
+    response = requests.get(
+        f"{base_url}/requests",
+        headers=headers,
+        params=params
+    )
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erro: {response.status_code}")
+        return None
+
+# Buscar primeira página
+data = get_requests_page(page=1, page_size=10)
+print(f"Página atual: {data['meta']['current_page']}")
+print(f"Total de itens: {data['meta']['total_items']}")
+```
+
+```javascript JavaScript
+const apiKey = process.env.JUDIT_API_KEY;
+const baseUrl = "https://requests.prod.judit.io";
+
+const headers = {
+    'api-key': apiKey,
+    'Content-Type': 'application/json'
+};
+
+async function getRequestsPage(page = 1, pageSize = 20) {
+    const params = new URLSearchParams({
+        page: page.toString(),
+        page_size: pageSize.toString()
+    });
+    
+    try {
+        const response = await fetch(`${baseUrl}/requests?${params}`, {
+            headers: headers
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error(`Erro: ${response.status}`);
+            return null;
+        }
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        return null;
+    }
+}
+
+// Buscar primeira página
+const data = await getRequestsPage(1, 10);
+console.log(`Página atual: ${data.meta.current_page}`);
+console.log(`Total de itens: ${data.meta.total_items}`);
+```
+
+```php PHP
+<?php
+$apiKey = getenv('JUDIT_API_KEY');
+$baseUrl = "https://requests.prod.judit.io";
+
+function getRequestsPage($page = 1, $pageSize = 20) {
+    global $apiKey, $baseUrl;
+    
+    $params = http_build_query([
+        'page' => $page,
+        'page_size' => $pageSize
+    ]);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "{$baseUrl}/requests?{$params}");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "api-key: {$apiKey}",
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode === 200) {
+        return json_decode($response, true);
+    } else {
+        echo "Erro: {$httpCode}\n";
+        return null;
+    }
+}
+
+// Buscar primeira página
+$data = getRequestsPage(1, 10);
+if ($data) {
+    echo "Página atual: {$data['meta']['current_page']}\n";
+    echo "Total de itens: {$data['meta']['total_items']}\n";
+}
+?>
+```
+
+</CodeGroup>
+
+## Navegação com Cursor
+
+### Usando Links de Navegação
+
+A forma mais eficiente é usar os links fornecidos na resposta:
+
+<CodeGroup>
+
+```python Python
+def fetch_all_pages(endpoint, max_pages=None):
+    """Busca todas as páginas de um endpoint"""
+    all_data = []
+    current_url = f"{base_url}/{endpoint}?page=1&page_size=50"
+    page_count = 0
+    
+    while current_url and (max_pages is None or page_count < max_pages):
+        response = requests.get(current_url, headers=headers)
+        
+        if response.status_code != 200:
+            print(f"Erro na página {page_count + 1}: {response.status_code}")
+            break
+            
+        data = response.json()
+        all_data.extend(data.get('page_data', []))
+        
+        # Próxima página usando o link fornecido
+        current_url = data.get('links', {}).get('next')
+        page_count += 1
+        
+        print(f"Processada página {page_count}, "
+              f"itens coletados: {len(all_data)}")
+    
+    return all_data
+
+# Buscar todas as requisições
+all_requests = fetch_all_pages('requests', max_pages=5)
+print(f"Total de requisições coletadas: {len(all_requests)}")
+```
+
+```javascript JavaScript
+async function fetchAllPages(endpoint, maxPages = null) {
+    const allData = [];
+    let currentUrl = `${baseUrl}/${endpoint}?page=1&page_size=50`;
+    let pageCount = 0;
+    
+    while (currentUrl && (maxPages === null || pageCount < maxPages)) {
+        try {
+            const response = await fetch(currentUrl, { headers });
+            
+            if (!response.ok) {
+                console.error(`Erro na página ${pageCount + 1}: ${response.status}`);
+                break;
+            }
+            
+            const data = await response.json();
+            allData.push(...(data.page_data || []));
+            
+            // Próxima página usando o link fornecido
+            currentUrl = data.links?.next;
+            pageCount++;
+            
+            console.log(`Processada página ${pageCount}, itens coletados: ${allData.length}`);
+            
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            break;
+        }
+    }
+    
+    return allData;
+}
+
+// Buscar todas as requisições
+const allRequests = await fetchAllPages('requests', 5);
+console.log(`Total de requisições coletadas: ${allRequests.length}`);
+```
+
+```php PHP
+<?php
+function fetchAllPages($endpoint, $maxPages = null) {
+    global $apiKey, $baseUrl, $headers;
+    
+    $allData = [];
+    $currentUrl = "{$baseUrl}/{$endpoint}?page=1&page_size=50";
+    $pageCount = 0;
+    
+    while ($currentUrl && ($maxPages === null || $pageCount < $maxPages)) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $currentUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "api-key: {$apiKey}",
+            "Content-Type: application/json"
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            echo "Erro na página " . ($pageCount + 1) . ": {$httpCode}\n";
+            break;
+        }
+        
+        $data = json_decode($response, true);
+        if (isset($data['page_data'])) {
+            $allData = array_merge($allData, $data['page_data']);
+        }
+        
+        // Próxima página usando o link fornecido
+        $currentUrl = $data['links']['next'] ?? null;
+        $pageCount++;
+        
+        echo "Processada página {$pageCount}, itens coletados: " . count($allData) . "\n";
+    }
+    
+    return $allData;
+}
+
+// Buscar todas as requisições
+$allRequests = fetchAllPages('requests', 5);
+echo "Total de requisições coletadas: " . count($allRequests) . "\n";
+?>
+```
+
+</CodeGroup>
+
+## Paginação com Filtros
+
+### Combinando Filtros e Paginação
+
+<CodeGroup>
+
+```python Python
+def get_filtered_requests(status=None, page=1, page_size=20):
+    """Busca requisições com filtro de status"""
+    params = {
+        'page': page,
+        'page_size': page_size
+    }
+    
+    if status:
+        params['status'] = status
+    
+    response = requests.get(
+        f"{base_url}/requests",
+        headers=headers,
+        params=params
+    )
+    
+    return response.json() if response.status_code == 200 else None
+
+# Buscar apenas requisições completadas
+completed_requests = get_filtered_requests(
+    status='completed',
+    page=1,
+    page_size=50
+)
+```
+
+```javascript JavaScript
+async function getFilteredRequests(status = null, page = 1, pageSize = 20) {
+    // Busca requisições com filtro de status
+    
+    const params = new URLSearchParams({
+        page: page.toString(),
+        page_size: pageSize.toString()
+    });
+    
+    if (status) {
+        params.append('status', status);
+    }
+    
+    try {
+        const response = await fetch(`${baseUrl}/requests?${params}`, {
+            headers: headers
+        });
+        
+        return response.ok ? await response.json() : null;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        return null;
+    }
+}
+
+// Buscar apenas requisições completadas
+const completedRequests = await getFilteredRequests(
+    'completed',
+    1,
+    50
+);
+```
+
+```php PHP
+<?php
+function getFilteredRequests($status = null, $page = 1, $pageSize = 20) {
+    global $apiKey, $baseUrl;
+    
+    $params = [
+        'page' => $page,
+        'page_size' => $pageSize
+    ];
+    
+    if ($status) {
+        $params['status'] = $status;
+    }
+    
+    $queryString = http_build_query($params);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "{$baseUrl}/requests?{$queryString}");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "api-key: {$apiKey}",
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $httpCode === 200 ? json_decode($response, true) : null;
+}
+
+// Buscar apenas requisições completadas
+$completedRequests = getFilteredRequests(
+    'completed',
+    1,
+    50
+);
+?>
+```
+
+</CodeGroup>
+
+### Paginação em Monitoramentos
+
+<CodeGroup>
+
+```python Python
+def get_tracking_page(page=1, status=None):
+    """Busca página de monitoramentos"""
+    params = {'page': page}
+    
+    if status:
+        params['status'] = status
+    
+    response = requests.get(
+        "https://tracking.prod.judit.io/tracking",
+        headers=headers,
+        params=params
+    )
+    
+    return response.json() if response.status_code == 200 else None
+
+# Buscar monitoramentos ativos
+active_tracking = get_tracking_page(page=1, status='active')
+```
+
+```javascript JavaScript
+async function getTrackingPage(page = 1, status = null) {
+    // Busca página de monitoramentos
+    
+    const params = new URLSearchParams({ page: page.toString() });
+    
+    if (status) {
+        params.append('status', status);
+    }
+    
+    try {
+        const response = await fetch(`https://tracking.prod.judit.io/tracking?${params}`, {
+            headers: headers
+        });
+        
+        return response.ok ? await response.json() : null;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        return null;
+    }
+}
+
+// Buscar monitoramentos ativos
+const activeTracking = await getTrackingPage(1, 'active');
+```
+
+```php PHP
+<?php
+function getTrackingPage($page = 1, $status = null) {
+    global $apiKey;
+    
+    $params = ['page' => $page];
+    
+    if ($status) {
+        $params['status'] = $status;
+    }
+    
+    $queryString = http_build_query($params);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://tracking.prod.judit.io/tracking?{$queryString}");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "api-key: {$apiKey}",
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $httpCode === 200 ? json_decode($response, true) : null;
+}
+
+// Buscar monitoramentos ativos
+$activeTracking = getTrackingPage(1, 'active');
+?>
+```
+
+</CodeGroup>
+
+## Otimizações e Boas Práticas
+
+### 1. **Tamanho de Página Otimizado**
+
+<CodeGroup>
+
+```python Python
+# Para listagens rápidas
+small_page = get_requests_page(page=1, page_size=10)
+
+# Para processamento em lote
+large_page = get_requests_page(page=1, page_size=100)  # Máximo
+```
+
+```javascript JavaScript
+// Para listagens rápidas
+const smallPage = await getRequestsPage(1, 10);
+
+// Para processamento em lote
+const largePage = await getRequestsPage(1, 100);  // Máximo
+```
+
+```php PHP
+<?php
+// Para listagens rápidas
+$smallPage = getRequestsPage(1, 10);
+
+// Para processamento em lote
+$largePage = getRequestsPage(1, 100);  // Máximo
+?>
+```
+
+</CodeGroup>
+
+### 2. **Cache de Páginas**
+
+<CodeGroup>
+
+```python Python
+from functools import lru_cache
+import time
+
+@lru_cache(maxsize=50)
+def cached_get_page(endpoint, page, page_size, cache_key):
+    """Cache de páginas com TTL implícito via cache_key"""
+    return get_requests_page(page, page_size)
+
+# Usar com cache_key baseado em tempo
+cache_key = int(time.time() // 300)  # Cache por 5 minutos
+data = cached_get_page('requests', 1, 20, cache_key)
+```
+
+```javascript JavaScript
+// Cache simples com TTL
+const pageCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function cachedGetPage(endpoint, page, pageSize) {
+    const cacheKey = `${endpoint}-${page}-${pageSize}-${Math.floor(Date.now() / CACHE_TTL)}`;
+    
+    if (pageCache.has(cacheKey)) {
+        return Promise.resolve(pageCache.get(cacheKey));
+    }
+    
+    return getRequestsPage(page, pageSize).then(data => {
+        pageCache.set(cacheKey, data);
+        
+        // Limpar cache antigo
+        if (pageCache.size > 50) {
+            const firstKey = pageCache.keys().next().value;
+            pageCache.delete(firstKey);
+        }
+        
+        return data;
+    });
+}
+
+// Usar cache
+const data = await cachedGetPage('requests', 1, 20);
+```
+
+```php PHP
+<?php
+class PageCache {
+    private static $cache = [];
+    private static $maxSize = 50;
+    private static $ttl = 300; // 5 minutos
+    
+    public static function get($endpoint, $page, $pageSize) {
+        $cacheKey = "{$endpoint}-{$page}-{$pageSize}-" . floor(time() / self::$ttl);
+        
+        if (isset(self::$cache[$cacheKey])) {
+            return self::$cache[$cacheKey];
+        }
+        
+        $data = getRequestsPage($page, $pageSize);
+        
+        // Adicionar ao cache
+        self::$cache[$cacheKey] = $data;
+        
+        // Limpar cache se muito grande
+        if (count(self::$cache) > self::$maxSize) {
+            $firstKey = array_key_first(self::$cache);
+            unset(self::$cache[$firstKey]);
+        }
+        
+        return $data;
+    }
+}
+
+// Usar cache
+$data = PageCache::get('requests', 1, 20);
+?>
+```
+
+</CodeGroup>
+
+### 3. **Processamento Paralelo**
+
+<CodeGroup>
+
+```python Python
+import concurrent.futures
+
+def fetch_page_range(start_page, end_page, page_size=50):
+    """Busca múltiplas páginas em paralelo"""
+    
+    def fetch_single_page(page):
+        return get_requests_page(page, page_size)
+    
+    results = []
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        # Submeter todas as páginas
+        future_to_page = {
+            executor.submit(fetch_single_page, page): page 
+            for page in range(start_page, end_page + 1)
+        }
+        
+        # Coletar resultados
+        for future in concurrent.futures.as_completed(future_to_page):
+            page_num = future_to_page[future]
+            try:
+                page_data = future.result()
+                if page_data:
+                    results.append((page_num, page_data))
+            except Exception as e:
+                print(f"Erro na página {page_num}: {e}")
+    
+    # Ordenar por número da página
+    results.sort(key=lambda x: x[0])
+    return [data for _, data in results]
+
+# Buscar páginas 1-5 em paralelo
+parallel_results = fetch_page_range(1, 5)
+```
+
+```javascript JavaScript
+async function fetchPageRange(startPage, endPage, pageSize = 50) {
+    // Busca múltiplas páginas em paralelo
+    
+    const fetchSinglePage = (page) => getRequestsPage(page, pageSize);
+    
+    const pagePromises = [];
+    for (let page = startPage; page <= endPage; page++) {
+        pagePromises.push(
+            fetchSinglePage(page)
+                .then(data => ({ page, data }))
+                .catch(error => {
+                    console.error(`Erro na página ${page}:`, error);
+                    return { page, data: null };
+                })
+        );
+    }
+    
+    // Aguardar todas as requisições
+    const results = await Promise.all(pagePromises);
+    
+    // Filtrar resultados válidos e ordenar
+    return results
+        .filter(result => result.data !== null)
+        .sort((a, b) => a.page - b.page)
+        .map(result => result.data);
+}
+
+// Buscar páginas 1-5 em paralelo
+const parallelResults = await fetchPageRange(1, 5);
+```
+
+```php PHP
+<?php
+function fetchPageRange($startPage, $endPage, $pageSize = 50) {
+    // Busca múltiplas páginas em paralelo usando cURL multi-handle
+    
+    $multiHandle = curl_multi_init();
+    $curlHandles = [];
+    $results = [];
+    
+    // Criar handles para cada página
+    for ($page = $startPage; $page <= $endPage; $page++) {
+        $ch = curl_init();
+        $params = http_build_query([
+            'page' => $page,
+            'page_size' => $pageSize
+        ]);
+        
+        curl_setopt($ch, CURLOPT_URL, "{$GLOBALS['baseUrl']}/requests?{$params}");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "api-key: {$GLOBALS['apiKey']}",
+            "Content-Type: application/json"
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        curl_multi_add_handle($multiHandle, $ch);
+        $curlHandles[$page] = $ch;
+    }
+    
+    // Executar todas as requisições
+    $running = null;
+    do {
+        curl_multi_exec($multiHandle, $running);
+        curl_multi_select($multiHandle);
+    } while ($running > 0);
+    
+    // Coletar resultados
+    foreach ($curlHandles as $page => $ch) {
+        $response = curl_multi_getcontent($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            if ($data) {
+                $results[] = ['page' => $page, 'data' => $data];
+            }
+        } else {
+            echo "Erro na página {$page}: {$httpCode}\n";
+        }
+        
+        curl_multi_remove_handle($multiHandle, $ch);
+        curl_close($ch);
+    }
+    
+    curl_multi_close($multiHandle);
+    
+    // Ordenar por número da página
+    usort($results, function($a, $b) {
+        return $a['page'] - $b['page'];
+    });
+    
+    return array_column($results, 'data');
+}
+
+// Buscar páginas 1-5 em paralelo
+$parallelResults = fetchPageRange(1, 5);
+?>
+```
+
+</CodeGroup>
+
+### 4. **Controle de Rate Limit**
+
+<CodeGroup>
+
+```python Python
+import time
+
+def paginate_with_rate_limit(endpoint, delay=0.2):
+    """Paginação respeitando rate limits"""
+    page = 1
+    all_data = []
+    
+    while True:
+        # Fazer requisição
+        data = get_requests_page(page, 50)
+        
+        if not data or not data.get('page_data'):
+            break
+            
+        all_data.extend(data['page_data'])
+        
+        # Verificar se há próxima página
+        if not data.get('meta', {}).get('has_next'):
+            break
+            
+        page += 1
+        
+        # Delay para respeitar rate limit
+        time.sleep(delay)
+        
+        print(f"Página {page-1} processada, "
+              f"total: {len(all_data)} itens")
+    
+    return all_data
+```
+
+```javascript JavaScript
+async function paginateWithRateLimit(endpoint, delay = 200) {
+    // Paginação respeitando rate limits
+    let page = 1;
+    const allData = [];
+    
+    while (true) {
+        // Fazer requisição
+        const data = await getRequestsPage(page, 50);
+        
+        if (!data || !data.page_data) {
+            break;
+        }
+        
+        allData.push(...data.page_data);
+        
+        // Verificar se há próxima página
+        if (!data.meta?.has_next) {
+            break;
+        }
+        
+        page++;
+        
+        // Delay para respeitar rate limit
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        console.log(`Página ${page-1} processada, total: ${allData.length} itens`);
+    }
+    
+    return allData;
+}
+```
+
+```php PHP
+<?php
+function paginateWithRateLimit($endpoint, $delay = 0.2) {
+    // Paginação respeitando rate limits
+    $page = 1;
+    $allData = [];
+    
+    while (true) {
+        // Fazer requisição
+        $data = getRequestsPage($page, 50);
+        
+        if (!$data || !isset($data['page_data'])) {
+            break;
+        }
+        
+        $allData = array_merge($allData, $data['page_data']);
+        
+        // Verificar se há próxima página
+        if (!($data['meta']['has_next'] ?? false)) {
+            break;
+        }
+        
+        $page++;
+        
+        // Delay para respeitar rate limit
+        usleep($delay * 1000000); // usleep usa microssegundos
+        
+        echo "Página " . ($page-1) . " processada, total: " . count($allData) . " itens\n";
+    }
+    
+    return $allData;
+}
+?>
+```
+
+</CodeGroup>
+
+## Tratamento de Erros
+
+### Erros Comuns de Paginação
+
+<CodeGroup>
+
+```python Python
+import time
+import requests
+
+def safe_paginate(endpoint, max_retries=3):
+    """Paginação com tratamento de erros"""
+    page = 1
+    all_data = []
+    
+    while True:
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                data = get_requests_page(page, 50)
+                
+                if not data:
+                    return all_data
+                    
+                all_data.extend(data.get('page_data', []))
+                
+                if not data.get('meta', {}).get('has_next'):
+                    return all_data
+                    
+                break  # Sucesso, sair do loop de retry
+                
+            except requests.RequestException as e:
+                retry_count += 1
+                if retry_count >= max_retries:
+                    print(f"Erro após {max_retries} tentativas: {e}")
+                    return all_data
+                    
+                # Backoff exponencial
+                time.sleep(2 ** retry_count)
+        
+        page += 1
+    
+    return all_data
+```
+
+```javascript JavaScript
+async function safePaginate(endpoint, maxRetries = 3) {
+    // Paginação com tratamento de erros
+    let page = 1;
+    const allData = [];
+    
+    while (true) {
+        let retryCount = 0;
+        
+        while (retryCount < maxRetries) {
+            try {
+                const data = await getRequestsPage(page, 50);
+                
+                if (!data) {
+                    return allData;
+                }
+                
+                allData.push(...(data.page_data || []));
+                
+                if (!data.meta?.has_next) {
+                    return allData;
+                }
+                
+                break; // Sucesso, sair do loop de retry
+                
+            } catch (error) {
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    console.error(`Erro após ${maxRetries} tentativas:`, error);
+                    return allData;
+                }
+                
+                // Backoff exponencial
+                await new Promise(resolve => 
+                    setTimeout(resolve, Math.pow(2, retryCount) * 1000)
+                );
+            }
+        }
+        
+        page++;
+    }
+    
+    return allData;
+}
+```
+
+```php PHP
+<?php
+function safePaginate($endpoint, $maxRetries = 3) {
+    // Paginação com tratamento de erros
+    $page = 1;
+    $allData = [];
+    
+    while (true) {
+        $retryCount = 0;
+        
+        while ($retryCount < $maxRetries) {
+            try {
+                $data = getRequestsPage($page, 50);
+                
+                if (!$data) {
+                    return $allData;
+                }
+                
+                $allData = array_merge($allData, $data['page_data'] ?? []);
+                
+                if (!($data['meta']['has_next'] ?? false)) {
+                    return $allData;
+                }
+                
+                break; // Sucesso, sair do loop de retry
+                
+            } catch (Exception $e) {
+                $retryCount++;
+                if ($retryCount >= $maxRetries) {
+                    echo "Erro após {$maxRetries} tentativas: " . $e->getMessage() . "\n";
+                    return $allData;
+                }
+                
+                // Backoff exponencial
+                sleep(pow(2, $retryCount));
+            }
+        }
+        
+        $page++;
+    }
+    
+    return $allData;
+}
+?>
+```
+
+</CodeGroup>
+
+## Próximos Passos
+
+- **[Rate Limits](/rate-limits)**: Entenda os limites de requisições
+- **[Endpoints](/endpoints/requests)**: Explore endpoints com paginação
+- **[SDK Python](/sdk)**: Use paginação automática do SDK
+
+> **Dica**: Use sempre os links `next` fornecidos na resposta em vez de calcular URLs manualmente para garantir consistência.

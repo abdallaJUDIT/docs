@@ -1,0 +1,1105 @@
+---
+title: "Tratamento de Erros"
+description: "Códigos de erro, estruturas de resposta e estratégias de tratamento na Judit API"
+---
+
+# Tratamento de Erros
+
+A Judit API utiliza códigos de status HTTP padrão e retorna respostas de erro estruturadas para facilitar o diagnóstico e tratamento de problemas.
+
+## Códigos de Status HTTP
+
+### Códigos de Sucesso
+- **200 OK**: Requisição processada com sucesso
+- **201 Created**: Recurso criado com sucesso
+- **202 Accepted**: Requisição aceita para processamento assíncrono
+
+### Códigos de Erro do Cliente
+- **400 Bad Request**: Parâmetros inválidos ou malformados
+- **401 Unauthorized**: API Key ausente ou inválida
+- **403 Forbidden**: Acesso negado ao recurso
+- **404 Not Found**: Recurso não encontrado
+- **409 Conflict**: Conflito com estado atual do recurso
+- **422 Unprocessable Entity**: Dados válidos mas não processáveis
+- **429 Too Many Requests**: Rate limit excedido
+
+### Códigos de Erro do Servidor
+- **500 Internal Server Error**: Erro interno do servidor
+- **502 Bad Gateway**: Erro de gateway
+- **503 Service Unavailable**: Serviço temporariamente indisponível
+- **504 Gateway Timeout**: Timeout de gateway
+
+## Estrutura de Resposta de Erro
+
+Todas as respostas de erro seguem um formato consistente:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Parâmetros de entrada inválidos",
+    "details": {
+      "field": "cpf",
+      "reason": "Formato de CPF inválido",
+      "provided": "123.456.789-00"
+    },
+    "request_id": "req_1234567890abcdef",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Campos da Resposta de Erro
+
+- **code**: Código único do erro para identificação programática
+- **message**: Mensagem descritiva em português
+- **details**: Informações adicionais específicas do erro
+- **request_id**: ID único da requisição para rastreamento
+- **timestamp**: Timestamp do erro em formato ISO 8601
+
+## Códigos de Erro Específicos
+
+### Autenticação e Autorização
+
+| Código | Descrição | Status HTTP |
+|--------|-----------|-------------|
+| `INVALID_API_KEY` | API Key inválida ou expirada | 401 |
+| `MISSING_API_KEY` | API Key não fornecida | 401 |
+| `INSUFFICIENT_PERMISSIONS` | Permissões insuficientes | 403 |
+| `ACCOUNT_SUSPENDED` | Conta suspensa | 403 |
+
+### Validação de Dados
+
+| Código | Descrição | Status HTTP |
+|--------|-----------|-------------|
+| `VALIDATION_ERROR` | Erro de validação geral | 400 |
+| `INVALID_CPF` | CPF em formato inválido | 400 |
+| `INVALID_CNPJ` | CNPJ em formato inválido | 400 |
+| `INVALID_OAB` | Número OAB inválido | 400 |
+| `INVALID_CNJ` | Número CNJ inválido | 400 |
+| `MISSING_REQUIRED_FIELD` | Campo obrigatório ausente | 400 |
+| `INVALID_DATE_FORMAT` | Formato de data inválido | 400 |
+
+### Rate Limiting
+
+| Código | Descrição | Status HTTP |
+|--------|-----------|-------------|
+| `RATE_LIMIT_EXCEEDED` | Limite de requisições excedido | 429 |
+| `QUOTA_EXCEEDED` | Cota mensal excedida | 429 |
+| `CONCURRENT_LIMIT_EXCEEDED` | Limite de requisições simultâneas excedido | 429 |
+
+### Recursos e Processamento
+
+| Código | Descrição | Status HTTP |
+|--------|-----------|-------------|
+| `RESOURCE_NOT_FOUND` | Recurso não encontrado | 404 |
+| `REQUEST_NOT_FOUND` | Requisição não encontrada | 404 |
+| `TRACKING_NOT_FOUND` | Tracking não encontrado | 404 |
+| `PROCESSING_ERROR` | Erro durante processamento | 422 |
+| `TRIBUNAL_UNAVAILABLE` | Tribunal temporariamente indisponível | 503 |
+| `TIMEOUT_ERROR` | Timeout na consulta ao tribunal | 504 |
+
+### Credenciais e Vault
+
+| Código | Descrição | Status HTTP |
+|--------|-----------|-------------|
+| `INVALID_CREDENTIALS` | Credenciais inválidas | 400 |
+| `CREDENTIALS_NOT_FOUND` | Credenciais não encontradas | 404 |
+| `ENCRYPTION_ERROR` | Erro na criptografia | 500 |
+| `VAULT_UNAVAILABLE` | Vault temporariamente indisponível | 503 |
+
+## Estratégias de Tratamento
+
+### 1. **Retry com Backoff Exponencial**
+
+<CodeGroup>
+
+```python Python
+import time
+import random
+import requests
+from typing import Optional
+
+def make_request_with_retry(
+    url: str,
+    headers: dict,
+    max_retries: int = 3,
+    base_delay: float = 1.0
+) -> Optional[requests.Response]:
+    """
+    Faz requisição com retry e backoff exponencial
+    """
+    for attempt in range(max_retries + 1):
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            
+            # Sucesso
+            if response.status_code < 400:
+                return response
+            
+            # Não fazer retry para erros do cliente (4xx)
+            if 400 <= response.status_code < 500:
+                if response.status_code == 429:  # Rate limit
+                    # Aguardar tempo especificado no header
+                    retry_after = response.headers.get('Retry-After')
+                    if retry_after:
+                        time.sleep(int(retry_after))
+                        continue
+                else:
+                    # Outros erros 4xx não devem ter retry
+                    return response
+            
+            # Retry para erros 5xx
+            if attempt < max_retries:
+                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                print(f"Tentativa {attempt + 1} falhou. Aguardando {delay:.2f}s...")
+                time.sleep(delay)
+            else:
+                return response
+                
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries:
+                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                print(f"Erro de conexão. Tentativa {attempt + 1}. Aguardando {delay:.2f}s...")
+                time.sleep(delay)
+            else:
+                raise e
+    
+    return None
+
+# Uso
+response = make_request_with_retry(
+    'https://requests.prod.judit.io/requests',
+    headers={'api-key': os.getenv('JUDIT_API_KEY')}
+)
+```
+
+```javascript JavaScript
+async function makeRequestWithRetry(
+    url,
+    headers = {},
+    maxRetries = 3,
+    baseDelay = 1000
+) {
+    // Faz requisição com retry e backoff exponencial
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, {
+                headers: { 'api-key': process.env.JUDIT_API_KEY, ...headers },
+                timeout: 30000
+            });
+            
+            // Sucesso
+            if (response.status < 400) {
+                return response;
+            }
+            
+            // Não fazer retry para erros do cliente (4xx)
+            if (response.status >= 400 && response.status < 500) {
+                if (response.status === 429) { // Rate limit
+                    // Aguardar tempo especificado no header
+                    const retryAfter = response.headers.get('Retry-After');
+                    if (retryAfter) {
+                        await new Promise(resolve => 
+                            setTimeout(resolve, parseInt(retryAfter) * 1000)
+                        );
+                        continue;
+                    }
+                } else {
+                    // Outros erros 4xx não devem ter retry
+                    return response;
+                }
+            }
+            
+            // Retry para erros 5xx
+            if (attempt < maxRetries) {
+                const delay = baseDelay * (2 ** attempt) + Math.random() * 1000;
+                console.log(`Tentativa ${attempt + 1} falhou. Aguardando ${delay.toFixed(0)}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                return response;
+            }
+            
+        } catch (error) {
+            if (attempt < maxRetries) {
+                const delay = baseDelay * (2 ** attempt) + Math.random() * 1000;
+                console.log(`Erro de conexão. Tentativa ${attempt + 1}. Aguardando ${delay.toFixed(0)}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                throw error;
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Uso
+const response = await makeRequestWithRetry(
+    'https://requests.prod.judit.io/requests'
+);
+```
+
+```php PHP
+<?php
+function makeRequestWithRetry(
+    $url,
+    $headers = [],
+    $maxRetries = 3,
+    $baseDelay = 1
+) {
+    // Faz requisição com retry e backoff exponencial
+    
+    $headers['api-key'] = getenv('JUDIT_API_KEY');
+    
+    for ($attempt = 0; $attempt <= $maxRetries; $attempt++) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, 
+            array_map(fn($k, $v) => "$k: $v", array_keys($headers), $headers)
+        );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            
+            if ($attempt < $maxRetries) {
+                $delay = $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
+                echo "Erro de conexão. Tentativa " . ($attempt + 1) . ". Aguardando {$delay}s...\n";
+                sleep((int)$delay);
+                continue;
+            } else {
+                throw new Exception("Connection error: $error");
+            }
+        }
+        
+        // Sucesso
+        if ($httpCode < 400) {
+            curl_close($ch);
+            return $response;
+        }
+        
+        // Não fazer retry para erros do cliente (4xx)
+        if ($httpCode >= 400 && $httpCode < 500) {
+            if ($httpCode === 429) { // Rate limit
+                // Aguardar tempo especificado no header
+                preg_match('/Retry-After: (\d+)/', $response, $matches);
+                if (isset($matches[1])) {
+                    sleep((int)$matches[1]);
+                    curl_close($ch);
+                    continue;
+                }
+            } else {
+                // Outros erros 4xx não devem ter retry
+                curl_close($ch);
+                return $response;
+            }
+        }
+        
+        // Retry para erros 5xx
+        if ($attempt < $maxRetries) {
+            $delay = $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
+            echo "Tentativa " . ($attempt + 1) . " falhou. Aguardando {$delay}s...\n";
+            sleep((int)$delay);
+        }
+        
+        curl_close($ch);
+    }
+    
+    return null;
+}
+
+// Uso
+$response = makeRequestWithRetry('https://requests.prod.judit.io/requests');
+?>
+```
+
+</CodeGroup>
+
+### 2. **Tratamento Específico por Tipo de Erro**
+
+<CodeGroup>
+
+```python Python
+def handle_api_error(response: requests.Response) -> None:
+    """
+    Trata erros específicos da API
+    """
+    if response.status_code == 200:
+        return
+    
+    try:
+        error_data = response.json().get('error', {})
+        error_code = error_data.get('code', 'UNKNOWN_ERROR')
+        error_message = error_data.get('message', 'Erro desconhecido')
+        request_id = error_data.get('request_id', 'N/A')
+        
+        print(f"Erro {response.status_code}: {error_message}")
+        print(f"Código: {error_code}")
+        print(f"Request ID: {request_id}")
+        
+        # Tratamento específico por código
+        if error_code == 'INVALID_API_KEY':
+            print("⚠️ Verifique sua API Key")
+            
+        elif error_code == 'RATE_LIMIT_EXCEEDED':
+            retry_after = response.headers.get('Retry-After', '60')
+            print(f"⏳ Rate limit excedido. Aguarde {retry_after}s")
+            
+        elif error_code == 'VALIDATION_ERROR':
+            details = error_data.get('details', {})
+            field = details.get('field', 'desconhecido')
+            reason = details.get('reason', 'erro de validação')
+            print(f"❌ Campo '{field}': {reason}")
+            
+        elif error_code == 'TRIBUNAL_UNAVAILABLE':
+            print("🏛️ Tribunal temporariamente indisponível")
+            
+        elif error_code == 'PROCESSING_ERROR':
+            print("⚙️ Erro no processamento. Tente novamente")
+            
+        else:
+            print(f"❓ Erro não tratado: {error_code}")
+            
+    except (ValueError, KeyError) as e:
+        print(f"Erro ao processar resposta de erro: {e}")
+        print(f"Status: {response.status_code}")
+        print(f"Resposta: {response.text[:200]}...")
+
+# Uso
+response = requests.get(
+    'https://requests.prod.judit.io/requests',
+    headers={'api-key': os.getenv('JUDIT_API_KEY')}
+)
+
+handle_api_error(response)
+```
+
+```javascript JavaScript
+function handleApiError(response) {
+    // Trata erros específicos da API
+    
+    if (response.status === 200) {
+        return;
+    }
+    
+    response.json().then(data => {
+        const errorData = data.error || {};
+        const errorCode = errorData.code || 'UNKNOWN_ERROR';
+        const errorMessage = errorData.message || 'Erro desconhecido';
+        const requestId = errorData.request_id || 'N/A';
+        
+        console.log(`Erro ${response.status}: ${errorMessage}`);
+        console.log(`Código: ${errorCode}`);
+        console.log(`Request ID: ${requestId}`);
+        
+        // Tratamento específico por código
+        switch (errorCode) {
+            case 'INVALID_API_KEY':
+                console.log('⚠️ Verifique sua API Key');
+                break;
+                
+            case 'RATE_LIMIT_EXCEEDED':
+                const retryAfter = response.headers.get('Retry-After') || '60';
+                console.log(`⏳ Rate limit excedido. Aguarde ${retryAfter}s`);
+                break;
+                
+            case 'VALIDATION_ERROR':
+                const details = errorData.details || {};
+                const field = details.field || 'desconhecido';
+                const reason = details.reason || 'erro de validação';
+                console.log(`❌ Campo '${field}': ${reason}`);
+                break;
+                
+            case 'TRIBUNAL_UNAVAILABLE':
+                console.log('🏛️ Tribunal temporariamente indisponível');
+                break;
+                
+            case 'PROCESSING_ERROR':
+                console.log('⚙️ Erro no processamento. Tente novamente');
+                break;
+                
+            default:
+                console.log(`❓ Erro não tratado: ${errorCode}`);
+        }
+        
+    }).catch(error => {
+        console.log(`Erro ao processar resposta de erro: ${error}`);
+        console.log(`Status: ${response.status}`);
+        console.log(`Resposta: ${response.statusText}`);
+    });
+}
+
+// Uso
+fetch('https://requests.prod.judit.io/requests', {
+    headers: { 'api-key': process.env.JUDIT_API_KEY }
+}).then(response => {
+    handleApiError(response);
+});
+```
+
+```php PHP
+<?php
+function handleApiError($response, $httpCode) {
+    // Trata erros específicos da API
+    
+    if ($httpCode === 200) {
+        return;
+    }
+    
+    try {
+        $data = json_decode($response, true);
+        $errorData = $data['error'] ?? [];
+        $errorCode = $errorData['code'] ?? 'UNKNOWN_ERROR';
+        $errorMessage = $errorData['message'] ?? 'Erro desconhecido';
+        $requestId = $errorData['request_id'] ?? 'N/A';
+        
+        echo "Erro {$httpCode}: {$errorMessage}\n";
+        echo "Código: {$errorCode}\n";
+        echo "Request ID: {$requestId}\n";
+        
+        // Tratamento específico por código
+        switch ($errorCode) {
+            case 'INVALID_API_KEY':
+                echo "⚠️ Verifique sua API Key\n";
+                break;
+                
+            case 'RATE_LIMIT_EXCEEDED':
+                // Extrair Retry-After do header (assumindo que está no response)
+                preg_match('/Retry-After: (\d+)/', $response, $matches);
+                $retryAfter = isset($matches[1]) ? $matches[1] : '60';
+                echo "⏳ Rate limit excedido. Aguarde {$retryAfter}s\n";
+                break;
+                
+            case 'VALIDATION_ERROR':
+                $details = $errorData['details'] ?? [];
+                $field = $details['field'] ?? 'desconhecido';
+                $reason = $details['reason'] ?? 'erro de validação';
+                echo "❌ Campo '{$field}': {$reason}\n";
+                break;
+                
+            case 'TRIBUNAL_UNAVAILABLE':
+                echo "🏛️ Tribunal temporariamente indisponível\n";
+                break;
+                
+            case 'PROCESSING_ERROR':
+                echo "⚙️ Erro no processamento. Tente novamente\n";
+                break;
+                
+            default:
+                echo "❓ Erro não tratado: {$errorCode}\n";
+        }
+        
+    } catch (Exception $e) {
+        echo "Erro ao processar resposta de erro: {$e->getMessage()}\n";
+        echo "Status: {$httpCode}\n";
+        echo "Resposta: " . substr($response, 0, 200) . "...\n";
+    }
+}
+
+// Uso
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://requests.prod.judit.io/requests');
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['api-key: ' . getenv('JUDIT_API_KEY')]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+handleApiError($response, $httpCode);
+?>
+```
+
+</CodeGroup>
+
+### 3. **Logging e Monitoramento**
+
+<CodeGroup>
+
+```python Python
+import logging
+import json
+from datetime import datetime
+
+# Configurar logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('judit_api')
+
+def log_api_error(response: requests.Response, context: dict = None) -> None:
+    """
+    Registra erros da API para monitoramento
+    """
+    try:
+        error_data = response.json().get('error', {})
+    except:
+        error_data = {}
+    
+    log_entry = {
+        'timestamp': datetime.utcnow().isoformat(),
+        'status_code': response.status_code,
+        'error_code': error_data.get('code', 'UNKNOWN'),
+        'error_message': error_data.get('message', 'Erro desconhecido'),
+        'request_id': error_data.get('request_id'),
+        'url': response.url,
+        'context': context or {}
+    }
+    
+    if response.status_code >= 500:
+        logger.error(f"Erro do servidor: {json.dumps(log_entry)}")
+    elif response.status_code >= 400:
+        logger.warning(f"Erro do cliente: {json.dumps(log_entry)}")
+    else:
+        logger.info(f"Requisição processada: {json.dumps(log_entry)}")
+
+# Uso
+response = requests.get(
+    'https://requests.prod.judit.io/requests',
+    headers={'api-key': os.getenv('JUDIT_API_KEY')}
+)
+
+log_api_error(response, context={'operation': 'list_requests'})
+```
+
+```javascript JavaScript
+// Configurar logging
+const logger = {
+    info: (message) => console.log(`[INFO] ${new Date().toISOString()} - ${message}`),
+    warning: (message) => console.warn(`[WARN] ${new Date().toISOString()} - ${message}`),
+    error: (message) => console.error(`[ERROR] ${new Date().toISOString()} - ${message}`)
+};
+
+function logApiError(response, context = {}) {
+    // Registra erros da API para monitoramento
+    
+    response.json().then(data => {
+        const errorData = data.error || {};
+        
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            status_code: response.status,
+            error_code: errorData.code || 'UNKNOWN',
+            error_message: errorData.message || 'Erro desconhecido',
+            request_id: errorData.request_id,
+            url: response.url,
+            context: context
+        };
+        
+        if (response.status >= 500) {
+            logger.error(`Erro do servidor: ${JSON.stringify(logEntry)}`);
+        } else if (response.status >= 400) {
+            logger.warning(`Erro do cliente: ${JSON.stringify(logEntry)}`);
+        } else {
+            logger.info(`Requisição processada: ${JSON.stringify(logEntry)}`);
+        }
+        
+    }).catch(error => {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            status_code: response.status,
+            error_code: 'PARSE_ERROR',
+            error_message: 'Erro ao processar resposta JSON',
+            url: response.url,
+            context: context
+        };
+        
+        logger.error(`Erro de parsing: ${JSON.stringify(logEntry)}`);
+    });
+}
+
+// Uso
+fetch('https://requests.prod.judit.io/requests', {
+    headers: { 'api-key': process.env.JUDIT_API_KEY }
+}).then(response => {
+    logApiError(response, { operation: 'list_requests' });
+});
+```
+
+```php PHP
+<?php
+// Configurar logging
+function logMessage($level, $message) {
+    $timestamp = date('Y-m-d H:i:s');
+    echo "[{$level}] {$timestamp} - {$message}\n";
+}
+
+function logApiError($response, $httpCode, $url, $context = []) {
+    // Registra erros da API para monitoramento
+    
+    try {
+        $data = json_decode($response, true);
+        $errorData = $data['error'] ?? [];
+    } catch (Exception $e) {
+        $errorData = [];
+    }
+    
+    $logEntry = [
+        'timestamp' => date('c'),
+        'status_code' => $httpCode,
+        'error_code' => $errorData['code'] ?? 'UNKNOWN',
+        'error_message' => $errorData['message'] ?? 'Erro desconhecido',
+        'request_id' => $errorData['request_id'] ?? null,
+        'url' => $url,
+        'context' => $context
+    ];
+    
+    $logJson = json_encode($logEntry);
+    
+    if ($httpCode >= 500) {
+        logMessage('ERROR', "Erro do servidor: {$logJson}");
+    } elseif ($httpCode >= 400) {
+        logMessage('WARN', "Erro do cliente: {$logJson}");
+    } else {
+        logMessage('INFO', "Requisição processada: {$logJson}");
+    }
+}
+
+// Uso
+$url = 'https://requests.prod.judit.io/requests';
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['api-key: ' . getenv('JUDIT_API_KEY')]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+logApiError($response, $httpCode, $url, ['operation' => 'list_requests']);
+?>
+```
+
+</CodeGroup>
+
+## Exemplo de Implementação Completa
+
+<CodeGroup>
+
+```python Python
+import os
+import time
+import random
+import requests
+import logging
+from typing import Optional, Dict, Any
+
+class JuditAPIClient:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_headers = {'api-key': api_key}
+        self.logger = logging.getLogger(__name__)
+    
+    def _make_request(
+        self,
+        method: str,
+        url: str,
+        **kwargs
+    ) -> Optional[requests.Response]:
+        """
+        Faz requisição com tratamento de erro e retry
+        """
+        max_retries = 3
+        base_delay = 1.0
+        
+        for attempt in range(max_retries + 1):
+            try:
+                response = requests.request(
+                    method=method,
+                    url=url,
+                    headers=self.base_headers,
+                    timeout=30,
+                    **kwargs
+                )
+                
+                # Log da requisição
+                self._log_request(response, attempt + 1)
+                
+                # Sucesso
+                if response.status_code < 400:
+                    return response
+                
+                # Tratamento de erros
+                if not self._should_retry(response, attempt, max_retries):
+                    return response
+                
+                # Aguardar antes do retry
+                delay = self._calculate_delay(response, attempt, base_delay)
+                time.sleep(delay)
+                
+            except requests.exceptions.RequestException as e:
+                self.logger.error(f"Erro de conexão (tentativa {attempt + 1}): {e}")
+                if attempt < max_retries:
+                    delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                    time.sleep(delay)
+                else:
+                    raise e
+        
+        return None
+    
+    def _should_retry(
+        self,
+        response: requests.Response,
+        attempt: int,
+        max_retries: int
+    ) -> bool:
+        """
+        Determina se deve fazer retry
+        """
+        if attempt >= max_retries:
+            return False
+        
+        # Retry para rate limit
+        if response.status_code == 429:
+            return True
+        
+        # Retry para erros 5xx
+        if response.status_code >= 500:
+            return True
+        
+        # Não fazer retry para outros erros
+        return False
+    
+    def _calculate_delay(
+        self,
+        response: requests.Response,
+        attempt: int,
+        base_delay: float
+    ) -> float:
+        """
+        Calcula delay para retry
+        """
+        if response.status_code == 429:
+            # Usar Retry-After se disponível
+            retry_after = response.headers.get('Retry-After')
+            if retry_after:
+                return int(retry_after)
+        
+        # Backoff exponencial com jitter
+        return base_delay * (2 ** attempt) + random.uniform(0, 1)
+    
+    def _log_request(self, response: requests.Response, attempt: int) -> None:
+        """
+        Registra detalhes da requisição
+        """
+        if response.status_code >= 400:
+            try:
+                error_data = response.json().get('error', {})
+                self.logger.error(
+                    f"Erro API (tentativa {attempt}): "
+                    f"Status {response.status_code}, "
+                    f"Código: {error_data.get('code', 'UNKNOWN')}, "
+                    f"Request ID: {error_data.get('request_id', 'N/A')}"
+                )
+            except:
+                self.logger.error(
+                    f"Erro API (tentativa {attempt}): Status {response.status_code}"
+                )
+        else:
+            self.logger.info(f"Requisição bem-sucedida (tentativa {attempt})")
+
+# Uso
+client = JuditAPIClient(os.getenv('JUDIT_API_KEY'))
+response = client._make_request('GET', 'https://requests.prod.judit.io/requests')
+```
+
+```javascript JavaScript
+class JuditAPIClient {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.baseHeaders = { 'api-key': apiKey };
+        this.logger = {
+            info: (msg) => console.log(`[INFO] ${msg}`),
+            error: (msg) => console.error(`[ERROR] ${msg}`)
+        };
+    }
+    
+    async _makeRequest(method, url, options = {}) {
+        // Faz requisição com tratamento de erro e retry
+        
+        const maxRetries = 3;
+        const baseDelay = 1000;
+        
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { ...this.baseHeaders, ...options.headers },
+                    timeout: 30000,
+                    ...options
+                });
+                
+                // Log da requisição
+                this._logRequest(response, attempt + 1);
+                
+                // Sucesso
+                if (response.status < 400) {
+                    return response;
+                }
+                
+                // Tratamento de erros
+                if (!this._shouldRetry(response, attempt, maxRetries)) {
+                    return response;
+                }
+                
+                // Aguardar antes do retry
+                const delay = this._calculateDelay(response, attempt, baseDelay);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                
+            } catch (error) {
+                this.logger.error(`Erro de conexão (tentativa ${attempt + 1}): ${error}`);
+                if (attempt < maxRetries) {
+                    const delay = baseDelay * (2 ** attempt) + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else {
+                    throw error;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    _shouldRetry(response, attempt, maxRetries) {
+        // Determina se deve fazer retry
+        
+        if (attempt >= maxRetries) {
+            return false;
+        }
+        
+        // Retry para rate limit
+        if (response.status === 429) {
+            return true;
+        }
+        
+        // Retry para erros 5xx
+        if (response.status >= 500) {
+            return true;
+        }
+        
+        // Não fazer retry para outros erros
+        return false;
+    }
+    
+    _calculateDelay(response, attempt, baseDelay) {
+        // Calcula delay para retry
+        
+        if (response.status === 429) {
+            // Usar Retry-After se disponível
+            const retryAfter = response.headers.get('Retry-After');
+            if (retryAfter) {
+                return parseInt(retryAfter) * 1000;
+            }
+        }
+        
+        // Backoff exponencial com jitter
+        return baseDelay * (2 ** attempt) + Math.random() * 1000;
+    }
+    
+    async _logRequest(response, attempt) {
+        // Registra detalhes da requisição
+        
+        if (response.status >= 400) {
+            try {
+                const data = await response.clone().json();
+                const errorData = data.error || {};
+                this.logger.error(
+                    `Erro API (tentativa ${attempt}): ` +
+                    `Status ${response.status}, ` +
+                    `Código: ${errorData.code || 'UNKNOWN'}, ` +
+                    `Request ID: ${errorData.request_id || 'N/A'}`
+                );
+            } catch {
+                this.logger.error(
+                    `Erro API (tentativa ${attempt}): Status ${response.status}`
+                );
+            }
+        } else {
+            this.logger.info(`Requisição bem-sucedida (tentativa ${attempt})`);
+        }
+    }
+}
+
+// Uso
+const client = new JuditAPIClient(process.env.JUDIT_API_KEY);
+const response = await client._makeRequest('GET', 'https://requests.prod.judit.io/requests');
+```
+
+```php PHP
+<?php
+class JuditAPIClient {
+    private $apiKey;
+    private $baseHeaders;
+    private $logger;
+    
+    public function __construct($apiKey) {
+        $this->apiKey = $apiKey;
+        $this->baseHeaders = ['api-key' => $apiKey];
+        $this->logger = new class {
+            public function info($message) {
+                echo "[INFO] {$message}\n";
+            }
+            public function error($message) {
+                echo "[ERROR] {$message}\n";
+            }
+        };
+    }
+    
+    public function makeRequest($method, $url, $options = []) {
+        // Faz requisição com tratamento de erro e retry
+        
+        $maxRetries = 3;
+        $baseDelay = 1;
+        
+        for ($attempt = 0; $attempt <= $maxRetries; $attempt++) {
+            $ch = curl_init();
+            
+            // Configurar headers
+            $headers = array_merge($this->baseHeaders, $options['headers'] ?? []);
+            $headerArray = [];
+            foreach ($headers as $key => $value) {
+                $headerArray[] = "{$key}: {$value}";
+            }
+            
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headerArray);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            
+            if (isset($options['body'])) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $options['body']);
+            }
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            
+            if ($response === false) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                
+                $this->logger->error("Erro de conexão (tentativa " . ($attempt + 1) . "): {$error}");
+                if ($attempt < $maxRetries) {
+                    $delay = $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
+                    sleep((int)$delay);
+                    continue;
+                } else {
+                    throw new Exception("Connection error: {$error}");
+                }
+            }
+            
+            $headers = substr($response, 0, $headerSize);
+            $body = substr($response, $headerSize);
+            
+            // Log da requisição
+            $this->logRequest($body, $httpCode, $attempt + 1);
+            
+            // Sucesso
+            if ($httpCode < 400) {
+                curl_close($ch);
+                return ['status' => $httpCode, 'body' => $body, 'headers' => $headers];
+            }
+            
+            // Tratamento de erros
+            if (!$this->shouldRetry($httpCode, $attempt, $maxRetries)) {
+                curl_close($ch);
+                return ['status' => $httpCode, 'body' => $body, 'headers' => $headers];
+            }
+            
+            // Aguardar antes do retry
+            $delay = $this->calculateDelay($headers, $httpCode, $attempt, $baseDelay);
+            sleep((int)$delay);
+            
+            curl_close($ch);
+        }
+        
+        return null;
+    }
+    
+    private function shouldRetry($httpCode, $attempt, $maxRetries) {
+        // Determina se deve fazer retry
+        
+        if ($attempt >= $maxRetries) {
+            return false;
+        }
+        
+        // Retry para rate limit
+        if ($httpCode === 429) {
+            return true;
+        }
+        
+        // Retry para erros 5xx
+        if ($httpCode >= 500) {
+            return true;
+        }
+        
+        // Não fazer retry para outros erros
+        return false;
+    }
+    
+    private function calculateDelay($headers, $httpCode, $attempt, $baseDelay) {
+        // Calcula delay para retry
+        
+        if ($httpCode === 429) {
+            // Usar Retry-After se disponível
+            preg_match('/Retry-After: (\d+)/', $headers, $matches);
+            if (isset($matches[1])) {
+                return (int)$matches[1];
+            }
+        }
+        
+        // Backoff exponencial com jitter
+        return $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
+    }
+    
+    private function logRequest($body, $httpCode, $attempt) {
+        // Registra detalhes da requisição
+        
+        if ($httpCode >= 400) {
+            try {
+                $data = json_decode($body, true);
+                $errorData = $data['error'] ?? [];
+                $this->logger->error(
+                    "Erro API (tentativa {$attempt}): " .
+                    "Status {$httpCode}, " .
+                    "Código: " . ($errorData['code'] ?? 'UNKNOWN') . ", " .
+                    "Request ID: " . ($errorData['request_id'] ?? 'N/A')
+                );
+            } catch (Exception $e) {
+                $this->logger->error(
+                    "Erro API (tentativa {$attempt}): Status {$httpCode}"
+                );
+            }
+        } else {
+            $this->logger->info("Requisição bem-sucedida (tentativa {$attempt})");
+        }
+    }
+}
+
+// Uso
+$client = new JuditAPIClient(getenv('JUDIT_API_KEY'));
+$response = $client->makeRequest('GET', 'https://requests.prod.judit.io/requests');
+?>
+```
+
+</CodeGroup>
+
+## Próximos Passos
+
+- **[SDK Python](/sdk)**: Biblioteca oficial com tratamento de erro integrado
+- **[Rate Limits](/rate-limits)**: Entenda os limites e como evitar erros 429
+- **[FAQ](/faq)**: Perguntas frequentes sobre erros comuns
+
+> **Dica**: Sempre implemente logging adequado e monitore os `request_id` para facilitar o suporte técnico.

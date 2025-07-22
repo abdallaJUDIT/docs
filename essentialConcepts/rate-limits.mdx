@@ -1,0 +1,1299 @@
+---
+title: "Rate Limits"
+description: "Entenda e gerencie os limites de requisições da Judit API"
+---
+
+# Rate Limits
+
+A Judit API implementa **rate limiting** para garantir uso justo dos recursos e manter a performance para todos os usuários.
+
+## Limites Padrão
+
+### Limite Global
+- **500 requisições por minuto** por API Key
+- **Janela deslizante** de 60 segundos
+- **Reset automático** a cada minuto
+
+### Limites por Endpoint
+
+| Endpoint | Limite Específico | Observações |
+|----------|------------------|-------------|
+| `POST /requests` | 100/min | Criação de novas consultas |
+| `GET /requests` | 200/min | Listagem de requisições |
+| `GET /responses` | 200/min | Consulta de resultados |
+| `POST /tracking` | 50/min | Criação de monitoramentos |
+| `GET /tracking` | 100/min | Listagem de monitoramentos |
+
+## Headers de Rate Limit
+
+A API retorna informações sobre rate limit em todos os responses:
+
+```http
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 500
+X-RateLimit-Remaining: 487
+X-RateLimit-Reset: 1640995200
+X-RateLimit-Window: 60
+```
+
+### Significado dos Headers
+
+| Header | Descrição |
+|--------|-----------|
+| `X-RateLimit-Limit` | Limite total de requisições |
+| `X-RateLimit-Remaining` | Requisições restantes na janela atual |
+| `X-RateLimit-Reset` | Timestamp Unix do próximo reset |
+| `X-RateLimit-Window` | Tamanho da janela em segundos |
+
+## Monitoramento de Rate Limit
+
+<CodeGroup>
+
+```python Python
+import requests
+import time
+import os
+
+api_key = os.getenv('JUDIT_API_KEY')
+headers = {'api-key': api_key}
+
+def check_rate_limit(response):
+    """Verifica status do rate limit"""
+    limit = int(response.headers.get('X-RateLimit-Limit', 0))
+    remaining = int(response.headers.get('X-RateLimit-Remaining', 0))
+    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+    
+    usage_percent = ((limit - remaining) / limit) * 100 if limit > 0 else 0
+    
+    print(f"Rate Limit: {remaining}/{limit} ({usage_percent:.1f}% usado)")
+    
+    # Alerta quando próximo do limite
+    if usage_percent > 80:
+        reset_in = reset_time - int(time.time())
+        print(f"⚠️ Próximo do limite! Reset em {reset_in}s")
+        
+    return {
+        'limit': limit,
+        'remaining': remaining,
+        'reset_time': reset_time,
+        'usage_percent': usage_percent
+    }
+
+# Exemplo de uso
+response = requests.get(
+    'https://requests.prod.judit.io/requests',
+    headers=headers
+)
+
+rate_info = check_rate_limit(response)
+```
+
+```javascript JavaScript
+class RateLimitMonitor {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.headers = { 'api-key': apiKey };
+        this.lastRateInfo = null;
+    }
+    
+    async makeRequest(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: { ...this.headers, ...options.headers }
+        });
+        
+        // Atualizar informações de rate limit
+        this.updateRateInfo(response);
+        
+        // Verificar se precisa aguardar
+        if (response.status === 429) {
+            await this.handleRateLimit(response);
+            // Tentar novamente
+            return this.makeRequest(url, options);
+        }
+        
+        return response;
+    }
+    
+    updateRateInfo(response) {
+        this.lastRateInfo = {
+            limit: parseInt(response.headers.get('X-RateLimit-Limit') || '0'),
+            remaining: parseInt(response.headers.get('X-RateLimit-Remaining') || '0'),
+            resetTime: parseInt(response.headers.get('X-RateLimit-Reset') || '0'),
+            window: parseInt(response.headers.get('X-RateLimit-Window') || '60')
+        };
+        
+        const usagePercent = this.lastRateInfo.limit > 0 
+            ? ((this.lastRateInfo.limit - this.lastRateInfo.remaining) / this.lastRateInfo.limit) * 100 
+            : 0;
+            
+        console.log(`Rate Limit: ${this.lastRateInfo.remaining}/${this.lastRateInfo.limit} (${usagePercent.toFixed(1)}% usado)`);
+        
+        if (usagePercent > 80) {
+            const resetIn = this.lastRateInfo.resetTime - Math.floor(Date.now() / 1000);
+            console.warn(`⚠️ Próximo do limite! Reset em ${resetIn}s`);
+        }
+    }
+    
+    async handleRateLimit(response) {
+        const retryAfter = response.headers.get('Retry-After');
+        const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 60000; // 1 minuto padrão
+        
+        console.log(`Rate limit atingido. Aguardando ${waitTime/1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    getRateInfo() {
+        return this.lastRateInfo;
+    }
+}
+
+// Uso
+const monitor = new RateLimitMonitor(process.env.JUDIT_API_KEY);
+
+const response = await monitor.makeRequest('https://requests.prod.judit.io/requests');
+const data = await response.json();
+```
+
+```php PHP
+<?php
+class RateLimitMonitor {
+    private $apiKey;
+    private $headers;
+    private $lastRateInfo;
+    
+    public function __construct($apiKey) {
+        $this->apiKey = $apiKey;
+        $this->headers = ['api-key: ' . $apiKey];
+        $this->lastRateInfo = null;
+    }
+    
+    public function makeRequest($url, $options = []) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        
+        $headers = substr($response, 0, $headerSize);
+        $body = substr($response, $headerSize);
+        
+        $this->updateRateInfo($headers);
+        
+        if ($httpCode === 429) {
+            $this->handleRateLimit($headers);
+            curl_close($ch);
+            return $this->makeRequest($url, $options);
+        }
+        
+        curl_close($ch);
+        return json_decode($body, true);
+    }
+    
+    private function updateRateInfo($headers) {
+        preg_match('/X-RateLimit-Limit: (\d+)/', $headers, $limitMatch);
+        preg_match('/X-RateLimit-Remaining: (\d+)/', $headers, $remainingMatch);
+        preg_match('/X-RateLimit-Reset: (\d+)/', $headers, $resetMatch);
+        
+        $this->lastRateInfo = [
+            'limit' => isset($limitMatch[1]) ? (int)$limitMatch[1] : 0,
+            'remaining' => isset($remainingMatch[1]) ? (int)$remainingMatch[1] : 0,
+            'resetTime' => isset($resetMatch[1]) ? (int)$resetMatch[1] : 0
+        ];
+        
+        $usagePercent = $this->lastRateInfo['limit'] > 0 
+            ? (($this->lastRateInfo['limit'] - $this->lastRateInfo['remaining']) / $this->lastRateInfo['limit']) * 100 
+            : 0;
+            
+        echo "Rate Limit: {$this->lastRateInfo['remaining']}/{$this->lastRateInfo['limit']} (" . number_format($usagePercent, 1) . "% usado)\n";
+        
+        if ($usagePercent > 80) {
+            $resetIn = $this->lastRateInfo['resetTime'] - time();
+            echo "⚠️ Próximo do limite! Reset em {$resetIn}s\n";
+        }
+    }
+    
+    private function handleRateLimit($headers) {
+        preg_match('/Retry-After: (\d+)/', $headers, $retryMatch);
+        $waitTime = isset($retryMatch[1]) ? (int)$retryMatch[1] : 60;
+        
+        echo "Rate limit atingido. Aguardando {$waitTime}s...\n";
+        sleep($waitTime);
+    }
+}
+
+// Uso
+$monitor = new RateLimitMonitor(getenv('JUDIT_API_KEY'));
+$data = $monitor->makeRequest('https://requests.prod.judit.io/requests');
+?>
+```
+
+</CodeGroup>
+
+## Estratégias para Lidar com Rate Limits
+
+### 1. **Backoff Exponencial**
+
+<CodeGroup>
+
+```python Python
+import time
+import random
+
+def exponential_backoff(attempt, base_delay=1, max_delay=60):
+    """Calcula delay com backoff exponencial"""
+    delay = min(base_delay * (2 ** attempt), max_delay)
+    # Adicionar jitter para evitar thundering herd
+    jitter = random.uniform(0, delay * 0.1)
+    return delay + jitter
+
+def make_request_with_backoff(url, headers, max_retries=5):
+    """Faz requisição com retry e backoff exponencial"""
+    
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 429:  # Rate limit
+                if attempt == max_retries - 1:
+                    raise Exception("Rate limit - máximo de tentativas atingido")
+                
+                # Usar Retry-After se disponível
+                retry_after = response.headers.get('Retry-After')
+                if retry_after:
+                    delay = int(retry_after)
+                else:
+                    delay = exponential_backoff(attempt)
+                
+                print(f"Rate limit atingido. Aguardando {delay:.1f}s...")
+                time.sleep(delay)
+                continue
+                
+            return response
+            
+        except requests.RequestException as e:
+            if attempt == max_retries - 1:
+                raise e
+            
+            delay = exponential_backoff(attempt)
+            time.sleep(delay)
+    
+    raise Exception("Máximo de tentativas atingido")
+```
+
+```javascript JavaScript
+function exponentialBackoff(attempt, baseDelay = 1000, maxDelay = 60000) {
+    // Calcula delay com backoff exponencial
+    const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
+    // Adicionar jitter para evitar thundering herd
+    const jitter = Math.random() * delay * 0.1;
+    return delay + jitter;
+}
+
+async function makeRequestWithBackoff(url, headers, maxRetries = 5) {
+    // Faz requisição com retry e backoff exponencial
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, { headers });
+            
+            if (response.status === 429) { // Rate limit
+                if (attempt === maxRetries - 1) {
+                    throw new Error('Rate limit - máximo de tentativas atingido');
+                }
+                
+                // Usar Retry-After se disponível
+                const retryAfter = response.headers.get('Retry-After');
+                const delay = retryAfter 
+                    ? parseInt(retryAfter) * 1000 
+                    : exponentialBackoff(attempt);
+                
+                console.log(`Rate limit atingido. Aguardando ${delay/1000}s...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+            
+            return response;
+            
+        } catch (error) {
+            if (attempt === maxRetries - 1) {
+                throw error;
+            }
+            
+            const delay = exponentialBackoff(attempt);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    
+    throw new Error('Máximo de tentativas atingido');
+}
+```
+
+```php PHP
+<?php
+function exponentialBackoff($attempt, $baseDelay = 1, $maxDelay = 60) {
+    // Calcula delay com backoff exponencial
+    $delay = min($baseDelay * pow(2, $attempt), $maxDelay);
+    // Adicionar jitter para evitar thundering herd
+    $jitter = mt_rand(0, $delay * 0.1 * 1000) / 1000;
+    return $delay + $jitter;
+}
+
+function makeRequestWithBackoff($url, $headers, $maxRetries = 5) {
+    // Faz requisição com retry e backoff exponencial
+    
+    for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        if ($httpCode === 429) { // Rate limit
+            if ($attempt === $maxRetries - 1) {
+                curl_close($ch);
+                throw new Exception('Rate limit - máximo de tentativas atingido');
+            }
+            
+            // Usar Retry-After se disponível
+            preg_match('/Retry-After: (\d+)/', $response, $retryMatch);
+            $delay = isset($retryMatch[1]) 
+                ? (int)$retryMatch[1] 
+                : exponentialBackoff($attempt);
+            
+            echo "Rate limit atingido. Aguardando {$delay}s...\n";
+            sleep($delay);
+            curl_close($ch);
+            continue;
+        }
+        
+        curl_close($ch);
+        return $response;
+    }
+    
+    throw new Exception('Máximo de tentativas atingido');
+}
+?>
+```
+
+</CodeGroup>
+
+### 2. **Pool de Requisições com Controle**
+
+<CodeGroup>
+
+```python Python
+import threading
+import queue
+import time
+
+class RateLimitedRequester:
+    def __init__(self, api_key, requests_per_minute=450):
+        self.api_key = api_key
+        self.headers = {'api-key': api_key}
+        self.requests_per_minute = requests_per_minute
+        self.request_queue = queue.Queue()
+        self.results = {}
+        self.running = False
+        
+        # Controle de rate limit
+        self.request_times = []
+        self.lock = threading.Lock()
+    
+    def can_make_request(self):
+        """Verifica se pode fazer requisição baseado no rate limit"""
+        now = time.time()
+        
+        with self.lock:
+            # Remove requisições antigas (mais de 1 minuto)
+            self.request_times = [
+                req_time for req_time in self.request_times 
+                if now - req_time < 60
+            ]
+            
+            return len(self.request_times) < self.requests_per_minute
+    
+    def add_request_time(self):
+        """Adiciona timestamp da requisição atual"""
+        with self.lock:
+            self.request_times.append(time.time())
+    
+    def add_request(self, url, request_id=None):
+        """Adiciona requisição à fila"""
+        if request_id is None:
+            request_id = f"req_{int(time.time())}"
+        
+        self.request_queue.put((url, request_id))
+        return request_id
+    
+    def worker(self):
+        """Worker thread para processar requisições"""
+        while self.running:
+            try:
+                url, request_id = self.request_queue.get(timeout=1)
+                
+                # Aguardar se necessário
+                while not self.can_make_request():
+                    time.sleep(1)
+                
+                # Fazer requisição
+                self.add_request_time()
+                response = requests.get(url, headers=self.headers)
+                
+                # Armazenar resultado
+                self.results[request_id] = {
+                    'response': response,
+                    'timestamp': time.time()
+                }
+                
+                self.request_queue.task_done()
+                
+            except queue.Empty:
+                continue
+            except Exception as e:
+                print(f"Erro na requisição {request_id}: {e}")
+                self.request_queue.task_done()
+    
+    def start(self, num_workers=3):
+        """Inicia workers"""
+        self.running = True
+        self.workers = []
+        
+        for _ in range(num_workers):
+            worker = threading.Thread(target=self.worker)
+            worker.start()
+            self.workers.append(worker)
+    
+    def stop(self):
+        """Para workers"""
+        self.running = False
+        for worker in self.workers:
+            worker.join()
+    
+    def get_result(self, request_id, timeout=30):
+        """Obtém resultado de uma requisição"""
+        start_time = time.time()
+        
+        while time.time() - start_time < timeout:
+            if request_id in self.results:
+                return self.results.pop(request_id)
+            time.sleep(0.1)
+        
+        return None
+
+# Uso
+requester = RateLimitedRequester(os.getenv('JUDIT_API_KEY'))
+requester.start()
+
+# Adicionar múltiplas requisições
+req_ids = []
+for i in range(10):
+    req_id = requester.add_request(f'https://requests.prod.judit.io/requests?page={i+1}')
+    req_ids.append(req_id)
+
+# Coletar resultados
+results = []
+for req_id in req_ids:
+    result = requester.get_result(req_id)
+    if result:
+        results.append(result['response'].json())
+
+requester.stop()
+```
+
+```javascript JavaScript
+class RateLimitedRequester {
+    constructor(apiKey, requestsPerMinute = 450) {
+        this.apiKey = apiKey;
+        this.headers = { 'api-key': apiKey };
+        this.requestsPerMinute = requestsPerMinute;
+        this.requestQueue = [];
+        this.results = new Map();
+        this.running = false;
+        
+        // Controle de rate limit
+        this.requestTimes = [];
+        this.processing = false;
+    }
+    
+    canMakeRequest() {
+        // Verifica se pode fazer requisição baseado no rate limit
+        const now = Date.now();
+        
+        // Remove requisições antigas (mais de 1 minuto)
+        this.requestTimes = this.requestTimes.filter(
+            reqTime => now - reqTime < 60000
+        );
+        
+        return this.requestTimes.length < this.requestsPerMinute;
+    }
+    
+    addRequestTime() {
+        // Adiciona timestamp da requisição atual
+        this.requestTimes.push(Date.now());
+    }
+    
+    addRequest(url, requestId = null) {
+        // Adiciona requisição à fila
+        if (!requestId) {
+            requestId = `req_${Date.now()}`;
+        }
+        
+        this.requestQueue.push({ url, requestId });
+        return requestId;
+    }
+    
+    async worker() {
+        // Worker para processar requisições
+        while (this.running) {
+            if (this.requestQueue.length === 0) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                continue;
+            }
+            
+            const { url, requestId } = this.requestQueue.shift();
+            
+            try {
+                // Aguardar se necessário
+                while (!this.canMakeRequest()) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                // Fazer requisição
+                this.addRequestTime();
+                const response = await fetch(url, { headers: this.headers });
+                
+                // Armazenar resultado
+                this.results.set(requestId, {
+                    response: await response.json(),
+                    timestamp: Date.now()
+                });
+                
+            } catch (error) {
+                console.error(`Erro na requisição ${requestId}:`, error);
+            }
+        }
+    }
+    
+    start(numWorkers = 3) {
+        // Inicia workers
+        this.running = true;
+        this.workers = [];
+        
+        for (let i = 0; i < numWorkers; i++) {
+            const worker = this.worker();
+            this.workers.push(worker);
+        }
+    }
+    
+    stop() {
+        // Para workers
+        this.running = false;
+    }
+    
+    async getResult(requestId, timeout = 30000) {
+        // Obtém resultado de uma requisição
+        const startTime = Date.now();
+        
+        while (Date.now() - startTime < timeout) {
+            if (this.results.has(requestId)) {
+                const result = this.results.get(requestId);
+                this.results.delete(requestId);
+                return result;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        return null;
+    }
+}
+
+// Uso
+const requester = new RateLimitedRequester(process.env.JUDIT_API_KEY);
+requester.start();
+
+// Adicionar múltiplas requisições
+const reqIds = [];
+for (let i = 0; i < 10; i++) {
+    const reqId = requester.addRequest(`https://requests.prod.judit.io/requests?page=${i+1}`);
+    reqIds.push(reqId);
+}
+
+// Coletar resultados
+const results = [];
+for (const reqId of reqIds) {
+    const result = await requester.getResult(reqId);
+    if (result) {
+        results.push(result.response);
+    }
+}
+
+requester.stop();
+```
+
+</CodeGroup>
+
+### 3. **Cache Inteligente**
+
+<CodeGroup>
+
+```python Python
+import hashlib
+import json
+from functools import wraps
+
+class APICache:
+    def __init__(self, ttl_seconds=300):  # 5 minutos padrão
+        self.cache = {}
+        self.ttl = ttl_seconds
+    
+    def _generate_key(self, url, params=None):
+        """Gera chave única para cache"""
+        cache_data = {'url': url, 'params': params or {}}
+        cache_string = json.dumps(cache_data, sort_keys=True)
+        return hashlib.md5(cache_string.encode()).hexdigest()
+    
+    def get(self, url, params=None):
+        """Obtém item do cache"""
+        key = self._generate_key(url, params)
+        
+        if key in self.cache:
+            data, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                return data
+            else:
+                del self.cache[key]
+        
+        return None
+    
+    def set(self, url, data, params=None):
+        """Armazena item no cache"""
+        key = self._generate_key(url, params)
+        self.cache[key] = (data, time.time())
+    
+    def clear_expired(self):
+        """Remove itens expirados do cache"""
+        now = time.time()
+        expired_keys = [
+            key for key, (_, timestamp) in self.cache.items()
+            if now - timestamp >= self.ttl
+        ]
+        
+        for key in expired_keys:
+            del self.cache[key]
+
+# Decorator para cache automático
+def cached_request(cache_instance, ttl=300):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(url, params=None, **kwargs):
+            # Tentar cache primeiro
+            cached_result = cache_instance.get(url, params)
+            if cached_result:
+                print(f"Cache hit para {url}")
+                return cached_result
+            
+            # Fazer requisição
+            result = func(url, params=params, **kwargs)
+            
+            # Armazenar no cache
+            if result and hasattr(result, 'status_code') and result.status_code == 200:
+                cache_instance.set(url, result, params)
+            
+            return result
+        
+        return wrapper
+    return decorator
+
+# Uso
+api_cache = APICache(ttl_seconds=600)  # 10 minutos
+
+@cached_request(api_cache)
+def get_requests(url, params=None):
+    return requests.get(url, headers=headers, params=params)
+
+# Requisições serão cacheadas automaticamente
+response1 = get_requests('https://requests.prod.judit.io/requests', {'page': 1})
+response2 = get_requests('https://requests.prod.judit.io/requests', {'page': 1})  # Cache hit
+```
+
+```javascript JavaScript
+class APICache {
+    constructor(ttlSeconds = 300) { // 5 minutos padrão
+        this.cache = new Map();
+        this.ttl = ttlSeconds * 1000; // Converter para ms
+    }
+    
+    _generateKey(url, params = null) {
+        // Gera chave única para cache
+        const cacheData = { url, params: params || {} };
+        const cacheString = JSON.stringify(cacheData, Object.keys(cacheData).sort());
+        
+        // Simple hash function (para produção, use crypto.subtle)
+        let hash = 0;
+        for (let i = 0; i < cacheString.length; i++) {
+            const char = cacheString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash.toString();
+    }
+    
+    get(url, params = null) {
+        // Obtém item do cache
+        const key = this._generateKey(url, params);
+        
+        if (this.cache.has(key)) {
+            const { data, timestamp } = this.cache.get(key);
+            if (Date.now() - timestamp < this.ttl) {
+                return data;
+            } else {
+                this.cache.delete(key);
+            }
+        }
+        
+        return null;
+    }
+    
+    set(url, data, params = null) {
+        // Armazena item no cache
+        const key = this._generateKey(url, params);
+        this.cache.set(key, { data, timestamp: Date.now() });
+    }
+    
+    clearExpired() {
+        // Remove itens expirados do cache
+        const now = Date.now();
+        const expiredKeys = [];
+        
+        for (const [key, { timestamp }] of this.cache.entries()) {
+            if (now - timestamp >= this.ttl) {
+                expiredKeys.push(key);
+            }
+        }
+        
+        expiredKeys.forEach(key => this.cache.delete(key));
+    }
+}
+
+// Função para cache automático
+function cachedRequest(cacheInstance) {
+    return function(originalFunction) {
+        return async function(url, params = null, ...args) {
+            // Tentar cache primeiro
+            const cachedResult = cacheInstance.get(url, params);
+            if (cachedResult) {
+                console.log(`Cache hit para ${url}`);
+                return cachedResult;
+            }
+            
+            // Fazer requisição
+            const result = await originalFunction(url, params, ...args);
+            
+            // Armazenar no cache
+            if (result && result.ok) {
+                const data = await result.clone().json();
+                cacheInstance.set(url, data, params);
+                return result;
+            }
+            
+            return result;
+        };
+    };
+}
+
+// Uso
+const apiCache = new APICache(600); // 10 minutos
+
+const getRequests = cachedRequest(apiCache)(async function(url, params) {
+    const response = await fetch(url, {
+        headers: { 'api-key': process.env.JUDIT_API_KEY },
+        ...params && { body: JSON.stringify(params) }
+    });
+    return response;
+});
+
+// Requisições serão cacheadas automaticamente
+const response1 = await getRequests('https://requests.prod.judit.io/requests', { page: 1 });
+const response2 = await getRequests('https://requests.prod.judit.io/requests', { page: 1 }); // Cache hit
+```
+
+</CodeGroup>
+
+## Tratamento de Erro 429
+
+### Resposta de Rate Limit Excedido
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "message": "Muitas requisições. Tente novamente em 60 segundos.",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "retry_after": 60
+}
+```
+
+### Tratamento Robusto
+
+<CodeGroup>
+
+```python Python
+def handle_rate_limit_error(response):
+    """Trata erro de rate limit de forma robusta"""
+    
+    if response.status_code == 429:
+        error_data = response.json()
+        retry_after = response.headers.get('Retry-After', '60')
+        
+        print(f"Rate limit excedido: {error_data.get('message')}")
+        print(f"Retry após: {retry_after} segundos")
+        
+        return int(retry_after)
+    
+    return 0
+
+def robust_api_call(url, max_retries=3):
+    """Chamada de API com tratamento robusto de rate limit"""
+    
+    for attempt in range(max_retries):
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            return response.json()
+        
+        elif response.status_code == 429:
+            retry_after = handle_rate_limit_error(response)
+            
+            if attempt < max_retries - 1:
+                print(f"Tentativa {attempt + 1}/{max_retries}. Aguardando...")
+                time.sleep(retry_after)
+                continue
+            else:
+                raise Exception("Rate limit - máximo de tentativas atingido")
+        
+        else:
+            response.raise_for_status()
+    
+    raise Exception("Máximo de tentativas atingido")
+```
+
+```javascript JavaScript
+function handleRateLimitError(response) {
+    // Trata erro de rate limit de forma robusta
+    
+    if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || '60';
+        
+        console.log(`Rate limit excedido`);
+        console.log(`Retry após: ${retryAfter} segundos`);
+        
+        return parseInt(retryAfter);
+    }
+    
+    return 0;
+}
+
+async function robustApiCall(url, maxRetries = 3) {
+    // Chamada de API com tratamento robusto de rate limit
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const response = await fetch(url, {
+            headers: { 'api-key': process.env.JUDIT_API_KEY }
+        });
+        
+        if (response.status === 200) {
+            return await response.json();
+        }
+        
+        if (response.status === 429) {
+            const retryAfter = handleRateLimitError(response);
+            
+            if (attempt < maxRetries - 1) {
+                console.log(`Tentativa ${attempt + 1}/${maxRetries}. Aguardando...`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                continue;
+            } else {
+                throw new Error('Rate limit - máximo de tentativas atingido');
+            }
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    }
+    
+    throw new Error('Máximo de tentativas atingido');
+}
+```
+
+```php PHP
+<?php
+function handleRateLimitError($response, $httpCode) {
+    // Trata erro de rate limit de forma robusta
+    
+    if ($httpCode === 429) {
+        preg_match('/Retry-After: (\d+)/', $response, $retryMatch);
+        $retryAfter = isset($retryMatch[1]) ? $retryMatch[1] : '60';
+        
+        echo "Rate limit excedido\n";
+        echo "Retry após: {$retryAfter} segundos\n";
+        
+        return (int)$retryAfter;
+    }
+    
+    return 0;
+}
+
+function robustApiCall($url, $maxRetries = 3) {
+    // Chamada de API com tratamento robusto de rate limit
+    
+    for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['api-key: ' . getenv('JUDIT_API_KEY')]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        
+        $body = substr($response, $headerSize);
+        
+        if ($httpCode === 200) {
+            curl_close($ch);
+            return json_decode($body, true);
+        }
+        
+        if ($httpCode === 429) {
+            $retryAfter = handleRateLimitError($response, $httpCode);
+            
+            if ($attempt < $maxRetries - 1) {
+                echo "Tentativa " . ($attempt + 1) . "/{$maxRetries}. Aguardando...\n";
+                sleep($retryAfter);
+                curl_close($ch);
+                continue;
+            } else {
+                curl_close($ch);
+                throw new Exception('Rate limit - máximo de tentativas atingido');
+            }
+        }
+        
+        curl_close($ch);
+        throw new Exception("HTTP error! status: {$httpCode}");
+    }
+    
+    throw new Exception('Máximo de tentativas atingido');
+}
+?>
+```
+
+</CodeGroup>
+
+## Otimização de Uso
+
+### 1. **Batch Requests**
+
+<CodeGroup>
+
+```python Python
+# Em vez de múltiplas requisições individuais
+# for cpf in cpf_list:
+#     create_request(cpf)
+
+# Use consulta agrupada quando possível
+grouped_request = {
+    "search": {
+        "search_type": "custom",
+        "search_key": "batch_query",
+        "response_type": "lawsuits"
+    }
+}
+```
+
+```javascript JavaScript
+// Em vez de múltiplas requisições individuais
+// for (const cpf of cpfList) {
+//     await createRequest(cpf);
+// }
+
+// Use consulta agrupada quando possível
+const groupedRequest = {
+    search: {
+        search_type: "custom",
+        search_key: "batch_query",
+        response_type: "lawsuits"
+    }
+};
+```
+
+```php PHP
+<?php
+// Em vez de múltiplas requisições individuais
+// foreach ($cpfList as $cpf) {
+//     createRequest($cpf);
+// }
+
+// Use consulta agrupada quando possível
+$groupedRequest = [
+    "search" => [
+        "search_type" => "custom",
+        "search_key" => "batch_query",
+        "response_type" => "lawsuits"
+    ]
+];
+?>
+```
+
+</CodeGroup>
+
+### 2. **Cache com TTL Inteligente**
+
+<CodeGroup>
+
+```python Python
+# Configure TTL baseado na frequência de mudança dos dados
+cache_configs = {
+    'requests': 300,      # 5 minutos - dados dinâmicos
+    'responses': 1800,    # 30 minutos - dados mais estáveis
+    'tracking': 600,      # 10 minutos - monitoramento
+}
+```
+
+```javascript JavaScript
+// Configure TTL baseado na frequência de mudança dos dados
+const cacheConfigs = {
+    requests: 300,      // 5 minutos - dados dinâmicos
+    responses: 1800,    // 30 minutos - dados mais estáveis
+    tracking: 600,      // 10 minutos - monitoramento
+};
+```
+
+```php PHP
+<?php
+// Configure TTL baseado na frequência de mudança dos dados
+$cacheConfigs = [
+    'requests' => 300,      // 5 minutos - dados dinâmicos
+    'responses' => 1800,    // 30 minutos - dados mais estáveis
+    'tracking' => 600,      // 10 minutos - monitoramento
+];
+?>
+```
+
+</CodeGroup>
+
+### 3. **Priorização de Requisições**
+
+<CodeGroup>
+
+```python Python
+class PriorityRequester:
+    def __init__(self):
+        self.high_priority = queue.PriorityQueue()
+        self.normal_priority = queue.Queue()
+    
+    def add_request(self, url, priority='normal'):
+        if priority == 'high':
+            self.high_priority.put((0, url))  # 0 = alta prioridade
+        else:
+            self.normal_priority.put(url)
+```
+
+```javascript JavaScript
+class PriorityRequester {
+    constructor() {
+        this.highPriority = [];
+        this.normalPriority = [];
+    }
+    
+    addRequest(url, priority = 'normal') {
+        if (priority === 'high') {
+            this.highPriority.unshift(url); // Alta prioridade no início
+        } else {
+            this.normalPriority.push(url);
+        }
+    }
+    
+    getNextRequest() {
+        if (this.highPriority.length > 0) {
+            return this.highPriority.shift();
+        }
+        return this.normalPriority.shift();
+    }
+}
+```
+
+```php PHP
+<?php
+class PriorityRequester {
+    private $highPriority;
+    private $normalPriority;
+    
+    public function __construct() {
+        $this->highPriority = new SplPriorityQueue();
+        $this->normalPriority = new SplQueue();
+    }
+    
+    public function addRequest($url, $priority = 'normal') {
+        if ($priority === 'high') {
+            $this->highPriority->insert($url, 1); // Alta prioridade
+        } else {
+            $this->normalPriority->enqueue($url);
+        }
+    }
+    
+    public function getNextRequest() {
+        if (!$this->highPriority->isEmpty()) {
+            return $this->highPriority->extract();
+        }
+        if (!$this->normalPriority->isEmpty()) {
+            return $this->normalPriority->dequeue();
+        }
+        return null;
+    }
+}
+?>
+```
+
+</CodeGroup>
+
+## Monitoramento e Alertas
+
+### Dashboard de Rate Limit
+
+<CodeGroup>
+
+```python Python
+class RateLimitDashboard:
+    def __init__(self):
+        self.metrics = {
+            'total_requests': 0,
+            'rate_limited': 0,
+            'avg_usage': 0,
+            'peak_usage': 0
+        }
+    
+    def update_metrics(self, rate_info):
+        self.metrics['total_requests'] += 1
+        
+        if rate_info['remaining'] == 0:
+            self.metrics['rate_limited'] += 1
+        
+        usage = rate_info['usage_percent']
+        self.metrics['avg_usage'] = (
+            (self.metrics['avg_usage'] * (self.metrics['total_requests'] - 1) + usage) 
+            / self.metrics['total_requests']
+        )
+        
+        if usage > self.metrics['peak_usage']:
+            self.metrics['peak_usage'] = usage
+    
+    def get_report(self):
+        return {
+            'total_requests': self.metrics['total_requests'],
+            'rate_limited_percent': (self.metrics['rate_limited'] / max(self.metrics['total_requests'], 1)) * 100,
+            'avg_usage_percent': self.metrics['avg_usage'],
+            'peak_usage_percent': self.metrics['peak_usage']
+        }
+```
+
+```javascript JavaScript
+class RateLimitDashboard {
+    constructor() {
+        this.metrics = {
+            totalRequests: 0,
+            rateLimited: 0,
+            avgUsage: 0,
+            peakUsage: 0
+        };
+    }
+    
+    updateMetrics(rateInfo) {
+        this.metrics.totalRequests += 1;
+        
+        if (rateInfo.remaining === 0) {
+            this.metrics.rateLimited += 1;
+        }
+        
+        const usage = rateInfo.usagePercent;
+        this.metrics.avgUsage = (
+            (this.metrics.avgUsage * (this.metrics.totalRequests - 1) + usage) 
+            / this.metrics.totalRequests
+        );
+        
+        if (usage > this.metrics.peakUsage) {
+            this.metrics.peakUsage = usage;
+        }
+    }
+    
+    getReport() {
+        return {
+            totalRequests: this.metrics.totalRequests,
+            rateLimitedPercent: (this.metrics.rateLimited / Math.max(this.metrics.totalRequests, 1)) * 100,
+            avgUsagePercent: this.metrics.avgUsage,
+            peakUsagePercent: this.metrics.peakUsage
+        };
+    }
+}
+```
+
+```php PHP
+<?php
+class RateLimitDashboard {
+    private $metrics;
+    
+    public function __construct() {
+        $this->metrics = [
+            'total_requests' => 0,
+            'rate_limited' => 0,
+            'avg_usage' => 0,
+            'peak_usage' => 0
+        ];
+    }
+    
+    public function updateMetrics($rateInfo) {
+        $this->metrics['total_requests'] += 1;
+        
+        if ($rateInfo['remaining'] === 0) {
+            $this->metrics['rate_limited'] += 1;
+        }
+        
+        $usage = $rateInfo['usage_percent'];
+        $this->metrics['avg_usage'] = (
+            ($this->metrics['avg_usage'] * ($this->metrics['total_requests'] - 1) + $usage) 
+            / $this->metrics['total_requests']
+        );
+        
+        if ($usage > $this->metrics['peak_usage']) {
+            $this->metrics['peak_usage'] = $usage;
+        }
+    }
+    
+    public function getReport() {
+        return [
+            'total_requests' => $this->metrics['total_requests'],
+            'rate_limited_percent' => ($this->metrics['rate_limited'] / max($this->metrics['total_requests'], 1)) * 100,
+            'avg_usage_percent' => $this->metrics['avg_usage'],
+            'peak_usage_percent' => $this->metrics['peak_usage']
+        ];
+    }
+}
+?>
+```
+
+</CodeGroup>
+
+## Próximos Passos
+
+- **[Endpoints](/endpoints/requests)**: Explore limites específicos por endpoint
+- **[SDK Python](/sdk)**: Use rate limiting automático do SDK
+- **[Monitoramento](/endpoints/tracking)**: Configure alertas de uso
+
+> **Importante**: Para aplicações com alto volume, entre em contato para discutir limites personalizados.

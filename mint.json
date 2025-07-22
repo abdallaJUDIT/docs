@@ -27,8 +27,12 @@
  ],
  "navigation": [
   {
-   "group": "Comece a usar",
-   "pages": ["introduction", "quickstart"]
+   "group": "Começar",
+   "pages": ["introduction/introduction", "introduction/quickstart", "introduction/authentication"]
+  },
+  {
+   "group": "Conceitos Fundamentais",
+   "pages": ["essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/pagination", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
   },
   {
    "group": "Essenciais",
