@@ -32,7 +32,7 @@
   },
   {
    "group": "Conceitos Fundamentais",
-   "pages": ["essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/pagination", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
+   "pages": ["essentialConcepts/pagination", "essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
   },
   {
    "group": "Essenciais",

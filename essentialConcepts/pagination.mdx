@@ -1,11 +1,7 @@
 ---
 title: "Paginação & Cursor"
-description: "Como implementar paginação eficiente na Judit API com cursor e links"
+description: "A Judit API utiliza paginação baseada em **cursor** para navegar através de grandes conjuntos de dados de forma eficiente e consistente."
 ---
-
-# Paginação & Cursor
-
-A Judit API utiliza paginação baseada em **cursor** para navegar através de grandes conjuntos de dados de forma eficiente e consistente.
 
 ## Como Funciona a Paginação
 
@@ -30,12 +26,10 @@ A Judit API utiliza paginação baseada em **cursor** para navegar através de g
     "last": "https://requests.prod.judit.io/requests?page=10&page_size=20"
   },
   "meta": {
-    "current_page": 2,
-    "total_pages": 10,
-    "total_items": 200,
-    "per_page": 20,
-    "has_next": true,
-    "has_prev": true
+    "page": 1,
+    "page_count": 2,
+    "all_pages_count": 10,
+    "all_count": 200,
   }
 }
 ```
@@ -431,7 +425,7 @@ def get_tracking_page(page=1, status=None):
     return response.json() if response.status_code == 200 else None
 
 # Buscar monitoramentos ativos
-active_tracking = get_tracking_page(page=1, status='active')
+active_tracking = get_tracking_page(page=1, status='active', status='updated', status='updating')
 ```
 
 ```javascript JavaScript
@@ -529,90 +523,7 @@ $largePage = getRequestsPage(1, 100);  // Máximo
 
 </CodeGroup>
 
-### 2. **Cache de Páginas**
-
-<CodeGroup>
-
-```python Python
-from functools import lru_cache
-import time
-
-@lru_cache(maxsize=50)
-def cached_get_page(endpoint, page, page_size, cache_key):
-    """Cache de páginas com TTL implícito via cache_key"""
-    return get_requests_page(page, page_size)
-
-# Usar com cache_key baseado em tempo
-cache_key = int(time.time() // 300)  # Cache por 5 minutos
-data = cached_get_page('requests', 1, 20, cache_key)
-```
-
-```javascript JavaScript
-// Cache simples com TTL
-const pageCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
-
-function cachedGetPage(endpoint, page, pageSize) {
-    const cacheKey = `${endpoint}-${page}-${pageSize}-${Math.floor(Date.now() / CACHE_TTL)}`;
-    
-    if (pageCache.has(cacheKey)) {
-        return Promise.resolve(pageCache.get(cacheKey));
-    }
-    
-    return getRequestsPage(page, pageSize).then(data => {
-        pageCache.set(cacheKey, data);
-        
-        // Limpar cache antigo
-        if (pageCache.size > 50) {
-            const firstKey = pageCache.keys().next().value;
-            pageCache.delete(firstKey);
-        }
-        
-        return data;
-    });
-}
-
-// Usar cache
-const data = await cachedGetPage('requests', 1, 20);
-```
-
-```php PHP
-<?php
-class PageCache {
-    private static $cache = [];
-    private static $maxSize = 50;
-    private static $ttl = 300; // 5 minutos
-    
-    public static function get($endpoint, $page, $pageSize) {
-        $cacheKey = "{$endpoint}-{$page}-{$pageSize}-" . floor(time() / self::$ttl);
-        
-        if (isset(self::$cache[$cacheKey])) {
-            return self::$cache[$cacheKey];
-        }
-        
-        $data = getRequestsPage($page, $pageSize);
-        
-        // Adicionar ao cache
-        self::$cache[$cacheKey] = $data;
-        
-        // Limpar cache se muito grande
-        if (count(self::$cache) > self::$maxSize) {
-            $firstKey = array_key_first(self::$cache);
-            unset(self::$cache[$firstKey]);
-        }
-        
-        return $data;
-    }
-}
-
-// Usar cache
-$data = PageCache::get('requests', 1, 20);
-?>
-```
-
-</CodeGroup>
-
-### 3. **Processamento Paralelo**
+### 2. **Processamento Paralelo**
 
 <CodeGroup>
 
@@ -754,7 +665,7 @@ $parallelResults = fetchPageRange(1, 5);
 
 </CodeGroup>
 
-### 4. **Controle de Rate Limit**
+### 3. **Controle de Rate Limit**
 
 <CodeGroup>
 
@@ -1002,8 +913,6 @@ function safePaginate($endpoint, $maxRetries = 3) {
 
 ## Próximos Passos
 
-- **[Rate Limits](/rate-limits)**: Entenda os limites de requisições
-- **[Endpoints](/endpoints/requests)**: Explore endpoints com paginação
-- **[SDK Python](/sdk)**: Use paginação automática do SDK
-
-> **Dica**: Use sempre os links `next` fornecidos na resposta em vez de calcular URLs manualmente para garantir consistência.
+- **[Rate Limits](/essentialConcepts/rate-limits)**: Entenda os limites de uso
+- **[Paginação](/essentialConcepts/pagination)**: Configure consultas paginadas
+- **[Endpoints](/api-reference)**: Explore os recursos disponíveis

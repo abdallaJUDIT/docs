@@ -1,11 +1,7 @@
 ---
 title: "Autenticação"
-description: "Como configurar autenticação segura na Judit API com API Key"
+description: "A Judit API usa autenticação baseada em **API Key** para garantir acesso seguro aos recursos. Este guia explica como obter, configurar e usar sua chave de API corretamente."
 ---
-
-# Autenticação
-
-A Judit API usa autenticação baseada em **API Key** para garantir acesso seguro aos recursos. Este guia explica como obter, configurar e usar sua chave de API corretamente.
 
 ## Como Obter sua API Key
 
@@ -23,7 +19,7 @@ A Judit API usa autenticação baseada em **API Key** para garantir acesso segur
 A API Key deve ser enviada no **header** `api-key` de todas as requisições:
 
 ```http
-GET /requests HTTP/1.1
+GET /requests
 Host: requests.prod.judit.io
 api-key: sua-api-key-aqui
 Content-Type: application/json
@@ -306,13 +302,13 @@ class JuditConfig:
 # Uso
 config = JuditConfig('production')
 response = requests.get(f"{config.base_url}/requests", 
-                       headers=config.headers)
+    headers=config.headers)
 ```
 
 ## Próximos Passos
 
-- **[Rate Limits](/rate-limits)**: Entenda os limites de uso
-- **[Paginação](/pagination)**: Configure consultas paginadas
-- **[Endpoints](/endpoints/requests)**: Explore os recursos disponíveis
+- **[Rate Limits](/essentialConcepts/rate-limits)**: Entenda os limites de uso
+- **[Paginação](/essentialConcepts/pagination)**: Configure consultas paginadas
+- **[Endpoints](/api-reference)**: Explore os recursos disponíveis
 
-> **Suporte**: Em caso de problemas com autenticação, entre em contato com nosso suporte técnico.
+> **Suporte**: Em caso de problemas com autenticação, entre em contato com nosso [suporte técnico](https://api.whatsapp.com/send/?phone=5521995265795).
