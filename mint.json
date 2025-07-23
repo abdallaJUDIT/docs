@@ -52,14 +52,13 @@
     "essentials/registration-data",
     "essentials/file-transfer",
     "essentials/consumption",
-    "essentials/glossary",
     "essentials/flow-sheet",
     "essentials/postman-collection"
    ]
   },
   {
    "group": "Recursos",
-   "pages": ["resource/faq"]
+   "pages": ["resource/faq",   "resource/glossary"]
   },
   {
    "group": "Requests",
