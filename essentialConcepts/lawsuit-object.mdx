@@ -138,7 +138,7 @@ Documentos anexados ao processo.
     "subjects": "COBRANÇA",
     "classifications": "PROCEDIMENTO COMUM",
     "judge": "João Silva Santos",
-    "code": "1234567-89.2024.8.26.0001",
+    "code": "9999999-99.9999.9.99.9999",
     "justice_description": "JUSTIÇA ESTADUAL",
     "county": "SÃO PAULO",
     "tribunal_acronym": "TJSP",
@@ -190,7 +190,7 @@ Documentos anexados ao processo.
 
 ```bash cURL
 # Buscar processo por número CNJ
-curl -X GET "https://api.judit.io/v1/lawsuits/1234567-89.2024.8.26.0001" \
+curl -X GET "https://api.judit.io/v1/lawsuits/9999999-99.9999.9.99.9999" \
   -H "Authorization: Bearer $JUDIT_API_KEY" \
   -H "Content-Type: application/json"
 
@@ -237,7 +237,7 @@ async function searchLawsuits(filters) {
 }
 
 // Exemplo de uso
-const lawsuit = await getLawsuit('1234567-89.2024.8.26.0001');
+const lawsuit = await getLawsuit('9999999-99.9999.9.99.9999');
 console.log(`Processo: ${lawsuit.response_data.name}`);
 console.log(`Status: ${lawsuit.response_data.status}`);
 ```
@@ -285,7 +285,7 @@ class JuditClient:
 client = JuditClient()
 
 # Buscar processo específico
-lawsuit = client.get_lawsuit('1234567-89.2024.8.26.0001')
+lawsuit = client.get_lawsuit('9999999-99.9999.9.99.9999')
 print(f"Processo: {lawsuit['response_data']['name']}")
 print(f"Status: {lawsuit['response_data']['status']}")
 
@@ -361,7 +361,7 @@ class JuditClient {
 $client = new JuditClient();
 
 // Buscar processo específico
-$lawsuit = $client->getLawsuit('1234567-89.2024.8.26.0001');
+$lawsuit = $client->getLawsuit('9999999-99.9999.9.99.9999');
 echo "Processo: " . $lawsuit['response_data']['name'] . "\n";
 echo "Status: " . $lawsuit['response_data']['status'] . "\n";
 
@@ -498,7 +498,7 @@ func main() {
     client := NewJuditClient("")
     
     // Buscar processo específico
-    lawsuit, err := client.GetLawsuit("1234567-89.2024.8.26.0001")
+    lawsuit, err := client.GetLawsuit("9999999-99.9999.9.99.9999")
     if err != nil {
         fmt.Printf("Erro: %v\n", err)
         return

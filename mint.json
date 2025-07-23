@@ -58,6 +58,10 @@
    ]
   },
   {
+   "group": "Recursos",
+   "pages": ["resource/faq"]
+  },
+  {
    "group": "Requests",
    "pages": [
     "api-reference/endpoint/requests/create",
