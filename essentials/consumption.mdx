@@ -1,108 +1,187 @@
 ---
 title: "Relatório de consumo"
-description: "Gere relatório sobre seu consumo"
+description: ""
 icon: "chart-pie"
 ---
 
-Com a API da JUDIT, é possível consultar o consumo em um determinado período.
+# 📘 Como consultar meu histórico de requisições realizadas pela API JUDIT
 
-## Rota para gerar relatório de consumo.
+Este passo a passo irá te mostrar como consultar o histórico de requisições realizadas por meio da API JUDIT. Com isso, você poderá visualizar detalhes como:
 
-Para gerar um relatório de consumo, realize uma solicitação GET para a rota: 
+- Tipo de busca realizada  
+- Período  
+- Presença de anexos  
+- Origem da requisição (monitoramento ou API)  
+- E inclusive inferir o custo de cada operação.
 
-`https://requests.prod.judit.io/requests`
+---
 
-### Parâmetros obrigatórios
+## 1. Como consultar o histórico via Postman (usando cURL)
 
-A solicitação GET deve incluir os seguintes parâmetros:
+Para realizar a requisição:
 
-- `created_at_gte`: Data inicial do período para o filtro do relatório.
-- `created_at_lte`: Data final do período para o filtro do relatório.
+Copie o seguinte comando `cURL` e cole no **Postman** (modo *Raw* no Body e tipo `POST`):
 
-### Parâmetros opcionais:
-
-Além dos parâmetros obrigatórios, você pode utilizar os seguintes parâmetros opcionais:
-
-- `page_size`: Define a quantidade de itens na resposta que deseja receber por página.
-- `page`: Define o número da página, caso deseje dividir o total de itens gerados na resposta.
-
-
-### Resposta da solicitação
-
-```json
-
-{
-    "page": 1,
-    "page_data": [
-        {
-            "request_id": "966c72d3-5da6-4e0d-abb9-5c4399b6ab48",
-            "search": {
-                "search_type": "cnpj",
-                "search_key": "50.535.760/0001-71",
-                "response_type": "lawsuit",
-                "search_params": {
-                    "public_search": false,
-                    "filter": {},
-                    "pagination": {}
-                }
-            },
-            "with_attachments": false,
-            "callback_url": "https://webhook.site/4da01e6c-e77c-45e8-809c-68a0c3cd9f67",
-            "origin": "api",
-            "origin_id": "966c72d3-5da6-4e0d-abb9-5c4399b6ab48",
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-            "status": "completed",
-            "created_at": "2024-09-06T19:21:32.452Z",
-            "updated_at": "2024-09-06T19:22:05.095Z",
-            "tags": {
-                "dashboard_id": null
-            }
-        },
-        {
-            "request_id": "82046407-25f9-468a-b269-bdbcc5a9281d",
-            "search": {
-                "search_type": "lawsuit_cnj",
-                "search_key": "0001234-55.2023.8.26.0100",
-                "response_type": "lawsuit",
-                "search_params": {
-                    "public_search": false,
-                    "filter": {},
-                    "pagination": {}
-                }
-            },
-            "with_attachments": true,
-            "origin": "tracking",
-            "origin_id": "1f6c6a9d-fdca-4d3d-b5e4-5f72a90d1db0",
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-            "status": "completed",
-            "created_at": "2024-09-06T23:59:13.184Z",
-            "updated_at": "2024-09-06T23:59:21.840Z",
-            "tags": {
-                "dashboard_id": null
-            }
-        }
-    ],
-    "page_count": 1,
-    "all_count": 2,
-    "all_pages_count": 1
-}
-
+```bash
+curl --location 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=<DATA INICIAL>&created_at_lte=<DATA FINAL>' \
+--header 'api-key: INSIRA_SUA_API_KEY_AQUI' \
+--header 'Content-Type: application/json' \
+--data ''
 ```
 
-####  Entendendo a resposta
+Substitua `<DATA INICIAL>` e `<DATA FINAL>` no formato `YYYY-MM-DD`, por exemplo:
 
-A resposta da API conterá os seguintes campos:
+```
+created_at_gte=2024-09-12&created_at_lte=2050-09-12
+```
 
-- `request_id`: Identificador único da busca gerada.
-- `search`: Informações sobre o filtro realizado na solicitação.
-- `with_attachments`: Indica se a busca incluiu a captura de anexos.
-- `callback_url`: URL do webhook cadastrado para notificações dessa busca, se houver.
-- `origin`: Origem da solicitação, podendo ser:
-  - `API`: Representa uma requisição feita diretamente pela rota de requests.
-  - `TRACKING`: Indica que a requisição foi feita via monitoramento.
-  - `WARRANT`: Indica que a requisição foi feita via busca por mandado.
-- `status`: Indica o status da solicitação, ou seja, se foi concluída ou ainda está em andamento.
-- `created_at`: Data e hora em que a solicitação foi criada.
-- `page_count`: Número de respostas retornadas por página.
-- `all_count`: Quantidade total de respostas consultadas no período solicitado.
-- `all_pages_count`: Número total de páginas geradas pela consulta.
+---
+
+## 2. Como consultar o histórico via JavaScript (fetch)
+
+Exemplo de código:
+
+```js
+const url = 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const options = {
+  method: 'GET',
+  headers: {
+    'api-key': '<INSIRA_SUA_API_KEY_AQUI>'
+  }
+};
+
+try {
+  const response = await fetch(url, options);
+  const data = await response.json();
+  console.log(data);
+} catch (error) {
+  console.error(error);
+}
+```
+
+---
+
+## 3. Exemplo de resposta da API
+
+Trecho de exemplo:
+
+```json
+{
+  "page": 1,
+  "page_data": [
+    {
+      "request_id": "0dcd4c1f-c9bf-4327-899e-0550a627feca",
+      "search": {
+        "on_demand": false,
+        "search_type": "lawsuit_cnj",
+        "search_key": "0000999-99.9999.9.99.9999",
+        "response_type": "lawsuit",
+        "search_params": {
+          "public_search": false,
+          "filter": {
+            "party_names": [],
+            "party_documents": []
+          },
+          "pagination": {}
+        }
+      },
+      "with_attachments": true,
+      "origin": "tracking",
+      "status": "completed",
+      "created_at": "2025-07-25T21:10:03.334Z",
+      "updated_at": "2025-07-25T21:10:25.352Z"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Explicação dos principais campos
+
+| Campo                 | Significado                                                                 |
+|----------------------|------------------------------------------------------------------------------|
+| `origin`             | Pode ser `api` (requisição direta) ou `tracking` (monitoramento automático). |
+| `response_type`      | Tipo de retorno: `lawsuit`, `entity`, `warrant`, `lawsuits`.                 |
+| `search.search_type` | Tipo de busca: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj`.                 |
+| `on_demand`          | Se `true`, indica consulta em tempo real no tribunal.                        |
+| `with_attachments`   | Se `true`, foram incluídos autos processuais (impacta no custo).             |
+
+---
+
+## 🔍 Interpretação dos campos
+
+### `origin`
+
+Esse campo indica a **origem** da requisição, podendo assumir os seguintes valores:
+
+- `api`: consulta realizada diretamente por meio da API.
+- `tracking`: consulta realizada via monitoramento (recorrente).
+
+### `response_type`
+
+Define o tipo de documento que será retornado na busca. As possibilidades incluem:
+
+- `lawsuit`: utilizado em consultas por NUP (Número Único do Processo).
+- `lawsuits`: utilizado em buscas por CPF, CNPJ, OAB ou NAME, retornando uma lista de processos.
+- `entity`: utilizado em busca cadastral (por CPF, CNPJ, etc).
+- `warrant`: utilizado em busca por mandado de prisão.
+
+---
+
+## 🧪 Exemplo real e análise de precificação
+
+```json
+{
+  "request_id": "c2af614a-8296-4060-bf9a-3b087679c472",
+  "search": {
+    "on_demand": true,
+    "search_type": "lawsuit_cnj",
+    "search_key": "0000999-99.9999.9.99.9999",
+    "response_type": "lawsuit",
+    "search_params": {
+      "public_search": false,
+      "filter": {
+        "party_names": [],
+        "party_documents": []
+      },
+      "pagination": {}
+    }
+  },
+  "with_attachments": true,
+  "callback_url": "https://webhook.site/...",
+  "origin": "tracking",
+  "status": "completed",
+  "created_at": "2025-07-25T21:10:03.334Z"
+}
+```
+
+### 💰 Análise da precificação com base nos campos:
+
+- `origin: tracking` → é uma consulta através de monitoramento, portanto cobrança **mensal**.
+- `search_type: lawsuit_cnj` → o monitoramento é processual por número CNJ.
+- `on_demand: true` → como se trata de monitoramento, esse valor sempre será true já que todo monitoramento é on-demand.
+- `with_attachments: true` → autos processuais foram coletados, o que implica cobrança adicional.
+
+---
+
+## 🔸 Total estimado da requisição:
+
+<Note>
+    Os valores apresentados são meramente ilustrativos. Para informações comerciais reais, consulte nossa tabela oficial.
+</Note>
+
+- **Monitoramento processual**: R$ 0,69/mês  
+- **Autos processuais**: R$ 3,50 (cobrança única)  
+
+### ➡️ **Custo total estimado**: R$ 4,19
+
+---
+
+## ℹ️ Pontos importantes
+
+- A cobrança pode variar conforme o tipo de busca, tempo real (`on_demand`) e presença de anexos.
+- Requisições via `tracking` são renovadas mensalmente enquanto o monitoramento estiver ativo.
+- Requisições do tipo histórica (`cpf`, `cnpj`, etc.) têm cobrança única por consulta.
+
+---

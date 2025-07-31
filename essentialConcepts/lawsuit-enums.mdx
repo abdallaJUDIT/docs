@@ -1,0 +1,330 @@
+---
+title: "Enumerações do Objeto Lawsuit"
+description: "Esta página contém todas as enumerações e valores possíveis para as propriedades do objeto lawsuit. Use esta referência para validar dados e entender os valores que podem ser retornados pela API."
+---
+
+## Áreas do Processo (`area`)
+
+Lista completa das áreas jurídicas que um processo pode ter:
+
+<AccordionGroup>
+  <Accordion title="Direitos Fundamentais e Sociais">
+    - `DIREITO À EDUCAÇÃO`
+    - `DIREITO DA CRIANÇA E DO ADOLESCENTE`
+    - `DIREITO DA SAÚDE`
+    - `DIREITO DO CONSUMIDOR`
+    - `DIREITO DO TRABALHO`
+    - `DIREITO ASSISTENCIAL`
+  </Accordion>
+
+  <Accordion title="Direito Público">
+    - `DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO`
+    - `DIREITO AMBIENTAL`
+    - `DIREITO ELEITORAL`
+    - `DIREITO INTERNACIONAL`
+    - `DIREITO MARÍTIMO`
+    - `DIREITO TRIBUTÁRIO`
+  </Accordion>
+
+  <Accordion title="Direito Penal e Processual">
+    - `DIREITO PENAL`
+    - `DIREITO PENAL MILITAR`
+    - `DIREITO PREVIDENCIÁRIO`
+    - `DIREITO PROCESSUAL CIVIL E DO TRABALHO`
+  </Accordion>
+
+  <Accordion title="Questões Especiais">
+    - `QUESTÕES DE ALTA COMPLEXIDADE, GRANDE IMPACTO E REPERCUSSÃO`
+    - `REGISTROS PÚBLICOS`
+  </Accordion>
+</AccordionGroup>
+
+## Níveis de Sigilo (`secrecy_level`)
+
+Sistema de classificação de sigilo processual de 0 a 5:
+
+| Nível | Descrição | Acesso Permitido |
+|-------|-----------|------------------|
+| `0` | **Processo sem sigilo ou público** | Acesso público geral |
+| `1` | **Segredo de justiça** | Partes e advogados |
+| `2` | **Restrito aos servidores da unidade judicial** | Servidores + partes |
+| `3` | **Processo sigiloso, acesso apenas por magistrados, chefes de cartórios e assessores de gabinete** | Magistrados + chefes + assessores |
+| `4` | **Processo sigiloso, acesso apenas por magistrados, chefes de cartórios e assessores de gabinete** | Magistrados + chefes + assessores |
+| `5` | **Sigilo absoluto, acesso apenas pelo magistrado do processo** | Apenas magistrado responsável |
+
+<Warning>
+Processos com nível de sigilo maior que 0 podem ter informações limitadas ou omitidas na resposta da API, dependendo do nível de acesso do usuário autenticado.
+</Warning>
+
+## Tipos de Justiça (`justice_description`)
+
+Classificação dos órgãos do Poder Judiciário brasileiro:
+
+<AccordionGroup>
+  <Accordion title="Justiça Federal">
+    - `SUPREMO TRIBUNAL FEDERAL`
+    - `CONSELHO NACIONAL DE JUSTIÇA`
+    - `SUPERIOR TRIBUNAL DE JUSTIÇA`
+    - `TRIBUNAL REGIONAL FEDERAL`
+  </Accordion>
+
+  <Accordion title="Justiças Especializadas">
+    - `JUSTIÇA DO TRABALHO`
+    - `JUSTIÇA ELEITORAL`
+    - `JUSTIÇA MILITAR DA UNIÃO`
+    - `JUSTIÇA MILITAR ESTADUAL`
+  </Accordion>
+
+  <Accordion title="Justiça Estadual">
+    - `JUSTIÇA ESTADUAL`
+  </Accordion>
+</AccordionGroup>
+
+## Status do Processo (`status`)
+
+Estados possíveis de um processo judicial:
+
+| Status | Descrição |
+|--------|-----------|
+| `INICIAL` | Processo recém-distribuído ou em fase inicial |
+| `SENTENÇA` | Processo com sentença proferida |
+| `EXECUÇÃO OU CUMPRIMENTO` | Processo em fase de execução |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva ou acordo homologado |
+| `RECURSO` | Processo com recurso interposto |
+| `ARQUIVADO` | Processo arquivado definitivamente |
+| `SUSPENSO` | Processo temporariamente suspenso |
+| `SOBRESTADO` | Processo sobrestado aguardando decisão |
+| `CANCELADO` | Processo cancelado |
+| `ATIVO` | Processo em andamento normal |
+| `FINALIZADO` | Processo concluído |
+
+## Situação do Processo (`situation`)
+
+Informações sobre o status atual capturado do tribunal:
+
+| Situação | Descrição |
+|----------|-----------|
+| `INICIAL` | Situação inicial do processo |
+| `SENTENÇA` | Processo com sentença |
+| `EXECUÇÃO OU CUMPRIMENTO` | Em fase executória |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão transitada em julgado |
+| `RECURSO` | Recurso interposto |
+| `ARQUIVADO` | Processo arquivado |
+| `SUSPENSO` | Processo suspenso |
+| `SOBRESTADO` | Processo sobrestado |
+| `CANCELADO` | Processo cancelado |
+| `ATIVO` | Processo ativo |
+| `FINALIZADO` | Processo finalizado |
+
+## Tipos de Pessoa (`person_type`)
+
+Classificação das partes no processo:
+
+<AccordionGroup>
+  <Accordion title="Classificação Geral">
+    - `ATIVO` - Parte que move a ação
+    - `PASSIVO` - Parte contra quem a ação é movida  
+    - `INTERESSADO` - Parte com interesse no processo
+    - `UNKNOWN` - Tipo não identificado
+  </Accordion>
+
+  <Accordion title="Papéis Específicos">
+    - `RÉU` - Parte demandada
+    - `AUTOR` - Parte demandante
+    - `ADVOGADO` - Representante legal
+    - `REQUERENTE` - Parte que faz o requerimento
+    - `REQUERIDO` - Parte contra quem se requer
+    - `ETC.` - Outros papéis específicos
+  </Accordion>
+</AccordionGroup>
+
+## Fases do Processo (`phase`)
+
+Fases processuais principais:
+
+| Fase | Descrição |
+|------|-----------|
+| `FASE` | Fase genérica do processo |
+
+<Note>
+Esta enumeração pode ser expandida conforme novos dados sejam identificados nos tribunais.
+</Note>
+
+## Códigos de Andamento (`step_type`)
+
+Os códigos de andamento seguem a **Tabela de Movimentos do CNJ** (Conselho Nacional de Justiça). Alguns exemplos comuns:
+
+| Código | Descrição |
+|--------|-----------|
+| `DISTRIBUIÇÃO` | Processo distribuído |
+| `CITAÇÃO` | Citação da parte |
+| `CONTESTAÇÃO` | Apresentação de contestação |
+| `SENTENÇA` | Prolação de sentença |
+| `RECURSO` | Interposição de recurso |
+| `ARQUIVAMENTO` | Arquivamento do processo |
+
+<Info>
+Para a lista completa e atualizada dos códigos de movimentação, consulte a Tabela Processual Unificada (TPU) do CNJ.
+</Info>
+
+## Estados Brasileiros (`state`)
+
+Siglas das Unidades Federativas:
+
+<AccordionGroup>
+  <Accordion title="Região Norte">
+    - `AC` - Acre
+    - `AP` - Amapá  
+    - `AM` - Amazonas
+    - `PA` - Pará
+    - `RO` - Rondônia
+    - `RR` - Roraima
+    - `TO` - Tocantins
+  </Accordion>
+
+  <Accordion title="Região Nordeste">
+    - `AL` - Alagoas
+    - `BA` - Bahia
+    - `CE` - Ceará
+    - `MA` - Maranhão
+    - `PB` - Paraíba
+    - `PE` - Pernambuco
+    - `PI` - Piauí
+    - `RN` - Rio Grande do Norte
+    - `SE` - Sergipe
+  </Accordion>
+
+  <Accordion title="Região Centro-Oeste">
+    - `GO` - Goiás
+    - `MT` - Mato Grosso
+    - `MS` - Mato Grosso do Sul
+    - `DF` - Distrito Federal
+  </Accordion>
+
+  <Accordion title="Região Sudeste">
+    - `ES` - Espírito Santo
+    - `MG` - Minas Gerais
+    - `RJ` - Rio de Janeiro
+    - `SP` - São Paulo
+  </Accordion>
+
+  <Accordion title="Região Sul">
+    - `PR` - Paraná
+    - `RS` - Rio Grande do Sul
+    - `SC` - Santa Catarina
+  </Accordion>
+</AccordionGroup>
+
+## Tipos de Documento (`documents`)
+
+Tipos de documentos que podem estar associados às partes:
+
+| Tipo | Descrição |
+|------|-----------|
+| `CPF` | Cadastro de Pessoa Física |
+| `CNPJ` | Cadastro Nacional de Pessoa Jurídica |
+| `RG` | Registro Geral |
+| `OAB` | Registro da Ordem dos Advogados do Brasil |
+
+## Uso das Enumerações
+
+### Validação de Dados
+
+<CodeGroup>
+
+```javascript JavaScript
+// Exemplo de validação de nível de sigilo
+const validSecrecyLevels = [0, 1, 2, 3, 4, 5];
+const isValidSecrecy = validSecrecyLevels.includes(lawsuit.secrecy_level);
+
+// Exemplo de validação de status
+const validStatuses = [
+  'INICIAL', 'SENTENÇA', 'EXECUÇÃO OU CUMPRIMENTO',
+  'TRÂNSITO JULGADO OU EM ACORDO', 'RECURSO', 'ARQUIVADO',
+  'SUSPENSO', 'SOBRESTADO', 'CANCELADO', 'ATIVO', 'FINALIZADO'
+];
+const isValidStatus = validStatuses.includes(lawsuit.status);
+```
+
+```python Python
+# Exemplo de validação de nível de sigilo
+valid_secrecy_levels = [0, 1, 2, 3, 4, 5]
+is_valid_secrecy = lawsuit.secrecy_level in valid_secrecy_levels
+
+# Exemplo de validação de status
+valid_statuses = [
+    'INICIAL', 'SENTENÇA', 'EXECUÇÃO OU CUMPRIMENTO',
+    'TRÂNSITO JULGADO OU EM ACORDO', 'RECURSO', 'ARQUIVADO',
+    'SUSPENSO', 'SOBRESTADO', 'CANCELADO', 'ATIVO', 'FINALIZADO'
+]
+is_valid_status = lawsuit.status in valid_statuses
+```
+
+```php PHP
+<?php
+// Exemplo de validação de nível de sigilo
+$validSecrecyLevels = [0, 1, 2, 3, 4, 5];
+$isValidSecrecy = in_array($lawsuit['secrecy_level'], $validSecrecyLevels);
+
+// Exemplo de validação de status
+$validStatuses = [
+    'INICIAL', 'SENTENÇA', 'EXECUÇÃO OU CUMPRIMENTO',
+    'TRÂNSITO JULGADO OU EM ACORDO', 'RECURSO', 'ARQUIVADO',
+    'SUSPENSO', 'SOBRESTADO', 'CANCELADO', 'ATIVO', 'FINALIZADO'
+];
+$isValidStatus = in_array($lawsuit['status'], $validStatuses);
+?>
+```
+
+</CodeGroup>
+
+### Filtragem por Enumerações
+
+<CodeGroup>
+
+```javascript JavaScript
+// Filtrar processos por área
+const educationLawsuits = lawsuits.filter(
+  lawsuit => lawsuit.area === 'DIREITO À EDUCAÇÃO'
+);
+
+// Filtrar processos públicos (sem sigilo)
+const publicLawsuits = lawsuits.filter(
+  lawsuit => lawsuit.secrecy_level === 0
+);
+```
+
+```python Python
+# Filtrar processos por área
+education_lawsuits = [
+    lawsuit for lawsuit in lawsuits 
+    if lawsuit.area == 'DIREITO À EDUCAÇÃO'
+]
+
+# Filtrar processos públicos (sem sigilo)
+public_lawsuits = [
+    lawsuit for lawsuit in lawsuits 
+    if lawsuit.secrecy_level == 0
+]
+```
+
+```php PHP
+<?php
+// Filtrar processos por área
+$educationLawsuits = array_filter($lawsuits, function($lawsuit) {
+    return $lawsuit['area'] === 'DIREITO À EDUCAÇÃO';
+});
+
+// Filtrar processos públicos (sem sigilo)
+$publicLawsuits = array_filter($lawsuits, function($lawsuit) {
+    return $lawsuit['secrecy_level'] === 0;
+});
+?>
+```
+
+</CodeGroup>
+
+## Próximos Passos
+
+- Consulte o [Objeto Lawsuit](/essentialConcepts/lawsuit-object) para ver como essas enumerações se integram na estrutura completa
+- Verifique a [documentação de endpoints](/api-reference) para filtros disponíveis

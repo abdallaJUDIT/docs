@@ -27,8 +27,12 @@
  ],
  "navigation": [
   {
-   "group": "Comece a usar",
-   "pages": ["introduction", "quickstart"]
+   "group": "Começar",
+   "pages": ["introduction/introduction", "introduction/quickstart", "introduction/authentication"]
+  },
+  {
+   "group": "Conceitos Fundamentais",
+   "pages": ["essentialConcepts/pagination", "essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
   },
   {
    "group": "Essenciais",
@@ -48,10 +52,13 @@
     "essentials/registration-data",
     "essentials/file-transfer",
     "essentials/consumption",
-    "essentials/glossary",
     "essentials/flow-sheet",
     "essentials/postman-collection"
    ]
+  },
+  {
+   "group": "Recursos",
+   "pages": ["resource/faq",   "resource/glossary"]
   },
   {
    "group": "Requests",
@@ -91,7 +98,7 @@
   },
   {
    "group": "Acesso a anexos",
-   "pages": ["api-reference/endpoint/attachments/attachment-access"]
+   "pages": ["api-reference/endpoint/attachments/attachment-access", "api-reference/endpoint/attachments/attachment-access-warrant"]
   },
   {
    "group": "Cofre de Credenciais",

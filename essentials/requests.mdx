@@ -25,9 +25,11 @@ search_type: Este campo define o tipo de entidade que será buscada. Os valores 
 
 - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
 
-      `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+  `*Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
-  Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
+- `judit-ia`(opcional): Array de strings que define quais análises da Judit IA devem ser aplicadas à consulta. Atualmente, é possível utilizar o valor "summary" para obter um resumo automático do processo retornado na consulta processual.
+
+Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
 
 Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com anexos:
 
@@ -43,6 +45,24 @@ Abaixo está o exemplo de como construir o payload para realizar uma busca por C
 <Note>
   O parâmetro `with_attachments` determina se a busca incluirá ou não os anexos, conforme o valor booleano especificado.
 </Note>
+
+Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com judit IA:
+
+```json
+{
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "0009999-99.9999.8.26.9999"
+ },
+ "judit_ia": [
+		"summary"
+	]
+}
+```
+
+<Warning>
+A funcionalidade **Judit IA** está em versão *Beta* e ainda se encontra em fase de testes.
+</Warning>
 
 Aqui está um exemplo de como de payload para busca por lawsuit_cnj com curl:
 
@@ -259,5 +279,179 @@ Aqui está um exemplo da resposta da solicitação:
 <Warning>
     Verifique o parâmetro `request_status` para garantir que a resposta foi processada com sucesso. O valor deve ser **completed**. Caso contrário, a solicitação ainda está em processamento.
 </Warning>
+
+## Exemplo de resposta da consulta com Judit IA
+
+```json
+  {
+    "request_status": "completed",
+    "page": 1,
+    "page_count": 2,
+    "all_pages_count": 1,
+    "all_count": 2,
+    "page_data": [
+        {
+            "request_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
+            "response_id": "239f69b3-765b-4d84-af6c-2d151b0a9d12",
+            "origin": "api",
+            "origin_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
+            "response_type": "lawsuit",
+            "response_data": {
+                "code": "9999999-99.9999.9.99.9999",
+                "justice": "8",
+                "tribunal": "13",
+                "instance": 2,
+                "judge": "Usuário 1",
+                "tribunal_acronym": "TJMG",
+                "secrecy_level": 0,
+                "tags": {
+                    "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc",
+                    "dictionary_updated_at": "2025-07-17T20:21:36.357Z"
+                },
+                "subjects": [],
+                "classifications": [
+                    {
+                        "code": "120",
+                        "name": "MANDADO DE SEGURANÇA CÍVEL"
+                    }
+                ],
+                "courts": [
+                    {
+                        "name": "ÓRGÃO ESPECIAL"
+                    }
+                ],
+                "parties": [
+                    {
+                        "name": "USUÁRIO 1",
+                        "side": "Passive",
+                        "person_type": "Impetrado",
+                        "documents": []
+                    },
+                    {
+                        "name": "USUÁRIO 2",
+                        "side": "Active",
+                        "person_type": "Recorrente",
+                        "documents": []
+                    }
+                ],
+                "steps": [
+                    {
+                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 2,
+                        "step_id": "9999ca",
+                        "step_date": "2025-07-09T21:00:00.000Z",
+                        "content": "Diligências Cartorárias ou de Ofício - : enviado email à advogada da impetrante com instruções para se cadastrar no SEI",
+                        "private": false,
+                        "tags": {
+                            "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                        },
+                        "steps_count": 101
+                    },
+                    {
+                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 2,
+                        "step_id": "38683fff",
+                        "step_date": "2025-07-09T08:40:00.000Z",
+                        "content": "Juntada de petição eletrônica - Protocolo Eletrônico: 0622572-73.2014.8.13.0000/004.033 Documento: Petição",
+                        "private": false,
+                        "tags": {
+                            "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                        }
+                    }
+                ],
+                "attachments": [
+                    {
+                        "attachment_id": "629104438",
+                        "status": "done",
+                        "user_data": null,
+                        "tags": {
+                            "crawl_id": "207ccc3f-f17e-46dd-9ea0-7620c9c313d8"
+                        },
+                        "attachment_name": "PETICAO_INTERMEDIARIA_INFORMAÇÕES.pdf",
+                        "content": "Informações",
+                        "extension": "pdf"
+                    },
+                    {
+                        "attachment_id": "628789282",
+                        "status": "done",
+                        "user_data": null,
+                        "tags": {
+                            "crawl_id": "207ccc3f-f17e-46dd-9ea0-7620c9c313d8"
+                        },
+                        "attachment_name": "Reforço de tese - Augusto 2025.pdf",
+                        "content": "Petição",
+                        "extension": "pdf"
+                    }
+                ],
+                "related_lawsuits": [],
+                "crawler": {
+                    "source_name": "JPE - TJMG - 2º grau - Auth",
+                    "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc",
+                    "weight": 5,
+                    "updated_at": "2025-07-17T20:21:34.229Z"
+                },
+                "county": "1ª VICE-PRESIDÊNCIA",
+                "state": "MG",
+                "city": "BELO HORIZONTE",
+                "justice_description": "JUSTIÇA ESTADUAL",
+                "last_step": {
+                    "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                    "lawsuit_instance": 2,
+                    "step_id": "d72efdfd",
+                    "step_date": "2025-06-09T11:28:00.000Z",
+                    "content": "Juntada de petição eletrônica - Protocolo Eletrônico: 0622572-73.2014.8.13.0000/000.052 Documento: Informações",
+                    "private": false,
+                    "tags": {
+                        "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                    },
+                    "steps_count": 94
+                },
+                "phase": "Execução ou cumprimento",
+                "status": "Ativo",
+                "name": "USUÁRIO 1 X USUÁRIO 2",
+                "amount": 0,
+                "created_at": "2025-07-17T20:21:49.595Z",
+                "updated_at": "2025-07-17T20:21:49.595Z",
+                "metadata": {},
+                "free_justice": false,
+                "distribution_date": "1999-12-31T21:00:00.000Z"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2025-07-17T20:21:23.698Z",
+            "request_created_at": "2025-07-17T20:21:21.322Z",
+            "tags": {
+                "dashboard_id": null,
+                "cached_response": false
+            }
+        },
+        {
+            "request_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
+            "response_id": "d09adf5b-6ad5-402a-a551-2cc4e4434cad",
+            "origin": "api",
+            "origin_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
+            "response_type": "summary",
+            "response_data": {
+                "data": [
+                    "## Resumo\nO processo de número <strong className=\"text-primary\">9999999-99.9999.9.99.9999</strong> é uma ação de Usucapião Ordinária, tramitada na Justiça Estadual, mais especificamente no Tribunal de Justiça do Estado de São Paulo (TJSP). O processo foi distribuído na data de 0 de outubro de 0000 e foi julgado pela juíza Usuário1 na 6ª Vara Cível do foro de Sorocaba. Concluiu-se com uma Baixa Definitiva em 0 de fevereiro de 0000, indicando sua finalização no sistema judicial.\n\n## Partes\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário2</strong>\n      <span className=\"text-muted-foreground text-sm\"></span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n          Usuário2 é o autor da ação, pessoa que iniciou o processo judicial requerendo o reconhecimento do seu direito de propriedade sobre um imóvel por meio de usucapião.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário3</strong>\n      <span className=\"text-muted-foreground text-sm\">Advogado</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n          Usuário3 é o advogado responsável por representar o autor, USUÁRIO4, em todos os trâmites legais do processo.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n</ul>\n\n## Classe\n<ul>\n  <li>\n    <p>\n       <strong className=\"text-foreground text-base leading-5 font-semibold\">Usucapião</strong>\n      <br />\n       <p className=\"text-foreground/70 text-md font-normal\">\n        A classe do processo se refere a uma forma de aquisição da propriedade de um imóvel em decorrência de sua posse prolongada e ininterrupta, de acordo com requisitos legais.\n        </p>\n    </p>\n  </li>\n</ul>\n\n## Assuntos\n<ul>\n  <li>\n    <p>\n        <strong className=\"text-foreground text-base leading-5 font-semibold\">Usucapião Ordinária</strong>\n      <br />\n        <p className=\"text-foreground/70 text-md font-normal\">\n        Trata-se de um tipo específico de usucapião em que é exigido um prazo de posse do imóvel de, no mínimo, dez anos, com base na boa-fé e justo título ou quinze anos, independentemente destes requisitos.\n           </p>\n      <br />\n    </p>\n  </li>\n</ul>\n\n## Movimentações\n<p className=\"text-foreground/70\">\n  O processo teve diversas movimentações importantes. Em <span className=\"text-primary\">00 de setembro de 0000</span>, houve uma decisão homologando a desistência do autor Tiago Martins da Silva e, em consequência, o processo foi extinto sem resolução de mérito por desistência, sem necessidade de recolher custas finais devido à gratuidade da justiça já concedida. No mesmo dia, foi determinado o trânsito em julgado, ou seja, a decisão tornou-se definitiva, sem possibilidade de recursos. Em <span className=\"text-primary\">0 de fevereiro de 0000</span>, foi realizada a baixa definitiva do processo, marcando sua conclusão no sistema judicial.\n</p>"
+                ],
+                "origin_id": "8a8f07b8-066c-4bb1-a7bd-071fb35b73b2",
+                "origin": "response"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2025-07-17T20:23:36.427Z",
+            "request_created_at": "2025-07-17T20:21:21.941Z"
+        }
+    ]
+}
+```
+
+
+## Consultando anexo capturado
+```bash
+curl -X GET --location 'https://lawsuits.production.judit.io/lawsuits/<número do processo>/<intancia>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
+```
 
 _Não nos responsabilizamos por consulta por CNJ inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.
