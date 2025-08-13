@@ -35,30 +35,72 @@
    "pages": ["essentialConcepts/pagination", "essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
   },
   {
-   "group": "Essenciais",
+   "group": "Requests",
    "pages": [
-    "essentials/requests",
-    "essentials/request-document",
-    "essentials/name",
-    "essentials/custom-search",
-    "essentials/tracking",
-    "essentials/tracking-document",
-    "essentials/tracking-custom",
-    "essentials/warrant",
-    "essentials/criminal-execution",
-    "essentials/callbacks",
-    "crawlers/cache-judit",
-    "essentials/cofre-de-credenciais",
-    "essentials/registration-data",
-    "essentials/file-transfer",
-    "essentials/consumption",
-    "essentials/flow-sheet",
-    "essentials/postman-collection"
+    "requests/requests",
+    "requests/request-document",
+    "requests/name",
+    "requests/custom-search"
+   ]
+  },
+  {
+   "group": "Monitoramento",
+   "pages": [
+   "tracking/tracking",
+   "tracking/tracking-document",
+   "tracking/tracking-custom"
+   ]
+  },
+  {
+   "group": "Consulta síncrona",
+   "pages": [
+     "cache-judit/hotstorage",
+     "cache-judit/true-false",
+     "cache-judit/qtd-lawsuits",
+     "cache-judit/cache-grouped"
+   ]
+  },
+  {
+   "group": "Dados Cadastrais",
+   "pages": [
+   "registration-data/registration-data"
+   ]
+  },
+  {
+   "group": "Consultas Penais",
+   "pages": [
+    "criminal-consultation/warrant",
+    "criminal-consultation/criminal-execution"
+
+   ]
+  },
+  {
+   "group": "Transferência de Arquivos",
+   "pages": [
+    "file-transfer/file-transfer"
+   ]
+  },
+  {
+   "group": "Cofre de Credenciais",
+   "pages": [
+    "essentials/cofre-de-credenciais"
+   ]
+  },
+  {
+   "group": "Webhook",
+   "pages": [
+    "webhook/callbacks"
    ]
   },
   {
    "group": "Recursos",
-   "pages": ["resource/faq",   "resource/glossary"]
+   "pages": [
+    "resource/consumption",
+    "resource/faq",  
+    "resource/glossary",
+    "resource/flow-sheet",
+    "resource/postman-collection"
+  ]
   },
   {
    "group": "Requests",
