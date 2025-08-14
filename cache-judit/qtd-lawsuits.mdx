@@ -12,7 +12,8 @@ Na consulta síncrona, são retornados apenas os dados já disponíveis em nossa
 Todas as consultas históricas síncronas podem incluir filtros específicos para refinar os resultados. Caso deseje receber um grupo específico de itens, basta realizar a consulta informando os [filtros](./requests#consultando-respostas-de-buscas) desejados.
 </Warning>
 
-É possivel consultar a quantidade de processos atrelados a um documento salvos em nosso datalake, para isso, basta realizar um requisição `POST` para o endpojnt `https://lawsuits.production.judit.io/requests/count` adicionando `search_type` e `search_key` no payload.
+É possivel consultar a quantidade de processos atrelados a um documento salvo em nosso datalake.
+Para isso, basta realizar um requisição `POST` para o endpojnt `https://lawsuits.production.judit.io/requests/count` adicionando `search_type` e `search_key` no payload.
 
 ```json
 curl --location 'https://lawsuits.production.judit.io/requests/count' \
