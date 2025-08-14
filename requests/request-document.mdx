@@ -1,13 +1,15 @@
 ---
-title: "Consulta por Nome"
-description: "Essa página tem como objetivo mostrar o fluxo de Consulta por Nome."
-icon: "jxl"
+title: "Consulta por Documento"
+description: "Essa página tem como objetivo mostrar o fluxo de Consulta por Documento."
+icon: "id-card"
 ---
 
-Para realizar a consulta por nome, é necessário criar uma requisição ao endpoint de consulta correspondente. Essa consulta pode ser realizada em nossa base de dados ou diretamente no tribunal. Vale destacar que os dados disponíveis em nossa base podem estar sujeitos a um atraso de atualização de até 30 dias.
+<Steps>
+ <Step title="Criação de Request" stepNumber="1">
+   Para realizar a consulta por documento, é necessário criar uma requisição ao endpoint de consulta correspondente. Essa consulta pode ser realizada em nossa base de dados ou diretamente no tribunal. Vale destacar que os dados disponíveis em nossa base podem estar sujeitos a um atraso de atualização de até 30 dias.
 
    ### Diferença entre Consulta On-Demand e Consulta Direto na Base de Dados
-    Para realizar a consulta por nome, é necessário criar uma requisição ao endpoint correspondente. Há duas opções disponíveis para a origem dos dados:
+    Para realizar a consulta por documento, é necessário criar uma requisição ao endpoint correspondente. Há duas opções disponíveis para a origem dos dados:
 
     #### Consulta na Base de Dados:
 
@@ -21,73 +23,19 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     Esta abordagem garante acesso aos dados mais atualizados, realizando comunicação direto com o tribunal.
     <Warning>
         As consultas On-Demand podem ter valores diferentes em relação às consultas realizadas na base de dados. Consulte nossa tabela de preços ou entre em contato com o suporte para mais detalhes.
-   </Warning>
-<Steps>
- <Step title="Criação de Request" stepNumber="1">
-   Para realizar a consulta por nome, é necessário primeiramente criar uma requisição para o endpoint de consulta nome.
-
-   Exemplo da criação da request por nome em nossa base de dados:
-   ```bash
-   curl --request POST
-     --url 'https://requests.prod.judit.io/requests'
-     --header 'Content-Type: application/json'
-     --header 'api-key: SUA-API-KEY'
-     --data '{
-       "search": {
-          "search_type": "name",
-          "search_key": "USUÁRIO TESTE"
-         }
-        }
-      '
-    ```
-
-    <Warning>
-    Ao realizar consultas por nome, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Recomendamos que, sempre que possível, utilize identificadores únicos, como CPF ou CNPJ, para garantir maior precisão nos resultados.
     </Warning>
 
-    Exemplo de criação da request por nome diretamente no tribunal, adicionando o parâmetro `on_demand`:
+   ## Payload da Solicitação
 
-      ```bash
-    curl --request POST
-        --url 'https://requests.prod.judit.io/requests'
-        --header 'Content-Type: application/json'
-        --header 'api-key: <API-KEY>'
-        --data '{
-            "search": {
-                "search_type": "name",
-                "search_key": "USUÁRIO TESTE",
-                "on_demand": true
-            }
-        }
-        '
-    ```
+    A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-     A resposta dessa requisição será um objeto JSON com os dados de criação da Request:
+    search_type: Este campo define o tipo de entidade que será buscada. Os valores possíveis são: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` ou `lawsuit_id`. Para buscas processuais, utilizaremos especificamente `cpf`, `cnpj` ou `oab`, que correspondem ao número do processo.
 
-     ```json
-     {
-       "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
-       "search": {
-         "search_type": "name",
-         "search_key": "USUÁRIO TESTE",
-         "response_type": "lawsuit",
-         "search_params": {
-           "filter": {},
-           "pagination": {}
-         }
-       },
-       "origin": "api",
-       "origin_id": "8c8bc14b-9f46-4e52-bc05-25a8af855690",
-       "user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
-       "status": "pending",
-       "created_at": "2024-02-16T13:14:09.645Z",
-       "updated_at": "2024-02-16T13:14:09.645Z",
-       "tags": {}
-      }
-     ```
-    <Note>
-    Na consulta por nome o search_type deve ser <strong>“name”</strong>.
-    </Note>
+    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou Name que você deseja buscar;
+    - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+    - `search_params`: Um objeto que contém alguns parâmetros da busca como: - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. - masked_response = `true`: retornará uma consulta completa - masked_response = `false`: retornará uma consulta simples
+
+      `Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
 
     Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
 
@@ -101,7 +49,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
 
     - `tribunals` (opcional): Um objeto que contém os filtros de tribunais:
 
-        - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](./glossary#lista-de-tribunais). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+        - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](/resource/glossary#lista-de-tribunais). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
         - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
 
     - `subject_codes` (opcional): Um objeto que contém os filtros de assuntos:
@@ -128,7 +76,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
 
         `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição desses documentos, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
 
-    Exemplo de consulta por documento com filtros:
+    Exemplo da criação da request por documento com filtros:
 
    ```bash
     curl --location 'https://requests.prod.judit.io/requests' \
@@ -136,8 +84,8 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     --header 'Content-Type: application/json' \
     --data '{
         "search": {
-            "search_type": "name",
-            "search_key": "usuário teste",
+            "search_type": "cnpj",
+            "search_key": "99.999.999/0009-99",
             "search_params": {
                 "filter": {
                     "side": "Passive",
@@ -146,8 +94,8 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                         "not_equal": false
                     },
                     "subject_codes": {
-                        "keys": ["10433"],
-                        "not_equal": false
+                        "contains": ["10433"],
+                        "not_contains": ["1120"]
                     },
                     "classification_codes": {
                         "keys": ["985"],
@@ -162,6 +110,75 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     }
     '
     ```
+
+
+   Exemplo da criação da request por documento em nossa base de dados:
+
+   ```bash
+   curl --request POST
+     --url 'https://requests.prod.judit.io/requests'
+     --header 'Content-Type: application/json'
+     --header 'api-key: SUA-API-KEY'
+     --data '{
+       "search": {
+          "search_type": "cpf",
+          "search_key": "999.999.999-99"
+        }
+      }
+      '
+    ```
+
+    Exemplo de criação da request por documento diretamente no tribunal, adicionando o parâmetro `on_demand`:
+
+     ```bash
+    curl --request POST
+        --url 'https://requests.prod.judit.io/requests'
+        --header 'Content-Type: application/json'
+        --header 'api-key: <API-KEY>'
+        --data '{
+            "search": {
+                "search_type": "cpf",
+                "search_key": "999.999.999-99",
+                "on_demand": true
+            }
+        }
+        '
+    ```
+
+    <Note>
+        Em consultas diretamento no tribunal é adicionado a propriedade ***on-demand*** com o booleano ***true***.
+    </Note>
+
+
+     A resposta dessa requisição será um objeto JSON com os dados de criação da Request.
+
+     Abaixo, apresentamos um exemplo de resposta da requisição POST de uma busca realizada em nossa base de dados sem filtros aplicados:
+
+     ```json
+     {
+       "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+       "search": {
+         "search_type": "cpf",
+         "search_key": "99999999999",
+         "response_type": "lawsuit",
+         "search_params": {
+           "filter": {},
+           "pagination": {}
+         }
+       },
+       "origin": "api",
+       "origin_id": "8c8bc14b-9f46-4e52-bc05-25a8af855690",
+       "user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
+       "status": "pending",
+       "created_at": "2024-02-16T13:14:09.645Z",
+       "updated_at": "2024-02-16T13:14:09.645Z",
+       "tags": {}
+      }
+     ```
+    <Note>
+    Na consulta por documento o search_type pode ser <strong>“oab”, “cpf” e “cnpj”</strong>.
+    </Note>
+
  </Step>
  <Step title="Consultar o status da request" stepNumber="2">
     <Warning>
@@ -181,8 +198,8 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
      {
         "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
         "search": {
-           "search_type": "name",
-           "search_key": "usuário teste",
+           "search_type": "cpf",
+           "search_key": "99999999999",
            "response_type": "lawsuit",
            "search_params": {
              "filter": {},
@@ -214,7 +231,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
     ```
    <Steps>
     <Step title="Processo encontrado">
-        <Accordion title="Exemplo de retorno quando o processo foi encontrado no tribunal">
+        <Accordion title="Exemplo de retorno quando o processo foi encontrado em nossa base de dados ou tribunal">
          ```json
          {
           "page": 1,
@@ -224,7 +241,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                   "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
                   "response_type": "lawsuit",
                   "response_data": {
-                      "code": "9999999-99.9999.9.99.9999",
+                      "code": "9999999-99.2023.8.19.9999",
                       "justice": "8",
                       "tribunal": "19",
                       "tribunal_acronym": "TJRJ",
@@ -269,7 +286,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 28790,
                       "parties": [
                           {
-                              "name": "Usuário teste",
+                              "name": "USUÁRIO TESTE ATIVO",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
@@ -277,7 +294,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                               "lawyers": []
                           },
                           {
-                              "name": "usuário teste 2",
+                              "name": "USUÁRIO TESTE PASSIVO",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
@@ -285,10 +302,34 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                               "lawyers": []
                           },
                           {
-                              "name": "usuário teste 3",
+                              "name": "USUÁRIO TESTE AUTOR",
+                              "side": "Active",
+                              "person_type": "Autor",
+                              "document": "18250433700",
+                              "document_type": "CPF",
+                              "lawyers": []
+                          },
+                          {
+                              "name": "LEONARDO MENDES LIMA",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
+                              "document_type": "CPF",
+                              "lawyers": []
+                          },
+                          {
+                              "name": "USUÁRIO TESTE 03",
+                              "side": "Active",
+                              "person_type": "Autor",
+                              "document": "99999999999",
+                              "document_type": "CPF",
+                              "lawyers": []
+                          },
+                          {
+                              "name": "USUÁRIO TESTE 04",
+                              "side": "Active",
+                              "person_type": "Autor",
+                              "document": "13482560790",
                               "document_type": "CPF",
                               "lawyers": []
                           }
@@ -297,14 +338,14 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "steps": [],
                       "related_lawsuits": [],
                       "last_step": {
-                          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                          "lawsuit_cnj": "9999999-99.2023.8.19.9999",
                           "lawsuit_instance": 1,
                           "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
                           "step_date": "2024-02-21T17:33:24.064Z",
                           "private": false,
                           "steps_count": 1
                       },
-                      "name": "usuário 1 E usuário 2",
+                      "name": "USUÁRIO TESTE 01 X USUÁRIO TESTE 02",
                       "distribution_date": "2023-06-06T17:35:50.000Z",
                       "phase": "Inicial",
                       "status": "Ativo"
@@ -321,7 +362,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                   "response_id": "66da2fca-6f5d-4664-9e46-0d34f80746c2",
                   "response_type": "lawsuit",
                   "response_data": {
-                      "code": "9999999-99.9999.9.99.9999",
+                      "code": "9999999-99.2022.5.01.9999",
                       "justice": "5",
                       "tribunal": "01",
                       "tribunal_acronym": "TRT1",
@@ -358,52 +399,56 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 7685.82,
                       "parties": [
                           {
-                              "name": "usuário teste",
+                              "name": "USUÁRIO TESTE",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": [
                                   {
-                                      "name": "usuário teste 2",
+                                      "name": "ADVOGADO TESTE",
                                       "side": "Active",
                                       "person_type": "Advogado"
                                   }
                               ]
                           },
                           {
-                              "name": "usuário teste 3",
+                              "name": "USUÁRIO TESTE 02",
                               "side": "Passive",
                               "person_type": "Réu",
                               "document": "99999999999",
                               "document_type": "CPF",
                               "lawyers": [
                                   {
-                                      "name": "usuário teste 4",
+                                      "name": "ADVOGADO TESTE 02",
                                       "side": "Passive",
                                       "person_type": "Advogado"
                                   }
                               ]
                           },
-                          
+                          {
+                              "person_type": "Advogado",
+                              "side": "Active",
+                              "name": "ADVOGADO TESTE03"
+                          }
                       ],
                       "attachments": [],
                       "steps": [],
                       "related_lawsuits": [],
                       "last_step": {
-                          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                          "lawsuit_cnj": "9999999-99.2022.5.01.9999",
                           "lawsuit_instance": 1,
                           "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
                           "step_date": "2024-02-21T17:33:24.063Z",
                           "private": false,
                           "steps_count": 1
                       },
-                      "name": "usuário teste",
+                      "name": "USUÁRIO TESTE 01 X USUÁRIO TESTE 02",
                       "distribution_date": "2022-03-30T16:41:24.000Z",
                       "phase": "Inicial",
                       "status": "Ativo"
                   },
-                  "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+                  "user_id": "9999999-c664-4d7b-b174-2f0dc4791daf",
                   "created_at": "2024-02-21T17:33:24.490Z",
                   "request_status": "completed",
                   "tags": {
@@ -415,7 +460,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                   "response_id": "5f83741e-97f4-4c3b-84fb-6c49e4cfe494",
                   "response_type": "lawsuit",
                   "response_data": {
-                      "code": "0824046-82.2023.8.19.0204",
+                      "code": "9999999-99.2023.8.19.9999",
                       "justice": "8",
                       "tribunal": "19",
                       "tribunal_acronym": "TJRJ",
@@ -456,7 +501,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "amount": 46831,
                       "parties": [
                           {
-                              "name": "usuário teste 5",
+                              "name": "USUÁRIO TESTE 01",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
@@ -464,7 +509,7 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                               "lawyers": []
                           },
                           {
-                              "name": "usuário teste 6",
+                              "name": "USUÁRIO TESTE 02",
                               "side": "Active",
                               "person_type": "Autor",
                               "document": "99999999999",
@@ -476,14 +521,14 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
                       "steps": [],
                       "related_lawsuits": [],
                       "last_step": {
-                          "lawsuit_cnj": "0824046-82.2023.8.19.0204",
+                          "lawsuit_cnj": "9999999-99.9999.8.19.9999",
                           "lawsuit_instance": 1,
                           "step_id": "YpIR5rAfSprFSseqRe9oVUPtkKcgQI0Na8RIv1djKZI=",
                           "step_date": "2024-02-21T17:33:24.063Z",
                           "private": false,
                           "steps_count": 1
                       },
-                      "name": "FERNANDO SILVA DE SOUZA X GRUPO HURB VIAGENS E TURISMO S/A",
+                      "name": "USUÁRIO TESTE 01 X USUÁRIO TESTE 02",
                       "phase": "Inicial",
                       "status": "Ativo"
                   },
@@ -503,39 +548,32 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
         </Accordion>
     </Step>
     <Step title="Processo não encontrado">
-      Exemplo de retorno quando o processo não foi encontrado no tribunal:
+      Exemplo de retorno quando o processo não foi encontrado em nossa base de dados ou tribunal:
         ```json
         {
+            "request_status": "completed",
             "page": 1,
-            "page_data": [
-                {
-                    "request_id": "ef1ea0fb-cac8-4901-8415-2af08822765b",
-                    "response_id": "4ecdf43c-4a21-4138-969b-5f7e6b21654d",
-                    "response_type": "application_error",
-                    "response_data": {
-                        "code": 2,
-                        "message": "LAWSUIT_NOT_FOUND"
-                    },
-                    "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-                    "created_at": "2024-02-21T17:28:05.659Z",
-                    "request_status": "completed",
-                    "tags": {
-                        "dashboard_id": null
-                    }
-                }
-            ],
-            "page_count": 1,
-            "all_count": 1,
-            "all_pages_count": 1
+            "page_count": 0,
+            "all_pages_count": 0,
+            "all_count": 0,
+            "page_data": []
         }
         ```
+
+        <Warning>
+            Verifique o parâmetro `request_status` para garantir que a resposta foi processada com sucesso. O valor deve ser **completed**. Caso contrário, a solicitação ainda está em processamento.
+        </Warning>
     </Step>
+    
    </Steps>
     Os parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
     percorrer as páginas com os processos, caso venham mais de uma, o
-    que é comum no caso de consulta por nome.
+    que é comum no caso de consulta por documento.
 
     <Accordion title="As propriedades de paginação:" defaultOpen>
+        <ParamField body="request_status" name="request_status" type="string" required={false}>
+            Define o status da resposta.
+        </ParamField>
         <ParamField body="page" name="page" type="integer" required={false}>
             Define a página atual da busca.
         </ParamField>
@@ -553,10 +591,8 @@ Para realizar a consulta por nome, é necessário criar uma requisição ao endp
         </ParamField>
     </Accordion>
 
-   O significado de cada campo pode ser encontrado no glossário:
+   O significado de cada campo pode ser encontrado no **[glossário](/resource/glossary)**
 
-   <a href="https://docs.judit.io/essentials/glossary">
-   https://docs.judit.io/essentials/glossary
-   </a>
+   
  </Step>
 </Steps>

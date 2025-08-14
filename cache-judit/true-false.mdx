@@ -1,0 +1,43 @@
+---
+title: "Consultas True/False"
+description: "Consultando a existência de processos para o Documento"
+icon: "check"
+---
+
+A consulta síncrona permite verificar rapidamente se um CPF, CNPJ, OAB ou nome possui processos registrados em nosso datalake. Ela retorna, de forma ágil, uma resposta indicando a existência ou não de processos, quantidade de processos, consulta histórica hot storage e consulta sintética de processos.
+
+Na consulta síncrona, são retornados apenas os dados já disponíveis em nossa base de acordo com os filtros aplicados, garantindo uma resposta mais rápida. Contudo, isso pode resultar em um pequeno atraso na obtenção de informações mais completas. Para acessar dados atualizados e abrangentes, é fundamental realizar uma consulta assíncrona, que buscará diretamente nos tribunais trazendo as informações atualizadas.
+
+<Warning>
+Todas as consultas históricas síncronas podem incluir filtros específicos para refinar os resultados. Caso deseje receber um grupo específico de itens, basta realizar a consulta informando os [filtros](./requests#consultando-respostas-de-buscas) desejados.
+</Warning>
+
+ara esse endpoint o retorno é um booleano informando se existem processos atrelados ao documento consultado. Essa abordagem é ideal para cenários que exigem tempos de resposta rápidos, como em rotinas de onboarding. No entanto, se além da resposta imediata indicando a existência de processos for necessário acionar, em paralelo, uma consulta histórica em segundo plano, basta incluir a propriedade `create_complete_request` com o valor `true`.
+
+Para esse tipo de consulta é necessário realizar uma requisição para o endpoint `/requests/create`. Abaixo, segue um exemplo de como fazer essa requisição utilizando o cURL.
+
+### Exemplo de payload
+
+```json 
+curl --location 'https://lawsuits.production.judit.io/requests/create' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <API-KEY>' \
+--data '{
+"search": {
+"search_type": "cpf",
+"search_key": "999.999.999-99"
+}
+}'
+```
+
+## Resposta esperada
+
+```json 
+{
+    "has_lawsuits": true,
+    "request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
+    "response_data": []
+}
+```
+
+Lembrando que com o request_id você pode consultar a resposta vinda dos tribunais da mesma forma que é feito na criação de requests padrão: https://docs.judit.io/api-reference/endpoint/requests/create
