@@ -20,23 +20,9 @@ description: "A Judit API implementa **rate limiting** para garantir uso justo d
 | `POST /tracking` | 180/min | Criação de monitoramentos |
 | `GET /tracking` | 180/min | Listagem de monitoramentos |
 
-
-## Tratamento de Erro 429
-
-### Resposta de Rate Limit Excedido
-
-```json
-{
-  "error": "Rate limit exceeded",
-  "message": "Muitas requisições. Tente novamente em 60 segundos.",
-  "code": "RATE_LIMIT_EXCEEDED",
-  "retry_after": 60
-}
-```
-
 ## Próximos Passos
 
 - **[Endpoints](/endpoints/requests)**: Explore limites específicos por endpoint
 - **[Monitoramento](/endpoints/tracking)**: Configure alertas de uso
 
-> **Importante**: Para aplicações com alto volume, entre em contato para discutir limites personalizados.
+> **Importante**: Para aplicações com alto volume, entre em [contato](https://api.whatsapp.com/send/?phone=55219852841438865) para discutir limites personalizados.

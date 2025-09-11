@@ -38,8 +38,10 @@ curl -X GET "https://requests.prod.judit.io/requests" \
   -H "Content-Type: application/json"
 ```
 
-**Python:**
-```python
+<CodeGroup>
+
+
+```python  Python
 import os
 import requests
 
@@ -59,8 +61,8 @@ response = requests.get(
 )
 ```
 
-**JavaScript:**
-```javascript
+
+```javascript  JavaScript
 // Configurar API Key
 const apiKey = process.env.JUDIT_API_KEY;
 
@@ -76,6 +78,8 @@ const response = await fetch('https://requests.prod.judit.io/requests', {
     headers: headers
 });
 ```
+
+</CodeGroup>
 
 ## Boas Práticas de Segurança
 
@@ -142,7 +146,7 @@ api_key = os.getenv('JUDIT_API_KEY')
 
 - **Monitore** o uso de sua API Key regularmente
 - **Solicite nova chave** se suspeitar de comprometimento
-- **Implemente rotação** automática em ambientes críticos
+- **Implemente rotação** implementação em ambientes críticos
 
 ## Tratamento de Erros de Autenticação
 
@@ -150,9 +154,11 @@ api_key = os.getenv('JUDIT_API_KEY')
 
 ```json
 {
-  "error": "Unauthorized",
-  "message": "API key inválida ou ausente",
-  "code": "INVALID_API_KEY"
+  "error": {
+        "name": "HttpUnauthorizedError",
+        "message": "UNAUTHORIZED",
+        "data": "USER_NOT_FOUND"
+    }
 }
 ```
 
@@ -160,24 +166,6 @@ api_key = os.getenv('JUDIT_API_KEY')
 - API Key não fornecida
 - API Key inválida ou expirada
 - Header `api-key` mal formatado
-
-**Como resolver:**
-```python
-def handle_auth_error(response):
-    if response.status_code == 401:
-        error_data = response.json()
-        
-        if error_data.get('code') == 'INVALID_API_KEY':
-            print("Erro: API Key inválida")
-            print("Verifique se a chave está correta e ativa")
-            
-        # Log do erro para debugging
-        logging.error(f"Erro de autenticação: {error_data}")
-        
-        return None
-    
-    return response.json()
-```
 
 ### Erro 403 - Forbidden
 
@@ -254,22 +242,11 @@ def check_api_usage(response):
 
 ## Configuração por Ambiente
 
-### Desenvolvimento
-```python
-# config/development.py
-import os
-
-API_KEY = os.getenv('JUDIT_API_KEY_DEV')
-BASE_URL = 'https://requests.prod.judit.io'
-TIMEOUT = 30
-```
-
-### Produção
 ```python
 # config/production.py
 import os
 
-API_KEY = os.getenv('JUDIT_API_KEY_PROD')
+API_KEY = os.getenv('JUDIT_API_KEY')
 BASE_URL = 'https://requests.prod.judit.io'
 TIMEOUT = 10
 RETRY_ATTEMPTS = 3

@@ -10,27 +10,18 @@ description: "A Judit API utiliza paginação baseada em **cursor** para navegar
 | Parâmetro | Tipo | Padrão | Descrição |
 |-----------|------|--------|-----------|
 | `page` | integer | 1 | Número da página (baseado em 1) |
-| `page_size` | integer | 20 | Quantidade de itens por página (máx: 100) |
+| `page_size` | integer | 20 | Quantidade de itens por página (recomendamos um máximo de 100 para melhor desempenho) |
 
 ### Estrutura da Resposta
 
 ```json
 {
-  "page_data": [
-    // Array com os dados da página atual
-  ],
-  "links": {
-    "next": "https://requests.prod.judit.io/requests?page=2&page_size=20",
-    "prev": "https://requests.prod.judit.io/requests?page=1&page_size=20",
-    "first": "https://requests.prod.judit.io/requests?page=1&page_size=20",
-    "last": "https://requests.prod.judit.io/requests?page=10&page_size=20"
-  },
-  "meta": {
-    "page": 1,
-    "page_count": 2,
-    "all_pages_count": 10,
-    "all_count": 200,
-  }
+    
+    "page": 1,             // Página atual retornada
+    "page_count": 2,       // Quantidade de páginas disponíveis nesta consulta
+    "all_pages_count": 10, // Total de páginas considerando todos os registros
+    "all_count": 200       // Total de itens encontrados na consulta
+    
 }
 ```
 
@@ -169,241 +160,6 @@ if ($data) {
 
 </CodeGroup>
 
-## Navegação com Cursor
-
-### Usando Links de Navegação
-
-A forma mais eficiente é usar os links fornecidos na resposta:
-
-<CodeGroup>
-
-```python Python
-def fetch_all_pages(endpoint, max_pages=None):
-    """Busca todas as páginas de um endpoint"""
-    all_data = []
-    current_url = f"{base_url}/{endpoint}?page=1&page_size=50"
-    page_count = 0
-    
-    while current_url and (max_pages is None or page_count < max_pages):
-        response = requests.get(current_url, headers=headers)
-        
-        if response.status_code != 200:
-            print(f"Erro na página {page_count + 1}: {response.status_code}")
-            break
-            
-        data = response.json()
-        all_data.extend(data.get('page_data', []))
-        
-        # Próxima página usando o link fornecido
-        current_url = data.get('links', {}).get('next')
-        page_count += 1
-        
-        print(f"Processada página {page_count}, "
-              f"itens coletados: {len(all_data)}")
-    
-    return all_data
-
-# Buscar todas as requisições
-all_requests = fetch_all_pages('requests', max_pages=5)
-print(f"Total de requisições coletadas: {len(all_requests)}")
-```
-
-```javascript JavaScript
-async function fetchAllPages(endpoint, maxPages = null) {
-    const allData = [];
-    let currentUrl = `${baseUrl}/${endpoint}?page=1&page_size=50`;
-    let pageCount = 0;
-    
-    while (currentUrl && (maxPages === null || pageCount < maxPages)) {
-        try {
-            const response = await fetch(currentUrl, { headers });
-            
-            if (!response.ok) {
-                console.error(`Erro na página ${pageCount + 1}: ${response.status}`);
-                break;
-            }
-            
-            const data = await response.json();
-            allData.push(...(data.page_data || []));
-            
-            // Próxima página usando o link fornecido
-            currentUrl = data.links?.next;
-            pageCount++;
-            
-            console.log(`Processada página ${pageCount}, itens coletados: ${allData.length}`);
-            
-        } catch (error) {
-            console.error('Erro na requisição:', error);
-            break;
-        }
-    }
-    
-    return allData;
-}
-
-// Buscar todas as requisições
-const allRequests = await fetchAllPages('requests', 5);
-console.log(`Total de requisições coletadas: ${allRequests.length}`);
-```
-
-```php PHP
-<?php
-function fetchAllPages($endpoint, $maxPages = null) {
-    global $apiKey, $baseUrl, $headers;
-    
-    $allData = [];
-    $currentUrl = "{$baseUrl}/{$endpoint}?page=1&page_size=50";
-    $pageCount = 0;
-    
-    while ($currentUrl && ($maxPages === null || $pageCount < $maxPages)) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $currentUrl);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "api-key: {$apiKey}",
-            "Content-Type: application/json"
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode !== 200) {
-            echo "Erro na página " . ($pageCount + 1) . ": {$httpCode}\n";
-            break;
-        }
-        
-        $data = json_decode($response, true);
-        if (isset($data['page_data'])) {
-            $allData = array_merge($allData, $data['page_data']);
-        }
-        
-        // Próxima página usando o link fornecido
-        $currentUrl = $data['links']['next'] ?? null;
-        $pageCount++;
-        
-        echo "Processada página {$pageCount}, itens coletados: " . count($allData) . "\n";
-    }
-    
-    return $allData;
-}
-
-// Buscar todas as requisições
-$allRequests = fetchAllPages('requests', 5);
-echo "Total de requisições coletadas: " . count($allRequests) . "\n";
-?>
-```
-
-</CodeGroup>
-
-## Paginação com Filtros
-
-### Combinando Filtros e Paginação
-
-<CodeGroup>
-
-```python Python
-def get_filtered_requests(status=None, page=1, page_size=20):
-    """Busca requisições com filtro de status"""
-    params = {
-        'page': page,
-        'page_size': page_size
-    }
-    
-    if status:
-        params['status'] = status
-    
-    response = requests.get(
-        f"{base_url}/requests",
-        headers=headers,
-        params=params
-    )
-    
-    return response.json() if response.status_code == 200 else None
-
-# Buscar apenas requisições completadas
-completed_requests = get_filtered_requests(
-    status='completed',
-    page=1,
-    page_size=50
-)
-```
-
-```javascript JavaScript
-async function getFilteredRequests(status = null, page = 1, pageSize = 20) {
-    // Busca requisições com filtro de status
-    
-    const params = new URLSearchParams({
-        page: page.toString(),
-        page_size: pageSize.toString()
-    });
-    
-    if (status) {
-        params.append('status', status);
-    }
-    
-    try {
-        const response = await fetch(`${baseUrl}/requests?${params}`, {
-            headers: headers
-        });
-        
-        return response.ok ? await response.json() : null;
-    } catch (error) {
-        console.error('Erro na requisição:', error);
-        return null;
-    }
-}
-
-// Buscar apenas requisições completadas
-const completedRequests = await getFilteredRequests(
-    'completed',
-    1,
-    50
-);
-```
-
-```php PHP
-<?php
-function getFilteredRequests($status = null, $page = 1, $pageSize = 20) {
-    global $apiKey, $baseUrl;
-    
-    $params = [
-        'page' => $page,
-        'page_size' => $pageSize
-    ];
-    
-    if ($status) {
-        $params['status'] = $status;
-    }
-    
-    $queryString = http_build_query($params);
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "{$baseUrl}/requests?{$queryString}");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "api-key: {$apiKey}",
-        "Content-Type: application/json"
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    return $httpCode === 200 ? json_decode($response, true) : null;
-}
-
-// Buscar apenas requisições completadas
-$completedRequests = getFilteredRequests(
-    'completed',
-    1,
-    50
-);
-?>
-```
-
-</CodeGroup>
-
 ### Paginação em Monitoramentos
 
 <CodeGroup>
@@ -508,7 +264,7 @@ large_page = get_requests_page(page=1, page_size=100)  # Máximo
 const smallPage = await getRequestsPage(1, 10);
 
 // Para processamento em lote
-const largePage = await getRequestsPage(1, 100);  // Máximo
+const largePage = await getRequestsPage(1, 5000);
 ```
 
 ```php PHP
@@ -517,7 +273,7 @@ const largePage = await getRequestsPage(1, 100);  // Máximo
 $smallPage = getRequestsPage(1, 10);
 
 // Para processamento em lote
-$largePage = getRequestsPage(1, 100);  // Máximo
+$largePage = getRequestsPage(1, 5000);
 ?>
 ```
 
@@ -686,16 +442,16 @@ def paginate_with_rate_limit(endpoint, delay=0.2):
             
         all_data.extend(data['page_data'])
         
-        # Verificar se há próxima página
-        if not data.get('meta', {}).get('has_next'):
+        # Verificar se ainda há páginas para percorrer
+        if page >= data.get('all_pages_count', 1):
             break
-            
+        
         page += 1
         
         # Delay para respeitar rate limit
         time.sleep(delay)
         
-        print(f"Página {page-1} processada, "
+        print(f"Página {page} processada, "
               f"total: {len(all_data)} itens")
     
     return all_data
@@ -705,31 +461,31 @@ def paginate_with_rate_limit(endpoint, delay=0.2):
 async function paginateWithRateLimit(endpoint, delay = 200) {
     // Paginação respeitando rate limits
     let page = 1;
-    const allData = [];
+    const allData: any[] = [];
     
     while (true) {
-        // Fazer requisição
+        // Fazer requisição (ajuste o getRequestsPage para receber endpoint e page)
         const data = await getRequestsPage(page, 50);
-        
+
         if (!data || !data.page_data) {
             break;
         }
-        
+
         allData.push(...data.page_data);
-        
-        // Verificar se há próxima página
-        if (!data.meta?.has_next) {
+
+        // Verificar se ainda há páginas para percorrer
+        if (page >= data.all_pages_count) {
             break;
         }
-        
+
         page++;
-        
+
         // Delay para respeitar rate limit
         await new Promise(resolve => setTimeout(resolve, delay));
-        
-        console.log(`Página ${page-1} processada, total: ${allData.length} itens`);
+
+        console.log(`Página ${page - 1} processada, total: ${allData.length} itens`);
     }
-    
+
     return allData;
 }
 ```
@@ -751,8 +507,8 @@ function paginateWithRateLimit($endpoint, $delay = 0.2) {
         
         $allData = array_merge($allData, $data['page_data']);
         
-        // Verificar se há próxima página
-        if (!($data['meta']['has_next'] ?? false)) {
+        // Verificar se ainda há próxima página
+        if ($page >= ($data['all_pages_count'] ?? 1)) {
             break;
         }
         
@@ -761,152 +517,13 @@ function paginateWithRateLimit($endpoint, $delay = 0.2) {
         // Delay para respeitar rate limit
         usleep($delay * 1000000); // usleep usa microssegundos
         
-        echo "Página " . ($page-1) . " processada, total: " . count($allData) . " itens\n";
+        echo "Página " . $page . " processada, total: " . count($allData) . " itens\n";
     }
     
     return $allData;
 }
 ?>
-```
 
-</CodeGroup>
-
-## Tratamento de Erros
-
-### Erros Comuns de Paginação
-
-<CodeGroup>
-
-```python Python
-import time
-import requests
-
-def safe_paginate(endpoint, max_retries=3):
-    """Paginação com tratamento de erros"""
-    page = 1
-    all_data = []
-    
-    while True:
-        retry_count = 0
-        
-        while retry_count < max_retries:
-            try:
-                data = get_requests_page(page, 50)
-                
-                if not data:
-                    return all_data
-                    
-                all_data.extend(data.get('page_data', []))
-                
-                if not data.get('meta', {}).get('has_next'):
-                    return all_data
-                    
-                break  # Sucesso, sair do loop de retry
-                
-            except requests.RequestException as e:
-                retry_count += 1
-                if retry_count >= max_retries:
-                    print(f"Erro após {max_retries} tentativas: {e}")
-                    return all_data
-                    
-                # Backoff exponencial
-                time.sleep(2 ** retry_count)
-        
-        page += 1
-    
-    return all_data
-```
-
-```javascript JavaScript
-async function safePaginate(endpoint, maxRetries = 3) {
-    // Paginação com tratamento de erros
-    let page = 1;
-    const allData = [];
-    
-    while (true) {
-        let retryCount = 0;
-        
-        while (retryCount < maxRetries) {
-            try {
-                const data = await getRequestsPage(page, 50);
-                
-                if (!data) {
-                    return allData;
-                }
-                
-                allData.push(...(data.page_data || []));
-                
-                if (!data.meta?.has_next) {
-                    return allData;
-                }
-                
-                break; // Sucesso, sair do loop de retry
-                
-            } catch (error) {
-                retryCount++;
-                if (retryCount >= maxRetries) {
-                    console.error(`Erro após ${maxRetries} tentativas:`, error);
-                    return allData;
-                }
-                
-                // Backoff exponencial
-                await new Promise(resolve => 
-                    setTimeout(resolve, Math.pow(2, retryCount) * 1000)
-                );
-            }
-        }
-        
-        page++;
-    }
-    
-    return allData;
-}
-```
-
-```php PHP
-<?php
-function safePaginate($endpoint, $maxRetries = 3) {
-    // Paginação com tratamento de erros
-    $page = 1;
-    $allData = [];
-    
-    while (true) {
-        $retryCount = 0;
-        
-        while ($retryCount < $maxRetries) {
-            try {
-                $data = getRequestsPage($page, 50);
-                
-                if (!$data) {
-                    return $allData;
-                }
-                
-                $allData = array_merge($allData, $data['page_data'] ?? []);
-                
-                if (!($data['meta']['has_next'] ?? false)) {
-                    return $allData;
-                }
-                
-                break; // Sucesso, sair do loop de retry
-                
-            } catch (Exception $e) {
-                $retryCount++;
-                if ($retryCount >= $maxRetries) {
-                    echo "Erro após {$maxRetries} tentativas: " . $e->getMessage() . "\n";
-                    return $allData;
-                }
-                
-                // Backoff exponencial
-                sleep(pow(2, $retryCount));
-            }
-        }
-        
-        $page++;
-    }
-    
-    return $allData;
-}
-?>
 ```
 
 </CodeGroup>

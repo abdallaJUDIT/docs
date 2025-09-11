@@ -4,11 +4,17 @@ description: "Tutorial completo para fazer sua primeira consulta na Judit API"
 ---
 ## Fluxo Básico
 
-A Judit API funciona com um padrão assíncrono:
+A Judit API funciona com um padrão síncrono e assíncrono:
+
+### Requisições com padrão assíncrono:
 
 1. **Criar requisição** (`POST /requests`) - Inicia a consulta
-2. **Aguardar processamento** (`GET /requests`) - A API busca os dados nos tribunais
+2. **Aguardar processamento** (`GET /requests`) - A API busca os dados nos tribunais(Acompanhar status)
 3. **Consultar resultado** (`GET /responses`) - Obtém os dados processados
+
+### Requisições com padrão síncrono:
+
+1. **Criar requisição** (`POST /lawsuits`) - Inicia a consulta e já entrega a resposta
 
 ## Pré-requisitos
 
@@ -36,7 +42,6 @@ curl -X POST "$JUDIT_BASE_URL/requests" \
     "search": {
       "search_type": "cpf",
       "search_key": "999.999.999-99",
-      "response_type": "lawsuit",
       "cache_ttl_in_days": 7
     }
   }'
@@ -60,7 +65,6 @@ payload = {
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99",
-        "response_type": "lawsuit",
         "cache_ttl_in_days": 7
     }
 }
@@ -88,7 +92,6 @@ const payload = {
     search: {
         search_type: 'cpf',
         search_key: '999.999.999-99',
-        response_type: 'lawsuit',
         cache_ttl_in_days: 7
     }
 };
@@ -119,8 +122,7 @@ $headers = [
 $payload = [
     'search' => [
         'search_type' => 'cpf',
-        'search_key' => '999.999.999-99',
-        'response_type' => 'lawsuit',
+        'search_key' => '999.999.999-99'
         'cache_ttl_in_days' => 7
     ]
 ];
@@ -174,7 +176,6 @@ func main() {
     payload := SearchRequest{}
     payload.Search.SearchType = "cpf"
     payload.Search.SearchKey = "999.999.999-99"
-    payload.Search.ResponseType = "lawsuit"
     payload.Search.CacheTTLInDays = 7
     
     jsonData, _ := json.Marshal(payload)
@@ -409,8 +410,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "cpf",
-    "search_key": "999.999.999-99",
-    "response_type": "lawsuit"
+    "search_key": "999.999.999-99"
   }
 }
 ```
@@ -419,8 +419,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "cnpj",
-    "search_key": "999.999/99999-99",
-    "response_type": "lawsuit"
+    "search_key": "999.999/99999-99"
   }
 }
 ```
@@ -429,8 +428,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "oab",
-    "search_key": "999999-SP",
-    "response_type": "lawsuit"
+    "search_key": "999999-SP
   }
 }
 ```
@@ -439,8 +437,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "lawsuit_cnj",
-    "search_key": "9999999-99.9999.9.99.9999",
-    "response_type": "lawsuit"
+    "search_key": "9999999-99.9999.9.99.9999"
   }
 }
 ```
@@ -449,8 +446,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "name",
-    "search_key": "Nome teste",
-    "response_type": "lawsuit"
+    "search_key": "Nome teste"
   }
 }
 ```
@@ -459,11 +455,9 @@ if statusData["status"] == "completed" {
 
 ## Tipos de Resposta
 
-- **`lawsuit`**: Dados completos do processo
 - **`parties`**: Apenas informações das partes
 - **`attachments`**: Lista de anexos disponíveis
 - **`step`**: Movimentações processuais
-- **`lawsuits`**: Múltiplos processos (para consultas amplas)
 
 ## Filtros Avançados
 
@@ -474,12 +468,11 @@ Para consultas mais específicas por <strong>documento</strong>, é possivel uti
   "search": {
     "search_type": "cpf",
     "search_key": "999.999.999-99",
-    "response_type": "lawsuit",
     "search_params": {
       "filter": {
-        "side": "autor",
+        "side":"passive",
         "amount_gte": 10000,
-        "distribution_date_gte": "2023-01-01",
+        "distribution_date_gte": "2024-10-10T00:00:00.000Z",
         "tribunals": {
           "keys": ["TJSP", "TJRJ"],
           "not_equal": false
@@ -494,6 +487,7 @@ Para consultas mais específicas por <strong>documento</strong>, é possivel uti
 
 ### 1. **Use Cache Inteligente**
 Configure `cache_ttl_in_days` para evitar consultas desnecessárias:
+Esse campo define por quantos dias um resultado armazenado em cache será considerado válido antes de uma nova consulta ser feita.
 ```json
 {
   "cache_ttl_in_days": 7  // Usar cache por até 7 dias
@@ -501,31 +495,29 @@ Configure `cache_ttl_in_days` para evitar consultas desnecessárias:
 ```
 
 ### 2. **Implemente Retry com Backoff**
-```python
-import time
-import random
+```javascript
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  } // Função setTimeout auxiliar de pausa baseada em setTimeout (nativa do JavaScript)
 
-def retry_with_backoff(func, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            return func()
-        except Exception as e:
-            if attempt == max_retries - 1:
-                raise e
-            wait_time = (2 ** attempt) + random.uniform(0, 1)
-            time.sleep(wait_time)
-```
+  async function retryWithBackoff(func, maxRetries = 3) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return await func();
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          throw error; // Última tentativa falhou, propaga o erro
+        }
 
-### 3. **Monitore Rate Limits**
-```python
-response = requests.get(url, headers=headers)
-
-# Verificar headers de rate limit
-remaining = response.headers.get('X-RateLimit-Remaining')
-reset_time = response.headers.get('X-RateLimit-Reset')
-
-if int(remaining) < 10:
-    print("Próximo do limite de rate limit!")
+        // Backoff exponencial + jitter aleatório
+        const waitTime = (2 ** attempt) * 1000 + Math.random() * 1000;
+        console.log(
+          `Tentativa ${attempt + 1} falhou. Aguardando ${waitTime.toFixed(0)}ms antes de tentar novamente...`
+        );
+        await sleep(waitTime);
+      }
+    }
+  }
 ```
 
 ## Próximos Passos

@@ -7,23 +7,74 @@ description: "O objeto `lawsuit` é a estrutura de dados central que representa 
 
 O objeto lawsuit é organizado em seções principais que agrupam informações relacionadas:
 
-- **response_data**: Dados principais do processo
-- **PARTES (parties)**: Informações sobre as partes envolvidas
-- **ANDAMENTO (steps)**: Histórico de movimentações processuais
-- **ANEXOS (attachments)**: Documentos anexados ao processo
+- **CAPA PROCESSUAL(response_data)**: Dados principais do processo.
+- **PARTES (parties)**: Informações sobre as partes envolvidas.
+- **ANDAMENTO (steps)**: Histórico de movimentações processuais.
+- **ANEXOS (attachments)**: Documentos anexados ao processo.
+- **PROCESSOS RELACIONADOS (related_lawsuits)**: Processos relacionados ao consultados.
 
 ## Propriedades Principais
 
 ### response_data
 
-| Propriedade | Tipo | Descrição |
-|-------------|------|-----------|
-| `area` | string | Área do processo (ex: DIREITO À EDUCAÇÃO, DIREITO ADMINISTRATIVO, etc.) |
-| `name` | string | Descrição/nome do processo |
-| `distribution_date` | string | Data de distribuição |
-| `instance` | string | Grau do processo (instância) |
-| `court` | string | Fórum responsável |
-| `secrecy_level` | integer | Nível de sigilo ou segredo (0-5) |
+| Propriedade           | Tipo     | Descrição |
+|------------------------|----------|-----------|
+| `area`                | string   | Área do direito (ex: DIREITO À EDUCAÇÃO, DIREITO ADMINISTRATIVO, DIREITO AMBIENTAL, etc.) |
+| `name`                | string   | Descrição ou nome do processo (ex: 1 PARTE ATIVA X 1 PARTE PASSIVA) |
+| `distribution_date`   | string   | Data de distribuição do processo |
+| `instance`            | string   | Grau do processo (instância) |
+| `courts`              | string   | Fórum responsável |
+| `secrecy_level`       | integer  | Nível de sigilo (0 = público, 1 = segredo de justiça, 2 = restrito a servidores, 3 = restrito a unidade judicial, 4 = sigiloso apenas para magistrados e chefes de cartório, 5 = sigilo absoluto) |
+| `subjects`            | array    | Assuntos do processo, de acordo com a tabela de assuntos do CNJ |
+| `classifications`     | array    | Classes do processo, de acordo com a tabela de classes do CNJ |
+| `judge`               | string   | Nome do juiz ou relator |
+| `code`                | string   | Número do processo (CNJ) |
+| `justice_description` | string   | Tipo de justiça (ex: STF, CNJ, STJ, Justiça Federal, Justiça do Trabalho, Justiça Eleitoral, Justiça Militar da União, Justiça Estadual, Justiça Militar Estadual) |
+| `county`              | string   | Comarca |
+| `tribunal_acronym`    | string   | Sigla do tribunal |
+| `city`                | string   | Cidade |
+| `state`               | string   | Unidade Federativa (UF) |
+| `situation`           | string   | Situação ou status do processo capturado no tribunal |
+| `phase`               | string   | Fase do processo (ex: INICIAL, SENTENÇA, EXECUÇÃO OU CUMPRIMENTO, TRÂNSITO EM JULGADO OU EM ACORDO, RECURSO, ARQUIVADO, SUSPENSO, REATIVADO, CANCELADO) |
+| `status`              | string   | Status do processo (ATIVO ou FINALIZADO) |
+| `amount`              | number   | Valor da causa |
+
+### parties
+
+| Propriedade     | Tipo   | Descrição |
+|-----------------|--------|-----------|
+| `name`          | string | Nome da parte |
+| `main_document` | string | Documento principal da parte (CPF ou CNPJ) |
+| `side`          | string | Polo da parte: `ACTIVE`, `PASSIVE`, `INTERESTED` ou `UNKNOWN` |
+| `person_type`   | string | Papel da parte no processo (ex: RÉU, AUTOR, ADVOGADO, RECORRENTE, RECORRIDO, etc.) |
+| `documents`     | array  | Array de documentos; cada item contém `document_type` (ex: CPF, CNPJ, OAB) e `document` (número) |
+| `lawyers`       | array  | Array de advogados vinculados à parte; se o tribunal não ligar o advogado a uma parte, ele pode aparecer no array principal de partes |
+
+### steps
+
+| Propriedade  | Tipo    | Descrição |
+|--------------|---------|-----------|
+| `step_date`  | string  | Data do andamento |
+| `step_type`  | string  | Código do andamento, de acordo com a tabela de movimentos do CNJ |
+| `content`    | string  | Conteúdo/texto do andamento |
+| `private`    | boolean | Indica se o andamento está sob sigilo |
+
+### attachments
+
+| Propriedade       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `step_id`         | string  | ID do andamento ao qual o anexo está vinculado |
+| `attachment_date` | string  | Data do anexo |
+| `attachment_name` | string  | Título do anexo |
+| `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
+
+### related_lawsuits
+
+| Propriedade       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `code`         | string  | Número do processo(CNJ) |
+| `instance`     | string  | Grau do processo |
+
 
 #### Níveis de Sigilo
 O sistema utiliza níveis de 0 a 5 para classificar o sigilo processual. Para a lista completa de níveis e suas descrições, consulte [Enumerações do Objeto Lawsuit](/essentialConcepts/lawsuit-enums).
