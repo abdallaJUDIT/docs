@@ -21,7 +21,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
 - `search`: Objeto que vai para a busca.
-    - `search_type`: No contexto de monitoramento processual, o valor dsse campo sempre será `lawsuit_cnj`.
+    - `search_type`: No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
     - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
@@ -34,7 +34,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
     `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente a instância mais recente do processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca considerará a segunda instância, por ser a mais atualizada.
 
 - `credential` (opcional): Objeto para o uso do cofre de credenciais.
-  - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais, não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
+  - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais,caso não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
 
 - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 
