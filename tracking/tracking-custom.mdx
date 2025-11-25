@@ -49,8 +49,6 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         - `keys` (opcional): Lista de códigos de classes processuais. Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
         - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
 
-    - `distribution_date_gte` (opcional): Permite especificar uma data mínima de distribuição. Este filtro localiza processos distribuídos após a data informada.
-
     - `credential` (opcional): Objeto para o uso do cofre de credenciais:
     - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
     - `last_step_date_gte` (opcional): Restringe a busca a processos cuja data da última movimentação seja maior que à data fornecida.
