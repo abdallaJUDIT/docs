@@ -60,17 +60,16 @@ icon: "satellite-dish"
     Exemplo de payload sem filtros:
 
    ```bash
-   curl --request POST
-   --url "https://tracking.prod.judit.io/tracking"
-   --header "api-key: SUA-API-KEY"
-   --header "Content-Type: application/json"
-   --data "{
-     'recurrence': 1,
-     'search': {
-      'search_type': 'cpf',
-      'search_key': '999.999.999-99'
-     }
-   }"
+    curl --location 'https://tracking.prod.judit.io/tracking' \
+    --header 'api-key: <API-KEY>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "recurrence": 1,
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99"
+        }
+    }'
    ```
 
    <Note>
