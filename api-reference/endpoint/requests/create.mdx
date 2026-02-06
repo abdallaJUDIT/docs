@@ -26,6 +26,8 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
             Define até quantos dias o resultado da busca pode considerar um cache válido;
         </ParamField>
         <ParamField body="should_search_branches" name="should_search_branches" type="boolean" required={false}>
+            Será criada uma requisição para cada filial vinculada ao CNPJ informado.
+            Todas as requisições geradas serão associadas à requisição original por meio do campo `origin_id`.
         </ParamField>
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">

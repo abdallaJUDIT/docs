@@ -36,6 +36,9 @@ description: "Esse endpoint cria um monitoramento de processos por documento(CPF
                 <ParamField body="masked_response" name="masked_response" type="string" required={false}>
                     Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
                 </ParamField>
+                <ParamField body="is_public_search" name="is_public_search" type="boolean" required={false}>
+                    Monitoramento contínuo de fontes públicas oficiais relacionadas ao CPF ou CNPJ.
+                </ParamField>
                 <ParamField body="filter" type="object" required={false}>
                     <Expandable>
                         <ParamField body="side" name="side" type="string" required={false}>
