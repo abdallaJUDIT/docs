@@ -25,7 +25,8 @@ description: "Esse endpoint cria uma requisição de processos por documento(CPF
         <ParamField body="cache_ttl_in_days" type="integer" required={false}>
             Define até quantos dias o resultado da busca pode considerar um cache válido;
         </ParamField>
-
+        <ParamField body="should_search_branches" name="should_search_branches" type="boolean" required={false}>
+        </ParamField>
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">
                 <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
