@@ -55,7 +55,6 @@
    "group": "Consulta síncrona",
    "pages": [
      "cache-judit/hotstorage",
-     "cache-judit/qtd-lawsuits",
      "cache-judit/cache-grouped"
    ]
   },
