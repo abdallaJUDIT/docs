@@ -36,9 +36,6 @@ A criação de request corresponde a uma consulta realizada por meio de um docum
     - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
     - `search_params`: Um objeto que contém alguns parâmetros da busca como: 
         - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; 
-        - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. 
-            - `masked_response` = `true`: retornará uma consulta completa 
-            - `masked_response` = `false`: retornará uma consulta simples
     - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
 
     Filtros poderão ser adicionados à requisição, permitindo um retorno mais assertivo com base nos valores desejados. Para isso, o parâmetro `filter` deve ser incluído dentro de `search_params`, com os seguintes filtros disponíveis:
