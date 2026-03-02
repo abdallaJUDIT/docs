@@ -1,9 +1,256 @@
 ---
 title: "Mapeamento de Variáveis"
-description: "Este documento apresenta o Mapeamento de Variáveis da API, uma tabela que relaciona as seções da API às respectivas variáveis utilizadas, suas descrições e tipos de dados. O objetivo é fornecer uma visão clara e organizada de como cada variável é estruturada e onde ela se aplica, facilitando a compreensão, integração e utilização da API em diferentes cenários."
+description: "Este documento apresenta o Mapeamento de Variáveis da API, organizado por seções que descrevem cada propriedade retornada, seu significado e tipo de dado.
+O objetivo é fornecer uma visão clara e direta da estrutura da resposta da API, facilitando a compreensão, integração e uso das informações em qualquer cenário.
+
+
+
+**A propriedade raiz que agrega todos os dados do processo é ``response_data``.**"
 icon: "table"
 ---
+# 1. ⚖️ Consulta Processual
+
+####  🗂️ Capa (Metadados do Processo)
+
+
+| Variável na Api        | Tipo     | Descrição |
+|------------------------|----------|-----------|
+| `area`                 | string   | Área do direito conforme classificado no processo (ex: DIREITO ASSISTENCIAL, DIREITO ADMINISTRATIVO, DIREITO AMBIENTAL, etc.) |
+| `justice`              | string   | Código do segmento de justiça no padrão CNJ (ex: 4 = Justiça Federal). |
+| `tribunal`             | string   | Código numérico do tribunal no padrão CNJ (ex: 04). |
+| `name`                 | string   | Nome do processo no formato Parte Ativa X Parte Passiva. |
+| `distribution_date`    | string   | Data de distribuição do processo. |
+| `instance`             | number   | Grau do processo (instância), representado como number, indicando o nível de jurisdição. |
+| `courts`               | array   | Unidade judicial responsável pelo processo (ex: Central de Perícias - Laguna). |
+| `secrecy_level`        | number  | Nível de sigilo do processo: 0 = público, 1 = segredo de justiça, 2 = restrito a servidores, 3 = restrito à unidade judicial, 4 = sigiloso para magistrados e chefes de cartório, 5 = sigilo absoluto. |
+| `subjects`             | array    | Lista de assuntos do processo conforme tabela oficial de assuntos do CNJ. |
+| `classifications`      | array    | Lista de classes processuais conforme tabela oficial de classes do CNJ. |
+| `judge`                | string   | Nome do juiz responsável pelo processo. |
+| `code`                 | string   | Número único do processo no padrão CNJ (0000000-00.0000.0.00.0000). |
+| `justice_description`  | string   | Descrição do segmento da justiça (ex: Justiça Federal, Justiça Estadual, Justiça do Trabalho, etc.). |
+| `county`               | string   | Vara ou unidade jurisdicional onde o processo tramita. |
+| `tribunal_acronym`     | string   | Sigla oficial do tribunal (ex: TRF4, TJSP, TJMG). |
+| `city`                 | string   | Cidade onde o processo tramita. |
+| `state`                | string   | Unidade Federativa (UF) do processo. |
+| `situation`            | string   | Situação processual capturada no tribunal (ex: Em andamento, Suspenso, Arquivado). |
+| `phase`                | string   | Fase atual do processo (ex: INICIAL, SENTENÇA, EXECUÇÃO OU CUMPRIMENTO, RECURSO, ARQUIIVADO, etc.). |
+| `status`               | string   | Status consolidado do processo: ATIVO ou FINALIZADO. |
+| `amount`               | number   | Valor da causa em formato numérico, sem formatação monetária. |
 
 
 
- [Mapeamento de Variáveis da API](https://docs.google.com/spreadsheets/d/19DsMHbgXQdk63bw48t_FiujF7qDO2Yfwv0iyzdOh7Nc/edit?gid=224977159#gid=224977159)
+#### 👥 `Partes` (parties)
+
+
+| Variável na Api | Tipo   | Descrição |
+|-----------------|--------|-----------|
+| `name`          | string | Nome completo da parte conforme consta no tribunal. |
+| `main_document` | string | Documento principal da parte (CPF para pessoa física ou CNPJ para pessoa jurídica), retornado apenas com números. |
+| `documents`     | array  | Lista de documentos vinculados à parte. Cada item contém: `document_type` (ex: CPF, CNPJ, OAB) e `document` (número sem formatação). |
+| `person_type`   | string | Papel processual da parte conforme identificado no tribunal (ex: AUTOR, RÉU, ADVOGADO, PERITO, MINISTÉRIO PÚBLICO, RECORRENTE, RECORRIDO, etc.). |
+| `side`          | string | Polo processual da parte: `ACTIVE` (polo ativo), `PASSIVE` (polo passivo), `INTERESTED` (interessado/terceiro) ou `UNKNOWN` (não identificado). |
+| `entity_type`   | string | Tipo de entidade da parte: `person` para pessoa física ou `company` para pessoa jurídica. |
+| `lawyers`       | array  | Lista de advogados vinculados à parte. Cada item contém `name` e `documents`. Caso o tribunal não vincule o advogado a uma parte específica, ele poderá ser retornado como uma parte independente com `person_type` = ADVOGADO. |
+---
+
+#### 🔄  Andamentos (steps)
+
+| Variável na Api     | Tipo    | Descrição |
+|---------------------|---------|-----------|
+| `lawsuit_cnj`       | string  | Número único do processo no padrão CNJ (0000000-00.0000.0.00.0000). Identificador nacional do processo, utilizado para consulta e correlação entre tribunais e instâncias. |
+| `lawsuit_instance`  | number  | Grau do processo (instância) no qual o andamento foi registrado. Representado como `number`, indicando o nível de jurisdição, por exemplo: `1` para primeira instância, `2` para segunda instância, podendo assumir `3` ou outro valor quando aplicável. |
+| `step_id`           | string  | Identificador único do andamento dentro do processo. Pode corresponder a um ID interno do tribunal ou a um identificador gerado durante o processamento para garantir unicidade e rastreabilidade. |
+| `step_date`         | string  | Data e horário oficiais do andamento no formato ISO 8601 em UTC (ex: 2026-02-02T02:59:59.000Z). Representa o momento em que a movimentação foi registrada no sistema do tribunal. |
+| `content`           | string  | Texto integral do andamento conforme publicado pelo tribunal. Pode incluir código do movimento, descrição do ato processual, referência a eventos anteriores e outras informações relevantes da movimentação. |
+| `private`           | boolean | Indica se o andamento está sob sigilo processual. `true` significa que o conteúdo é restrito; `false` indica que a movimentação é pública. |
+| `tags`              | object  | Objeto contendo metadados internos associados ao andamento. Pode incluir identificadores técnicos utilizados para rastreamento, auditoria ou controle de processamento. |
+| `steps_count`       | number  | Quantidade total de andamentos identificados no processo no momento da coleta. Pode ser utilizada para controle de integridade e verificação de sincronização. |
+
+---
+
+#### 🔄  Última movimentação (last_steps)
+
+| Variável na Api  | Tipo    | Descrição |
+|--------------|---------|-----------|
+| `step_id`  | string  | Identificação do andamento |
+| `step_date`  | string  | Data do andamento |
+| `content`    | string  | Conteúdo/texto do andamento |
+| `steps_count`    | number  | Quantidade total de movimentações no processo |
+
+---
+
+#### 📎  Anexos (attachments)
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `attachment_id` | string  | Data do anexo |
+| `attachment_name` | string  | Título do anexo |
+| `attachment_date` | string  | Data do anexo |
+| `status`    | string  | Status da captura do anexo, `done` ou `pending` |
+| `step_id`         | string  | ID do andamento ao qual o anexo está vinculado |
+| `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
+
+---
+
+### 🔗  Processos Relacionados (related_lawsuits)
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `code`         | string  | Número do processo(CNJ) |
+| `instance`     | string  | Grau do processo |
+| `classification`     | objeto  | Contém informações resumida do processo relacionado |
+
+---
+
+# 2. 👮 Mandado de Prisão
+
+#### 🗂️ Capa (Metadados do Processo)
+
+| Variável na Api           | Tipo     | Descrição |
+|------------------------|----------|-----------|
+| `warrant_type`                | string   | Tipo do mandado emitido (por exemplo: Mandado de Prisão, Mandado de Recaptura, etc.). |
+| `arrest_type`                | string   | Natureza da ordem de prisão <br />  (Ex: `definitive` - (prisão definitiva), `temporary` - (prisão temporária), `preventive` - (prisão preventiva)). |
+| `tribunal_id`   | string   | Identificador numérico do tribunal responsável pela emissão do mandado. |
+| `individual_id`            | string   | Identificador único da pessoa relacionada ao mandado. |
+| `number`       | string  | Número interno do mandado no sistema emissor (identificador administrativo). |
+| `issue_date`            | string    | Data em que o mandado foi oficialmente emitido. |
+| `expiration_date`            | string    | Data em que o mandado perde sua validade (se aplicável). |
+| `status`     | string    | Situação atual do mandado. <br /> Ex.: Pendente de Cumprimento, Cumprido, Cancelado. |
+| `instance`               | number   | Instância judicial responsável pelo processo (1 = primeira instância, 2 = segunda instância, etc.). |
+| `code`                | string   | Número do processo judicial vinculado ao mandado.|
+| `tribunal` | string   | Código numérico do tribunal no qual o processo tramita. |
+| `justice`              | string   | Código que identifica o ramo da justiça <br/ > (ex.: justiça estadual, federal, militar). |
+| `tribunal_acronym`    | string   | Sigla do tribunal (ex: TJSP, TJMG, TJRJ) |
+| `court`                | string   | Nome da vara, juízo ou departamento onde o processo está tramitando. |
+| `recapture`               | string   | Unidade Federativa (UF) |
+| `judgementSummary`               | string   | Resumo da decisão judicial relacionada ao mandado (quando disponível). |
+| `duration`               | string   | Representa a duração total da pena em um único campo. |
+| `duration_years`               | number   | Mostra quantos anos dessa pena total fazem parte da duração. |
+| `duration_months`               | number   | Mostra quantos meses fazem parte da pena. |
+| `duration_days`               | number   | Mostra quantos dias fazem parte da pena. |
+| `regime`           | string   | Regime de cumprimento da pena: fechado, semiaberto ou aberto. |
+| `recapture`               | boolean   | Indica se o mandado é relacionado à recaptura de uma pessoa evadida. <br /> • `true` → trata-se de recaptura <br /> • `false` → não é recaptura|
+
+#### ⚖️ Law_type 
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `number`         | string  | Código identificador da lei. No contexto jurídico brasileiro, o valor corresponde ao Código Penal. |
+| `description`     | string  | Descrição detalhada do enquadramento legal, contendo o número da lei, o artigo, o parágrafo e os incisos aplicáveis. |
+
+
+
+#### 👥 `Entity` 
+Objeto que representa uma pessoa física, contendo dados de identificação, documentos, vínculos familiares e informações complementares.
+
+| Variável na Api     | Tipo   | Descrição |
+|-----------------|--------|-----------|
+| `entity_id`          | string | Identificador único interno da entidade no sistema |
+| `name`          | string | Nome da parte |
+| `main_document` | string | Documento principal da parte (CPF ou CNPJ) |
+| `aka_names`          | array | Lista de nomes alternativos, apelidos ou variações do nome |
+| `gender`          | string | Gênero informado da pessoa. |
+| `birth_date`   | string | Data de nascimento da pessoa. Formato(YYYY-MM-DDTHH:mm:ss.sssZ) |
+| `contacts`   | array | Lista de contatos da pessoa, como telefone ou e-mail. |
+| `parents`   | array | Array que contém os vínculos parentais da pessoa. |
+| `partners`   | array | Lista de cônjuges ou companheiros associados à pessoa. |
+| `documents`     | array  | Array de documentos; cada item contém `document_type` (ex: CPF, CNPJ, OAB) e `document` (número) |
+| `ethnicity`     | string  | Etnia ou cor declarada. |
+| `nationality`     | string - null  | Nacionalidade da pessoa. |
+| `regime`     | string - null  | Nacionalidade da pessoa. |
+| `lawyers`       | array  | Array de advogados vinculados à parte; se o tribunal não ligar o advogado a uma parte, ele pode aparecer no array principal de partes |
+| `document_content`       | string - null  | Conteúdo textual ou estruturado extraído de documentos associados. |
+| `warnings_and_determinations`       | string - null  | Avisos, determinações ou observações judiciais relacionadas à entidade. |
+| `observations`       | string - null  | Observações gerais ou notas adicionais sobre a pessoa. |
+| `classifications`       | array  | Lista de classificações associadas à entidade.|
+| `addresses`       | array  | Array que contém os endereços associados à entidade. Cada item do array representa um endereço completo e estruturado. |
+
+---
+
+#### 📎  Anexos (attachments)
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `attachment_id` | string  | Data do anexo |
+| `status`    | string  | Status da captura do anexo, `done` ou `pending` |
+| `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
+
+---
+
+# 3. 🚨 Processos Criminais
+
+####  🗂️ Capa (Metadados do Processo)
+
+| Variável na Api           | Tipo     | Descrição |
+|------------------------|----------|-----------|
+| `code`                | string   | Número do processo <br /> (CNJ: 0000000-00.0000.0.00.0000) |
+| `justice`                | string   | Código do segmento de justiça no CNJ. |
+| `area`                | string   | Área do direito <br /> (ex: DIREITO À EDUCAÇÃO, DIREITO ADMINISTRATIVO, DIREITO AMBIENTAL, etc.) |
+| `name`                | string   | Descrição ou nome do processo <br /> (ex: 1 PARTE ATIVA X 1 PARTE PASSIVA) |
+| `distribution_date`   | string   | Data de distribuição do processo |
+| `instance`            | number   | Grau do processo (instância) |
+| `courts`              | string   | Fórum responsável |
+| `secrecy_level`       | number  | Nível de sigilo <br /> (0 = público, 1 = segredo de justiça, 2 = restrito a servidores, 3 = restrito a unidade judicial, 4 = sigiloso apenas para magistrados e chefes de cartório, 5 = sigilo absoluto) |
+| `subjects`            | array    | Assuntos do processo, de acordo com a [tabela de assuntos](https://www.cnj.jus.br/sgt/consulta_publica_assuntos.php) do CNJ |
+| `classifications`     | array    | Classes do processo, de acordo com a [tabela de classes](https://www.cnj.jus.br/sgt/consulta_publica_classes.php) do CNJ |
+| `judge`               | string   | Nome do juiz ou relator |
+| `justice_description` | string   | Tipo de justiça <br /> (ex: STF, CNJ, STJ, Justiça Federal, Justiça do Trabalho, Justiça Eleitoral, Justiça Militar da União, Justiça Estadual, Justiça Militar Estadual) |
+| `county`              | string   | Comarca |
+| `tribunal_acronym`    | string   | Sigla do tribunal (ex: TJSP, TJMG, TJRJ) |
+| `city`                | string   | Cidade |
+| `state`               | string   | Unidade Federativa (UF) |
+| `amount`              | number   | Valor da causa |
+
+
+---
+
+#### 👥 ``Partes`` (parties)
+
+| Variável na Api | Tipo   | Descrição |
+|-----------------|--------|-----------|
+| `name`          | string | Nome completo da parte conforme consta no tribunal. |
+| `main_document` | string | Documento principal da parte (CPF para pessoa física ou CNPJ para pessoa jurídica), retornado apenas com números. |
+| `documents`     | array  | Lista de documentos vinculados à parte. Cada item contém: `document_type` (ex: CPF, CNPJ, OAB) e `document` (número sem formatação). |
+| `person_type` | string | Papel processual da parte na execução penal, conforme identificado pelo tribunal (ex: EXECUTADO, REEDUCANDO, SENTENCIADO, CONDENADO, MINISTÉRIO PÚBLICO, PROMOTOR DE JUSTIÇA, ADVOGADO, DEFENSOR PÚBLICO, etc.). |
+| `side`          | string | Polo processual da parte: `ACTIVE` (polo ativo), `PASSIVE` (polo passivo), `INTERESTED` (interessado/terceiro) ou `UNKNOWN` (não identificado). |
+| `entity_type`   | string | Tipo de entidade da parte: `person` para pessoa física ou `company` para pessoa jurídica. |
+| `lawyers`       | array  | Lista de advogados vinculados à parte. Cada item contém `name` e `documents`. Caso o tribunal não vincule o advogado a uma parte específica, ele poderá ser retornado como uma parte independente com `person_type` = ADVOGADO. |
+---
+
+---
+
+#### 🔄  Andamentos (steps)
+
+| Variável na Api     | Tipo    | Descrição |
+|---------------------|---------|-----------|
+| `lawsuit_cnj`       | string  | Número único do processo no padrão CNJ (0000000-00.0000.0.00.0000). Identificador nacional do processo, utilizado para consulta e correlação entre tribunais e instâncias. |
+| `lawsuit_instance`  | number  | Grau do processo (instância) no qual o andamento foi registrado. Representado como `number`, indicando o nível de jurisdição, por exemplo: `1` para primeira instância, `2` para segunda instância, podendo assumir `3` ou outro valor quando aplicável. |
+| `step_id`           | string  | Identificador único do andamento dentro do processo. Pode corresponder a um ID interno do tribunal ou a um identificador gerado durante o processamento para garantir unicidade e rastreabilidade. |
+| `step_date`         | string  | Data e horário oficiais do andamento no formato ISO 8601 em UTC (ex: 2026-02-02T02:59:59.000Z). Representa o momento em que a movimentação foi registrada no sistema do tribunal. |
+| `content`           | string  | Texto integral do andamento conforme publicado pelo tribunal. Pode incluir código do movimento, descrição do ato processual, referência a eventos anteriores e outras informações relevantes da movimentação. |
+| `private`           | boolean | Indica se o andamento está sob sigilo processual. `true` significa que o conteúdo é restrito; `false` indica que a movimentação é pública. |
+| `tags`              | object  | Objeto contendo metadados internos associados ao andamento. Pode incluir identificadores técnicos utilizados para rastreamento, auditoria ou controle de processamento. |
+| `steps_count`       | number  | Quantidade total de andamentos identificados no processo no momento da coleta. Pode ser utilizada para controle de integridade e verificação de sincronização. |
+
+---
+
+#### 📎  Anexos (attachments)
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `attachment_id` | string  | Data do anexo |
+| `attachment_name` | string  | Título do anexo |
+| `attachment_date` | string  | Data do anexo |
+| `status`    | string  | Status da captura do anexo, `done` ou `pending` |
+| `step_id`         | string  | ID do andamento ao qual o anexo está vinculado |
+| `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
+
+---
+
+#### 🔗  Processos Relacionados (related_lawsuits)
+
+| Variável na Api       | Tipo    | Descrição |
+|-------------------|---------|-----------|
+| `code`         | string  | Número do processo(CNJ) |
+| `instance`     | string  | Grau do processo |
+| `classification`     | objeto  | Contém informações resumida do processo relacionado |
