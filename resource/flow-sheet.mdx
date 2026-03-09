@@ -1,14 +1,14 @@
 ---
 title: "Mapeamento de Variáveis"
 description: "Este documento apresenta o Mapeamento de Variáveis da API, organizado por seções que descrevem cada propriedade retornada, seu significado e tipo de dado.
-O objetivo é fornecer uma visão clara e direta da estrutura da resposta da API, facilitando a compreensão, integração e uso das informações em qualquer cenário.
+O objetivo é fornecer uma visão clara e direta da estrutura da resposta da API, facilitando a compreensão, integração e uso das informações em qualquer cenário."
 
 
 
-**A propriedade raiz que agrega todos os dados do processo é ``response_data``.**"
 icon: "table"
 ---
 # 1. ⚖️ Consulta Processual
+A propriedade raiz que agrega todos os dados do processo é ``response_data``.
 
 ####  🗂️ Capa (Metadados do Processo)
 
@@ -88,6 +88,7 @@ icon: "table"
 | `attachment_date` | string  | Data do anexo |
 | `status`    | string  | Status da captura do anexo, `done` ou `pending` |
 | `step_id`         | string  | ID do andamento ao qual o anexo está vinculado |
+| `private`           | boolean | Indica se o anexo está sob sigilo processual. `true` significa que o conteúdo é restrito; `false` indica que o anexo é público. |
 | `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
 
 ---
@@ -101,8 +102,74 @@ icon: "table"
 | `classification`     | object  | Contém informações resumida do processo relacionado |
 
 ---
+# 2. ⚖️ Consulta histórica - (Documento)
+A propriedade raiz que agrega todos os dados do processo é ``response_data``.
+<Note>
+A consulta histórica (Documentos) não inclui as movimentações do processo nem os anexos associados.
+</Note>
 
-# 2. 👮 Mandado de Prisão
+#### 🗂️ Capa (Metadados do Processo)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `area`                 | string   | Área do direito conforme classificado no processo (ex: DIREITO ASSISTENCIAL, DIREITO ADMINISTRATIVO, DIREITO AMBIENTAL, etc.) |
+| `justice`              | string   | Código do segmento de justiça no padrão CNJ (ex: 4 = Justiça Federal). |
+| `tribunal`             | string   | Código numérico do tribunal no padrão CNJ (ex: 04). |
+| `name`                 | string   | Nome do processo no formato Parte Ativa X Parte Passiva. |
+| `distribution_date`    | string   | Data de distribuição do processo. |
+| `instance`             | number   | Grau do processo (instância), representado como number, indicando o nível de jurisdição. |
+| `courts`               | array   | Unidade judicial responsável pelo processo (ex: Central de Perícias - Laguna). |
+| `secrecy_level`        | number  | Nível de sigilo do processo: 0 = público, 1 = segredo de justiça, 2 = restrito a servidores, 3 = restrito à unidade judicial, 4 = sigiloso para magistrados e chefes de cartório, 5 = sigilo absoluto. |
+| `subjects`             | array    | Lista de assuntos do processo conforme tabela oficial de assuntos do CNJ. |
+| `classifications`      | array    | Lista de classes processuais conforme tabela oficial de classes do CNJ. |
+| `judge`                | string   | Nome do juiz responsável pelo processo. |
+| `code`                 | string   | Número único do processo no padrão CNJ (0000000-00.0000.0.00.0000). |
+| `justice_description`  | string   | Descrição do segmento da justiça (ex: Justiça Federal, Justiça Estadual, Justiça do Trabalho, etc.). |
+| `county`               | string   | Vara ou unidade jurisdicional onde o processo tramita. |
+| `tribunal_acronym`     | string   | Sigla oficial do tribunal (ex: TRF4, TJSP, TJMG). |
+| `city`                 | string   | Cidade onde o processo tramita. |
+| `state`                | string   | Unidade Federativa (UF) do processo. |
+| `situation`            | string   | Situação processual capturada no tribunal (ex: Em andamento, Suspenso, Arquivado). |
+| `phase`                | string   | Fase atual do processo (ex: INICIAL, SENTENÇA, EXECUÇÃO OU CUMPRIMENTO, RECURSO, ARQUIIVADO, etc.). |
+| `status`               | string   | Status consolidado do processo: ATIVO ou FINALIZADO. |
+| `amount`               | number   | Valor da causa em formato numérico, sem formatação monetária. |
+
+---
+
+#### 👥 Partes (parties)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `name` | string | Nome completo da parte conforme consta no tribunal. |
+| `main_document` | string | Documento principal da parte (CPF ou CNPJ), retornado apenas com números. |
+| `documents` | array | Lista de documentos vinculados à parte contendo `document_type` e `document`. |
+| `person_type` | string | Papel processual da parte conforme identificado no tribunal (ex: AUTOR, RÉU, ADVOGADO). |
+| `side` | string | Polo processual da parte: `ACTIVE`, `PASSIVE`, `INTERESTED` ou `UNKNOWN`. |
+| `lawyers` | array | Lista de advogados vinculados à parte contendo `name` e `documents`. |
+| `was_inferred` | boolean | Indica se a parte foi inferida automaticamente durante o processamento dos dados. |
+
+---
+
+#### 🔄 Última movimentação (last_steps)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `step_id` | string | Identificação do andamento. |
+| `step_date` | string | Data do andamento. |
+| `content` | string | Conteúdo textual do andamento. |
+| `steps_count` | number | Quantidade total de movimentações no processo. |
+
+---
+
+#### 🔗 Processos Relacionados (related_lawsuits)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `code` | string | Número do processo relacionado no padrão CNJ. |
+| `instance` | string | Grau do processo relacionado. |
+| `classification` | object | Informações resumidas da classificação do processo relacionado. |
+
+# 3. 👮 Mandado de Prisão
 
 #### 🗂️ Capa (Metadados do Processo)
 
@@ -175,9 +242,10 @@ Objeto que representa uma pessoa física, contendo dados de identificação, doc
 | `status`    | string  | Status da captura do anexo, `done` ou `pending` |
 | `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
 
+
 ---
 
-# 3. 🚨 Processos Criminais
+# 4. 🚨 Execução Penal
 
 ####  🗂️ Capa (Metadados do Processo)
 
@@ -232,7 +300,6 @@ Objeto que representa uma pessoa física, contendo dados de identificação, doc
 | `tags`              | object  | Objeto contendo metadados internos associados ao andamento. Pode incluir identificadores técnicos utilizados para rastreamento, auditoria ou controle de processamento. |
 | `steps_count`       | number  | Quantidade total de andamentos identificados no processo no momento da coleta. Pode ser utilizada para controle de integridade e verificação de sincronização. |
 
----
 
 #### 📎  Anexos (attachments)
 
@@ -243,6 +310,7 @@ Objeto que representa uma pessoa física, contendo dados de identificação, doc
 | `attachment_date` | string  | Data do anexo |
 | `status`    | string  | Status da captura do anexo, `done` ou `pending` |
 | `step_id`         | string  | ID do andamento ao qual o anexo está vinculado |
+| `private`           | boolean | Indica se o anexo está sob sigilo processual. `true` significa que o conteúdo é restrito; `false` indica que o anexo é público. |
 | `extension`       | string  | Extensão do anexo (ex: PDF, HTML, TXT, etc.) |
 
 ---
@@ -254,3 +322,234 @@ Objeto que representa uma pessoa física, contendo dados de identificação, doc
 | `code`         | string  | Número do processo(CNJ) |
 | `instance`     | string  | Grau do processo |
 | `classification`     | object  | Contém informações resumida do processo relacionado |
+
+
+# 5. ⚖️ Consulta Hotstorage
+
+####  🗂️ Capa (Metadados do Processo)
+
+
+A propriedade raiz que agrega todos os dados do processo é ``lawsuits``.
+
+| Campo | Tipo | Descrição |
+|------|------|-----------|
+| `has_lawsuits` | boolean | Indica se a consulta retornou ao menos um processo. Quando `true`, o campo `lawsuits` conterá um ou mais processos. |
+| `request_id` | string | Identificador único da requisição gerado pelo sistema. Pode ser utilizado para rastreamento, auditoria e suporte técnico. |
+| `lawsuits` | array | Lista de processos retornados pela consulta. Cada item do array representa um processo com seus respectivos metadados, partes e última movimentação. |
+
+#### Estrutura de `lawsuits`
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `area`                 | string   | Área do direito conforme classificado no processo (ex: DIREITO ASSISTENCIAL, DIREITO ADMINISTRATIVO, DIREITO AMBIENTAL, etc.) |
+| `justice`              | string   | Código do segmento de justiça no padrão CNJ (ex: 4 = Justiça Federal). |
+| `tribunal`             | string   | Código numérico do tribunal no padrão CNJ (ex: 04). |
+| `name`                 | string   | Nome do processo no formato Parte Ativa X Parte Passiva. |
+| `distribution_date`    | string   | Data de distribuição do processo. |
+| `instance`             | number   | Grau do processo (instância), representado como number, indicando o nível de jurisdição. |
+| `courts`               | array   | Unidade judicial responsável pelo processo (ex: Central de Perícias - Laguna). |
+| `secrecy_level`        | number  | Nível de sigilo do processo: 0 = público, 1 = segredo de justiça, 2 = restrito a servidores, 3 = restrito à unidade judicial, 4 = sigiloso para magistrados e chefes de cartório, 5 = sigilo absoluto. |
+| `subjects`             | array    | Lista de assuntos do processo conforme tabela oficial de assuntos do CNJ. |
+| `classifications`      | array    | Lista de classes processuais conforme tabela oficial de classes do CNJ. |
+| `judge`                | string   | Nome do juiz responsável pelo processo. |
+| `code`                 | string   | Número único do processo no padrão CNJ (0000000-00.0000.0.00.0000). |
+| `justice_description`  | string   | Descrição do segmento da justiça (ex: Justiça Federal, Justiça Estadual, Justiça do Trabalho, etc.). |
+| `county`               | string   | Vara ou unidade jurisdicional onde o processo tramita. |
+| `tribunal_acronym`     | string   | Sigla oficial do tribunal (ex: TRF4, TJSP, TJMG). |
+| `city`                 | string   | Cidade onde o processo tramita. |
+| `state`                | string   | Unidade Federativa (UF) do processo. |
+| `situation`            | string   | Situação processual capturada no tribunal (ex: Em andamento, Suspenso, Arquivado). |
+| `phase`                | string   | Fase atual do processo (ex: INICIAL, SENTENÇA, EXECUÇÃO OU CUMPRIMENTO, RECURSO, ARQUIIVADO, etc.). |
+| `status`               | string   | Status consolidado do processo: ATIVO ou FINALIZADO. |
+| `amount`               | number   | Valor da causa em formato numérico, sem formatação monetária. |
+
+---
+
+#### 👥 Partes (parties)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `name` | string | Nome completo da parte conforme consta no tribunal. |
+| `main_document` | string | Documento principal da parte (CPF ou CNPJ), retornado apenas com números. |
+| `documents` | array | Lista de documentos vinculados à parte contendo `document_type` e `document`. |
+| `person_type` | string | Papel processual da parte conforme identificado no tribunal (ex: AUTOR, RÉU, ADVOGADO). |
+| `side` | string | Polo processual da parte: `ACTIVE`, `PASSIVE`, `INTERESTED` ou `UNKNOWN`. |
+| `lawyers` | array | Lista de advogados vinculados à parte contendo `name` e `documents`. |
+| `was_inferred` | boolean | Indica se a parte foi inferida automaticamente durante o processamento dos dados. |
+
+---
+
+#### 🔄 Última movimentação (last_steps)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `step_id` | string | Identificação do andamento. |
+| `step_date` | string | Data do andamento. |
+| `content` | string | Conteúdo textual do andamento. |
+| `steps_count` | number | Quantidade total de movimentações no processo. |
+
+---
+
+#### 🔗 Processos Relacionados (related_lawsuits)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `code` | string | Número do processo relacionado no padrão CNJ. |
+| `instance` | string | Grau do processo relacionado. |
+| `classification` | object | Informações resumidas da classificação do processo relacionado. |
+
+---
+# 6. 🪪 Dados Cadastrais (CPF)
+
+#### 🧾 Entidade (entity)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `entity_id` | string | Identificador único da entidade no sistema. |
+| `entity_type` | string | Tipo da entidade retornada. Pode ser `person` para pessoa física ou `company` para pessoa jurídica. |
+| `main_document` | string | Documento principal da entidade (CPF ou CNPJ), retornado apenas com números. |
+| `name` | string | Nome completo da entidade conforme registrado nas bases consultadas. |
+| `addresses` | array | Lista de endereços associados à entidade. Cada item contém informações detalhadas como rua, número, cidade, estado e CEP. |
+| `aka_names` | array | Lista de nomes alternativos ou variações de nome associados à entidade. |
+| `contacts` | array | Lista de contatos associados à entidade, contendo informações como telefone ou e-mail. |
+| `documents` | array | Lista de documentos adicionais vinculados à entidade. |
+| `parents` | array | Lista de vínculos parentais da entidade, contendo o nome do parente e o grau de parentesco. |
+| `partners` | array | Lista de sócios ou parceiros relacionados à entidade, quando aplicável. |
+| `associated_people` | array | Lista de pessoas associadas à entidade com algum tipo de vínculo identificado. |
+| `tags` | object | Metadados técnicos associados à entidade, utilizados para controle de atualização e rastreamento. |
+| `created_at` | string | Data de criação do registro no sistema no formato ISO 8601. |
+| `updated_at` | string | Data da última atualização do registro no sistema no formato ISO 8601. |
+| `nationality` | string | Nacionalidade da pessoa. |
+| `birth_date` | string | Data de nascimento da pessoa no formato ISO 8601. |
+| `gender` | string | Gênero da pessoa conforme registrado nas bases consultadas. |
+| `revenue_service_active` | boolean | Indica se o cadastro da entidade está ativo na base da Receita Federal. |
+
+---
+
+#### 📍 Endereços (`addresses`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `street` | string | Nome da rua ou logradouro. |
+| `number` | string | Número do imóvel. |
+| `complement` | string | Complemento do endereço (ex: apartamento, bloco, sala). |
+| `neighborhood` | string | Bairro do endereço. |
+| `city` | string | Cidade do endereço. |
+| `state` | string | Unidade Federativa (UF). |
+| `country` | string | País do endereço. |
+| `zip_code` | string | Código postal (CEP) sem formatação. |
+| `ibge_code` | number | Código do município conforme tabela do IBGE. |
+
+---
+
+#### 📞 Contatos (`contacts`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `description` | string | Informação de contato da entidade (ex: número de telefone ou e-mail). |
+| `contact_type` | string | Tipo de contato informado (ex: `phone`, `email`). |
+
+---
+
+#### 👪 Parentes (`parents`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `name` | string | Nome do parente da entidade. |
+| `kinship` | string | Grau de parentesco (ex: `mother`, `father`). |
+
+
+---
+# 7. ⚖️ Dados Cadastrais (CNPJ)
+
+#### 🧾 Entidade (entity)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `entity_id` | string | Identificador único da entidade no sistema. |
+| `entity_type` | string | Tipo da entidade retornada. Para empresas o valor será `company`. |
+| `main_document` | string | Documento principal da empresa (CNPJ), retornado apenas com números. |
+| `name` | string | Razão social da empresa conforme registrado nas bases consultadas. |
+| `social_name` | string | Nome fantasia da empresa, quando disponível. |
+| `addresses` | array | Lista de endereços associados à empresa. |
+| `aka_names` | array | Lista de nomes alternativos ou variações de nome da empresa. |
+| `contacts` | array | Lista de contatos associados à empresa, como telefone ou e-mail. |
+| `documents` | array | Lista de documentos adicionais vinculados à empresa. |
+| `parents` | array | Lista de entidades controladoras ou vínculos hierárquicos, quando disponíveis. |
+| `partners` | array | Lista de sócios ou administradores da empresa. |
+| `branch_activities` | array | Lista de atividades econômicas (CNAE) associadas à empresa. |
+| `associated_people` | array | Lista de pessoas associadas à empresa com algum tipo de vínculo identificado. |
+| `tags` | object | Metadados técnicos utilizados internamente para controle de atualização e rastreamento. |
+| `created_at` | string | Data de criação do registro no sistema no formato ISO 8601. |
+| `updated_at` | string | Data da última atualização do registro no sistema no formato ISO 8601. |
+| `nationality` | string | Nacionalidade da empresa. |
+| `birth_date` | string | Data de abertura da empresa no formato ISO 8601. |
+| `size` | string | Porte da empresa conforme classificação disponível nas bases consultadas. |
+| `legal_nature` | object | Informações sobre a natureza jurídica da empresa. |
+| `head_office` | boolean | Indica se o CNPJ consultado corresponde à matriz da empresa. |
+| `revenue_service_active` | boolean | Indica se o cadastro da empresa está ativo na Receita Federal. |
+| `special_status` | string | Situação especial da empresa, quando aplicável. |
+| `share_capital` | number | Capital social da empresa em valor numérico. |
+
+---
+
+#### 📍 Endereços (`addresses`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `street` | string | Nome da rua ou logradouro. |
+| `number` | string | Número do imóvel. |
+| `complement` | string | Complemento do endereço (ex: sala, galpão, bloco). |
+| `neighborhood` | string | Bairro do endereço. |
+| `city` | string | Cidade do endereço. |
+| `state` | string | Unidade Federativa (UF). |
+| `country` | string | País do endereço. |
+| `zip_code` | string | Código postal (CEP) sem formatação. |
+| `ibge_code` | number | Código do município conforme tabela do IBGE. |
+
+---
+
+#### 📞 Contatos (`contacts`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `description` | string | Informação de contato da empresa (telefone ou e-mail). |
+| `contact_type` | string | Tipo de contato informado (ex: `phone`, `email`). |
+
+---
+
+#### 👥 Sócios (`partners`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `entity_id` | string | Identificador da entidade associada, quando disponível. |
+| `entity_type` | string | Tipo da entidade (`person` ou `company`). |
+| `main_document` | string | Documento principal do sócio (CPF ou CNPJ). |
+| `name` | string | Nome do sócio ou responsável. |
+| `position` | string | Cargo ou função do sócio na empresa (ex: `SÓCIO`, `SÓCIO-ADMINISTRADOR`). |
+| `documents` | array | Lista de documentos associados ao sócio. |
+| `tags` | object | Metadados adicionais sobre o vínculo societário, como faixa etária ou data de entrada. |
+| `created_at` | string | Data de criação do registro do sócio no sistema. |
+| `updated_at` | string | Data da última atualização do registro do sócio no sistema. |
+
+---
+
+#### 🏷️ Natureza Jurídica (`legal_nature`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `code` | string | Código da natureza jurídica conforme classificação oficial. |
+| `name` | string | Nome da natureza jurídica da empresa. |
+| `active` | boolean | Indica se a natureza jurídica está ativa. |
+
+---
+
+#### 🏭 Atividades Econômicas (`branch_activities`)
+
+| Variável na Api | Tipo | Descrição |
+|-----------------|------|-----------|
+| `code` | string | Código da atividade econômica (CNAE). |
+| `name` | string | Descrição da atividade econômica. |
+| `active` | boolean | Indica se a atividade está ativa. |
+| `main_activity` | boolean | Indica se a atividade corresponde à atividade principal da empresa. |
+| `tree_history` | string | Histórico ou hierarquia da classificação da atividade econômica. |
