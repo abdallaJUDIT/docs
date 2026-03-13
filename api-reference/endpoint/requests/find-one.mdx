@@ -1,10 +1,11 @@
 ---
 title: "Consultar por request_id"
-openapi: "GET /responses"
-api: "GET https://requests.prod.judit.io/responses"
-description: "Esse endpoint retorna os processos associados a um documento ou a um próprio processo.
-No caso de consulta por documento, retornaremos as capas dos processos.
-No caso de consulta por processo, retornaremos os dados completos do processo."
+openapi: "GET /requests/{request_id}"
+api: "GET https://requests.prod.judit.io/responses?{request_id}"
+description: "Esse endpoint retorna os processos de um documento ou próprio processo.
+              No caso de documento, retornaremos as capas dos processos.
+              No caso dos processos retornaremos ele completo.
+"
 ---
 
 Exemplo de requisição utilizando um `request_id` válido:
