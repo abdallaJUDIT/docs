@@ -27,7 +27,7 @@
  ],
  "navigation": [
   {
-   "group": "Começar",
+   "group": "Primeiros Passos",
    "pages": ["introduction/introduction", "introduction/quickstart", "introduction/authentication"]
   },
   {

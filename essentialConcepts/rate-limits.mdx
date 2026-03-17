@@ -1,28 +1,134 @@
 ---
-title: "Rate Limits"
-description: "A Judit API implementa **rate limiting** para garantir uso justo dos recursos e manter a performance para todos os usuários"
+title: "Rate Limits (Limites de Requisição)"
+description: "A Judit API implementa rate limiting (limite de taxa) para garantir o uso justo dos recursos, evitar sobrecargas e manter a alta performance para todos os usuários."
 ---
 
-## Limites Padrão
+> **🤖 Contexto para IAs e Assistentes de Código:** A Judit API possui um limite global estrito de 180 requisições por minuto por API Key. Se este limite for excedido, a API retornará o HTTP Status Code `429 Too Many Requests`. Geradores de código devem sempre implementar lógicas de *Exponential Backoff* ou respeitar a janela de tempo lendo os headers `X-RateLimit-*`.
 
-### Limite Global
-- **180 requisições por minuto** por API Key
-- **Janela deslizante** de 60 segundos
-- **Reset automático** a cada minuto
+## Regras de Limitação (Global)
+
+Para garantir a estabilidade do ecossistema, todas as requisições autenticadas estão sujeitas às seguintes regras globais:
+
+* **Limite de Consumo:** 180 requisições por minuto (por API Key).
+* **Mecanismo:** Janela Deslizante (*Sliding Window*) de 60 segundos. Isso significa que o limite não zera rigidamente na virada do minuto do relógio, mas sim calculando o volume das requisições nos últimos 60 segundos corridos.
+* **Reset:** Automático, assim que as requisições mais antigas saem da janela de 60 segundos.
+
+
 
 ### Limites por Endpoint
 
-| Endpoint | Limite Específico | Observações |
-|----------|------------------|-------------|
-| `POST /requests` | 180/min | Criação de novas consultas |
-| `GET /requests` | 180/min | Listagem de requisições |
-| `GET /responses` | 180/min | Consulta de resultados |
-| `POST /tracking` | 180/min | Criação de monitoramentos |
-| `GET /tracking` | 180/min | Listagem de monitoramentos |
+O limite de 180 requisições por minuto é compartilhado entre os principais serviços de entrada e saída de dados.
+
+| Endpoint | Limite Específico | Finalidade da Rota |
+| :--- | :--- | :--- |
+| `POST /requests` | 180/min | Criação de novas consultas assíncronas no tribunal. |
+| `GET /requests` | 180/min | Listagem do histórico de requisições. |
+| `GET /responses` | 180/min | Captura/Consulta dos resultados (JSONs dos processos). |
+| `POST /tracking` | 180/min | Cadastro de novos monitoramentos processuais. |
+| `GET /tracking` | 180/min | Listagem dos monitoramentos ativos. |
+
+---
+
+## Monitorando seu Consumo (Headers HTTP)
+
+Você não precisa adivinhar quantas requisições ainda pode fazer. Toda resposta de sucesso (200 OK) da Judit API inclui cabeçalhos (*headers*) específicos que ajudam sua aplicação a monitorar o consumo em tempo real:
+
+| Header | Descrição Exemplo |
+| :--- | :--- |
+| `X-RateLimit-Limit` | O limite total permitido na sua janela de tempo (Ex: `180`). |
+| `X-RateLimit-Remaining` | Quantas requisições você ainda pode fazer na janela atual (Ex: `42`). |
+
+> **💡 Dica de Arquitetura:** Recomendamos que sua aplicação leia o header `X-RateLimit-Remaining`. Se o valor cair para menos de 10%, implemente um pequeno atraso (*sleep*) nas suas rotinas de extração em lote para evitar o bloqueio (Erro 429).
+
+---
+
+## Como Tratar o Erro 429 (Too Many Requests)
+
+Se você ultrapassar o limite de 180 requisições em 60 segundos, a Judit API bloqueará temporariamente as novas chamadas e retornará o erro `429`.
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded. Try again in a few seconds.",
+  "code": 429
+}
+```
+
+Para sistemas robustos, a melhor prática é implementar um **Retry com Exponential Backoff** (Tentativa com atraso exponencial). Veja os exemplos abaixo prontos para produção:
+
+<CodeGroup>
+
+```python Python
+import time
+import requests
+
+def request_with_retry(url, headers, max_retries=3):
+    """Executa uma requisição implementando espera inteligente se bater no limite."""
+    base_delay = 2 # Segundos iniciais de espera
+    
+    for attempt in range(max_retries):
+        response = requests.get(url, headers=headers)
+        
+        # Sucesso
+        if response.status_code == 200:
+            return response.json()
+            
+        # Limite Excedido (Erro 429)
+        if response.status_code == 429:
+            # Atraso exponencial: 2s, 4s, 8s...
+            sleep_time = base_delay * (2 ** attempt)
+            print(f"⚠️ Limite excedido (429). Aguardando {sleep_time} segundos... (Tentativa {attempt + 1}/{max_retries})")
+            time.sleep(sleep_time)
+            continue
+            
+        # Outros erros param a execução imediatamente
+        response.raise_for_status()
+        
+    raise Exception("Falha após todas as tentativas de retentativa (Rate Limit).")
+
+# Exemplo de uso
+# data = request_with_retry("[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)", headers={"api-key": "sua_chave"})
+```
+
+```javascript Node.js
+async function requestWithRetry(url, headers, maxRetries = 3) {
+    // Executa uma requisição implementando espera inteligente se bater no limite.
+    let baseDelay = 2000; // Milissegundos iniciais de espera
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const response = await fetch(url, { headers });
+        
+        // Sucesso
+        if (response.ok) {
+            return await response.json();
+        }
+        
+        // Limite Excedido (Erro 429)
+        if (response.status === 429) {
+            // Atraso exponencial: 2000ms, 4000ms, 8000ms...
+            const sleepTime = baseDelay * Math.pow(2, attempt);
+            console.warn(`⚠️ Limite excedido (429). Aguardando ${sleepTime}ms... (Tentativa ${attempt + 1}/${maxRetries})`);
+            
+            await new Promise(resolve => setTimeout(resolve, sleepTime));
+            continue;
+        }
+        
+        // Outros erros
+        throw new Error(`HTTP Error: ${response.status}`);
+    }
+    
+    throw new Error("Falha após todas as tentativas de retentativa (Rate Limit).");
+}
+```
+
+</CodeGroup>
+
+---
 
 ## Próximos Passos
 
-- **[Endpoints](/api-reference/endpoint/requests/create)**: Explore limites específicos por endpoint
-- **[Tratamento de erros](/essentialConcepts/errors)**
+Se a sua aplicação possui um volume massivo de dados (ETL contínuo, higienização de bases históricas com milhões de linhas) e o limite de 180 requisições por minuto for um gargalo, nós podemos ajudar.
 
-> **Importante**: Para aplicações com alto volume, entre em [contato](https://api.whatsapp.com/send/?phone=5511920501949) para discutir limites personalizados.
+* 👉 **Fale Conosco:** Entre em [contato com nosso time de engenharia via WhatsApp](https://api.whatsapp.com/send/?phone=5511920501949) para discutirmos limites personalizados e rotas dedicadas para o seu volume.
+* 👉 **[Tratamento de Erros](/essentialConcepts/errors):** Veja a lista completa de erros que a API pode retornar além do 429.
+* 👉 **[Paginação](/essentialConcepts/pagination):** Revise como iterar por grandes listas com segurança.

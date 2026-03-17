@@ -9,7 +9,9 @@ A Judit API funciona com um padrão síncrono e assíncrono:
 ### Requisições com padrão assíncrono:
 
 1. **Criar requisição** (`POST /requests`) - Inicia a consulta
+
 2. **Aguardar processamento** (`GET /requests`) - A API busca os dados nos tribunais(Acompanhar status)
+
 3. **Consultar resultado** (`GET /responses`) - Obtém os dados processados
 
 ### Requisições com padrão síncrono:
@@ -21,9 +23,24 @@ A Judit API funciona com um padrão síncrono e assíncrono:
 - API Key válida [(solicite acesso conosco)](https://api.whatsapp.com/send/?phone=5521985284143)
 - Ferramenta para fazer requisições HTTP (cURL, Postman, ou código)
 
+### Ambientes e URLs Base (Base URLs)
+
+A Judit API opera com uma arquitetura dividida por contextos para garantir melhor performance e organização. Antes de configurar suas variáveis de ambiente, identifique a **Base URL** correspondente ao módulo que você deseja integrar:
+
+| Base URL | Módulo / Contexto | Operações Suportadas |
+| :--- | :--- | :--- |
+| `https://requests.prod.judit.io` | **Consultas Assíncronas** | Consulta processual, Consulta histórica, Mandados de prisão e Execução penal (fluxos de *request* e *response*). |
+| `https://tracking.prod.judit.io` | **Monitoramentos** | Criar, consultar, atualizar, pausar, deletar, reativar e buscar histórico de monitoramentos processuais. |
+| `https://lawsuits.production.judit.io` | **Consultas Síncronas** | Consulta ao Datalake (*Hot storage*), Quantidade de processos, Consulta histórica agrupada, Busca de anexos de bucket e Dados cadastrais. |
+| `https://crawler.prod.judit.io` | **Crawler & Infra** | Gerenciamento do Cofre de Credenciais. |
+
+---
+
 ## Exemplo Completo
 
 ### 1. Configurar Variáveis de Ambiente
+
+**Nota:** No exemplo abaixo, utilizaremos a URL de **Consultas Assíncronas**, mas lembre-se de substituí-la pela URL adequada ao seu caso de uso, conforme a tabela acima.
 
 ```bash
 export JUDIT_API_KEY="sua-api-key-aqui"
@@ -486,8 +503,9 @@ Para consultas mais específicas por <strong>documento</strong>, é possivel uti
 ## Boas Práticas
 
 ### 1. **Use Cache Inteligente**
-Configure `cache_ttl_in_days` para evitar consultas desnecessárias:
-Esse campo define por quantos dias um resultado armazenado em cache será considerado válido antes de uma nova consulta ser feita.
+> **💡 Boa Prática para Consultas Assíncronas:** Se você está realizando requisições assíncronas (via `https://requests.prod.judit.io`), a utilização do parâmetro de cache é altamente recomendada. Isso acelera drasticamente o tempo de resposta do Webhook e otimiza o consumo da API.
+
+Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar buscas redundantes nos tribunais. Esse campo define por exatos quantos dias um resultado já armazenado na base da Judit será considerado válido antes de forçar uma nova extração.
 ```json
 {
   "cache_ttl_in_days": 7  // Usar cache por até 7 dias
