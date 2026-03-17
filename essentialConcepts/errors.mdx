@@ -1,33 +1,37 @@
 ---
 title: "Tratamento de Erros"
-description: "A Judit API utiliza códigos de status HTTP padrão e retorna respostas de erro estruturadas para facilitar o diagnóstico e tratamento de problemas"
+description: "A Judit API utiliza códigos de status HTTP padrão e retorna respostas estruturadas em JSON para facilitar o diagnóstico e a automação do tratamento de problemas."
 ---
+
+> **🤖 Contexto para IAs e Assistentes de Código:** Respostas de erro da Judit API sempre retornam um objeto JSON contendo a chave raiz `error`. Dentro de `error`, as chaves padrão são `name` (o código interno do erro), `message` (o grupo do erro) e `data` (um array de strings com os detalhes ou mensagens de validação).
 
 ## Códigos de Status HTTP
 
-### Códigos de Sucesso
-- **200 OK**: Requisição processada com sucesso
-- **201 Created**: Recurso criado com sucesso
-- **202 Accepted**: Requisição aceita para processamento assíncrono
+A API utiliza as convenções padrão do protocolo HTTP para indicar o sucesso ou a falha de uma requisição.
 
-### Códigos de Erro do Cliente
-- **400 Bad Request**: Parâmetros inválidos ou malformados
-- **401 Unauthorized**: API Key ausente ou inválida
-- **403 Forbidden**: Acesso negado ao recurso
-- **404 Not Found**: Recurso não encontrado
-- **409 Conflict**: Conflito com estado atual do recurso
-- **422 Unprocessable Entity**: Dados válidos mas não processáveis
-- **429 Too Many Requests**: Rate limit excedido
+### Sucesso (2xx)
+* **200 OK**: Requisição processada e dados retornados com sucesso.
+* **201 Created**: Recurso (ex: novo monitoramento) criado com sucesso.
+* **202 Accepted**: Requisição aceita e enviada para a fila de processamento assíncrono.
 
-### Códigos de Erro do Servidor
-- **500 Internal Server Error**: Erro interno do servidor
-- **502 Bad Gateway**: Erro de gateway
-- **503 Service Unavailable**: Serviço temporariamente indisponível
-- **504 Gateway Timeout**: Timeout de gateway
+### Erros do Cliente (4xx)
+* **400 Bad Request**: Faltam parâmetros obrigatórios ou eles estão malformados.
+* **401 Unauthorized**: O header `api-key` está ausente, incorreto ou a chave expirou.
+* **403 Forbidden**: Chave válida, mas sem permissão de acesso àquele recurso/endpoint.
+* **404 Not Found**: O recurso (ex: número do processo) não existe na base.
+* **422 Unprocessable Entity**: Dados no formato correto, mas não processáveis (ex: CNJ inválido matematicamente).
+* **429 Too Many Requests**: Limite de requisições por minuto excedido (Rate Limit).
 
-## Estrutura de Resposta de Erro
+### Erros do Servidor (5xx)
+* **500 Internal Server Error**: Falha interna na Judit API.
+* **502 Bad Gateway / 503 Service Unavailable**: Instabilidade temporária de infraestrutura ou nos tribunais.
+* **504 Gateway Timeout**: O tribunal demorou muito para responder à extração.
 
-Todas as respostas de erro seguem um formato consistente:
+---
+
+## Estrutura (Payload) de Erro
+
+Independentemente do status HTTP (seja 400 ou 500), o corpo da resposta de erro sempre seguirá este contrato JSON previsível:
 
 ```json
 {
@@ -35,414 +39,142 @@ Todas as respostas de erro seguem um formato consistente:
         "name": "HttpBadRequestError",
         "message": "BAD_REQUEST",
         "data": [
-            "CNJ is not valid"
+            "CNJ is not valid",
+            "Field 'area' is required"
         ]
     }
 }
 ```
 
-### Campos da Resposta de Erro
+### Dicionário do Payload
+* `name`: Código interno da exceção. Use este campo no seu código (switch/case) para automação.
+* `message`: Categoria amigável do erro.
+* `data`: Array de strings contendo as falhas específicas (muito útil para exibir validações de formulário para o usuário final).
 
-- **code**: Código único do erro para identificação programática
-- **message**: Mensagem descritiva em português
-- **data**: Informações adicionais específicas do erro
+---
 
-## Códigos de Erro Específicos
+## Códigos Internos Comuns (`name`)
 
-### Autenticação e Autorização
+Abaixo estão os principais valores que a chave `name` pode assumir, ajudando você a tratar o problema programaticamente:
 
-| Código | Descrição | Status HTTP |
-|--------|-----------|-------------|
-| `USER_NOT_FOUND` | API Key inválida ou expirada | 401 |
-| `INSUFFICIENT_PERMISSIONS` | Permissões insuficientes | 403 |
+### Autenticação e Permissões
+| Código (`name`) | Status HTTP | Causa Comum |
+| :--- | :--- | :--- |
+| `USER_NOT_FOUND` | 401 | API Key não enviada no header ou chave revogada. |
+| `INSUFFICIENT_PERMISSIONS` | 403 | Tentativa de uso de um módulo bloqueado no seu plano. |
 
-### Recursos e Processamento
+### Processamento e Validação
+| Código (`name`) | Status HTTP | Causa Comum |
+| :--- | :--- | :--- |
+| `HttpBadRequestError` | 400 | Você enviou um JSON malformado ou campos faltando. |
+| `RESOURCE_NOT_FOUND` | 404 | Você tentou buscar um CNJ que ainda não foi capturado. |
+| `REQUEST_NOT_FOUND` | 404 | O `request_id` consultado não existe na base. |
+| `PROCESSING_ERROR` | 422 | O robô falhou ao tentar ler os dados no tribunal. |
 
-| Código | Descrição | Status HTTP |
-|--------|-----------|-------------|
-| `RESOURCE_NOT_FOUND` | Recurso não encontrado | 404 |
-| `REQUEST_NOT_FOUND` | Requisição não encontrada | 404 |
-| `TRACKING_NOT_FOUND` | Tracking não encontrado | 404 |
-| `PROCESSING_ERROR` | Erro durante processamento | 422 |
-| `TIMEOUT_ERROR` | Timeout na consulta ao tribunal | 504 |
+---
 
-## Estratégias de Tratamento
+## Estratégias de Tratamento no Código
 
-### 1. **Retry com Backoff Exponencial**
+A melhor prática é criar um *handler* (interceptador) centralizado na sua aplicação para logar e tratar os erros da Judit API.
 
 <CodeGroup>
 
 ```python Python
-import time
-import random
 import requests
-from typing import Optional
+import os
 
-def make_request_with_retry(
-    url: str,
-    headers: dict,
-    max_retries: int = 3,
-    base_delay: float = 1.0
-) -> Optional[requests.Response]:
-    """
-    Faz requisição com retry e backoff exponencial
-    """
-    for attempt in range(max_retries + 1):
-        try:
-            response = requests.get(url, headers=headers, timeout=30)
-            
-            # Sucesso
-            if response.status_code < 400:
-                return response
-            
-            # Não fazer retry para erros do cliente (4xx)
-            if 400 <= response.status_code < 500:
-            
-            # Retry para erros 5xx
-            if attempt < max_retries:
-                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
-                print(f"Tentativa {attempt + 1} falhou. Aguardando {delay:.2f}s...")
-                time.sleep(delay)
-            else:
-                return response
-                
-        except requests.exceptions.RequestException as e:
-            if attempt < max_retries:
-                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
-                print(f"Erro de conexão. Tentativa {attempt + 1}. Aguardando {delay:.2f}s...")
-                time.sleep(delay)
-            else:
-                raise e
+def handle_judit_error(response: requests.Response) -> None:
+    """Decodifica e trata erros da Judit API."""
     
-    return None
-
-# Uso
-response = make_request_with_retry(
-    'https://requests.prod.judit.io/requests',
-    headers={'api-key': os.getenv('JUDIT_API_KEY')}
-)
-```
-
-```javascript JavaScript
-async function makeRequestWithRetry(
-    url,
-    headers = {},
-    maxRetries = 3,
-    baseDelay = 1000
-) {
-    // Faz requisição com retry e backoff exponencial
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-            const response = await fetch(url, {
-                headers: { 'api-key': process.env.JUDIT_API_KEY, ...headers },
-                timeout: 30000
-            });
-            
-            // Sucesso
-            if (response.status < 400) {
-                return response;
-            }
-            
-            // Não fazer retry para erros do cliente (4xx)
-            if (response.status >= 400 && response.status < 500) {
-                if (response.status === 429) { // Rate limit
-                    // Aguardar tempo especificado no header
-                    const retryAfter = response.headers.get('Retry-After');
-                    if (retryAfter) {
-                        await new Promise(resolve => 
-                            setTimeout(resolve, parseInt(retryAfter) * 1000)
-                        );
-                        continue;
-                    }
-                } else {
-                    // Outros erros 4xx não devem ter retry
-                    return response;
-                }
-            }
-            
-            // Retry para erros 5xx
-            if (attempt < maxRetries) {
-                const delay = baseDelay * (2 ** attempt) + Math.random() * 1000;
-                console.log(`Tentativa ${attempt + 1} falhou. Aguardando ${delay.toFixed(0)}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            } else {
-                return response;
-            }
-            
-        } catch (error) {
-            if (attempt < maxRetries) {
-                const delay = baseDelay * (2 ** attempt) + Math.random() * 1000;
-                console.log(`Erro de conexão. Tentativa ${attempt + 1}. Aguardando ${delay.toFixed(0)}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            } else {
-                throw error;
-            }
-        }
-    }
-    
-    return null;
-}
-
-// Uso
-const response = await makeRequestWithRetry(
-    'https://requests.prod.judit.io/requests'
-);
-```
-
-```php PHP
-<?php
-function makeRequestWithRetry(
-    $url,
-    $headers = [],
-    $maxRetries = 3,
-    $baseDelay = 1
-) {
-    // Faz requisição com retry e backoff exponencial
-    
-    $headers['api-key'] = getenv('JUDIT_API_KEY');
-    
-    for ($attempt = 0; $attempt <= $maxRetries; $attempt++) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, 
-            array_map(fn($k, $v) => "$k: $v", array_keys($headers), $headers)
-        );
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        
-        if ($response === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            
-            if ($attempt < $maxRetries) {
-                $delay = $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
-                echo "Erro de conexão. Tentativa " . ($attempt + 1) . ". Aguardando {$delay}s...\n";
-                sleep((int)$delay);
-                continue;
-            } else {
-                throw new Exception("Connection error: $error");
-            }
-        }
-        
-        // Sucesso
-        if ($httpCode < 400) {
-            curl_close($ch);
-            return $response;
-        }
-        
-        // Não fazer retry para erros do cliente (4xx)
-        if ($httpCode >= 400 && $httpCode < 500) {
-            if ($httpCode === 429) { // Rate limit
-                // Aguardar tempo especificado no header
-                preg_match('/Retry-After: (\d+)/', $response, $matches);
-                if (isset($matches[1])) {
-                    sleep((int)$matches[1]);
-                    curl_close($ch);
-                    continue;
-                }
-            } else {
-                // Outros erros 4xx não devem ter retry
-                curl_close($ch);
-                return $response;
-            }
-        }
-        
-        // Retry para erros 5xx
-        if ($attempt < $maxRetries) {
-            $delay = $baseDelay * (2 ** $attempt) + mt_rand(0, 1000) / 1000;
-            echo "Tentativa " . ($attempt + 1) . " falhou. Aguardando {$delay}s...\n";
-            sleep((int)$delay);
-        }
-        
-        curl_close($ch);
-    }
-    
-    return null;
-}
-
-// Uso
-$response = makeRequestWithRetry('https://requests.prod.judit.io/requests');
-?>
-```
-
-</CodeGroup>
-
-### 2. **Tratamento Específico por Tipo de Erro**
-
-<CodeGroup>
-
-```python Python
-def handle_api_error(response: requests.Response) -> None:
-    """
-    Trata erros específicos da API
-    """
-    if response.status_code == 200:
+    # Se for sucesso, não faz nada
+    if response.status_code < 400:
         return
-    
+        
     try:
-        error_data = response.json().get('error', {})
-        error_code = error_data.get('code', 'UNKNOWN_ERROR')
-        error_message = error_data.get('message', 'Erro desconhecido')
-        request_id = error_data.get('request_id', 'N/A')
+        payload = response.json()
+        error_block = payload.get('error', {})
         
-        print(f"Erro {response.status_code}: {error_message}")
-        print(f"Código: {error_code}")
-        print(f"Request ID: {request_id}")
+        error_name = error_block.get('name', 'UNKNOWN_ERROR')
+        error_details = error_block.get('data', [])
         
-        # Tratamento específico por código
-        if error_code == 'USER_NOT_FOUND':
-            print("⚠️ Verifique sua API Key")
+        print(f"❌ Falha HTTP {response.status_code}: {error_name}")
+        
+        # Iterando sobre os motivos do erro (Ex: validações de campos)
+        if error_details:
+            print("Detalhes do problema:")
+            for detail in error_details:
+                print(f"  - {detail}")
+                
+        # Automação de decisão baseada no tipo do erro
+        if error_name == 'USER_NOT_FOUND':
+            raise PermissionError("Sua API Key está inválida. Verifique suas variáveis de ambiente.")
             
-        elif error_code == 'VALIDATION_ERROR':
-            details = error_data.get('details', {})
-            field = details.get('field', 'desconhecido')
-            reason = details.get('reason', 'erro de validação')
-            print(f"❌ Campo '{field}': {reason}")
+        elif response.status_code == 429:
+            print("⚠️ Rate Limit excedido. Acione sua rotina de Backoff.")
             
-        else:
-            print(f"❓ Erro não tratado: {error_code}")
-            
-    except (ValueError, KeyError) as e:
-        print(f"Erro ao processar resposta de erro: {e}")
-        print(f"Status: {response.status_code}")
-        print(f"Resposta: {response.text[:200]}...")
+    except ValueError:
+        print(f"Erro Crítico {response.status_code}: O servidor não retornou um JSON válido.")
+        print(response.text)
 
-# Uso
+# Exemplo de uso forçando um erro (endpoint inexistente ou sem API Key)
 response = requests.get(
-    'https://requests.prod.judit.io/requests',
-    headers={'api-key': os.getenv('JUDIT_API_KEY')}
+    '[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)',
+    headers={'api-key': 'chave_errada'}
 )
-
-handle_api_error(response)
+handle_judit_error(response)
 ```
 
-```javascript JavaScript
-function handleApiError(response) {
-    // Trata erros específicos da API
+```javascript Node.js
+async function handleJuditError(response) {
+    // Decodifica e trata erros da Judit API.
     
-    if (response.status === 200) {
+    // Se for sucesso, não faz nada
+    if (response.ok) {
         return;
     }
-    
-    response.json().then(data => {
-        const errorData = data.error || {};
-        const errorCode = errorData.code || 'UNKNOWN_ERROR';
-        const errorMessage = errorData.message || 'Erro desconhecido';
-        const requestId = errorData.request_id || 'N/A';
-        
-        console.log(`Erro ${response.status}: ${errorMessage}`);
-        console.log(`Código: ${errorCode}`);
-        console.log(`Request ID: ${requestId}`);
-        
-        // Tratamento específico por código
-        switch (errorCode) {
-            case 'USER_NOT_FOUND':
-                console.log('⚠️ Verifique sua API Key');
-                break;
-                
-            case 'VALIDATION_ERROR':
-                const details = errorData.details || {};
-                const field = details.field || 'desconhecido';
-                const reason = details.reason || 'erro de validação';
-                console.log(`❌ Campo '${field}': ${reason}`);
-                break;
 
-            case 'PROCESSING_ERROR':
-                console.log('⚙️ Erro no processamento. Tente novamente');
-                break;
-                
-            default:
-                console.log(`❓ Erro não tratado: ${errorCode}`);
-        }
-        
-    }).catch(error => {
-        console.log(`Erro ao processar resposta de erro: ${error}`);
-        console.log(`Status: ${response.status}`);
-        console.log(`Resposta: ${response.statusText}`);
-    });
-}
-
-// Uso
-fetch('https://requests.prod.judit.io/requests', {
-    headers: { 'api-key': process.env.JUDIT_API_KEY }
-}).then(response => {
-    handleApiError(response);
-});
-```
-
-```php PHP
-<?php
-function handleApiError($response, $httpCode) {
-    // Trata erros específicos da API
-    
-    if ($httpCode === 200) {
-        return;
-    }
-    
     try {
-        $data = json_decode($response, true);
-        $errorData = $data['error'] ?? [];
-        $errorCode = $errorData['code'] ?? 'UNKNOWN_ERROR';
-        $errorMessage = $errorData['message'] ?? 'Erro desconhecido';
-        $requestId = $errorData['request_id'] ?? 'N/A';
+        const payload = await response.json();
+        const errorBlock = payload.error || {};
         
-        echo "Erro {$httpCode}: {$errorMessage}\n";
-        echo "Código: {$errorCode}\n";
-        echo "Request ID: {$requestId}\n";
+        const errorName = errorBlock.name || 'UNKNOWN_ERROR';
+        const errorDetails = errorBlock.data || [];
         
-        // Tratamento específico por código
-        switch ($errorCode) {
-            case 'USER_NOT_FOUND':
-                echo "⚠️ Verifique sua API Key\n";
-                break;
-                
-            case 'VALIDATION_ERROR':
-                $details = $errorData['details'] ?? [];
-                $field = $details['field'] ?? 'desconhecido';
-                $reason = $details['reason'] ?? 'erro de validação';
-                echo "❌ Campo '{$field}': {$reason}\n";
-                break;
-                
-            case 'PROCESSING_ERROR':
-                echo "⚙️ Erro no processamento. Tente novamente\n";
-                break;
-                
-            default:
-                echo "❓ Erro não tratado: {$errorCode}\n";
+        console.error(`❌ Falha HTTP ${response.status}: ${errorName}`);
+        
+        // Iterando sobre os motivos do erro (Ex: validações de campos)
+        if (errorDetails.length > 0) {
+            console.error("Detalhes do problema:");
+            errorDetails.forEach(detail => console.error(`  - ${detail}`));
         }
+
+        // Automação de decisão baseada no tipo do erro
+        if (errorName === 'USER_NOT_FOUND') {
+            throw new Error("Sua API Key está inválida. Verifique o arquivo .env.");
+        } 
         
-    } catch (Exception $e) {
-        echo "Erro ao processar resposta de erro: {$e->getMessage()}\n";
-        echo "Status: {$httpCode}\n";
-        echo "Resposta: " . substr($response, 0, 200) . "...\n";
+        if (response.status === 429) {
+            console.warn("⚠️ Rate Limit excedido. Acione sua rotina de Backoff.");
+        }
+
+    } catch (e) {
+        if (e.name !== 'SyntaxError') throw e; // Repassa erros que não são de JSON
+        console.error(`Erro Crítico ${response.status}: O servidor não retornou JSON válido.`);
     }
 }
 
-// Uso
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://requests.prod.judit.io/requests');
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['api-key: ' . getenv('JUDIT_API_KEY')]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-handleApiError($response, $httpCode);
-?>
+// Exemplo de uso
+fetch('[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)', {
+    headers: { 'api-key': 'chave_errada' }
+}).then(handleJuditError);
 ```
 
 </CodeGroup>
+
+---
 
 ## Próximos Passos
 
-- **[Busca Processual](/requests/requests)**: Entenda como realizar uma consulta processual.
-- **[FAQ](/resource/faq)**: Perguntas frequentes sobre erros comuns
-
-> **Dica**: Sempre implemente logging adequado e monitore os `request_id` para facilitar o suporte técnico.
+* 👉 **[Rate Limits](/essentialConcepts/rate-limits):** Veja como construir a função de *Retry com Exponential Backoff* para tratar erros `429`.
+* 👉 **[Autenticação](/authentication):** Revise como enviar suas credenciais corretamente para evitar erros `401`.
+* 👉 **[FAQ](/resource/faq):** Veja as respostas para os problemas de integração mais comuns.
