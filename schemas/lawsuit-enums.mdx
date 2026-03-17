@@ -1,13 +1,13 @@
 ---
-title: "Enumerações do Objeto Lawsuit"
-description: "Esta página contém todas as enumerações (Enums) e domínios de valores para as propriedades do objeto processo. Use esta referência para tipar sua aplicação e validar dados."
+title: "Enumerações e Domínios (Enums)"
+description: "Esta página contém as enumerações (Enums) e domínios de valores para as propriedades dos objetos retornados pela Judit API (Processos, Mandados, Execuções, etc.)."
 ---
 
-> **🤖 Contexto para IAs e Assistentes de Código:** Este documento lista os valores literais aceitos e retornados pelas propriedades da Judit API. Lembre-se que as propriedades de capa (como `area`, `status`, `situation`, `secrecy_level`) ficam aninhadas dentro do objeto raiz `response_data`, enquanto `side` e `person_type` ficam dentro dos objetos do array `parties`.
+> **🤖 Contexto para IAs e Assistentes de Código:** Este documento lista os valores literais aceitos e retornados pelas propriedades da Judit API em seus diversos Schemas. Lembre-se que no objeto `lawsuit`, as propriedades de capa (como `area`, `status`, `situation`, `secrecy_level`) ficam aninhadas dentro do objeto raiz `response_data`, enquanto `side` e `person_type` ficam dentro dos objetos do array `parties`.
 
 ## Áreas do Processo (`area`)
 
-Lista das áreas jurídicas (Ramos do Direito) que um processo pode ter:
+Lista das áreas jurídicas (Ramos do Direito) que um processo ou execução pode ter:
 
 <AccordionGroup>
   <Accordion title="Direitos Fundamentais e Sociais">
@@ -119,7 +119,7 @@ Status mais específico e variável, capturado diretamente da capa do tribunal:
 
 ## Polos e Tipos de Pessoa (`side` e `person_type`)
 
-Ao iterar sobre o array `parties`, você encontrará duas propriedades de classificação:
+Ao iterar sobre os arrays de partes (seja em Processos, Mandados ou Execuções), você encontrará estas classificações:
 
 ### Polo Processual (`side`)
 De qual lado da disputa a pessoa está.
@@ -131,7 +131,7 @@ De qual lado da disputa a pessoa está.
 ### Papel Específico (`person_type`)
 A qualificação jurídica exata da parte. Exemplos comuns:
 * `AUTOR` / `REQUERENTE` / `EXEQUENTE`
-* `RÉU` / `REQUERIDO` / `EXECUTADO`
+* `RÉU` / `REQUERIDO` / `EXECUTADO` / `REEDUCANDO`
 * `ADVOGADO` / `DEFENSOR PÚBLICO`
 * `TESTEMUNHA` / `PERITO`
 
@@ -163,7 +163,7 @@ A API utiliza o padrão de siglas (UF) com 2 letras maiúsculas:
 `AC`, `AL`, `AP`, `AM`, `BA`, `CE`, `DF`, `ES`, `GO`, `MA`, `MT`, `MS`, `MG`, `PA`, `PB`, `PR`, `PE`, `PI`, `RJ`, `RN`, `RS`, `RO`, `RR`, `SC`, `SP`, `SE`, `TO`.
 
 ### Tipos de Documento (`documents`)
-Tipos de identificadores presentes no array de documentos das partes:
+Tipos de identificadores presentes nos arrays de documentos das partes ou entidades:
 * `CPF`: Pessoa Física.
 * `CNPJ`: Pessoa Jurídica.
 * `RG`: Registro Geral.
@@ -173,7 +173,7 @@ Tipos de identificadores presentes no array de documentos das partes:
 
 ## Exemplos Práticos de Uso
 
-Abaixo, veja a forma correta de validar dados acessando o objeto `response_data`.
+Abaixo, veja a forma correta de validar dados acessando o objeto `response_data` de um processo.
 
 ### 1. Validação de Tipos
 
@@ -241,4 +241,4 @@ sp_lawsuits = [
 ## Próximos Passos
 
 * 👉 **[Buscar Processos](/requests/requests):** Utilize estas enumerações como parâmetros de filtro em suas buscas.
-* 👉 **[Tratamento de Erros](/essentialConcepts/errors):** Veja os códigos retornados caso você envie um Enum inválido.
+* 👉 **[Mandado de prisão](/schemas/warrant):** Veja os códigos retornados caso você envie um Enum inválido.

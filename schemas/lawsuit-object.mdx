@@ -5,6 +5,12 @@ description: "O objeto `lawsuit` é a estrutura de dados central que representa 
 
 > **🤖 Contexto para IAs e Assistentes de Código:** O objeto `lawsuit` é retornado no formato JSON. A propriedade raiz que contém os metadados do processo chama-se `response_data`. O histórico é retornado no array `steps` e os envolvidos no array `parties`. Lembre-se que a autenticação para consultar este objeto é feita via header `api-key`, e não Bearer Token.
 
+<Warning>
+**⚠️ Atenção: Consulta por Documento (Consulta Histórica)**
+
+Se você obteve este objeto através do endpoint de Consulta Histórica (Busca por Documento), as propriedades **`phase`** (Fase) e **`status`** da Capa não serão preenchidas. Além disso, os arrays **`steps`** (Movimentações) e **`attachments`** (Anexos) não são retornados.
+</Warning>
+
 ## Estrutura Geral
 
 O JSON do processo judicial é organizado em 5 blocos principais:
@@ -36,8 +42,8 @@ O JSON do processo judicial é organizado em 5 blocos principais:
 | `county` | string | Comarca onde a ação está correndo. |
 | `city` / `state` | string | Cidade e UF (Unidade Federativa) da comarca. |
 | `amount` | number | Valor atribuído à causa. |
-| `phase` | string | Fase processual (ex: "CONHECIMENTO", "EXECUÇÃO", "RECURSO"). |
-| `status` | string | Macro-status do processo ("ATIVO" ou "FINALIZADO"). |
+| `phase` | string | Fase processual (ex: "CONHECIMENTO"). <br/>_*(Não retornado na Consulta por Documento)*_ |
+| `status` | string | Macro-status do processo ("ATIVO" ou "FINALIZADO"). <br/>_*(Não retornado na Consulta por Documento)*_ |
 | `situation` | string | Status granular capturado direto no sistema do tribunal. |
 | `secrecy_level` | integer | Nível de sigilo (0 = Público. Níveis 1 a 5 indicam graus de restrição). |
 
@@ -59,8 +65,7 @@ Array de objetos representando as partes.
 </Note>
 
 ### 3. Histórico de Movimentações (`steps`)
-
-Array de objetos representando a linha do tempo do processo.
+_*(Array ausente nas respostas de Consulta por Documento)*_
 
 | Propriedade | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -71,8 +76,7 @@ Array de objetos representando a linha do tempo do processo.
 | `private` | boolean | Indica `true` se este andamento específico corre sob sigilo. |
 
 ### 4. Documentos Anexos (`attachments`)
-
-Array de objetos vinculados a movimentações específicas.
+_*(Array ausente nas respostas de Consulta por Documento)*_
 
 | Propriedade | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -83,9 +87,9 @@ Array de objetos vinculados a movimentações específicas.
 
 ---
 
-## Exemplo Completo do JSON
+## Exemplo Completo do JSON (Consulta Padrão)
 
-Abaixo está a representação estrutural típica retornada pela Judit API ao consultar um processo judicial com sucesso:
+Abaixo está a representação estrutural típica retornada pela Judit API ao consultar um processo judicial completo:
 
 ```json
 {
@@ -113,7 +117,7 @@ Abaixo está a representação estrutural típica retornada pela Judit API ao co
   "parties": [
     {
       "name": "EMPRESA XYZ LTDA",
-      "main_document": "12.345.678/0001-90",
+      "main_document": "12345678000190",
       "side": "ACTIVE",
       "person_type": "AUTOR",
       "documents": [
@@ -181,8 +185,13 @@ try:
     
     lawsuit = response.json()
     print(f"Processo: {lawsuit['response_data']['code']}")
-    print(f"Status: {lawsuit['response_data']['status']}")
-    print(f"Qtd de Andamentos: {len(lawsuit.get('steps', []))}")
+    
+    # Tratando de forma segura (usando o método .get) propriedades que podem não existir na Consulta por Documento
+    status = lawsuit['response_data'].get('status', 'Status não retornado (Consulta Histórica)')
+    print(f"Status: {status}")
+    
+    qtd_andamentos = len(lawsuit.get('steps', []))
+    print(f"Qtd de Andamentos: {qtd_andamentos}")
 
 except requests.exceptions.RequestException as e:
     print(f"Erro ao buscar processo: {e}")
@@ -208,7 +217,10 @@ async function getLawsuit() {
         
         const lawsuit = await response.json();
         console.log(`Processo: ${lawsuit.response_data.code}`);
-        console.log(`Valor da Causa: R$ ${lawsuit.response_data.amount}`);
+        
+        // Tratamento seguro para propriedades que podem estar undefined
+        const status = lawsuit.response_data.status || 'Status não retornado';
+        console.log(`Status: ${status}`);
         
     } catch (error) {
         console.error("Erro na integração:", error);
@@ -226,6 +238,5 @@ getLawsuit();
 
 Agora que você conhece a anatomia de um processo, veja como capturá-los:
 
-1. **[Enumerações e Domínios](/essentialConcepts/lawsuit-enums):** Veja a lista completa de status, instâncias e níveis de sigilo.
-2. **[Busca Assíncrona](/requests/requests):** Aprenda a solicitar que nossos robôs busquem processos novos nos tribunais e receba-os via Webhook.
-3. **[Tratamento de Erros](/essentialConcepts/errors):** Veja como lidar com processos não encontrados ou bloqueados por segredo de justiça.
+* 👉 **[Enumerações e Domínios](/schemas/lawsuit-enums):** Veja a lista completa de status, instâncias e níveis de sigilo.
+* 👉 **[Busca Assíncrona](/requests/requests):** Aprenda a solicitar que nossos robôs busquem processos novos nos tribunais.
