@@ -973,10 +973,6 @@ Os metadados desses arquivos estarão listados dentro do array `attachments` no 
 **Fidelidade de Formato:** A Judit API não converte os arquivos. O anexo será retornado para você no **exato mesmo formato original** em que foi capturado e disponibilizado pelo tribunal. Prepare sua aplicação para receber documentos (PDF, HTML, DOCX), imagens (JPG, PNG) e até mídias de audiências (MP3, MP4).
 </Info>
 
-<Warning>
-**Disponibilidade dos Anexos:** Antes de tentar acessar o arquivo, verifique a propriedade `status` dentro do objeto individual do anexo. O valor deve ser obrigatoriamente `"done"`, indicando que ele já está no nosso bucket pronto para consumo.
-</Warning>
-
 ```bash cURL
 curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
 --header 'api-key: <api-key>' \
