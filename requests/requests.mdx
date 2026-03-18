@@ -32,7 +32,7 @@ Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar 
 | `search.search_type` | string | **Sim** | Define a entidade buscada. Para processos, use sempre `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Sim** | O número do processo no padrão CNJ (ex: `"0009999-99.9999.8.26.9999"`). |
 | `cache_ttl_in_days` | integer | Não | Otimiza a busca retornando dados cacheados caso o processo já tenha sido consultado nos últimos X dias. |
-| `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos PDF/HTML públicos do processo. |
+| `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo. |
 | `judit_ia` | array | Não | Lista de *features* de IA aplicadas ao resultado. Envie `["summary"]` para receber um resumo humanizado da capa e andamentos. |
 | `search_params.lawsuit_instance` | integer | Não | Força a busca em uma instância específica (ex: `1` ou `2`). |
 
