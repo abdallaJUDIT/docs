@@ -1,0 +1,242 @@
+---
+title: "Objeto Lawsuit (Processo Judicial)"
+description: "O objeto `lawsuit` é a estrutura de dados central que representa um processo judicial completo na Judit API. Ele contém desde a capa do processo até andamentos e anexos."
+---
+
+> **🤖 Contexto para IAs e Assistentes de Código:** O objeto `lawsuit` é retornado no formato JSON. A propriedade raiz que contém os metadados do processo chama-se `response_data`. O histórico é retornado no array `steps` e os envolvidos no array `parties`. Lembre-se que a autenticação para consultar este objeto é feita via header `api-key`, e não Bearer Token.
+
+<Warning>
+**⚠️ Atenção: Consulta por Documento (Consulta Histórica)**
+
+Se você obteve este objeto através do endpoint de Consulta Histórica (Busca por Documento), as propriedades **`phase`** (Fase) e **`status`** da Capa não serão preenchidas. Além disso, os arrays **`steps`** (Movimentações) e **`attachments`** (Anexos) não são retornados.
+</Warning>
+
+## Estrutura Geral
+
+O JSON do processo judicial é organizado em 5 blocos principais:
+
+* **Capa (response_data):** Metadados, juiz, comarca, valor da causa e status.
+* **Partes (parties):** Array contendo os pólos (ativo/passivo), documentos e advogados.
+* **Andamentos (steps):** Array com o histórico cronológico de movimentações.
+* **Anexos (attachments):** Array de documentos (PDFs, HTML) vinculados aos andamentos.
+* **Relacionados (related_lawsuits):** Array de processos apensos ou vinculados.
+
+---
+
+## Dicionário de Dados
+
+### 1. Capa Processual (`response_data`)
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `code` | string | Número único do processo no padrão CNJ. |
+| `name` | string | Descrição/Nome do processo (ex: "PARTE ATIVA X PARTE PASSIVA"). |
+| `area` | string | Área do direito (ex: "DIREITO CIVIL", "DIREITO ADMINISTRATIVO"). |
+| `subject` / `subjects` | array | Assuntos da causa, baseados na tabela unificada do CNJ. |
+| `classifications` | array | Classes processuais (ex: "PROCEDIMENTO COMUM"), baseadas no CNJ. |
+| `distribution_date` | string | Data em que o processo foi distribuído/iniciado no tribunal. |
+| `instance` | string | Grau de jurisdição (ex: "1ª INSTÂNCIA", "2ª INSTÂNCIA"). |
+| `judge` | string | Nome do magistrado ou relator responsável. |
+| `justice_description` | string | Tipo do órgão (ex: "JUSTIÇA ESTADUAL", "JUSTIÇA FEDERAL", "STJ"). |
+| `tribunal_acronym` | string | Sigla oficial do tribunal de origem (ex: "TJSP", "TRF4"). |
+| `county` | string | Comarca onde a ação está correndo. |
+| `city` / `state` | string | Cidade e UF (Unidade Federativa) da comarca. |
+| `amount` | number | Valor atribuído à causa. |
+| `phase` | string | Fase processual (ex: "CONHECIMENTO"). <br/>_*(Não retornado na Consulta por Documento)*_ |
+| `status` | string | Macro-status do processo ("ATIVO" ou "FINALIZADO"). <br/>_*(Não retornado na Consulta por Documento)*_ |
+| `situation` | string | Status granular capturado direto no sistema do tribunal. |
+| `secrecy_level` | integer | Nível de sigilo (0 = Público. Níveis 1 a 5 indicam graus de restrição). |
+
+### 2. Envolvidos (`parties`)
+
+Array de objetos representando as partes.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `name` | string | Nome completo ou Razão Social da parte. |
+| `main_document` | string | CPF ou CNPJ principal vinculado à parte. |
+| `side` | string | Pólo no processo: `ACTIVE` (Autor), `PASSIVE` (Réu), `INTERESTED` ou `UNKNOWN`. |
+| `person_type` | string | Papel processual (ex: "AUTOR", "RÉU", "TESTEMUNHA", "TERCEIRO"). |
+| `documents` | array | Lista de objetos com `document_type` (ex: "CPF", "CNPJ") e `document` (o número). |
+| `lawyers` | array | Lista de advogados associados à parte (contém `name` e `oab`). |
+
+<Note>
+**Atenção aos Advogados:** Se o tribunal não especificar claramente a qual parte o advogado pertence, o objeto do advogado será listado diretamente no array principal de `parties`, com um papel/side genérico.
+</Note>
+
+### 3. Histórico de Movimentações (`steps`)
+_*(Array ausente nas respostas de Consulta por Documento)*_
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `step_id` | string | Identificador único interno do andamento. |
+| `step_date` | string | Data da movimentação processual. |
+| `step_type` | string | Código/Tipo do andamento mapeado na tabela do CNJ. |
+| `content` | string | Texto descritivo integral do andamento (ex: "Ato ordinatório praticado..."). |
+| `private` | boolean | Indica `true` se este andamento específico corre sob sigilo. |
+
+### 4. Documentos Anexos (`attachments`)
+_*(Array ausente nas respostas de Consulta por Documento)*_
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `step_id` | string | ID do andamento (step) que gerou este anexo. |
+| `attachment_date` | string | Data da inserção do documento. |
+| `attachment_name` | string | Título ou nome do arquivo (ex: "Petição Inicial", "Contestação"). |
+| `extension` | string | Formato do arquivo extraído (ex: "PDF", "HTML"). |
+
+---
+
+## Exemplo Completo do JSON (Consulta Padrão)
+
+Abaixo está a representação estrutural típica retornada pela Judit API ao consultar um processo judicial completo:
+
+```json
+{
+  "response_data": {
+    "code": "9999999-99.9999.9.99.9999",
+    "name": "Ação de Cobrança Cível",
+    "area": "DIREITO CIVIL",
+    "distribution_date": "2024-01-15",
+    "instance": "1ª INSTÂNCIA",
+    "courts": "1ª VARA CÍVEL",
+    "secrecy_level": 0,
+    "subjects": ["COBRANÇA"],
+    "classifications": ["PROCEDIMENTO COMUM CÍVEL"],
+    "judge": "João Silva Santos",
+    "justice_description": "JUSTIÇA ESTADUAL",
+    "county": "SÃO PAULO",
+    "tribunal_acronym": "TJSP",
+    "city": "SÃO PAULO",
+    "state": "SP",
+    "situation": "ATIVA",
+    "phase": "CONHECIMENTO",
+    "status": "ATIVO",
+    "amount": 50000.00
+  },
+  "parties": [
+    {
+      "name": "EMPRESA XYZ LTDA",
+      "main_document": "12345678000190",
+      "side": "ACTIVE",
+      "person_type": "AUTOR",
+      "documents": [
+        { "document_type": "CNPJ", "document": "12345678000190" }
+      ],
+      "lawyers": [
+        { "name": "Maria Advogada", "oab": "OAB/SP 123456" }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step_001_abc",
+      "step_date": "2024-01-15",
+      "step_type": "DISTRIBUIÇÃO",
+      "content": "Processo distribuído por sorteio para a 1ª Vara Cível",
+      "private": false
+    }
+  ],
+  "attachments": [
+    {
+      "step_id": "step_001_abc",
+      "attachment_date": "2024-01-15",
+      "attachment_name": "Petição Inicial Cópia Autenticada",
+      "extension": "PDF"
+    }
+  ],
+  "related_lawsuits": []
+}
+```
+
+---
+
+## Exemplos de Integração (Buscando um Processo)
+
+> **Importante:** Nos exemplos abaixo, estamos utilizando a URL Base de Consultas Síncronas do nosso Datalake para recuperar o objeto `lawsuit` instantaneamente. Lembre-se de passar o header `api-key`.
+
+<CodeGroup>
+
+```bash cURL
+# Buscar processo específico por CNJ
+export JUDIT_API_KEY="sua_chave_aqui"
+
+curl -X GET "[https://lawsuits.production.judit.io/lawsuits/9999999-99.9999.9.99.9999](https://lawsuits.production.judit.io/lawsuits/9999999-99.9999.9.99.9999)" \
+  -H "api-key: $JUDIT_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```python Python
+import os
+import requests
+
+api_key = os.getenv('JUDIT_API_KEY')
+cnj = "9999999-99.9999.9.99.9999"
+
+url = f"[https://lawsuits.production.judit.io/lawsuits/](https://lawsuits.production.judit.io/lawsuits/){cnj}"
+headers = {
+    "api-key": api_key,
+    "Content-Type": "application/json"
+}
+
+try:
+    response = requests.get(url, headers=headers)
+    response.raise_for_status() # Dispara erro se não for 200 OK
+    
+    lawsuit = response.json()
+    print(f"Processo: {lawsuit['response_data']['code']}")
+    
+    # Tratando de forma segura (usando o método .get) propriedades que podem não existir na Consulta por Documento
+    status = lawsuit['response_data'].get('status', 'Status não retornado (Consulta Histórica)')
+    print(f"Status: {status}")
+    
+    qtd_andamentos = len(lawsuit.get('steps', []))
+    print(f"Qtd de Andamentos: {qtd_andamentos}")
+
+except requests.exceptions.RequestException as e:
+    print(f"Erro ao buscar processo: {e}")
+```
+
+```javascript Node.js
+const apiKey = process.env.JUDIT_API_KEY;
+const cnj = "9999999-99.9999.9.99.9999";
+
+const url = `https://lawsuits.production.judit.io/lawsuits/${cnj}`;
+const headers = {
+    "api-key": apiKey,
+    "Content-Type": "application/json"
+};
+
+async function getLawsuit() {
+    try {
+        const response = await fetch(url, { headers });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+        
+        const lawsuit = await response.json();
+        console.log(`Processo: ${lawsuit.response_data.code}`);
+        
+        // Tratamento seguro para propriedades que podem estar undefined
+        const status = lawsuit.response_data.status || 'Status não retornado';
+        console.log(`Status: ${status}`);
+        
+    } catch (error) {
+        console.error("Erro na integração:", error);
+    }
+}
+
+getLawsuit();
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+Agora que você conhece a anatomia de um processo, veja como capturá-los:
+
+* 👉 **[Enumerações e Domínios](/schemas/lawsuit-enums):** Veja a lista completa de status, instâncias e níveis de sigilo.
+* 👉 **[Busca Assíncrona](/requests/requests):** Aprenda a solicitar que nossos robôs busquem processos novos nos tribunais.

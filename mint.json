@@ -27,12 +27,16 @@
  ],
  "navigation": [
   {
-   "group": "Começar",
+   "group": "Primeiros Passos",
    "pages": ["introduction/introduction", "introduction/quickstart", "introduction/authentication"]
   },
   {
    "group": "Conceitos Fundamentais",
-   "pages": ["essentialConcepts/pagination", "essentialConcepts/lawsuit-object", "essentialConcepts/lawsuit-enums", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
+   "pages": ["essentialConcepts/pagination", "essentialConcepts/rate-limits", "essentialConcepts/errors"]
+  },
+  {
+   "group": "Modelo de Dados(Schemas)",
+   "pages": ["schemas/lawsuit-object", "schemas/lawsuit-enums", "schemas/warrant", "schemas/penal-execution", "schemas/entity"]
   },
   {
    "group": "Requests",
@@ -95,7 +99,6 @@
     "resource/consumption",
     "resource/faq",  
     "resource/glossary",
-    "resource/flow-sheet",
     "resource/postman-collection"
   ]
   },
