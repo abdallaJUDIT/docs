@@ -3,7 +3,7 @@ title: "Objeto Entity (Dados Cadastrais)"
 description: "O objeto `entity` é a estrutura de dados retornada nas consultas de CPF (Pessoa Física) e CNPJ (Pessoa Jurídica). Ele consolida informações cadastrais, de contato, endereços e vínculos."
 ---
 
-> **🤖 Contexto para IAs e Assistentes de Código:** As consultas de Dados Cadastrais retornam um objeto base comum chamado `entity`. Dependendo se a consulta foi feita por um CPF ou CNPJ, a propriedade `entity_type` retornará `"person"` ou `"company"`, respectivamente. Alguns campos, como `parents` (filiação) ou `share_capital` (capital social), são exclusivos do seu respectivo tipo de entidade.
+> 🤖 As consultas de Dados Cadastrais retornam um objeto base comum chamado `entity`. Dependendo se a consulta foi feita por um CPF ou CNPJ, a propriedade `entity_type` retornará `"person"` ou `"company"`, respectivamente. Alguns campos, como `parents` (filiação) ou `share_capital` (capital social), são exclusivos do seu respectivo tipo de entidade.
 
 ## Estrutura Base (Comum a CPF e CNPJ)
 
