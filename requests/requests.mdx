@@ -1,617 +1,992 @@
 ---
-title: "Busca processual"
-description: "Encontre processos judiciais de forma rápida e fácil"
+title: "Busca Processual (Assíncrona)"
+description: "Aprenda a realizar buscas processuais nos tribunais em tempo real, acompanhar o status da extração e obter os resultados completos com ou sem inteligência artificial."
 icon: "magnifying-glass"
 ---
 
-A API da JUDIT oferece a possibilidade de buscar processos judiciais usando a rota `/requests`.
+> 🤖 A rota de busca processual opera de forma **assíncrona**. A aplicação cliente deve fazer um `POST /requests` para iniciar a busca, aguardar o processamento (via Webhook ou consultando via `GET /requests/{id}`) e, quando o status for `completed`, capturar os dados via `GET /responses`.
 
-## Rota de Consulta de Processos
+## Entendendo o Fluxo Assíncrono
 
-Nesta rota, é possível buscar processos (Código CNJ), documentos (CPF ou CNPJ), OAB ou nome. Nesta seção, abordaremos exclusivamente as buscas processuais.
-Para buscar um processo, você deve realizar uma solicitação POST para a rota `/requests`.
+Como a extração de dados diretamente dos tribunais pode levar alguns segundos ou minutos (dependendo da instabilidade do tribunal), a Judit API utiliza um padrão assíncrono de requisições.
 
-## Payload da Solicitação
 
-A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `search_type`: Este campo define o tipo de entidade que será buscada. O valor para consulta processual será sempre `lawsuit_cnj`.
-- `search_key`: O número do processo (Código CNJ) que você deseja buscar.
+O fluxo consiste em 3 passos simples:
+1. **Criar a requisição:** Você envia o número do processo.
+2. **Acompanhar o status:** Você verifica se o robô terminou a extração.
+3. **Capturar o resultado:** Você consome o JSON com os dados do processo.
 
-- `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
+---
 
-- `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
+## Passo 1: Criando a Requisição de Busca
 
-- `search_params`: Um objeto que contém alguns parâmetros da busca como: 
-    - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; 
-    - `masked_response` Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual. 
+Para iniciar uma busca processual, faça uma requisição `POST` para a rota base de requisições enviando os parâmetros desejados no corpo (body) da chamada.
 
-    `Obs` Consulte as condições comerciais desses diferentes tipos de consultas por documento.
+### Parâmetros do Payload (Body)
 
-- `judit-ia`(opcional): Array de strings que define quais análises da Judit IA devem ser aplicadas à consulta. Atualmente, é possível utilizar o valor "summary" para obter um resumo automático do processo retornado na consulta processual.
+Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar a **Judit IA**:
 
-Caso o processo tenha um ou mais processos relacionado ou em alguma outra instância, esses processos serão retornados também.
-
-Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com anexos:
-
-```json
-{
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "0009999-99.9999.8.26.9999"
- },
- "with_attachments": true
-}
-```
-<Note>
-  O parâmetro `with_attachments` determina se a busca incluirá ou não os anexos, conforme o valor booleano especificado.
-</Note>
-
-Abaixo está o exemplo de como construir o payload para realizar uma busca por CNJ e obter o retorno com judit IA:
-
-```json
-{
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "0009999-99.9999.8.26.9999"
- },
- "judit_ia": [
-		"summary"
-	]
-}
-```
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | Define a entidade buscada. Para processos, use sempre `"lawsuit_cnj"`. |
+| `search.search_key` | string | **Sim** | O número do processo no padrão CNJ (ex: `"0009999-99.9999.8.26.9999"`). |
+| `cache_ttl_in_days` | integer | Não | Otimiza a busca retornando dados cacheados caso o processo já tenha sido consultado nos últimos X dias. |
+| `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo. |
+| `judit_ia` | array | Não | Lista de *features* de IA aplicadas ao resultado. Envie `["summary"]` para receber um resumo humanizado da capa e andamentos. |
+| `search_params.lawsuit_instance` | integer | Não | Força a busca em uma instância específica (ex: `1` ou `2`). |
 
 <Warning>
-A funcionalidade **Judit IA** está na versão *Beta* e ainda se encontra em fase de testes.
+**Judit IA (Beta):** A funcionalidade de inteligência artificial (`judit_ia`) está em versão Beta. O tempo de resposta pode variar e a estrutura do resumo está sujeita a melhorias.
 </Warning>
 
-Aqui está um exemplo de como de payload para busca por lawsuit_cnj com curl:
+### Exemplo de Requisição (POST)
 
-```bash
-curl -X POST "https://requests.prod.judit.io/requests"
--H "api-key: YOUR_API_KEY"
--H "Content-Type: application/json"
--d 
-'{
-  "search": {
-    "search_type": "lawsuit_cnj",
-    "search_key": "0009999-99.9999.8.26.9999"
-  },
-  "with_attachments": true
+<CodeGroup>
+
+```bash cURL (Sem Anexos)
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0009999-99.9999.8.26.9999"
+    },
+    "with_attachments": false
 }'
 ```
 
-## Aqui está o exemplo do retorno da criação da sua request feita por cnj
+```bash cURL (Com Anexos)
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0009999-99.9999.8.26.9999"
+    },
+    "with_attachments": true
+}'
+```
 
-```json
+```bash cURL (Com Anexos e IA)
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0009999-99.9999.8.26.9999"
+    },
+    "with_attachments": true,
+    "judit_ia": ["summary"]
+}'
+```
+
+```json Exemplo de Resposta (Status 201)
 {
     "request_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
     "search": {
         "search_type": "lawsuit_cnj",
-        "search_key": "9999999-99.9999.9.99.9999",
-        "response_type": "lawsuit",
-        "search_params": {
-            "public_search": false,
-            "filter": {},
-            "pagination": {}
-        }
+        "search_key": "0009999-99.9999.8.26.9999",
+        "response_type": "lawsuit"
     },
     "with_attachments": true,
-    "callback_url": "https://webhook.site/789d7e03-f06b-4371-bd07-880bbc635564",
-    "origin": "api",
-    "origin_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
-    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-    "status": "completed",
-    "created_at": "2024-06-18T22:03:35.560Z",
-    "updated_at": "2024-06-18T22:03:41.247Z",
-    "tags": {
-        "dashboard_id": null
-    }
+    "status": "processing",
+    "created_at": "2024-06-18T22:03:35.560Z"
 }
 ```
+</CodeGroup>
 
-## Consultar o status da request
+Guarde o valor de `request_id`, pois você precisará dele para os próximos passos.
 
-  <Warning>
-    Esta é uma etapa importante para saber quando a consulta terminou,
-    já que as respostas serão adicionadas de forma incremental por tribunal.
-  </Warning>
+---
 
-    ```bash
-    curl --request GET
-      --url 'https://requests.prod.judit.io/requests/05ee9825-b2b4-480b-b29e-f071ca7d9c72'
-      --header 'api-key: SUA-API-KEY'
-      --header 'Content-Type: application/json'
-    ```
-  Retorno:
+## Passo 2: Consultar o Status da Requisição
 
-    ```json
-    {
-      "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
-      "search": {
-          "search_type": "lawsuit",
-          "search_key": "9999999-99.9999.9.99.9999",
-          "response_type": "lawsuit",
-          "search_params": {
-            "filter": {},
-            "pagination": {}
-          }
-      },
-      "origin": "api",
-      "origin_id": "46fac09a-b34f-4dfd-a24f-b358bf04dfd4",
-      "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-      "status": "completed",
-      "created_at": "2024-02-21T17:33:22.876Z",
-      "updated_at": "2024-02-21T17:33:26.316Z",
-      "tags": {
-          "dashboard_id": null
-      }
-    }
-  ```
+<Warning>
+Esta etapa é crucial caso você não esteja utilizando **Webhooks**. As respostas são inseridas no banco de dados de forma incremental à medida que os robôs interagem com o tribunal.
+</Warning>
 
-  Através da propriedade <strong>status</strong> é possível saber se a requisição está completa.
-
-## Consultando sua request
-
-Aqui está um exemplo de como consultar suas buscas usando curl de uma requisição através do `request_id`:
-
-```bash
-curl -X GET "https://requests.prod.judit.io/responses?request_id=<REQUEST_ID>"
--H "api-key: YOUR_API_KEY"
+Para saber se a extração finalizou, consulte o endpoint de histórico de requisições passando o ID gerado no Passo 1:
+<CodeGroup>
+```bash cURL
+curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
 ```
-<Note>
-  O parâmetro `request_id` é o mesmo gerado na resposta criação da request.
-</Note>
 
-## Exemplo de response da solicitação GET acima
+```json Exemplo de resposta (200 OK)
+{
+  "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+  "search": {
+      "search_type": "lawsuit",
+      "search_key": "9999999-99.9999.9.99.9999",
+      "response_type": "lawsuit",
+      "search_params": {
+        "filter": {},
+        "pagination": {}
+      }
+  },
+  "origin": "api",
+  "origin_id": "46fac09a-b34f-4dfd-a24f-b358bf04dfd4",
+  "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+  "status": "completed",
+  "created_at": "2024-02-21T17:33:22.876Z",
+  "updated_at": "2024-02-21T17:33:26.316Z",
+  "tags": {
+      "dashboard_id": null
+  }
+}
+```
+</CodeGroup>
+Aguarde até que a propriedade **`status`** mude para **`"completed"`**.
 
-Aqui está um exemplo da resposta da solicitação:
+---
 
-    <Accordion title="Exemplo de como consultar a resposta da consulta processual após status completed">
-    ```json
-        {
-            "request_status": "completed",
-            "page": 1,
-            "page_count": 1,
-            "all_pages_count": 1,
-            "all_count": 1,
-            "page_data": [
-                {
-                    "request_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
-                    "response_id": "061c60b2-7fa9-4d20-87bb-1bedd31d5572",
-                    "origin": "api",
-                    "origin_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
-                    "response_type": "lawsuit",
-                    "response_data": {
-                        "code": "9999999-99.9999.9.99.9999",
-                        "justice": "8",
-                        "tribunal": "26",
-                        "instance": 1,
-                        "distribution_date": "2019-02-15T16:00:00.000Z",
-                        "judge": "Usuário teste",
-                        "tribunal_acronym": "TJSP",
-                        "secrecy_level": 0,
-                        "tags": {
-                            "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
-                            "dictionary_updated_at": "2025-08-13T18:43:48.143Z"
+## Passo 3: Capturar o Resultado (O Processo)
+
+Assim que o status estiver `completed`, você pode resgatar os dados completos do processo judicial (e o resumo da IA, se solicitado).
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://requests.prod.judit.io/responses?page_size=100&request_id=%3Crequest_id%3E' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
+```
+
+```json Exemplo de resposta simples (200 OK)
+{
+        "request_status": "completed",
+        "page": 1,
+        "page_count": 1,
+        "all_pages_count": 1,
+        "all_count": 1,
+        "page_data": [
+            {
+                "request_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_id": "061c60b2-7fa9-4d20-87bb-1bedd31d5572",
+                "origin": "api",
+                "origin_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_type": "lawsuit",
+                "response_data": {
+                    "code": "9999999-99.9999.9.99.9999",
+                    "justice": "8",
+                    "tribunal": "26",
+                    "instance": 1,
+                    "distribution_date": "2019-02-15T16:00:00.000Z",
+                    "judge": "Usuário teste",
+                    "tribunal_acronym": "TJSP",
+                    "secrecy_level": 0,
+                    "tags": {
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "dictionary_updated_at": "2025-08-13T18:43:48.143Z"
+                    },
+                    "subjects": [
+                        {
+                            "code": "",
+                            "name": "PAGAMENTO"
+                        }
+                    ],
+                    "classifications": [
+                        {
+                            "code": "7",
+                            "name": "PROCEDIMENTO COMUM CÍVEL"
+                        }
+                    ],
+                    "courts": [
+                        {
+                            "name": "1ª Vara Cível"
+                        }
+                    ],
+                    "parties": [
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cpf"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
                         },
-                        "subjects": [
-                            {
-                                "code": "",
-                                "name": "PAGAMENTO"
-                            }
-                        ],
-                        "classifications": [
-                            {
-                                "code": "7",
-                                "name": "PROCEDIMENTO COMUM CÍVEL"
-                            }
-                        ],
-                        "courts": [
-                            {
-                                "name": "1ª Vara Cível"
-                            }
-                        ],
-                        "parties": [
-                            {
-                                "main_document": "99999999999",
-                                "name": "Usuário 2",
-                                "side": "Passive",
-                                "person_type": "Desconhecido",
-                                "documents": [
-                                    {
-                                        "document": "99999999999",
-                                        "document_type": "cpf"
-                                    }
-                                ],
-                                "lawyers": [
-                                    {
-                                        "name": "Usuário 3",
-                                        "documents": []
-                                    }
-                                ]
-                            },
-                            {
-                                "main_document": "99999999999",
-                                "name": "Usuário 4",
-                                "side": "Active",
-                                "person_type": "Desconhecido",
-                                "documents": [
-                                    {
-                                        "document": "99999999999",
-                                        "document_type": "cnpj"
-                                    }
-                                ],
-                                "lawyers": [
-                                    {
-                                        "name": "Usuário 5",
-                                        "documents": []
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Usuário 4",
-                                "side": "Active",
-                                "person_type": "Desconhecido",
-                                "documents": [],
-                                "lawyers": [
-                                    {
-                                        "name": "Usuário 5",
-                                        "documents": []
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Usuário 2",
-                                "side": "Passive",
-                                "person_type": "Desconhecido",
-                                "documents": [],
-                                "lawyers": [
-                                    {
-                                        "name": "Usuário 3",
-                                        "documents": []
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Usuário 5",
-                                "side": "Active",
-                                "person_type": "Advogado",
-                                "documents": []
-                            },
-                            {
-                                "name": "Usuário 3",
-                                "side": "Passive",
-                                "person_type": "Advogado",
-                                "documents": []
-                            }
-                        ],
-                        "steps": [
-                            {
-                                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                                "lawsuit_instance": 1,
-                                "step_date": "2019-07-16T00:00:00.000Z",
-                                "private": false,
-                                "tags": {
-                                    "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
-                                },
-                                "step_id": "56174b2e",
-                                "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
-                                "steps_count": 32,
-                                "created_at": "2025-07-09T13:48:33.114Z",
-                                "updated_at": "2025-08-11T18:57:39.041Z"
-                            },
-                            {
-                                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                                "lawsuit_instance": 1,
-                                "step_date": "2019-06-06T00:00:00.000Z",
-                                "private": false,
-                                "tags": {
-                                    "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
-                                },
-                                "step_id": "939794b9",
-                                "content": "Arquivado Definitivamente",
-                                "created_at": "2025-07-09T13:48:33.114Z",
-                                "updated_at": "2025-08-11T18:57:39.041Z"
-                            },
-                            {
-                                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                                "lawsuit_instance": 1,
-                                "step_date": "2019-06-06T00:00:00.000Z",
-                                "private": false,
-                                "tags": {
-                                    "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
-                                },
-                                "step_id": "423978eb",
-                                "content": "Trânsito em Julgado às partes\nCertidão de trânsito em julgado e remessa ao arquivo geral",
-                                "created_at": "2025-07-09T13:48:33.114Z",
-                                "updated_at": "2025-08-11T18:57:39.041Z"
-                            }
-                        ],
-                        "attachments": [
-                            {
-                                "attachment_id": "60153051-1-1",
-                                "attachment_date": "2019-02-15T16:00:41.000Z",
-                                "attachment_name": "Petição (Outras)",
-                                "extension": "pdf",
-                                "status": "done",
-                                "tags": {
-                                    "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
-                                },
-                                "user_data": null
-                            },
-                            {
-                                "attachment_id": "60153057-5-1",
-                                "attachment_date": "2019-02-15T16:00:42.000Z",
-                                "attachment_name": "Instrumento de Procuração",
-                                "extension": "pdf",
-                                "status": "done",
-                                "tags": {
-                                    "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
-                                },
-                                "user_data": null
-                            },
-                            {
-                                "attachment_id": "60153061-6-1",
-                                "attachment_date": "2019-02-15T16:00:43.000Z",
-                                "attachment_name": "Guia",
-                                "extension": "pdf",
-                                "status": "done",
-                                "tags": {
-                                    "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
-                                },
-                                "user_data": null
-                            },
-                            {
-                                "attachment_id": "60153064-7-1",
-                                "attachment_date": "2019-02-15T16:00:44.000Z",
-                                "attachment_name": "Guia",
-                                "extension": "pdf",
-                                "status": "done",
-                                "tags": {
-                                    "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
-                                },
-                                "user_data": null
-                            }
-                        ],
-                        "related_lawsuits": [],
-                        "crawler": {
-                            "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 1 instance",
-                            "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
-                            "weight": 10,
-                            "updated_at": "2025-08-13T18:43:47.770Z"
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cnpj"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
                         },
-                        "metadata": {},
-                        "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
-                        "amount": 5798,
-                        "state": "SP",
-                        "city": "FERNANDOPOLIS",
-                        "justice_description": "JUSTIÇA ESTADUAL",
-                        "last_step": {
+                        {
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 5",
+                            "side": "Active",
+                            "person_type": "Advogado",
+                            "documents": []
+                        },
+                        {
+                            "name": "Usuário 3",
+                            "side": "Passive",
+                            "person_type": "Advogado",
+                            "documents": []
+                        }
+                    ],
+                    "steps": [
+                        {
                             "lawsuit_cnj": "9999999-99.9999.9.99.9999",
                             "lawsuit_instance": 1,
                             "step_date": "2019-07-16T00:00:00.000Z",
                             "private": false,
                             "tags": {
-                                "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805"
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
                             },
                             "step_id": "56174b2e",
                             "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
-                            "steps_count": 32
+                            "steps_count": 32,
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
                         },
-                        "phase": "Execução ou cumprimento",
-                        "status": "Ativo",
-                        "name": "Usuário 4 X Usuário 2",
-                        "created_at": "2025-08-13T18:43:51.016Z",
-                        "updated_at": "2025-08-13T18:43:51.016Z",
-                        "free_justice": false
-                    },
-                    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-                    "created_at": "2025-08-13T18:40:54.982Z",
-                    "request_created_at": "2025-08-13T18:40:54.037Z",
-                    "tags": {
-                        "debug": true,
-                        "dashboard_id": null,
-                        "cached_response": false,
-                        "cached": false
-                    }
-                }
-            ]
-        }
-        ```
-</Accordion>
-<Note>
-    A resposta com a capa processual será um array dentro de `page_data` onde cada objeto corresponde a uma instância.
-</Note>
-
-<Warning>
-    Verifique o parâmetro `request_status` para garantir que a resposta foi processada com sucesso. O valor deve ser **completed**. Caso contrário, a solicitação ainda está em processamento.
-</Warning>
-
-## Exemplo de resposta da consulta com Judit IA
-
-<Accordion title="Exemplo de resposta da consulta com Judit IA">
-
-```json
-  {
-    "request_status": "completed",
-    "page": 1,
-    "page_count": 2,
-    "all_pages_count": 1,
-    "all_count": 2,
-    "page_data": [
-        {
-            "request_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
-            "response_id": "239f69b3-765b-4d84-af6c-2d151b0a9d12",
-            "origin": "api",
-            "origin_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
-            "response_type": "lawsuit",
-            "response_data": {
-                "code": "9999999-99.9999.9.99.9999",
-                "justice": "8",
-                "tribunal": "13",
-                "instance": 2,
-                "judge": "Usuário 1",
-                "tribunal_acronym": "TJMG",
-                "secrecy_level": 0,
-                "tags": {
-                    "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc",
-                    "dictionary_updated_at": "2025-07-17T20:21:36.357Z"
-                },
-                "subjects": [],
-                "classifications": [
-                    {
-                        "code": "120",
-                        "name": "MANDADO DE SEGURANÇA CÍVEL"
-                    }
-                ],
-                "courts": [
-                    {
-                        "name": "ÓRGÃO ESPECIAL"
-                    }
-                ],
-                "parties": [
-                    {
-                        "name": "USUÁRIO 1",
-                        "side": "Passive",
-                        "person_type": "Impetrado",
-                        "documents": []
-                    },
-                    {
-                        "name": "USUÁRIO 2",
-                        "side": "Active",
-                        "person_type": "Recorrente",
-                        "documents": []
-                    }
-                ],
-                "steps": [
-                    {
-                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                        "lawsuit_instance": 2,
-                        "step_id": "9999ca",
-                        "step_date": "2025-07-09T21:00:00.000Z",
-                        "content": "Diligências Cartorárias ou de Ofício - : enviado email à advogada da impetrante com instruções para se cadastrar no SEI",
-                        "private": false,
-                        "tags": {
-                            "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "939794b9",
+                            "content": "Arquivado Definitivamente",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
                         },
-                        "steps_count": 101
-                    },
-                    {
-                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                        "lawsuit_instance": 2,
-                        "step_id": "38683fff",
-                        "step_date": "2025-07-09T08:40:00.000Z",
-                        "content": "Juntada de petição eletrônica - Protocolo Eletrônico: 0622572-73.2014.8.13.0000/004.033 Documento: Petição",
-                        "private": false,
-                        "tags": {
-                            "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "423978eb",
+                            "content": "Trânsito em Julgado às partes\nCertidão de trânsito em julgado e remessa ao arquivo geral",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
                         }
-                    }
-                ],
-                "attachments": [
-                    {
-                        "attachment_id": "629104438",
-                        "status": "done",
-                        "user_data": null,
-                        "tags": {
-                            "crawl_id": "207ccc3f-f17e-46dd-9ea0-7620c9c313d8"
+                    ],
+                    "attachments": [
+                        {
+                            "attachment_id": "60153051-1-1",
+                            "attachment_date": "2019-02-15T16:00:41.000Z",
+                            "attachment_name": "Petição (Outras)",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
                         },
-                        "attachment_name": "PETICAO_INTERMEDIARIA_INFORMAÇÕES.pdf",
-                        "content": "Informações",
-                        "extension": "pdf"
-                    },
-                    {
-                        "attachment_id": "628789282",
-                        "status": "done",
-                        "user_data": null,
-                        "tags": {
-                            "crawl_id": "207ccc3f-f17e-46dd-9ea0-7620c9c313d8"
+                        {
+                            "attachment_id": "60153057-5-1",
+                            "attachment_date": "2019-02-15T16:00:42.000Z",
+                            "attachment_name": "Instrumento de Procuração",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
                         },
-                        "attachment_name": "Reforço de tese - Augusto 2025.pdf",
-                        "content": "Petição",
-                        "extension": "pdf"
-                    }
-                ],
-                "related_lawsuits": [],
-                "crawler": {
-                    "source_name": "JPE - TJMG - 2º grau - Auth",
-                    "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc",
-                    "weight": 5,
-                    "updated_at": "2025-07-17T20:21:34.229Z"
-                },
-                "county": "1ª VICE-PRESIDÊNCIA",
-                "state": "MG",
-                "city": "BELO HORIZONTE",
-                "justice_description": "JUSTIÇA ESTADUAL",
-                "last_step": {
-                    "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-                    "lawsuit_instance": 2,
-                    "step_id": "d72efdfd",
-                    "step_date": "2025-06-09T11:28:00.000Z",
-                    "content": "Juntada de petição eletrônica - Protocolo Eletrônico: 0622572-73.2014.8.13.0000/000.052 Documento: Informações",
-                    "private": false,
-                    "tags": {
-                        "crawl_id": "5e0dd18f-8b17-47e6-a664-4ba6a06a8dcc"
+                        {
+                            "attachment_id": "60153061-6-1",
+                            "attachment_date": "2019-02-15T16:00:43.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153064-7-1",
+                            "attachment_date": "2019-02-15T16:00:44.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        }
+                    ],
+                    "related_lawsuits": [],
+                    "crawler": {
+                        "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 1 instance",
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "weight": 10,
+                        "updated_at": "2025-08-13T18:43:47.770Z"
                     },
-                    "steps_count": 94
+                    "metadata": {},
+                    "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
+                    "amount": 5798,
+                    "state": "SP",
+                    "city": "FERNANDOPOLIS",
+                    "justice_description": "JUSTIÇA ESTADUAL",
+                    "last_step": {
+                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "step_date": "2019-07-16T00:00:00.000Z",
+                        "private": false,
+                        "tags": {
+                            "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805"
+                        },
+                        "step_id": "56174b2e",
+                        "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
+                        "steps_count": 32
+                    },
+                    "phase": "Execução ou cumprimento",
+                    "status": "Ativo",
+                    "name": "Usuário 4 X Usuário 2",
+                    "created_at": "2025-08-13T18:43:51.016Z",
+                    "updated_at": "2025-08-13T18:43:51.016Z",
+                    "free_justice": false
                 },
-                "phase": "Execução ou cumprimento",
-                "status": "Ativo",
-                "name": "USUÁRIO 1 X USUÁRIO 2",
-                "amount": 0,
-                "created_at": "2025-07-17T20:21:49.595Z",
-                "updated_at": "2025-07-17T20:21:49.595Z",
-                "metadata": {},
-                "free_justice": false,
-                "distribution_date": "1999-12-31T21:00:00.000Z"
-            },
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-            "created_at": "2025-07-17T20:21:23.698Z",
-            "request_created_at": "2025-07-17T20:21:21.322Z",
-            "tags": {
-                "dashboard_id": null,
-                "cached_response": false
+                "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+                "created_at": "2025-08-13T18:40:54.982Z",
+                "request_created_at": "2025-08-13T18:40:54.037Z",
+                "tags": {
+                    "debug": true,
+                    "dashboard_id": null,
+                    "cached_response": false,
+                    "cached": false
+                }
             }
-        },
-        {
-            "request_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
-            "response_id": "d09adf5b-6ad5-402a-a551-2cc4e4434cad",
+        ]
+    }
+
+```
+```json Exemplo de resposta com anexo (200 OK)
+{
+        "request_status": "completed",
+        "page": 1,
+        "page_count": 1,
+        "all_pages_count": 1,
+        "all_count": 1,
+        "page_data": [
+            {
+                "request_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_id": "061c60b2-7fa9-4d20-87bb-1bedd31d5572",
+                "origin": "api",
+                "origin_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_type": "lawsuit",
+                "response_data": {
+                    "code": "9999999-99.9999.9.99.9999",
+                    "justice": "8",
+                    "tribunal": "26",
+                    "instance": 1,
+                    "distribution_date": "2019-02-15T16:00:00.000Z",
+                    "judge": "Usuário teste",
+                    "tribunal_acronym": "TJSP",
+                    "secrecy_level": 0,
+                    "tags": {
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "dictionary_updated_at": "2025-08-13T18:43:48.143Z"
+                    },
+                    "subjects": [
+                        {
+                            "code": "",
+                            "name": "PAGAMENTO"
+                        }
+                    ],
+                    "classifications": [
+                        {
+                            "code": "7",
+                            "name": "PROCEDIMENTO COMUM CÍVEL"
+                        }
+                    ],
+                    "courts": [
+                        {
+                            "name": "1ª Vara Cível"
+                        }
+                    ],
+                    "parties": [
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cpf"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cnpj"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 5",
+                            "side": "Active",
+                            "person_type": "Advogado",
+                            "documents": []
+                        },
+                        {
+                            "name": "Usuário 3",
+                            "side": "Passive",
+                            "person_type": "Advogado",
+                            "documents": []
+                        }
+                    ],
+                    "steps": [
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-07-16T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "56174b2e",
+                            "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
+                            "steps_count": 32,
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        },
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "939794b9",
+                            "content": "Arquivado Definitivamente",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        },
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "423978eb",
+                            "content": "Trânsito em Julgado às partes\nCertidão de trânsito em julgado e remessa ao arquivo geral",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        }
+                    ],
+                    "attachments": [
+                        {
+                            "attachment_id": "60153051-1-1",
+                            "attachment_date": "2019-02-15T16:00:41.000Z",
+                            "attachment_name": "Petição (Outras)",
+                            "extension": "pdf",
+                            "status": "done",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153057-5-1",
+                            "attachment_date": "2019-02-15T16:00:42.000Z",
+                            "attachment_name": "Instrumento de Procuração",
+                            "extension": "pdf",
+                            "status": "done",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153061-6-1",
+                            "attachment_date": "2019-02-15T16:00:43.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "done",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153064-7-1",
+                            "attachment_date": "2019-02-15T16:00:44.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "done",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        }
+                    ],
+                    "related_lawsuits": [],
+                    "crawler": {
+                        "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 1 instance",
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "weight": 10,
+                        "updated_at": "2025-08-13T18:43:47.770Z"
+                    },
+                    "metadata": {},
+                    "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
+                    "amount": 5798,
+                    "state": "SP",
+                    "city": "FERNANDOPOLIS",
+                    "justice_description": "JUSTIÇA ESTADUAL",
+                    "last_step": {
+                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "step_date": "2019-07-16T00:00:00.000Z",
+                        "private": false,
+                        "tags": {
+                            "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805"
+                        },
+                        "step_id": "56174b2e",
+                        "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
+                        "steps_count": 32
+                    },
+                    "phase": "Execução ou cumprimento",
+                    "status": "Ativo",
+                    "name": "Usuário 4 X Usuário 2",
+                    "created_at": "2025-08-13T18:43:51.016Z",
+                    "updated_at": "2025-08-13T18:43:51.016Z",
+                    "free_justice": false
+                },
+                "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+                "created_at": "2025-08-13T18:40:54.982Z",
+                "request_created_at": "2025-08-13T18:40:54.037Z",
+                "tags": {
+                    "debug": true,
+                    "dashboard_id": null,
+                    "cached_response": false,
+                    "cached": false
+                }
+            }
+        ]
+    }
+
+```
+
+```json Exemplo de resposta com judit ia (200 OK)
+{
+        "request_status": "completed",
+        "page": 1,
+        "page_count": 1,
+        "all_pages_count": 1,
+        "all_count": 1,
+        "page_data": [
+            {
+                "request_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_id": "061c60b2-7fa9-4d20-87bb-1bedd31d5572",
+                "origin": "api",
+                "origin_id": "03abbf28-822e-45a0-a22c-098fbe157aa4",
+                "response_type": "lawsuit",
+                "response_data": {
+                    "code": "9999999-99.9999.9.99.9999",
+                    "justice": "8",
+                    "tribunal": "26",
+                    "instance": 1,
+                    "distribution_date": "2019-02-15T16:00:00.000Z",
+                    "judge": "Usuário teste",
+                    "tribunal_acronym": "TJSP",
+                    "secrecy_level": 0,
+                    "tags": {
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "dictionary_updated_at": "2025-08-13T18:43:48.143Z"
+                    },
+                    "subjects": [
+                        {
+                            "code": "",
+                            "name": "PAGAMENTO"
+                        }
+                    ],
+                    "classifications": [
+                        {
+                            "code": "7",
+                            "name": "PROCEDIMENTO COMUM CÍVEL"
+                        }
+                    ],
+                    "courts": [
+                        {
+                            "name": "1ª Vara Cível"
+                        }
+                    ],
+                    "parties": [
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cpf"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "main_document": "99999999999",
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [
+                                {
+                                    "document": "99999999999",
+                                    "document_type": "cnpj"
+                                }
+                            ],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 4",
+                            "side": "Active",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 5",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 2",
+                            "side": "Passive",
+                            "person_type": "Desconhecido",
+                            "documents": [],
+                            "lawyers": [
+                                {
+                                    "name": "Usuário 3",
+                                    "documents": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Usuário 5",
+                            "side": "Active",
+                            "person_type": "Advogado",
+                            "documents": []
+                        },
+                        {
+                            "name": "Usuário 3",
+                            "side": "Passive",
+                            "person_type": "Advogado",
+                            "documents": []
+                        }
+                    ],
+                    "steps": [
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-07-16T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "56174b2e",
+                            "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
+                            "steps_count": 32,
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        },
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "939794b9",
+                            "content": "Arquivado Definitivamente",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        },
+                        {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "step_date": "2019-06-06T00:00:00.000Z",
+                            "private": false,
+                            "tags": {
+                                "crawl_id": "36fc0ffd-98fa-4990-bd6f-6a82e5565119"
+                            },
+                            "step_id": "423978eb",
+                            "content": "Trânsito em Julgado às partes\nCertidão de trânsito em julgado e remessa ao arquivo geral",
+                            "created_at": "2025-07-09T13:48:33.114Z",
+                            "updated_at": "2025-08-11T18:57:39.041Z"
+                        }
+                    ],
+                    "attachments": [
+                        {
+                            "attachment_id": "60153051-1-1",
+                            "attachment_date": "2019-02-15T16:00:41.000Z",
+                            "attachment_name": "Petição (Outras)",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153057-5-1",
+                            "attachment_date": "2019-02-15T16:00:42.000Z",
+                            "attachment_name": "Instrumento de Procuração",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153061-6-1",
+                            "attachment_date": "2019-02-15T16:00:43.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        },
+                        {
+                            "attachment_id": "60153064-7-1",
+                            "attachment_date": "2019-02-15T16:00:44.000Z",
+                            "attachment_name": "Guia",
+                            "extension": "pdf",
+                            "status": "pending",
+                            "tags": {
+                                "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa"
+                            },
+                            "user_data": null
+                        }
+                    ],
+                    "related_lawsuits": [],
+                    "crawler": {
+                        "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 1 instance",
+                        "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                        "weight": 10,
+                        "updated_at": "2025-08-13T18:43:47.770Z"
+                    },
+                    "metadata": {},
+                    "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
+                    "amount": 5798,
+                    "state": "SP",
+                    "city": "FERNANDOPOLIS",
+                    "justice_description": "JUSTIÇA ESTADUAL",
+                    "last_step": {
+                        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "step_date": "2019-07-16T00:00:00.000Z",
+                        "private": false,
+                        "tags": {
+                            "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805"
+                        },
+                        "step_id": "56174b2e",
+                        "content": "Início da Execução Juntado\n0003695-16.2019.8.26.0189 - Cumprimento de sentença",
+                        "steps_count": 32
+                    },
+                    "phase": "Execução ou cumprimento",
+                    "status": "Ativo",
+                    "name": "Usuário 4 X Usuário 2",
+                    "created_at": "2025-08-13T18:43:51.016Z",
+                    "updated_at": "2025-08-13T18:43:51.016Z",
+                    "free_justice": false
+                },
+                "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+                "created_at": "2025-08-13T18:40:54.982Z",
+                "request_created_at": "2025-08-13T18:40:54.037Z",
+                "tags": {
+                    "debug": true,
+                    "dashboard_id": null,
+                    "cached_response": false,
+                    "cached": false
+                }
+            }
+        ]
+    },
+    {
+            "request_id": "3c6614e3-25f1-4df4-9675-694c3ea01499",
+            "response_id": "2dc884c1-e57b-47be-ba6c-568b3f066799",
             "origin": "api",
-            "origin_id": "23b7dc9c-2634-4020-98a4-6b0aee32cedf",
+            "origin_id": "3c6614e3-25f1-4df4-9675-694c3ea014d9",
             "response_type": "summary",
             "response_data": {
                 "data": [
-                    "## Resumo\nO processo de número <strong className=\"text-primary\">9999999-99.9999.9.99.9999</strong> é uma ação de Usucapião Ordinária, tramitada na Justiça Estadual, mais especificamente no Tribunal de Justiça do Estado de São Paulo (TJSP). O processo foi distribuído na data de 0 de outubro de 0000 e foi julgado pela juíza Usuário1 na 6ª Vara Cível do foro de Sorocaba. Concluiu-se com uma Baixa Definitiva em 0 de fevereiro de 0000, indicando sua finalização no sistema judicial.\n\n## Partes\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário2</strong>\n      <span className=\"text-muted-foreground text-sm\"></span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n          Usuário2 é o autor da ação, pessoa que iniciou o processo judicial requerendo o reconhecimento do seu direito de propriedade sobre um imóvel por meio de usucapião.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário3</strong>\n      <span className=\"text-muted-foreground text-sm\">Advogado</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n          Usuário3 é o advogado responsável por representar o autor, USUÁRIO4, em todos os trâmites legais do processo.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n</ul>\n\n## Classe\n<ul>\n  <li>\n    <p>\n       <strong className=\"text-foreground text-base leading-5 font-semibold\">Usucapião</strong>\n      <br />\n       <p className=\"text-foreground/70 text-md font-normal\">\n        A classe do processo se refere a uma forma de aquisição da propriedade de um imóvel em decorrência de sua posse prolongada e ininterrupta, de acordo com requisitos legais.\n        </p>\n    </p>\n  </li>\n</ul>\n\n## Assuntos\n<ul>\n  <li>\n    <p>\n        <strong className=\"text-foreground text-base leading-5 font-semibold\">Usucapião Ordinária</strong>\n      <br />\n        <p className=\"text-foreground/70 text-md font-normal\">\n        Trata-se de um tipo específico de usucapião em que é exigido um prazo de posse do imóvel de, no mínimo, dez anos, com base na boa-fé e justo título ou quinze anos, independentemente destes requisitos.\n           </p>\n      <br />\n    </p>\n  </li>\n</ul>\n\n## Movimentações\n<p className=\"text-foreground/70\">\n  O processo teve diversas movimentações importantes. Em <span className=\"text-primary\">00 de setembro de 0000</span>, houve uma decisão homologando a desistência do autor Tiago Martins da Silva e, em consequência, o processo foi extinto sem resolução de mérito por desistência, sem necessidade de recolher custas finais devido à gratuidade da justiça já concedida. No mesmo dia, foi determinado o trânsito em julgado, ou seja, a decisão tornou-se definitiva, sem possibilidade de recursos. Em <span className=\"text-primary\">0 de fevereiro de 0000</span>, foi realizada a baixa definitiva do processo, marcando sua conclusão no sistema judicial.\n</p>"
+                    "## Resumo\n\nO processo de número <strong className=\"text-primary\">0000000-00.0000.0.00.0000</strong> trata-se de uma disputa judicial envolvendo direitos autorais, 
+                    onde o requerente, Usuário 1, alega ter seus direitos violados pelo requerido, Usuário 2. A distribuição do processo ocorreu no dia 7 de agosto de 2015 e, após trâmites 
+                    legais e recursos, o processo foi arquivado definitivamente em 22 de novembro de 2024. Durante todo esse tempo, houve várias movimentações, incluindo cumprimento e execução 
+                    de sentença.\n\n## Partes\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário 1</strong>\n      
+                    <span className=\"text-muted-foreground text-sm\">CPF: 000.000.000-00</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Requerente 
+                    da ação, buscando a proteção de seus direitos autorais que alega terem sido violados.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n  <li>\n    
+                    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Usuário 2</strong>\n      <span className=\"text-muted-foreground text-sm\">
+                    CNPJ: 00.000.000/0000-00</span>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        Requerido na ação, acusado de violar direitos autorais do 
+                    requerente.\n      </p>\n      <br className=\"last-of-type:hidden\"/>\n    </p>\n  </li>\n</ul>\n\n## Classe\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground 
+                    text-base leading-5 font-semibold\">Procedimento Comum Cível</strong>\n      <br />\n      <p className=\"text-foreground/70 text-md font-normal\">\n        É uma classe 
+                    processual genérica para ações que vão a julgamento com base no direito civil, não enquadrando-se em procedimentos especiais.\n      </p>\n    </p>\n  </li>\n</ul>\n\n## 
+                    Assuntos\n\n<ul>\n  <li>\n    <p>\n      <strong className=\"text-foreground text-base leading-5 font-semibold\">Direito Autoral</strong>\n      <br />\n      
+                    <p className=\"text-foreground/70 text-md font-normal\">\n        O assunto do processo envolve disputas relacionadas à proteção da exclusividade de uso, gozo e disposição de uma 
+                    obra intelectual criada.\n      </p>\n      <br />\n    </p>\n  </li>\n</ul>\n\n## Movimentações\n\nEm termos gerais, o processo foi marcado por uma longa tramitação. Inicialmente, 
+                    o <span className=\"font-bold\">requerente</span> Usuário 1 buscou judicialmente a defesa de seus direitos autorais, alegando violações por parte do <span className=\"font-bold\">requerido</span>, 
+                    Usuário 2. Durante o caso, houve apelação (tentativa de modificar uma decisão desfavorável) pelo requerente, além de embargos de declaração (pedidos de esclarecimento sobre a decisão), ambos não 
+                    acolhidos, mantendo-se inalterada a decisão contestada. Em <span className=\"text-primary\">23 de julho de 2023</span>, houve o recebimento dos autos do Tribunal de Justiça com trânsito 
+                    em julgado (quando não há mais possibilidade de recurso) da decisão que negou provimento ao recurso do requerente. Seguiu-se a execução da sentença, na qual se busca o cumprimento do 
+                    que foi determinado pela Justiça, e finalmente, o <span className=\"text-primary\">processo foi arquivado definitivamente em 22 de novembro de 2024</span>, sinalizando a conclusão do litígio."
                 ],
-                "origin_id": "8a8f07b8-066c-4bb1-a7bd-071fb35b73b2",
+                "origin_id": "0f5baa30-f681-47cd-a381-01d489f4d079",
                 "origin": "response"
             },
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-            "created_at": "2025-07-17T20:23:36.427Z",
-            "request_created_at": "2025-07-17T20:21:21.941Z"
+            "user_id": "7f8065a3-4891-9999-9456-dedfc12ff899",
+            "created_at": "2026-03-18T17:18:18.156Z",
+            "request_created_at": "2026-03-18T17:16:15.810Z"
         }
-    ]
-}
+
 ```
-</Accordion>
+
+</CodeGroup>
+### O que você recebe de volta?
+
+O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
+
+<Warning>
+**Disponibilidade dos Anexos:** Para garantir que um arquivo foi capturado com sucesso e está pronto para download, verifique a propriedade `status` dentro do objeto individual do anexo. O valor deve ser obrigatoriamente `"done"`.
+</Warning>
 
 
-## Consultando anexo capturado
-```bash
-curl -X GET --location 'https://lawsuits.production.judit.io/lawsuits/<número do processo>/<intancia>/attachments/<attachment_id>' \
+---
+
+## Acessando Anexos Capturados (Documentos em PDF/HTML)
+
+Se você enviou `"with_attachments": true` no Passo 1 da requisição, a Judit fará o download dos arquivos públicos diretamente do tribunal. Assim que a requisição principal for concluída, **estes arquivos já estarão capturados e armazenados de forma segura nos *buckets* da Judit**.
+
+Os metadados desses arquivos estarão listados dentro do array `attachments` no JSON do processo.
+
+<Info>
+**Fidelidade de Formato:** A Judit API não converte os arquivos. O anexo será retornado para você no **exato mesmo formato original** em que foi capturado e disponibilizado pelo tribunal. Prepare sua aplicação para receber documentos (PDF, HTML, DOCX), imagens (JPG, PNG) e até mídias de audiências (MP3, MP4).
+</Info>
+
+```bash cURL
+curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data ''
 ```
-#### Informações sobre anexos retornados na resposta da consulta:
 
-- `status`: Representa o parâmetro indica o estado da captura dos anexos. Quando o valor é "done", significa que o anexo foi capturado com sucesso.
+### Propriedades do Anexo
+* `status`: Indica o estado do arquivo no nosso banco. `done` significa que está pronto para download.
+* `private`: Se `true`, significa que o documento está em segredo de justiça no tribunal.
+* `extension`: Formato do arquivo extraído (ex: `pdf`, `html`, `jpg`).
 
-- `attachments`: Os anexos são listados como array, onde cada objeto dentro desse array representa um anexo individual.
+---
 
-- `private`: Caso o anexo seja privado no tribunal, o campo private virá com o valor booleano true.
-
-- `extension`: Indica a extensão do documento (por exemplo: "pdf", "jpg", "docx").
-
-_Não nos responsabilizamos por consulta por CNJ inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.
+<Note>
+**Atenção ao Faturamento:** Não nos responsabilizamos por consultas realizadas com números de CNJ/CPF ou processos judicialmente inválidos. Cobranças poderão ser efetuadas decorrentes de requisições com chaves malformadas enviadas à API.
+</Note>
