@@ -39,11 +39,18 @@
    "pages": ["schemas/lawsuit-object", "schemas/lawsuit-enums", "schemas/warrant", "schemas/penal-execution", "schemas/entity"]
   },
   {
-   "group": "Requests",
+   "group": "Consultas Assíncronas",
    "pages": [
     "requests/requests",
     "requests/request-document",
     "requests/custom-search"
+   ]
+  },
+  {
+   "group": "Consulta Síncrona",
+   "pages": [
+     "cache-judit/hotstorage",
+     "cache-judit/cache-grouped"
    ]
   },
   {
@@ -52,13 +59,6 @@
    "tracking/tracking",
    "tracking/tracking-document",
    "tracking/tracking-custom"
-   ]
-  },
-  {
-   "group": "Consulta síncrona",
-   "pages": [
-     "cache-judit/hotstorage",
-     "cache-judit/cache-grouped"
    ]
   },
   {
