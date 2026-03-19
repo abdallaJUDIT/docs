@@ -43,7 +43,6 @@
    "pages": [
     "requests/requests",
     "requests/request-document",
-    "requests/name",
     "requests/custom-search"
    ]
   },
