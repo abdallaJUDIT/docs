@@ -47,7 +47,7 @@
    ]
   },
   {
-   "group": "Consulta Síncrona",
+   "group": "Consultas Síncronas",
    "pages": [
      "cache-judit/hotstorage",
      "cache-judit/cache-grouped"
