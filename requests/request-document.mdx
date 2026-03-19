@@ -435,6 +435,17 @@ Guarde o `request_id` (ex: `05ee9825...`) gerado na resposta desta chamada. Ele 
 
 ---
 
+<Info>
+**🚀 Atalho: Automatize com Webhooks (Recomendado)**
+
+Se você possui uma URL de Webhook configurada, **os Passos 2 e 3 abaixo são totalmente opcionais**. 
+Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com um evento de `request_completed`.
+
+👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+</Info>
+
+---
+
 ## Passo 2: Consultar o Status da Requisição
 
 Como um documento pode estar atrelado a centenas de processos no Brasil, a coleta leva tempo. Você deve consultar o status macro da requisição usando o ID do Passo 1.
