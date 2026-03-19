@@ -23,6 +23,50 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 
 `POST https://requests.prod.judit.io/requests`
 
+### Exemplos de consultas históricas
+
+<CodeGroup>
+```json Consulta por CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+```
+
+```json Consulta por CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99"
+    }
+}
+```
+
+```json Consulta por OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "99999RJ"
+    }
+}
+```
+
+```json Consulta por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "João Silva"
+    }
+}
+```
+</CodeGroup>
+
+<Warning>
+    Ao realizar consultas por nome, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Recomendamos que, sempre que possível, utilize identificadores únicos, como CPF ou CNPJ, para garantir maior precisão nos resultados.
+</Warning>
+
 ### Parâmetros Base do Payload
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
@@ -38,7 +82,7 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 </Note>
 
 <CodeGroup>
-```json request simples
+```json request assíncrona
 {
     "search": {
         "search_type": "cpf",
