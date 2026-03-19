@@ -10,7 +10,7 @@ icon: "id-card"
 
 Antes de integrar, é fundamental entender a diferença de arquitetura que a Judit oferece para este endpoint:
 
-* **Consulta Síncrona (Datalake Hotstorage):** A resposta com todos os processos é devolvida instantaneamente no corpo (`body`) do próprio `POST`. Não exige checagem de status. Ideal para velocidade extrema. *[Veja a documentação Síncrona aqui](/cache-judit/hotstorage).*
+* **Consulta Síncrona (Datalake Hotstorage):** A resposta com todos os processos é devolvida instantaneamente no corpo (`body`) do próprio `POST`. Não exige checagem de status. Ideal para fluxos sensíveis à latência da resposta como onboardings. *[Veja a documentação Síncrona aqui](/cache-judit/hotstorage).*
 * **Consulta Assíncrona (Datalake / On-Demand):** É o fluxo que abordaremos nesta página. Busca em múltiplas fontes externas ou diretamente nos tribunais (On-Demand) em tempo real. Exige um fluxo de 3 etapas (Criar -> Checar -> Consumir).
 
 
@@ -308,12 +308,15 @@ Utilize as siglas exatas da coluna **Sigla (Key)** abaixo quando for realizar fi
 </Accordion>
 
 #### 3. Filtros de Assunto e Classe (Padrão CNJ)
-Você pode filtrar processos por códigos numéricos específicos da Tabela do CNJ. A lógica é muito parecida com a dos tribunais.
+A Judit API utiliza as **Tabelas Processuais Unificadas (TPU)** oficiais do Conselho Nacional de Justiça (CNJ). Você pode filtrar processos inserindo os códigos numéricos exatos dessas tabelas.
 
-* **Assuntos (`subject_codes`):** Usa as listas `contains` (Quero processos que tenham estes códigos) e `not_contains` (Não quero processos que tenham estes códigos).
-* **Classes (`classification_codes`):** Usa a lista `keys` e a regra `not_equal` (igual aos tribunais).
+👉 *Para descobrir os códigos oficiais de Classes e Assuntos, acesse a [Consulta Pública do SGT/CNJ](https://www.cnj.jus.br/sgt/consulta_publica_classes.php).*
 
-<Accordion title="Exemplo JSON: Assuntos e Classes">
+A mecânica de filtro funciona da seguinte forma:
+* **Assuntos (`subject_codes`):** Usa as listas `contains` (Quero processos que contenham estes códigos) e `not_contains` (Não quero processos que contenham estes códigos).
+* **Classes (`classification_codes`):** Usa a lista `keys` e a regra `not_equal` (a mesma lógica de inclusão/exclusão dos tribunais).
+
+<Accordion title="Exemplo JSON: Filtrando por Assuntos e Classes">
 ```json
 {
     "search": {
@@ -321,23 +324,21 @@ Você pode filtrar processos por códigos numéricos específicos da Tabela do C
         "search_key": "99999999999",
         "search_params": {
             "filter": {
-                "filter": {
-                    // Quero processos que tenham o assunto 10433, mas rejeito se tiver o 1120
-                    "subject_codes": {
-                        "contains": [
-                            "10433"
-                        ],
-                        "not_contains": [
-                            "1120"
-                        ]
-                    },
-                    // Quero EXATAMENTE a classe processual 985 (ex: Ação Trabalhista)
-                    "classification_codes": {
-                        "keys": [
-                            "985"
-                        ],
-                        "not_equal": false
-                    }
+                // Quero processos que tenham o assunto 10433, mas rejeito se tiver o 1120
+                "subject_codes": {
+                    "contains": [
+                        "10433"
+                    ],
+                    "not_contains": [
+                        "1120"
+                    ]
+                },
+                // Quero EXATAMENTE a classe processual 985 (ex: Ação Trabalhista)
+                "classification_codes": {
+                    "keys": [
+                        "985"
+                    ],
+                    "not_equal": false
                 }
             }
         }
