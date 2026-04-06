@@ -23,6 +23,13 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 
 `POST https://requests.prod.judit.io/requests`
 
+<Info>
+**Novo CNPJ (IN 2229/24)**
+A Judit já aceita o novo formato de **CNPJ alfanumérico** em conformidade com a [Instrução Normativa RFB nº 2229/2024](https://normasinternet2.receita.fazenda.gov.br/#/consulta/externa/141102). 
+* **Zero esforço:** Nenhuma alteração é necessária na sua integração.
+* **Ambiente de Teste:** Utilize o documento `A1B2C3D4/E5F6-90` para validar o fluxo e receber um processo fictício de resposta.
+</Info>
+
 ### Exemplos de consultas históricas
 
 <CodeGroup>
@@ -39,7 +46,7 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 {
     "search": {
         "search_type": "cnpj",
-        "search_key": "99.999.999/9999-99"
+        "search_key": "A1B2C3D4/E5F6-90"
     }
 }
 ```
