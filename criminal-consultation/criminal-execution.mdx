@@ -27,13 +27,13 @@ Aqui está um exemplo da criação de uma request para execução penal por CPF:
     Na consulta por execução penal, o search_type deve ser <strong>'cpf'</strong>, <strong>'cnpj'</strong>, <strong>'name'</strong> ou <strong>lawsuit_cnj</strong>, já o campo response_type deverá sempre ser <strong>'execution'</strong>.
  </Note>
 
-Aqui está um exemplo da criação de uma request para execução penal por CNJ:
+Aqui está um exemplo da criação de uma request para execução penal por CNPJ:
 
 ```json
 {
 	"search": {
-		"search_type": "cpf",
-		"search_key": "999.999.999-99",
+		"search_type": "cnpf",
+		"search_key": "99.999.999/0009-99",
 		"response_type": "execution"
 	}
     "with_attachments": true
@@ -42,7 +42,7 @@ Aqui está um exemplo da criação de uma request para execução penal por CNJ:
 ```
 
 <Note>
-    Na consulta por processos (Código CNJ), o parâmetro <strong>with_attachments</strong> Indica se a busca incluiu a captura de anexos.
+    Na consulta por processos (Código CNPJ), o parâmetro <strong>with_attachments</strong> Indica se a busca incluiu a captura de anexos.
 </Note>
 
 
@@ -54,8 +54,8 @@ Aqui está um exemplo do retorno para execução penal:
 {
 	"request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
 	"search": {
-		"search_type": "cpf",
-		"search_key": "999.999.999-99",
+		"search_type": "cnpf",
+		"search_key": "99.999.999/0009-99",
 		"response_type": "execution",
 		"search_params": {
 			"filter": {},
@@ -198,7 +198,7 @@ Exemplo de retorno da resposta:
 }
 ```
 
-Segue abaixo um exemplo de resposta da consulta por CNJ:
+Segue abaixo um exemplo de resposta da consulta por CNPJ:
 
 ```json
 Exemplo de retorno da resposta:
