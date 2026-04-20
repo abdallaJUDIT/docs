@@ -1,8 +1,8 @@
 ---
-title: "Cofre de Credenciais"
+title: "Credentials Vault"
 openapi: "openapi-1 GET /credentials"
 api: "GET https://crawler.prod.judit.io/credentials"
-description: "Permite ao cliente parceiro cadastrar em nosso cofre de senhas as credenciais dos seus advogados por sistema e tribunal. Em nosso cofre de senhas é possível passar uma chave `customer_key`, para que você possa identificar as credenciais do seu cliente."
+description: "Lets the partner client register, in our credentials vault, the credentials of its lawyers by system and court. In our credentials vault, you can provide a `customer_key` so you can identify your client's credentials."
 ---
 
 <ResponseExample>
@@ -654,17 +654,17 @@ description: "Permite ao cliente parceiro cadastrar em nosso cofre de senhas as 
 ```
 </ResponseExample>
 
-<Accordion title="Tipos de Status das Credenciais">
-*credential_status pode ser*:
+<Accordion title="Credential Status Types">
+*credential_status can be*:
 
-`not exists`: Não cadastrada
+`not exists`: Not registered
 
-`active`: Cadastrada e ativa
+`active`: Registered and active
 
-`inactive`: Cadastrada porém inativa (provável problema com senha ou bloqueio)
+`inactive`: Registered but inactive (likely a password issue or account lock)
 
-Caso seja utilizado um cadastro no sistema \* (cadastro genérico), essa credencial será utilizada para todos os tribunais que não contenha um outro cadastro, então cuidado com esse tipo de cadastro.
+If a registration is created under the system `*` (generic registration), that credential will be used for every court that does not have its own specific registration — so be careful with this type of registration.
 
 </Accordion>
 
-Caso não seja informada nenhuma customer_key, será criada um customer_key `vazia`.
+If no `customer_key` is provided, an `empty` customer_key will be created.

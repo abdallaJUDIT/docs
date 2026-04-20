@@ -10,7 +10,7 @@ icon: "id-card"
 
 Antes de integrar, é fundamental entender a diferença de arquitetura que a Judit oferece para este endpoint:
 
-* **Consulta Síncrona (Datalake Hotstorage):** A resposta com todos os processos é devolvida instantaneamente no corpo (`body`) do próprio `POST`. Não exige checagem de status. Ideal para fluxos sensíveis à latência da resposta como onboardings. *[Veja a documentação Síncrona aqui](/cache-judit/hotstorage).*
+* **Consulta Síncrona (Datalake Hotstorage):** A resposta com todos os processos é devolvida instantaneamente no corpo (`body`) do próprio `POST`. Não exige checagem de status. Ideal para fluxos sensíveis à latência da resposta como onboardings. *[Veja a documentação Síncrona aqui](/pt/cache-judit/hotstorage).*
 * **Consulta Assíncrona (Datalake / On-Demand):** É o fluxo que abordaremos nesta página. Busca em múltiplas fontes externas ou diretamente nos tribunais (On-Demand) em tempo real. Exige um fluxo de 3 etapas (Criar -> Checar -> Consumir).
 
 
@@ -485,7 +485,7 @@ Guarde o `request_id` (ex: `05ee9825...`) gerado na resposta desta chamada. Ele 
 Se você possui uma URL de Webhook configurada, **os Passos 2 e 3 abaixo são totalmente opcionais**. 
 Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com um evento de `request_completed`.
 
-👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+👉 *[Aprenda a configurar e receber Webhooks aqui](/pt/webhook/callbacks)*
 </Info>
 
 ---

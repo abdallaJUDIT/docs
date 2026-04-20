@@ -1,130 +1,131 @@
 ---
-title: "Consultar monitoramentos"
+title: "List trackings"
 openapi: "GET /tracking"
 api: "GET https://tracking.prod.judit.io/tracking"
-description: "Esse endpoint consulta monitoramentos por parâmetros de forma paginada"
+description: "This endpoint queries trackings by parameters, in a paginated way."
 ---
 
 <ParamField query="page" type="integer" required={false}>
-    Define a página dos resultados que você deseja consultar.
+    Defines which page of results you want to fetch.
 </ParamField>
 
 <ParamField query="page_size" type="integer" required={false}>
-    Define o número máximo de resultados que você deseja receber por página;
+    Defines the maximum number of results you want to receive per page.
 </ParamField>
 
 <ParamField query="orderField" type="string" required={false}>
-    Nome do campo em que se deseja ordenar os buscas;
+    Name of the field to sort the searches by.
 </ParamField>
 
 <ParamField query="orderDirection" type="string" required={false}>
-    Sentido da ordenação: ‘asc’ ou ‘desc’;
+    Sort direction: 'asc' or 'desc'.
 </ParamField>
 
 <ParamField query="search_type" type="string" required={false}>
- Retorna monitoramentos do tipo de referência especificado “cpf”, “cnpj”, “oab” ou “lawsuit_cnj”;
+    Returns trackings of the specified reference type: 'cpf', 'cnpj', 'oab', or 'lawsuit_cnj'.
 </ParamField>
 
 <ParamField query="search_key" type="string" required={false}>
- Retorna monitoramentos relacionadas ao número do CPF, CNPJ, OAB ou processo informado;
+    Returns trackings related to the provided CPF, CNPJ, OAB, or lawsuit number.
 </ParamField>
 
 <ParamField query="lawsuit_instance" type="integer" required={false}>
- Retorna monitoramentos onde a instância do processo está de acordo com a informada;
+    Returns trackings whose lawsuit instance matches the one provided.
 </ParamField>
 
 <ParamField query="status" type="string" required={false}>
-    Retorna monitoramentos cujo status podem ser 'created', 'updating', 'updated', 'paused' ou 'deleted' ou mais de um de status ['updating', 'paused'];
+    Returns trackings whose status can be 'created', 'updating', 'updated', 'paused', or 'deleted'. You may also pass more than one status as an array (e.g., `['updating', 'paused']`).
 </ParamField>
 
 <ParamField query="tags" type="string" required={false}>
-    Retorna monitoramentos com as tags informadas;
+    Returns trackings with the provided tags.
 </ParamField>
 
-<ParamField query="recurrence_gte" type="date" required={false}>
-    Retorna monitoramentos com a recorrência de atualização maior ou igual a informada;
+<ParamField query="recurrence_gte" type="integer" required={false}>
+    Returns trackings whose update recurrence (in days) is greater than or equal to the value provided.
 </ParamField>
 
-<ParamField query="recurrence_lte" type="date" required={false}>
-    Retorna monitoramentos com a recorrência de atualização menor ou igual a informada;
+<ParamField query="recurrence_lte" type="integer" required={false}>
+    Returns trackings whose update recurrence (in days) is less than or equal to the value provided.
 </ParamField>
 
 <ParamField query="created_at_gte" type="date" required={false}>
-    Retorna buscas com a data de criação maior ou igual a informada;
+    Returns trackings whose creation date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="created_at_lte" type="date" required={false}>
-    Retorna buscas com a data de criação menor ou igual a informada;
+    Returns trackings whose creation date is less than or equal to the value provided.
 </ParamField>
 
 <ParamField query="updated_at_gte" type="date" required={false}>
-    Retorna buscas com a data de atualização maior ou igual a informada;
+    Returns trackings whose update date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="updated_at_lte" type="date" required={false}>
-    Retorna buscas com a data de atualização menor ou igual a informada;
+    Returns trackings whose update date is less than or equal to the value provided.
 </ParamField>
 
 <ParamField query="updating_at_gte" type="date" required={false}>
-    Retorna monitoramentos com a data de execução do monitoramento maior ou igual a informada;
+    Returns trackings whose tracking execution date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="updating_at_lte" type="date" required={false}>
-    Retornam onitoramentos com a data de execução do monitoramento menor ou igual a informada;
+    Returns trackings whose tracking execution date is less than or equal to the value provided.
 </ParamField>
 
 <ParamField query="paused_at_gte" type="date" required={false}>
-    Retorna monitoramentos com a data de pause do monitoramento maior ou igual a informada;
+    Returns trackings whose pause date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="paused_at_lte" type="date" required={false}>
-    Retorna monitoramentos com a data de pause do monitoramento menor ou igual a informada;
+    Returns trackings whose pause date is less than or equal to the value provided.
 </ParamField>
 
 <ParamField query="deleted_at_gte" type="date" required={false}>
-    Retorna monitoramentos com a data de deleção maior ou igual a informada;
+    Returns trackings whose deletion date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="deleted_at_lte" type="date" required={false}>
-    Retorna monitoramentos com a data de deleção menor ou igual a informada;
+    Returns trackings whose deletion date is less than or equal to the value provided.
 </ParamField>
 
 <ResponseExample>
-    ```json Response
-    {
-        "page": "1",
-        "page_data": [
-            {
-                "tracking_id": "6adbd1ba-8ef4-47c5-994f-13c017118046",
-                "status": "updating",
-                "recurrence": 1,
-                "search":{
-                  "search_type": "cpf",
-                  "search_key":"208.422.640-60",
-                  "search_params":  {}
-                },
-                "created_at": "2023-10-14T00:39:28.864Z",
-                "updating_at": "2023-10-18T00:39:39.538Z",
-                "updated_at": "2023-10-18T00:39:39.596Z"
+```json Response
+{
+    "page": 1,
+    "page_data": [
+        {
+            "tracking_id": "00000000-0000-0000-0000-000000000001",
+            "user_id": "00000000-0000-0000-0000-0000000000aa",
+            "status": "updating",
+            "recurrence": 1,
+            "search": {
+                "search_type": "cpf",
+                "search_key": "999.999.999-99",
+                "search_params": {}
             },
-            {
-                "tracking_id": "754f02d7-e346-48e2-a23e-4455a11af41e",
-                "user_id": "454bbd51-3f8a-4889-b45f-54a78e312257",
-                "status": "updating",
-                "recurrence": 1,
-                "search":{
-                  "search_type": "lawsuit_cnj",
-                  "search_key": "0027400-51.2009.5.03.0135",
-                  "search_params":  {}
-                },
-                "created_at": "2023-10-17T15:17:05.826Z",
-                "updating_at": "2023-10-18T15:17:09.125Z",
-                "updated_at": "2023-10-18T15:17:09.203Z"
-            }
-        ],
-        "page_count": 2,
-        "all_count": 2,
-        "all_pages_count": 1
-    }
-    ```
+            "created_at": "2023-10-14T00:39:28.864Z",
+            "updating_at": "2023-10-18T00:39:39.538Z",
+            "updated_at": "2023-10-18T00:39:39.596Z"
+        },
+        {
+            "tracking_id": "00000000-0000-0000-0000-000000000002",
+            "user_id": "00000000-0000-0000-0000-0000000000aa",
+            "status": "updating",
+            "recurrence": 1,
+            "search": {
+                "search_type": "lawsuit_cnj",
+                "search_key": "9999999-99.9999.9.99.9999",
+                "search_params": {}
+            },
+            "created_at": "2023-10-17T15:17:05.826Z",
+            "updating_at": "2023-10-18T15:17:09.125Z",
+            "updated_at": "2023-10-18T15:17:09.203Z"
+        }
+    ],
+    "page_count": 2,
+    "all_count": 2,
+    "all_pages_count": 1
+}
+```
 </ResponseExample>

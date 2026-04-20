@@ -1,21 +1,22 @@
 ---
-title: "Criar uma requisição"
+title: "Create a registration data request"
 openapi: "openapi-1 POST /requests/create"
 api: "POST https://lawsuits.production.judit.io/requests/create"
-description: "Esse endpoint realiza consulta de dados cadastrais por CPF, nome ou RJI"
+description: "This endpoint queries registration data by CPF, CNPJ, name, or RJI."
 ---
+
 <ParamField body="search" type="object" required={false}>
     <Expandable title="properties">
         <ParamField body="search_type" type="string" required>
-            Define o tipo de entidade que você quer buscar: “cpf”, "CNPJ", “nome” ou “RJI”;
+            Defines the type of entity you want to search: `cpf`, `cnpj`, `name`, or `rji`.
         </ParamField>
 
         <ParamField body="search_key" type="string" required>
-            Número do CPF, CNPJ, RJI ou nome;
+            CPF, CNPJ, or RJI number, or the name to search for.
         </ParamField>
     </Expandable>
 </ParamField>
 
 <ParamField body="reveal_partners_documents" type="boolean" required={false}>
-    Define se os documentos dos sócios devem ser revelados;
+    Defines whether the partners' documents should be revealed in the response.
 </ParamField>

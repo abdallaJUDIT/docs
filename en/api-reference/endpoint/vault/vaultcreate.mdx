@@ -1,45 +1,46 @@
 ---
-title: "Cadastro de credenciais"
+title: "Credential Registration"
 openapi: "openapi-1 POST /credentials"
 api: "POST https://crawler.prod.judit.io/credentials"
-description: "Para cadastrar uma credencial ou alterar um cadastro já feito, deve-se usar a rota abaixo"
+description: "To register a credential or update an existing one, use the route below."
 ---
 
 <ParamField body="credentials" type="array" required={false}>
     <Expandable title="properties">
-		<ParamField body"" type="object" required>
+		<ParamField body="credential" type="object" required>
         <ParamField body="system_name" type="string" required>
-        PJE TJBA - 1º grau ou * (coringa)
+        PJE TJBA - 1º grau or * (wildcard)
         </ParamField>
 
     	<ParamField body="customer_key" type="string" required>
-    	00000001 (utilizar a sua forma de identificar um cliente)
+    	00000001 (use your own way of identifying a client)
     	</ParamField>
 
     	<ParamField body="username" type="string" required>
-    	999.999.999-99 (cpf)
+    	999.999.999-99 (CPF)
     	</ParamField>
 
         <ParamField body="password" type="string" required>
          Senha123
         </ParamField>
+        </ParamField>
     </Expandable>
 
 </ParamField>
 
-<Accordion title="Observação criteriosa sobre o cadastro de credencial">
-`Credencial Coringa`:  *
+<Accordion title="Important notes about credential registration">
+`Wildcard Credential`:  *
 
-Se cadastrar alguma credencial nela, todos os tribunais que não tenham uma outra credencial cadastrada, irá utilizar a credencial coringa
+If you register a credential under it, every court that does not have its own specific credential will use the wildcard credential.
 
-Caso não seja informada nenhuma customer_key, será criado uma customer_key `vazia`.
+If no `customer_key` is provided, an `empty` customer_key will be created.
 
 </Accordion>
 
-Caso queira excluir a credencial de algum system, deverá usar passar o username e password como vazio. (editado)
+If you want to remove the credential from a given system, you must send `username` and `password` as empty.
 
 <ResponseExample>
-```json 
+```json
 [
 	{
 		"system_name": "PJEINTER TJBA - 1º grau",
@@ -85,4 +86,4 @@ Caso queira excluir a credencial de algum system, deverá usar passar o username
 ```
 </ResponseExample>
 
-**Se a credencial já existir, a message será CREDENTIAL_UPDATED**
+**If the credential already exists, the message will be `CREDENTIAL_UPDATED`.**

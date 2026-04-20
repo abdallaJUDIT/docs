@@ -1,114 +1,111 @@
 ---
-title: "Consulta True / False"
+title: "Check if a document has lawsuits"
 openapi: "openapi-1 POST /requests"
-api: "POST https://lawsuits.production.judit.io/requests/create" 
-description: "Consultando a Existência de Processos para o Documento em nosso datalake"
+api: "POST https://lawsuits.production.judit.io/requests/create"
+description: "Checks whether there are lawsuits associated with the provided document in our datalake."
 ---
-
 
 <ParamField body="search" type="object" required={false}>
     <Expandable title="properties">
 
         <ParamField body="search_type" type="string" required>
-            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
-
-
+            Defines the type of entity you want to search: `cpf`, `cnpj`, `oab`, `lawsuit_cnj`, or `lawsuit_id`.
         </ParamField>
 
         <ParamField body="search_key" type="string" required>
-            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+            Lawsuit number (CNJ code), CPF, CNPJ, or OAB.
         </ParamField>
 
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">
                 <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-                    Define a instância em que deseja buscar o processo;
+                    Defines the instance in which you want to search the lawsuit.
                 </ParamField>
 
                 <ParamField body="filter" type="object" required={false}>
-                    <Expandable>
+                    <Expandable title="properties">
                         <ParamField body="side" name="side" type="string" required={false}>
-                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
+                            Defines the types of participants in the lawsuit: `Passive` or `Active`.
                         </ParamField>
+
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                            Returns searches with a distribution date greater than or equal to the one provided.
                         </ParamField>
 
                         <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
-                            Retorna buscas com o valor da causa maior que o valor passado
-                        </ParamField>
-                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
-                            Retorna buscas com o valor da causa menor que o valor passado
+                            Returns searches whose case value is greater than the value provided.
                         </ParamField>
 
+                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
+                            Returns searches whose case value is less than the value provided.
+                        </ParamField>
 
                         <ParamField body="tribunals" name="tribunals" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="keys" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="conteins" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_contains" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="keys" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="last_step_date_gte" name="last_step_date_gte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                            Returns searches whose last step date is greater than or equal to the value provided.
                         </ParamField>
 
                         <ParamField body="last_step_date_lte" name="last_step_date_lte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição menor ou igual a informada;
+                            Returns searches whose last step date is less than or equal to the value provided.
                         </ParamField>
 
-                        <ParamField body="party_names" name="party_names" type="object" required={false}>
-                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        <ParamField body="party_names" name="party_names" type="array" required={false}>
+                            List of names (array of strings) that restricts the search to lawsuits containing any of them in one of the parties.
                         </ParamField>
 
-                        <ParamField body="party_documents" name="pparty_documents" type="object" required={false}>
-                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        <ParamField body="party_documents" name="party_documents" type="array" required={false}>
+                            List of documents (array of strings) that restricts the search to lawsuits containing any of them in one of the parties.
                         </ParamField>
-                                                
+
                     </Expandable>
                 </ParamField>
+
                 <ParamField body="create_complete_request" type="boolean" required={false}>
+                    When `true`, a complete lawsuit request will also be created if at least one matching lawsuit is found.
                 </ParamField>
             </Expandable>
         </ParamField>
     </Expandable>
-
 </ParamField>
 
-
-
 <ResponseExample>
-```json
+```json Response
 {
-	"has_lawsuits": true,
-	"request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
-	"response_data": []
+    "has_lawsuits": true,
+    "request_id": "00000000-0000-0000-0000-000000000001",
+    "response_data": []
 }
 ```
 </ResponseExample>

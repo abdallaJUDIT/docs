@@ -14,7 +14,7 @@ Para começar a utilizar o cofre de credeniais, você deve realizar uma solicita
 
 A solicitação POST deve incluir um payload com as seguintes propriedades: 
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+- `system_name`: A sigla do [tribunal e sistema](/pt/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
   - `Obs:` Poderá ser cadastrada uma credencial coringa `"system_name": "*"`. Se uma credencial for cadastrada nela, todos os tribunais que não tiverem outra credencial cadastrada utilizarão a credencial coringa.
 - `customer_key`: Identificador personalizado para associar a credencial a um cliente ou advogado. Pode ser qualquer nome ou rótulo definido pelo responsável pelo cadastro, facilitando a organização e o gerenciamento das credenciais.
 
@@ -138,7 +138,7 @@ Para deletar um sistema no cofre de credenciais, você deve realizar uma solicit
 
 A solicitação DELETE deve incluir um payload com a seguinte propriedade: 
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+- `system_name`: A sigla do [tribunal e sistema](/pt/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
 - `customer_key`: Identificador personalizado adicionado no momento do cadastro da credencial.
 
 Exemplo de payload para deletar credencial:

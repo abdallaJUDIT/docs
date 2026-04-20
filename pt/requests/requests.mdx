@@ -109,7 +109,7 @@ Guarde o valor de `request_id`, pois você precisará dele para os próximos pas
 Se você possui uma URL de Webhook configurada, **os Passos 2 e 3 abaixo são totalmente opcionais**. 
 Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com um evento de `request_completed`.
 
-👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+👉 *[Aprenda a configurar e receber Webhooks aqui](/pt/webhook/callbacks)*
 </Info>
 
 ---
@@ -965,7 +965,7 @@ curl --location 'https://requests.prod.judit.io/responses?page_size=100&request_
 </CodeGroup>
 ### O que você recebe de volta?
 
-O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
+O retorno é paginado e contém o [Objeto Lawsuit](/pt/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
 
 <Warning>
 **Disponibilidade dos Anexos:** Para garantir que um arquivo foi capturado com sucesso e está pronto para download, verifique a propriedade `status` dentro do objeto individual do anexo. O valor deve ser obrigatoriamente `"done"`.

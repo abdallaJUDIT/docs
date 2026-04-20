@@ -1,19 +1,18 @@
 ---
-title: "Baixar anexo"
-description: "Essa página tem como objetivo mostrar o fluxo para baixar um anexo de um processo."
+title: "Download lawsuit attachment"
+description: "Downloads an attachment from a lawsuit."
 openapi: "openapi-1 GET /lawsuits"
 api: "GET https://lawsuits.production.judit.io/lawsuits/{cnj_code}/{instance}/attachments/{attachment_id}"
 ---
 
-<ParamField path="instance" type="string" required={true}>
-    Parametro instancia do processo
+<ParamField path="cnj_code" type="string" required>
+    Lawsuit CNJ code.
 </ParamField>
 
-<ParamField path="cnj_code" type="string" required={true}>
-    Código do processo.
+<ParamField path="instance" type="integer" required>
+    The lawsuit instance.
 </ParamField>
 
-<ParamField path="attachment_id" type="string" required={true}>
-    ID do anexo na lista de anexos (attachments) retornado na consulta processual.
+<ParamField path="attachment_id" type="string" required>
+    The attachment ID, taken from the `attachments` list returned by the lawsuit query.
 </ParamField>
-

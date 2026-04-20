@@ -1,403 +1,407 @@
 ---
-title: "Consulta Datalake Hot Storage"
+title: "Hot Storage datalake query"
 openapi: "openapi-1 POST /requests"
-api: "POST https://lawsuits.production.judit.io/lawsuits" 
-description: "Retorna processos atrelados a consulta histórica"
+api: "POST https://lawsuits.production.judit.io/lawsuits"
+description: "Returns the lawsuits associated with the historical query."
 ---
-
 
 <ParamField body="search" type="object" required={false}>
     <Expandable title="properties">
 
         <ParamField body="search_type" type="string" required>
-            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
+            Defines the type of entity you want to search: `cpf`, `cnpj`, `oab`, `lawsuit_cnj`, or `lawsuit_id`.
         </ParamField>
 
         <ParamField body="search_key" type="string" required>
-            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+            Lawsuit number (CNJ code), CPF, CNPJ, or OAB.
         </ParamField>
 
         <ParamField body="response_type" type="string" required={false}>
-            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+            Defines the type of the search response data: `lawsuit`, `parties`, `attachments`, `step`, or `lawsuits`.
         </ParamField>
 
         <ParamField body="search_params" type="object" required={false}>
             <Expandable title="properties">
                 <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
-                    Define a instância em que deseja buscar o processo;
+                    Defines the instance in which you want to search the lawsuit.
                 </ParamField>
 
                 <ParamField body="filter" type="object" required={false}>
-                    <Expandable>
+                    <Expandable title="properties">
                         <ParamField body="side" name="side" type="string" required={false}>
-                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
+                            Defines the types of participants in the lawsuit: `Passive` or `Active`.
                         </ParamField>
+
                         <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                            Returns searches with a distribution date greater than or equal to the one provided.
                         </ParamField>
 
                         <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
-                            Retorna buscas com o valor da causa maior que o valor passado
-                        </ParamField>
-                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
-                            Retorna buscas com o valor da causa menor que o valor passado
+                            Returns searches whose case value is greater than the value provided.
                         </ParamField>
 
+                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
+                            Returns searches whose case value is less than the value provided.
+                        </ParamField>
 
                         <ParamField body="tribunals" name="tribunals" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="keys" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="conteins" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_contains" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
-                         <Expandable>
-                           <ParamField body="keys" name="keys" type="array" required={false}>
-                              Filtra processos com estes códigos ou não
-                          </ParamField>
-                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
-                              Determina se o filtro será por processos que contém ou não contém os código passados
-                          </ParamField>
-                         </Expandable>
+                            <Expandable title="properties">
+                                <ParamField body="keys" name="keys" type="array" required={false}>
+                                    Filters lawsuits with (or without) these codes.
+                                </ParamField>
+                                <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                                    Determines whether the filter matches lawsuits that contain or do not contain the provided codes.
+                                </ParamField>
+                            </Expandable>
                         </ParamField>
 
                         <ParamField body="last_step_date_gte" name="last_step_date_gte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                            Returns searches whose last step date is greater than or equal to the value provided.
                         </ParamField>
 
                         <ParamField body="last_step_date_lte" name="last_step_date_lte" type="date" required={false}>
-                            Retorna buscas com a data de distribuição menor ou igual a informada;
+                            Returns searches whose last step date is less than or equal to the value provided.
                         </ParamField>
 
-                        <ParamField body="party_names" name="party_names" type="object" required={false}>
-                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        <ParamField body="party_names" name="party_names" type="array" required={false}>
+                            List of names (array of strings) that restricts the search to lawsuits containing any of them in one of the parties.
                         </ParamField>
 
-                        <ParamField body="party_documents" name="pparty_documents" type="object" required={false}>
-                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        <ParamField body="party_documents" name="party_documents" type="array" required={false}>
+                            List of documents (array of strings) that restricts the search to lawsuits containing any of them in one of the parties.
                         </ParamField>
-                                                
+
                     </Expandable>
                 </ParamField>
+
                 <ParamField body="credential" type="object" required={false}>
-                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
-                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
-                    </ParamField>
+                    <Expandable title="properties">
+                        <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                            Lets you pass the client's key to access the correct credentials vault. If not provided, the API will try to find a credential registered with an empty `customer_key`.
+                        </ParamField>
+                    </Expandable>
                 </ParamField>
             </Expandable>
         </ParamField>
     </Expandable>
-
 </ParamField>
 
-
-
 <ResponseExample>
-```json
+```json Response
 {
     "has_lawsuits": true,
-    "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
+    "request_id": "00000000-0000-0000-0000-000000000001",
     "response_data": [
-      {
-        "code": "9999999-99.9999.9.99.9999",
-        "justice": "5",
-        "tribunal": "01",
-        "instance": 2,
-        "distribution_date": "2023-05-18T11:12:59.000Z",
-        "tribunal_acronym": "TRT1",
-        "secrecy_level": 0,
-        "tags": {
-          "is_fallback_source": true,
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        },
-        "subjects": [
-          {
-            "code": "13656",
-            "name": "DOMÉSTICOS"
-          }
-        ],
-        "classifications": [
-          {
-            "code": "1009",
-            "name": "RECURSO ORDINÁRIO TRABALHISTA"
-          }
-        ],
-        "courts": [
-          {
-            "code": "75580",
-            "name": "GAB DES. GLAUCIA ZUCCARI FERNANDES BRAGA"
-          }
-        ],
-        "parties": [
-          {
-            "name": "Usuário teste",
-            "side": "Active",
-            "person_type": "Autor",
-            "document": "99999999999",
-            "document_type": "CPF",
-            "lawyers": [
-              {
-                "name": "Advogada do Autor",
-                "side": "Active",
-                "person_type": "Advogado"
-              }
+        {
+            "code": "9999999-99.9999.9.99.9999",
+            "justice": "5",
+            "tribunal": "01",
+            "instance": 2,
+            "distribution_date": "2023-05-18T11:12:59.000Z",
+            "tribunal_acronym": "TRT1",
+            "secrecy_level": 0,
+            "tags": {
+                "is_fallback_source": true,
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+            },
+            "subjects": [
+                {
+                    "code": "13656",
+                    "name": "DOMÉSTICOS"
+                }
             ],
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          },
-          {
-            "name": "Usuário teste",
-            "side": "Passive",
-            "person_type": "Réu",
-            "document": "99999999999",
-            "document_type": "CPF",
-            "lawyers": [
-              {
-                "name": "Nome da advogada do réu",
-                "side": "Passive",
-                "person_type": "Advogado"
-              }
-            ]
-        ],
-        "steps": [],
-        "attachments": [],
-        "related_lawsuits": [],
-        "crawler": {
-          "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-          "weight": 0,
-          "updated_at": "2024-03-18T19:21:02.466Z"
-        },
-        "amount": 7685.82,
-        "last_step": {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
-          "step_date": "2024-03-18T19:21:02.466Z",
-          "private": false,
-          "steps_count": 1
-        },
-        "phase": "Inicial",
-        "status": "Ativo",
-        "name": "Nome do Autor X Nome do Réu"
-      },
-      {
-        "code": "9999999-99.9999.9.99.9999",
-        "justice": "5",
-        "tribunal": "01",
-        "instance": 1,
-        "distribution_date": "2022-03-30T16:41:24.000Z",
-        "tribunal_acronym": "TRT1",
-        "secrecy_level": 0,
-        "tags": {
-          "is_fallback_source": true,
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        },
-        "subjects": [
-          {
-            "code": "13656",
-            "name": "DOMÉSTICOS"
-          }
-        ],
-        "classifications": [
-          {
-            "code": "985",
-            "name": "AÇÃO TRABALHISTA - RITO ORDINÁRIO"
-          }
-        ],
-        "courts": [
-          {
-            "code": "33782",
-            "name": "RIO DE JANEIRO - 37ª VARA DO TRABALHO"
-          }
-        ],
-        "parties": [
-          {
-            "name": "Berenice",
-            "side": "Active",
-            "person_type": "Autor",
-            "document": "99999999999",
-            "document_type": "CPF",
-            "lawyers": [
-              {
-                "name": "Nome do advogado do Autor",
-                "side": "Active",
-                "person_type": "Advogado"
-              }
+            "classifications": [
+                {
+                    "code": "1009",
+                    "name": "RECURSO ORDINÁRIO TRABALHISTA"
+                }
             ],
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          },
-          {
-            "name": "Jhon Doe",
-            "side": "Passive",
-            "person_type": "Réu",
-            "document": "99999999999",
-            "document_type": "CPF",
-            "lawyers": [
-              {
-                "name": "Nome da Advogada do réu",
-                "side": "Passive",
-                "person_type": "Advogado"
-              }
+            "courts": [
+                {
+                    "code": "75580",
+                    "name": "GABINETE DO DESEMBARGADOR"
+                }
             ],
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          },
-          {
-            "person_type": "Advogado",
-            "side": "Active",
-            "name": "Nome do Advogado",
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          },
-          {
-            "person_type": "Advogado",
-            "side": "Passive",
-            "name": "Nome do Advogado",
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          }
-        ],
-        "steps": [],
-        "attachments": [],
-        "related_lawsuits": [],
-        "crawler": {
-          "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-          "weight": 0,
-          "updated_at": "2024-03-18T19:21:02.465Z"
+            "parties": [
+                {
+                    "name": "USUÁRIO TESTE 1",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        {
+                            "name": "USUÁRIO TESTE 2",
+                            "side": "Active",
+                            "person_type": "Advogado"
+                        }
+                    ],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "name": "USUÁRIO TESTE 3",
+                    "side": "Passive",
+                    "person_type": "Réu",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        {
+                            "name": "USUÁRIO TESTE 4",
+                            "side": "Passive",
+                            "person_type": "Advogado"
+                        }
+                    ],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                }
+            ],
+            "steps": [],
+            "attachments": [],
+            "related_lawsuits": [],
+            "crawler": {
+                "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc",
+                "weight": 0,
+                "updated_at": "2024-03-18T19:21:02.466Z"
+            },
+            "amount": 7685.82,
+            "last_step": {
+                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                "lawsuit_instance": 1,
+                "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
+                "step_date": "2024-03-18T19:21:02.466Z",
+                "private": false,
+                "steps_count": 1
+            },
+            "phase": "Inicial",
+            "status": "Ativo",
+            "name": "USUÁRIO TESTE 1 X USUÁRIO TESTE 3"
         },
-        "amount": 7685.82,
-        "last_step": {
-          "lawsuit_cnj": "0100248-39.2022.5.01.0037",
-          "lawsuit_instance": 1,
-          "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
-          "step_date": "2024-03-18T19:21:02.465Z",
-          "private": false,
-          "steps_count": 1
-        },
-        "phase": "Inicial",
-        "status": "Ativo",
-        "name": "Autor X Réu"
-      },
-      {
-        "code": "8888888-88.8888.8.88.8888",
-        "justice": "8",
-        "tribunal": "19",
-        "instance": 1,
-        "distribution_date": "2023-06-06T17:35:50.000Z",
-        "tribunal_acronym": "TJRJ",
-        "secrecy_level": 0,
-        "tags": {
-          "is_fallback_source": true,
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        },
-        "subjects": [
-          {
-            "code": "7769",
-            "name": "ABATIMENTO PROPORCIONAL DO PREÇO "
-          },
-          {
-            "code": "7748",
-            "name": "ACIDENTE AÉREO"
-          },
-          {
-            "code": "10435",
-            "name": "ACIDENTE DE TRÂNSITO"
-          }
-        ],
-        "classifications": [
-          {
-            "code": "436",
-            "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
-          }
-        ],
-        "courts": [
-          {
-            "code": "13805",
-            "name": "BARRA DA TIJUCA REGIONAL II JUI ESP CIV"
-          }
-        ],
-        "parties": [
-          {
-            "name": "USUÁRIO TESTE",
-            "side": "Active",
-            "person_type": "Autor",
-            "document": "88888888888",
-            "document_type": "CPF",
-            "lawyers": [],
+        {
+            "code": "9999999-99.9999.9.99.9999",
+            "justice": "5",
+            "tribunal": "01",
+            "instance": 1,
+            "distribution_date": "2022-03-30T16:41:24.000Z",
+            "tribunal_acronym": "TRT1",
+            "secrecy_level": 0,
             "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          },
-          {
-            "name": "GABRIELLA",
-            "side": "Active",
-            "person_type": "Autor",
-            "document": "88888888888",
-            "document_type": "CPF",
-            "lawyers": [],
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          }
-          {
-            "name": "LEONARDO",
-            "side": "Active",
-            "person_type": "Autor",
-            "document": "88888888888",
-            "document_type": "CPF",
-            "lawyers": [],
-            "tags": {
-              "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-            }
-          }
-        ],
-        "steps": [],
-        "attachments": [],
-        "related_lawsuits": [],
-        "crawler": {
-          "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-          "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-          "weight": 0,
-          "updated_at": "2024-03-18T19:21:02.466Z"
+                "is_fallback_source": true,
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+            },
+            "subjects": [
+                {
+                    "code": "13656",
+                    "name": "DOMÉSTICOS"
+                }
+            ],
+            "classifications": [
+                {
+                    "code": "985",
+                    "name": "AÇÃO TRABALHISTA - RITO ORDINÁRIO"
+                }
+            ],
+            "courts": [
+                {
+                    "code": "33782",
+                    "name": "RIO DE JANEIRO - 37ª VARA DO TRABALHO"
+                }
+            ],
+            "parties": [
+                {
+                    "name": "USUÁRIO TESTE 1",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        {
+                            "name": "USUÁRIO TESTE 2",
+                            "side": "Active",
+                            "person_type": "Advogado"
+                        }
+                    ],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "name": "USUÁRIO TESTE 3",
+                    "side": "Passive",
+                    "person_type": "Réu",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        {
+                            "name": "USUÁRIO TESTE 4",
+                            "side": "Passive",
+                            "person_type": "Advogado"
+                        }
+                    ],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "person_type": "Advogado",
+                    "side": "Active",
+                    "name": "USUÁRIO TESTE 2",
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "person_type": "Advogado",
+                    "side": "Passive",
+                    "name": "USUÁRIO TESTE 4",
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                }
+            ],
+            "steps": [],
+            "attachments": [],
+            "related_lawsuits": [],
+            "crawler": {
+                "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc",
+                "weight": 0,
+                "updated_at": "2024-03-18T19:21:02.465Z"
+            },
+            "amount": 7685.82,
+            "last_step": {
+                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                "lawsuit_instance": 1,
+                "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
+                "step_date": "2024-03-18T19:21:02.465Z",
+                "private": false,
+                "steps_count": 1
+            },
+            "phase": "Inicial",
+            "status": "Ativo",
+            "name": "USUÁRIO TESTE 1 X USUÁRIO TESTE 3"
         },
-        "amount": 28790,
-        "last_step": {
-          "lawsuit_cnj": "0817064-37.2023.8.19.0209",
-          "lawsuit_instance": 1,
-          "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
-          "step_date": "2024-03-18T19:21:02.466Z",
-          "private": false,
-          "steps_count": 1
-        },
-        "phase": "Inicial",
-        "status": "Ativo",
-        "name": "DAVI LUIZ X GRUPO TURISMO LTDA"
-      }
+        {
+            "code": "9999999-99.9999.9.99.9999",
+            "justice": "8",
+            "tribunal": "19",
+            "instance": 1,
+            "distribution_date": "2023-06-06T17:35:50.000Z",
+            "tribunal_acronym": "TJRJ",
+            "secrecy_level": 0,
+            "tags": {
+                "is_fallback_source": true,
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+            },
+            "subjects": [
+                {
+                    "code": "7769",
+                    "name": "ABATIMENTO PROPORCIONAL DO PREÇO"
+                },
+                {
+                    "code": "7748",
+                    "name": "ACIDENTE AÉREO"
+                },
+                {
+                    "code": "10435",
+                    "name": "ACIDENTE DE TRÂNSITO"
+                }
+            ],
+            "classifications": [
+                {
+                    "code": "436",
+                    "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+                }
+            ],
+            "courts": [
+                {
+                    "code": "13805",
+                    "name": "BARRA DA TIJUCA REGIONAL II JUI ESP CIV"
+                }
+            ],
+            "parties": [
+                {
+                    "name": "USUÁRIO TESTE 1",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "name": "USUÁRIO TESTE 2",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                },
+                {
+                    "name": "USUÁRIO TESTE 3",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [],
+                    "tags": {
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
+                    }
+                }
+            ],
+            "steps": [],
+            "attachments": [],
+            "related_lawsuits": [],
+            "crawler": {
+                "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                "crawl_id": "00000000-0000-0000-0000-0000000000cc",
+                "weight": 0,
+                "updated_at": "2024-03-18T19:21:02.466Z"
+            },
+            "amount": 28790,
+            "last_step": {
+                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                "lawsuit_instance": 1,
+                "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
+                "step_date": "2024-03-18T19:21:02.466Z",
+                "private": false,
+                "steps_count": 1
+            },
+            "phase": "Inicial",
+            "status": "Ativo",
+            "name": "USUÁRIO TESTE 1 X EMPRESA TESTE LTDA"
+        }
     ]
-  }
+}
 ```
 </ResponseExample>

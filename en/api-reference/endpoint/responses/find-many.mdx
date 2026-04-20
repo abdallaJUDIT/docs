@@ -1,57 +1,57 @@
 ---
-title: "Consultar respostas"
+title: "List responses"
 openapi: "GET /responses"
 api: "GET https://requests.prod.judit.io/responses"
-description: "Esse endpoint consulta as respostas de requisições realizadas por parâmetros de forma paginada"
+description: "This endpoint queries the responses of requests by parameters, in a paginated way."
 ---
 
 <ParamField query="page" type="integer" required={false}>
-    Define a página dos resultados que você deseja consultar.
+    Defines which page of results you want to fetch.
 </ParamField>
 
 <ParamField query="page_size" type="integer" required={false}>
-    Define o número máximo de resultados que você deseja receber por página;
+    Defines the maximum number of results you want to receive per page.
 </ParamField>
 
 <ParamField query="orderField" type="string" required={false}>
-    Nome do campo em que se deseja ordenar os buscas;
+    Name of the field to sort the responses by.
 </ParamField>
 
 <ParamField query="orderDirection" type="string" required={false}>
-    Sentido da ordenação: ‘asc’ ou ‘desc’;
+    Sort direction: 'asc' or 'desc'.
 </ParamField>
 
 <ParamField query="response_type" type="string" required={false}>
-    Retorna respostas tipo especificado **"lawsuit"**,**"parties"**, **"attachments"**, **"steps"** ou **"lawsuits"**;
+    Returns responses of the specified type: `lawsuit`, `parties`, `attachments`, `steps`, or `lawsuits`.
 </ParamField>
 
 <ParamField query="request_id" type="string" required={false}>
-    Retorna respostas relacionadas a uma busca pelo id;
+    Returns responses related to a request by its id.
 </ParamField>
 
 <ParamField query="request_status" type="string" required={false}>
-    Retorna respostas em que o status da busca podem estar em created, “pending”‘, “started”, “cancelling”, “cancelled” ou “completed”, ou ou mais de um de status [“started”, “completed”];
+    Returns responses whose request status is one of `created`, `pending`, `started`, `cancelling`, `cancelled`, or `completed`. You may also pass more than one status as an array (e.g., `['started', 'completed']`).
 </ParamField>
 
 <ParamField query="created_at_gte" type="date" required={false}>
-    Retorna buscas com a data de criação maior ou igual a informada;
+    Returns responses whose creation date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="created_at_lte" type="date" required={false}>
-    Retorna buscas com a data de criação menor ou igual a informada;
+    Returns responses whose creation date is less than or equal to the value provided.
 </ParamField>
+
 <ParamField query="request_created_at_gte" type="date" required={false}>
-    Retorna respostas com a data de criação da busca maior ou igual a informada;
+    Returns responses whose request creation date is greater than or equal to the value provided.
 </ParamField>
 
 <ParamField query="request_created_at_lte" type="date" required={false}>
-    Retorna respostas com a data de criação da busca menor ou igual a informada
+    Returns responses whose request creation date is less than or equal to the value provided.
 </ParamField>
 
 <ResponseExample>
-
-    ```json Response
-    {
+```json Response
+{
     "request_status": "completed",
     "page": 1,
     "page_count": 1,
@@ -59,10 +59,10 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
     "all_count": 1,
     "page_data": [
         {
-            "request_id": "54964ee1-fb81-4075-83e8-134dc484f9f7",
-            "response_id": "66acd939-a7b1-4b5c-a10c-f0c55f2e57d8",
+            "request_id": "00000000-0000-0000-0000-000000000001",
+            "response_id": "00000000-0000-0000-0000-000000000002",
             "origin": "api",
-            "origin_id": "54964ee1-fb81-4075-83e8-134dc484f9f7",
+            "origin_id": "00000000-0000-0000-0000-000000000001",
             "response_type": "lawsuit",
             "response_data": {
                 "code": "9999999-99.9999.9.99.9999",
@@ -73,7 +73,7 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                 "tribunal_acronym": "TJGO",
                 "secrecy_level": 0,
                 "tags": {
-                    "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92",
+                    "crawl_id": "00000000-0000-0000-0000-0000000000cc",
                     "dictionary_updated_at": "2025-03-13T14:17:44.114Z"
                 },
                 "subjects": [
@@ -100,9 +100,9 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                 "parties": [
                     {
                         "side": "Passive",
-                        "name": "Usuáio teste",
+                        "name": "USUÁRIO TESTE 1",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
                         "main_document": "99999999999",
                         "documents": [
@@ -116,9 +116,9 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                     },
                     {
                         "side": "Active",
-                        "name": "Usuário teste 2",
+                        "name": "USUÁRIO TESTE 2",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
                         "main_document": "99999999999",
                         "documents": [
@@ -131,17 +131,15 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                         "lawyers": [
                             {
                                 "name": "USUÁRIO TESTE 4",
-                                "documents": [
-                                    {}
-                                ]
+                                "documents": []
                             }
                         ]
                     },
                     {
-                        "name": "Usuário teste 1",
+                        "name": "USUÁRIO TESTE 3",
                         "side": "Passive",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
                         "main_document": "",
                         "documents": [],
@@ -156,9 +154,9 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                         "private": false,
                         "step_id": "d029dd09",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
-                        "content": "Citação Efetivada Citação aberta pelo Domicilio Eletronico (Polo Passivo) Bv Financeira Sa Credito Financiamento E Investimento -",
+                        "content": "Citação Efetivada Citação aberta pelo Domicílio Eletrônico (Polo Passivo)",
                         "step_date": "2025-03-11T15:08:48.000Z",
                         "steps_count": 15
                     },
@@ -168,7 +166,7 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                         "private": false,
                         "step_id": "54854442",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
                         "content": "Citação Expedida Via Domicílio Eletrônico para (Polo Passivo)",
                         "step_date": "2025-03-10T16:30:13.000Z"
@@ -179,9 +177,9 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                         "private": false,
                         "step_id": "a0ce7c0f",
                         "tags": {
-                            "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                            "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                         },
-                        "content": "Peticão Enviada ",
+                        "content": "Petição Enviada",
                         "step_date": "2025-02-24T15:25:52.000Z"
                     }
                 ],
@@ -189,16 +187,16 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                 "related_lawsuits": [],
                 "crawler": {
                     "source_name": "JPjdTjgoNoAuthScrapper - TJ - GO - Lawsuit - No Auth - 1 instance",
-                    "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92",
+                    "crawl_id": "00000000-0000-0000-0000-0000000000cc",
                     "weight": 10,
                     "updated_at": "2025-03-13T14:17:37.165Z"
                 },
                 "metadata": {},
                 "amount": 40000,
                 "area": "Cível",
-                "county": " GUAPÓ - 2ª VARA JUDICIAL (FAZENDAS PÚBLICAS, CRIMINAL, EXECUÇÃO PENAL E JUIZADO CRIMINAL)",
+                "county": "GUAPÓ - 2ª VARA JUDICIAL (FAZENDAS PÚBLICAS, CRIMINAL, EXECUÇÃO PENAL E JUIZADO CRIMINAL)",
                 "state": "GO",
-                "city": "GUAPO",
+                "city": "GUAPÓ",
                 "justice_description": "JUSTIÇA ESTADUAL",
                 "last_step": {
                     "lawsuit_cnj": "9999999-99.9999.9.99.9999",
@@ -206,9 +204,9 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                     "private": false,
                     "step_id": "d029dd09",
                     "tags": {
-                        "crawl_id": "7b909cec-9060-4530-be34-81e364b86b92"
+                        "crawl_id": "00000000-0000-0000-0000-0000000000cc"
                     },
-                    "content": "Citação Efetivada Citação aberta pelo Domicilio Eletronico (Polo Passivo)",
+                    "content": "Citação Efetivada Citação aberta pelo Domicílio Eletrônico (Polo Passivo)",
                     "step_date": "2025-03-11T15:08:48.000Z",
                     "steps_count": 15
                 },
@@ -219,7 +217,7 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
                 "updated_at": "2025-03-13T14:17:26.921Z",
                 "free_justice": true
             },
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "user_id": "00000000-0000-0000-0000-0000000000aa",
             "created_at": "2025-03-13T14:17:04.607Z",
             "request_created_at": "2025-03-13T14:17:01.114Z",
             "tags": {
@@ -230,5 +228,5 @@ description: "Esse endpoint consulta as respostas de requisições realizadas po
         }
     ]
 }
-    ```
+```
 </ResponseExample>
