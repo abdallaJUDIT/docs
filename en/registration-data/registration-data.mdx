@@ -1,0 +1,268 @@
+---
+title: "Registration Data Search"
+description: "This page describes the flow of the Registration Data query."
+icon: "Readme"
+---
+<Steps>
+ <Step title="Creating a Request" stepNumber="1">
+   To query registration data by CPF, CNPJ, or Name, the request must be made through the `/requests/create` endpoint of the lawsuits API. The registration data query can be performed directly against our datalake or in real time against the Federal Revenue Service (Receita Federal). To run the query in real time, simply add the `on-demand` parameter with the value `true` to the request payload.
+
+    <Note>
+    For the registration data query, `search_type` must be <strong>'cpf'</strong>, <strong>'cnpj'</strong>, or <strong>'name'</strong>, and the `response_type` field must always be <strong>'entity'</strong>.
+    </Note>
+
+   **Example query by CPF:**
+
+   ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    **Example query by CNPJ:**
+
+    ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "cnpj",
+            "search_key": "99.999.999/9999-99",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    **Example query by Name:**
+
+    <Warning>
+    When running name-based registration data queries, there may be namesakes (people or companies sharing the same name). Whenever possible, we recommend using unique identifiers such as CPF or CNPJ to ensure greater accuracy of the results.
+    </Warning>
+
+   ```bash
+   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
+    --header 'Content-Type: application/json' \
+    --header 'api-key: <API-KEY>' \
+    --data '{
+        "search": {
+            "search_type": "name",
+            "search_key": "Nome teste",
+            "response_type": "entity"
+	    }
+    }'
+    ```
+
+    <Note>
+    When running a CNPJ query, you can obtain detailed information, including unmasked data of the partners associated with the queried CNPJ. To access this information, include the `reveal_partners_documents` property and set its value to `true`.
+    </Note>
+
+    ***Response for CPF***
+
+     ```json
+    {
+        "has_lawsuits": false,
+        "request_id": "5c618521-2ecc-4176-a573-431d2e0edeb2",
+        "response_data": [
+            {
+                "entity_id": "",
+                "entity_type": "person",
+                "main_document": "999.999.999-99",
+                "name": "JOÃO TESTE",
+                "addresses": [
+                    {
+                        "street": "RUA RAMOS DE CARVALHO",
+                        "number": "999",
+                        "complement": "",
+                        "neighborhood": "CENTRO",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "country": "Brasil",
+                        "zip_code": "99999999",
+                        "ibge_code": 9999999
+                    }
+                ],
+                "aka_names": [],
+                "contacts": [
+                    {
+                        "description": "21999999999",
+                        "contact_type": "phone"
+                    }
+                ],
+                "documents": [],
+                "parents": [
+                    {
+                        "name": "JANAINA DA SILVA",
+                        "kinship": "mother"
+                    }
+                ],
+                "partners": [],
+                "associated_people": [],
+                "tags": {
+                    "revenue_update_date": "2022-05-30T00:00:00.000Z"
+                },
+                "created_at": "2024-10-12T13:28:59.051Z",
+                "updated_at": "2024-10-12T13:28:59.051Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1981-08-07T00:00:00.000Z",
+                "gender": "male",
+                "revenue_service_active": true
+            }
+        ]
+    }
+     ```
+
+    ***Response for CNPJ***
+
+     ```json
+    {
+        "has_lawsuits": false,
+        "request_id": "6e5a24f7-f874-4234-8acc-419142e2b066",
+        "response_data": [
+            {
+                "entity_id": "",
+                "entity_type": "company",
+                "main_document": "99.999.999/0009-99",
+                "name": "FINGI - EM RECUPERACAO JUDICIAL",
+                "social_name": "FING",
+                "addresses": [
+                    {
+                        "street": "RUA DO JOÃO CIRILO",
+                        "number": "99",
+                        "complement": "ANDAR 9",
+                        "neighborhood": "CENTRO",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "country": "BRASIL",
+                        "zip_code": "99999999",
+                        "ibge_code": 999999
+                    }
+                ],
+                "aka_names": [],
+                "contacts": [
+                    {
+                        "description": "999999999",
+                        "contact_type": "phone"
+                    },
+                    {
+                        "description": "999999999",
+                        "contact_type": "phone"
+                    },
+                    {
+                        "description": "ouvidoria@fing.com.br",
+                        "contact_type": "email"
+                    }
+                ],
+                "documents": [],
+                "parents": [],
+                "partners": [
+                    {
+                        "entity_id": "",
+                        "entity_type": "company",
+                        "main_document": "***999999**",
+                        "name": "JOÃO DE OLIVEIRA SOUZA",
+                        "position": "CONSELHEIRO DE ADMINISTRAÇÃO",
+                        "addresses": [],
+                        "aka_names": [],
+                        "contacts": [],
+                        "documents": [],
+                        "parents": [],
+                        "partners": [],
+                        "branch_activities": [],
+                        "associated_people": [],
+                        "tags": {
+                            "age_group": "Entre 61 a 70 anos",
+                            "start_date": "2018-09-25T00:00:00.000Z"
+                        },
+                        "created_at": "2024-10-12T13:32:25.135Z",
+                        "updated_at": "2024-10-12T13:32:25.135Z"
+                    }
+                ],
+                "branch_activities": [
+                    {
+                        "code": "9999999",
+                        "name": "SERVIÇOS DE ATENDIMENTO AO CLIENTE - SAC",
+                        "active": true,
+                        "main_activity": true,
+                        "tree_history": ""
+                    },
+                    {
+                        "code": "9999999",
+                        "name": "CONSTRUÇÃO DE ESTAÇÕES E REDES",
+                        "active": true,
+                        "main_activity": false,
+                        "tree_history": ""
+                    }
+                ],
+                "associated_people": [],
+                "tags": {
+                    "revenue_update_date": "2005-11-03T00:00:00.000Z"
+                },
+                "created_at": "2024-10-12T13:32:25.134Z",
+                "updated_at": "2024-10-12T13:32:25.134Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1966-09-26T00:00:00.000Z",
+                "size": "DEMAIS",
+                "legal_nature": {
+                    "code": "2046",
+                    "name": "SOCIEDADE ANÔNIMA ABERTA",
+                    "active": true
+                },
+                "head_office": true,
+                "revenue_service_active": true,
+                "special_status": "RECUPERACAO JUDICIAL",
+                "special_status_date": "2016-06-29T00:00:00.000Z",
+                "share_capital": 99999999999
+            }
+        ]
+    }
+     ```
+
+     ***Response for Name***
+
+     ```json
+     {
+        "request_id": "223458ec-f3a1-4851-8d2b-19672066565c",
+        "response_data": [
+            {
+                "entity_id": "999.999.999-99",
+                "entity_type": "person",
+                "main_document": "999.999.999-99",
+                "name": "Usuário Teste",
+                "addresses": [],
+                "aka_names": [],
+                "contacts": [],
+                "documents": [],
+                "parents": [
+                    {
+                        "name": "Usuário teste 1",
+                        "kinship": "mother"
+                    }
+                ],
+                "partners": [],
+                "associated_people": [],
+                "tags": {},
+                "created_at": "2025-04-19T00:14:56.561Z",
+                "updated_at": "2025-04-19T00:14:56.561Z",
+                "nationality": "BRASILEIRA",
+                "birth_date": "1989-12-25T00:00:00.000Z",
+                "gender": "male"
+            }
+        ]
+    }
+     ```
+
+     <Note>
+    When running a CNPJ query, you can obtain detailed information, including unmasked data of the partners associated with the queried CNPJ. To access this information, include the `reveal_partners_documents` property and set its value to `true`.
+    </Note>
+
+   The meaning of each field can be found in the **[glossary](/en/resource/glossary)**.
+ </Step>
+</Steps>

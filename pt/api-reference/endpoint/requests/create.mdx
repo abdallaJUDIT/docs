@@ -1,0 +1,119 @@
+---
+title: "Criar uma requisição"
+openapi: "openapi-1 POST /requests"
+api: "POST https://requests.prod.judit.io/requests"
+description: "Esse endpoint cria uma requisição de processos por documento(CPF, CNPJ, OAB) ou Código CNJ"
+---
+
+<ParamField body="search" type="object" required={false}>
+    <Expandable title="properties">
+
+        <ParamField body="search_type" type="string" required>
+            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
+
+
+        </ParamField>
+
+        <ParamField body="search_key" type="string" required>
+            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="response_type" type="string" required={false}>
+            Define o tipo de retorno dos dados da busca: "lawsuit", "parties", "attachments", "step" ou "lawsuits";
+        </ParamField>
+
+        <ParamField body="cache_ttl_in_days" type="integer" required={false}>
+            Define até quantos dias o resultado da busca pode considerar um cache válido;
+        </ParamField>
+        <ParamField body="should_search_branches" name="should_search_branches" type="boolean" required={false}>
+            Será criada uma requisição para cada filial vinculada ao CNPJ informado.
+            Todas as requisições geradas serão associadas à requisição original por meio do campo `origin_id`.
+        </ParamField>
+        <ParamField body="search_params" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Define a instância em que deseja buscar o processo;
+                </ParamField>
+                <ParamField body="masked_response" name="masked_response" type="string" required={false}>
+                    Define se a resposta virá minificada. Este parâmetro é utilizado exclusivamente para consultas simples ou completas por documento.
+                </ParamField>
+                <ParamField body="filter" type="object" required={false}>
+                    <Expandable>
+                        <ParamField body="side" name="side" type="string" required={false}>
+                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                        </ParamField>
+
+                        <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
+                            Retorna buscas com o valor da causa maior que o valor passado
+                        </ParamField>
+                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
+                            Retorna buscas com o valor da causa menor que o valor passado
+                        </ParamField>
+
+
+                         <ParamField body="tribunals" name="tribunals" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+
+                        <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+
+                        <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+                    </Expandable>
+                </ParamField>
+                <ParamField body="credential" type="object" required={false}>
+                    <ParamField body="customer_key" name="customer_key" type="string" required={false}>
+                        Permite passar a chave do cliente para acessar o cofre de credencial correto. Se não for passado a API tentará encontrar uma credencial cadastrada com a customer_key vazia;
+                    </ParamField>
+                </ParamField>
+            </Expandable>
+        </ParamField>
+    </Expandable>
+
+</ParamField>
+
+<ResponseExample>
+    ```json Response
+    {
+        "request_id": "71adfaa6-5485-45ce-a4a1-00d485f8f0f9",
+        "search": {
+            "search_type": "lawsuit_cnj",
+            "search_key": "0010137-92.2023.5.03.0077",
+            "search_params": {},
+        },
+        "origin": "api",
+        "origin_id": "fde89d98-b2b1-4c58-b0b7-13f4f96bba3d",
+        "status": "pending",
+        "tags": {},
+        "created_at": "2023-10-18T18:36:58.775Z",
+        "updated_at": "2023-10-18T18:36:58.775Z"
+    }
+    ```
+</ResponseExample>

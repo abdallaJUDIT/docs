@@ -1,0 +1,187 @@
+---
+title: "Consumption Report"
+description: "How to query the history of requests made through the JUDIT API and infer the cost of each operation."
+icon: "chart-pie"
+---
+
+# 📘 How to query my history of requests made through the JUDIT API
+
+This step-by-step guide will show you how to query the history of requests made through the JUDIT API. With it, you will be able to view details such as:
+
+- Type of search performed  
+- Period  
+- Presence of attachments  
+- Origin of the request (tracking or API)  
+- And even infer the cost of each operation.
+
+---
+
+## 1. How to query the history via Postman (using cURL)
+
+To make the request:
+
+Copy the following `cURL` command and paste it into **Postman** (*Raw* mode in the Body and `POST` type):
+
+```bash
+curl --location 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=<START DATE>&created_at_lte=<END DATE>' \
+--header 'api-key: INSERT_YOUR_API_KEY_HERE' \
+--header 'Content-Type: application/json' \
+--data ''
+```
+
+Replace `<START DATE>` and `<END DATE>` with the format `YYYY-MM-DD`, for example:
+
+```
+created_at_gte=2024-09-12&created_at_lte=2050-09-12
+```
+
+---
+
+## 2. How to query the history via JavaScript (fetch)
+
+Code example:
+
+```js
+const url = 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const options = {
+  method: 'GET',
+  headers: {
+    'api-key': '<INSERT_YOUR_API_KEY_HERE>'
+  }
+};
+
+try {
+  const response = await fetch(url, options);
+  const data = await response.json();
+  console.log(data);
+} catch (error) {
+  console.error(error);
+}
+```
+
+---
+
+## 3. Example API response
+
+Sample excerpt:
+
+```json
+{
+  "page": 1,
+  "page_data": [
+    {
+      "request_id": "0dcd4c1f-c9bf-4327-899e-0550a627feca",
+      "search": {
+        "on_demand": false,
+        "search_type": "lawsuit_cnj",
+        "search_key": "0000999-99.9999.9.99.9999",
+        "response_type": "lawsuit",
+        "search_params": {
+          "public_search": false,
+          "filter": {
+            "party_names": [],
+            "party_documents": []
+          },
+          "pagination": {}
+        }
+      },
+      "with_attachments": true,
+      "origin": "tracking",
+      "status": "completed",
+      "created_at": "2025-07-25T21:10:03.334Z",
+      "updated_at": "2025-07-25T21:10:25.352Z"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Explanation of the main fields
+
+| Field                 | Meaning                                                                     |
+|----------------------|------------------------------------------------------------------------------|
+| `origin`             | Can be `api` (direct request) or `tracking` (automatic tracking).            |
+| `response_type`      | Return type: `lawsuit`, `entity`, `warrant`, `lawsuits`.                     |
+| `search.search_type` | Search type: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj`.                    |
+| `on_demand`          | If `true`, indicates a real-time query at the court.                         |
+| `with_attachments`   | If `true`, case files were included (impacts the cost).                      |
+
+---
+
+## 🔍 Field interpretation
+
+### `origin`
+
+This field indicates the **origin** of the request, and can take the following values:
+
+- `api`: query performed directly through the API.
+- `tracking`: query performed via tracking (recurring).
+
+### `response_type`
+
+Defines the type of document that will be returned in the search. The possibilities include:
+
+- `lawsuit`: used in queries by CNJ number (Unified Case Number).
+- `lawsuits`: used in searches by CPF, CNPJ, OAB, or NAME, returning a list of lawsuits.
+- `entity`: used in registration data queries (by CPF, CNPJ, etc.).
+- `warrant`: used in arrest warrant queries.
+
+---
+
+## 🧪 Real-world example and pricing analysis
+
+```json
+{
+  "request_id": "c2af614a-8296-4060-bf9a-3b087679c472",
+  "search": {
+    "on_demand": true,
+    "search_type": "lawsuit_cnj",
+    "search_key": "0000999-99.9999.9.99.9999",
+    "response_type": "lawsuit",
+    "search_params": {
+      "public_search": false,
+      "filter": {
+        "party_names": [],
+        "party_documents": []
+      },
+      "pagination": {}
+    }
+  },
+  "with_attachments": true,
+  "callback_url": "https://webhook.site/...",
+  "origin": "tracking",
+  "status": "completed",
+  "created_at": "2025-07-25T21:10:03.334Z"
+}
+```
+
+### 💰 Pricing analysis based on the fields:
+
+- `origin: tracking` → this is a query through tracking, therefore **monthly** billing.
+- `search_type: lawsuit_cnj` → the tracking is on a lawsuit by CNJ number.
+- `on_demand: true` → since this is tracking, this value will always be true because every tracking is on-demand.
+- `with_attachments: true` → case files were collected, which implies an additional charge.
+
+---
+
+## 🔸 Estimated total for the request:
+
+<Note>
+    The values shown are for illustrative purposes only. For actual commercial information, check our official pricing table.
+</Note>
+
+- **Lawsuit tracking**: R$ 0.69/month  
+- **Case files**: R$ 3.50 (one-time charge)  
+
+### ➡️ **Estimated total cost**: R$ 4.19
+
+---
+
+## ℹ️ Important points
+
+- Billing may vary depending on the type of search, real-time mode (`on_demand`), and the presence of attachments.
+- Requests via `tracking` are renewed monthly as long as the tracking is active.
+- Historical requests (`cpf`, `cnpj`, etc.) have a one-time charge per query.
+
+---

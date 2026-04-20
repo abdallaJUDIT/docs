@@ -1,0 +1,114 @@
+---
+title: "Consulta True / False"
+openapi: "openapi-1 POST /requests"
+api: "POST https://lawsuits.production.judit.io/requests/create" 
+description: "Consultando a Existência de Processos para o Documento em nosso datalake"
+---
+
+
+<ParamField body="search" type="object" required={false}>
+    <Expandable title="properties">
+
+        <ParamField body="search_type" type="string" required>
+            Define o tipo de entidade que você quer buscar: “cpf”, “cnpj”, “oab”, “lawsuit_cnj” ou "lawsuit_id";
+
+
+        </ParamField>
+
+        <ParamField body="search_key" type="string" required>
+            Número do processo (Código CNJ), CPF, CNPJ ou OAB;
+        </ParamField>
+
+        <ParamField body="search_params" type="object" required={false}>
+            <Expandable title="properties">
+                <ParamField body="lawsuit_instance" name="lawsuit_instance" type="integer" required={false}>
+                    Define a instância em que deseja buscar o processo;
+                </ParamField>
+
+                <ParamField body="filter" type="object" required={false}>
+                    <Expandable>
+                        <ParamField body="side" name="side" type="string" required={false}>
+                            Define os tipos de participantes do processo: ‘Passive’ ou ‘Active’;
+                        </ParamField>
+                        <ParamField body="distribution_date_gte" name="distribution_date_gte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                        </ParamField>
+
+                        <ParamField body="amount_gte" name="amount_gte" type="number" required={false}>
+                            Retorna buscas com o valor da causa maior que o valor passado
+                        </ParamField>
+                        <ParamField body="amount_lte" name="amount_lte" type="number" required={false}>
+                            Retorna buscas com o valor da causa menor que o valor passado
+                        </ParamField>
+
+
+                        <ParamField body="tribunals" name="tribunals" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+
+                        <ParamField body="subject_codes" name="subject_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="conteins" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_contains" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+
+                        <ParamField body="classification_codes" name="classification_codes" type="object" required={false}>
+                         <Expandable>
+                           <ParamField body="keys" name="keys" type="array" required={false}>
+                              Filtra processos com estes códigos ou não
+                          </ParamField>
+                          <ParamField body="not_equal" name="not_equal" type="boolean" required={false}>
+                              Determina se o filtro será por processos que contém ou não contém os código passados
+                          </ParamField>
+                         </Expandable>
+                        </ParamField>
+
+                        <ParamField body="last_step_date_gte" name="last_step_date_gte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição maior ou igual a informada;
+                        </ParamField>
+
+                        <ParamField body="last_step_date_lte" name="last_step_date_lte" type="date" required={false}>
+                            Retorna buscas com a data de distribuição menor ou igual a informada;
+                        </ParamField>
+
+                        <ParamField body="party_names" name="party_names" type="object" required={false}>
+                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        </ParamField>
+
+                        <ParamField body="party_documents" name="pparty_documents" type="object" required={false}>
+                            Lista de nomes (array de strings) que restringe a busca a processos que os contenham em alguma das partes.
+                        </ParamField>
+                                                
+                    </Expandable>
+                </ParamField>
+                <ParamField body="create_complete_request" type="boolean" required={false}>
+                </ParamField>
+            </Expandable>
+        </ParamField>
+    </Expandable>
+
+</ParamField>
+
+
+
+<ResponseExample>
+```json
+{
+	"has_lawsuits": true,
+	"request_id": "bd2be78e-2d04-4fad-ad85-b6058e7cc4f4",
+	"response_data": []
+}
+```
+</ResponseExample>

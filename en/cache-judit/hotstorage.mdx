@@ -1,0 +1,398 @@
+---
+title: "Hot Storage Datalake Query"
+description: "Hot Storage Datalake Query"
+icon: "fire"
+---
+
+The synchronous query lets you quickly check whether a CPF, CNPJ, OAB, or name has lawsuits registered in our datalake. It returns, in an agile way, a response indicating whether lawsuits exist or not, the number of lawsuits, a historical hot-storage query, and a synthetic lawsuits query.
+
+In the synchronous query, only data already available in our base — according to the filters applied — is returned, ensuring a faster response. However, this can result in a small delay in obtaining more complete information. To access updated and comprehensive data, it is essential to run an asynchronous query, which will search directly at the courts and bring back up-to-date information.
+
+<Warning>
+All synchronous historical queries can include specific filters to refine the results. If you want to receive a specific group of items, simply run the query providing the desired [filters](/en/requests/request-document#payload-da-solicitação).
+</Warning>
+
+We use Hot Storage to optimize the performance of frequent queries on our database. This storage layer is designed to provide fast access to data that is frequently used, allowing our applications to return information in a more agile way.
+
+### Hot Storage request
+
+To run the query synchronously, you first need to create a request to the <strong>lawsuits</strong> endpoint. Below is an example of how to make this request using cURL.
+
+```bash
+curl --request POST \
+--url https://lawsuits.production.judit.io/lawsuits \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99"
+  }
+}'
+```
+
+Below is an example request using a filter for ```TJRJ```:
+
+```bash
+curl --request POST \
+--url https://lawsuits.production.judit.io/lawsuits \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99",
+    "search_params": {
+      "filter": {
+        "tribunals": {
+          "keys": ["TJRJ"],
+          "not_equal": false
+        }
+      }
+    }
+  }
+}'
+```
+
+### Possible values for `phase`
+
+| Phase                               | Description                                           |
+| :---------------------------------- | :---------------------------------------------------- |
+| Aguardando execução ou julgamento   | The lawsuit is waiting to be judged.                  |
+| Arquivado                           | The lawsuit has been archived.                        |
+| Cancelado                           | The lawsuit has been canceled.                        |
+| Execução                            | The lawsuit is in the execution phase.                |
+| Execução ou cumprimento             | The lawsuit is being executed or fulfilled.           |
+| Inicial                             | The lawsuit is in the initial phase.                  |
+| Reativado                           | The lawsuit has been reactivated after archival.      |
+| Recurso                             | The lawsuit is in the appeal phase.                   |
+| Sentença                            | The lawsuit has received a sentence.                  |
+| Trânsito em julgado ou acordo       | The lawsuit is in transit in rem judicatam or settled. |
+
+---
+
+### Possible values for `status`
+
+| Status     | Description                          |
+| :--------- | :----------------------------------- |
+| Ativo      | The lawsuit is active and ongoing.   |
+| Finalizado | The lawsuit has been finalized.      |
+
+
+### Request returning phase/status
+
+Below is an example request asking for the lawsuit's phase and status in the response:
+
+<Note>
+You can, through the datalake query, obtain the ```status``` and ```phase``` fields in the historical-query response — to get that, simply add the ```process_status``` parameter with the value ```true```.
+</Note>
+
+```bash
+curl --request POST \
+--url https://lawsuits.production.judit.io/lawsuits \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99"
+  },
+  "process_status": true
+}'
+```
+
+The response of this request will be a JSON object with the response data:
+
+
+```json
+{
+  "has_lawsuits": true,
+  "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
+  "response_data": [
+    {
+      "code": "9999999-99.9999.9.99.9999",
+      "justice": "5",
+      "tribunal": "01",
+      "instance": 2,
+      "distribution_date": "2023-05-18T11:12:59.000Z",
+      "tribunal_acronym": "TRT1",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "13656",
+          "name": "DOMÉSTICOS"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "1009",
+          "name": "RECURSO ORDINÁRIO TRABALHISTA"
+        }
+      ],
+      "courts": [
+        {
+          "code": "75580",
+          "name": "GAB DES. GLAUCIA ZUCCARI FERNANDES BRAGA"
+        }
+      ],
+      "parties": [
+        {
+          "name": "Usuário teste",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "99999999999",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Advogada do Autor",
+              "side": "Active",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "Usuário teste",
+          "side": "Passive",
+          "person_type": "Réu",
+          "document": "99999999999",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome da advogada do réu",
+              "side": "Passive",
+              "person_type": "Advogado"
+            }
+          ]
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.466Z"
+      },
+      "amount": 7685.82,
+      "last_step": {
+        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+        "lawsuit_instance": 1,
+        "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
+        "step_date": "2024-03-18T19:21:02.466Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "Nome do Autor X Nome do Réu"
+    },
+    {
+      "code": "9999999-99.9999.9.99.9999",
+      "justice": "5",
+      "tribunal": "01",
+      "instance": 1,
+      "distribution_date": "2022-03-30T16:41:24.000Z",
+      "tribunal_acronym": "TRT1",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "13656",
+          "name": "DOMÉSTICOS"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "985",
+          "name": "AÇÃO TRABALHISTA - RITO ORDINÁRIO"
+        }
+      ],
+      "courts": [
+        {
+          "code": "33782",
+          "name": "RIO DE JANEIRO - 37ª VARA DO TRABALHO"
+        }
+      ],
+      "parties": [
+        {
+          "name": "Berenice",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "99999999999",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome do advogado do Autor",
+              "side": "Active",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "Jhon Doe",
+          "side": "Passive",
+          "person_type": "Réu",
+          "document": "99999999999",
+          "document_type": "CPF",
+          "lawyers": [
+            {
+              "name": "Nome da Advogada do réu",
+              "side": "Passive",
+              "person_type": "Advogado"
+            }
+          ],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Active",
+          "name": "Nome do Advogado",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "person_type": "Advogado",
+          "side": "Passive",
+          "name": "Nome do Advogado",
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.465Z"
+      },
+      "amount": 7685.82,
+      "last_step": {
+        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+        "lawsuit_instance": 1,
+        "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
+        "step_date": "2024-03-18T19:21:02.465Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "Autor X Réu"
+    },
+    {
+      "code": "8888888-88.8888.8.88.8888",
+      "justice": "8",
+      "tribunal": "19",
+      "instance": 1,
+      "distribution_date": "2023-06-06T17:35:50.000Z",
+      "tribunal_acronym": "TJRJ",
+      "secrecy_level": 0,
+      "tags": {
+        "is_fallback_source": true,
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+      },
+      "subjects": [
+        {
+          "code": "7769",
+          "name": "ABATIMENTO PROPORCIONAL DO PREÇO"
+        },
+        {
+          "code": "7748",
+          "name": "ACIDENTE AÉREO"
+        },
+        {
+          "code": "10435",
+          "name": "ACIDENTE DE TRÂNSITO"
+        }
+      ],
+      "classifications": [
+        {
+          "code": "436",
+          "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+        }
+      ],
+      "courts": [
+        {
+          "code": "13805",
+          "name": "BARRA DA TIJUCA REGIONAL II JUI ESP CIV"
+        }
+      ],
+      "parties": [
+        {
+          "name": "USUÁRIO TESTE",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "88888888888",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "GABRIELLA",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "88888888888",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        },
+        {
+          "name": "LEONARDO",
+          "side": "Active",
+          "person_type": "Autor",
+          "document": "88888888888",
+          "document_type": "CPF",
+          "lawyers": [],
+          "tags": {
+            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+          }
+        }
+      ],
+      "steps": [],
+      "attachments": [],
+      "related_lawsuits": [],
+      "crawler": {
+        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+        "weight": 0,
+        "updated_at": "2024-03-18T19:21:02.466Z"
+      },
+      "amount": 28790,
+      "last_step": {
+        "lawsuit_cnj": "8888888-88.8888.8.88.8888",
+        "lawsuit_instance": 1,
+        "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
+        "step_date": "2024-03-18T19:21:02.466Z",
+        "private": false,
+        "steps_count": 1
+      },
+      "phase": "Inicial",
+      "status": "Ativo",
+      "name": "DAVI LUIZ X GRUPO TURISMO LTDA"
+    }
+  ]
+}
+```

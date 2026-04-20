@@ -1,0 +1,186 @@
+---
+title: "Objeto Entity (Dados Cadastrais)"
+description: "O objeto `entity` é a estrutura de dados retornada nas consultas de CPF (Pessoa Física) e CNPJ (Pessoa Jurídica). Ele consolida informações cadastrais, de contato, endereços e vínculos."
+---
+
+> 🤖 As consultas de Dados Cadastrais retornam um objeto base comum chamado `entity`. Dependendo se a consulta foi feita por um CPF ou CNPJ, a propriedade `entity_type` retornará `"person"` ou `"company"`, respectivamente. Alguns campos, como `parents` (filiação) ou `share_capital` (capital social), são exclusivos do seu respectivo tipo de entidade.
+
+## Estrutura Base (Comum a CPF e CNPJ)
+
+Sempre que você consultar um documento válido, a Judit API retornará o bloco `entity` contendo as seguintes propriedades universais:
+
+### Identificação Principal
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `entity_id` | string | Identificador único interno da entidade no sistema da Judit. |
+| `entity_type` | string | Tipo da entidade: `"person"` (Pessoa Física) ou `"company"` (Empresa). |
+| `main_document` | string | Documento principal (CPF ou CNPJ). *Retornado apenas com números.* |
+| `name` | string | Nome civil completo da pessoa ou Razão Social oficial da empresa. |
+| `aka_names` | array | Lista de nomes alternativos (apelidos, nomes de solteiro ou Nomes Fantasia). |
+| `nationality` | string | Nacionalidade da pessoa ou país de registro da empresa. |
+| `revenue_service_active` | boolean | Indica se o documento está regular e ativo na base da Receita Federal. |
+| `created_at` / `updated_at` | string | Datas (ISO 8601) de criação e última atualização do registro no sistema. |
+| `tags` | object | Metadados extras ou de controle do Crawler (ex: data da extração na Receita). |
+
+---
+
+### Arrays de Contato e Localização
+
+Todas as entidades (Pessoas ou Empresas) possuem arrays padronizados para contato e endereços.
+
+#### Endereços (`addresses`)
+Lista de endereços residenciais ou comerciais vinculados ao documento.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `street` | string | Logradouro principal (Rua, Avenida, etc.). |
+| `number` | string | Número do imóvel predial. |
+| `complement` | string | Complemento (apto, bloco, sala, andar). |
+| `neighborhood` | string | Bairro de localização. |
+| `city` | string | Cidade do endereço. |
+| `state` | string | Unidade Federativa (UF) do endereço (ex: `"SP"`, `"RJ"`). |
+| `country` | string | País de localização. |
+| `zip_code` | string | Código Postal / CEP. *Retornado apenas com números.* |
+| `ibge_code` | number | Código oficial do município na tabela do IBGE. |
+
+#### Contatos (`contacts`)
+Lista de meios de comunicação extraídos das bases de dados.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `contact_type` | string | Categoria do contato (ex: `"phone"`, `"email"`). |
+| `description` | string | O valor do contato em si (o número de telefone ou o endereço de e-mail). |
+
+#### Outros Documentos (`documents`)
+Lista de documentos de identificação secundários (como RG, CNH, Inscrição Estadual).
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `document_type` | string | Tipo do documento secundário (ex: `"RG"`, `"IE"`). |
+| `document` | string | O número do documento sem formatação. |
+
+---
+
+## 👤 Propriedades Exclusivas: Pessoa Física (`person`)
+
+Se a consulta for de um **CPF** (`entity_type: "person"`), o objeto poderá conter as seguintes propriedades e arrays adicionais:
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `birth_date` | string | Data de nascimento. Formato ISO 8601. |
+| `gender` | string | Gênero/sexo cadastrado (ex: `"M"`, `"F"`). |
+| `parents` | array | Array de filiação. Cada item contém `name` (nome completo) e `kinship` (grau de parentesco, ex: `"mother"`, `"father"`). |
+| `partners` | array | Lista de cônjuges ou companheiros identificados. |
+| `associated_people` | array | Lista de outras pessoas físicas com vínculos identificáveis (sociedade, residência conjunta). |
+
+---
+
+## 🏢 Propriedades Exclusivas: Empresa (`company`)
+
+Se a consulta for de um **CNPJ** (`entity_type: "company"`), o objeto poderá conter os seguintes campos societários e de operação adicionais:
+
+### Dados Operacionais
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `social_name` | string | Nome Fantasia (nome de mercado da empresa). |
+| `birth_date` | string | Data oficial de abertura/fundação da empresa na Receita Federal. |
+| `size` | string | Porte cadastral oficial (ex: `"ME"`, `"EPP"`, `"DEMAIS"`). |
+| `head_office` | boolean | Indica se o CNPJ em questão é a Matriz (`true`) ou uma Filial (`false`). |
+| `special_status` | string | Situação especial perante o fisco (ex: Recuperação Judicial, Concordata). |
+| `share_capital` | number | Valor do capital social declarado em formato numérico. |
+| `parents` | array | Lista de empresas que atuam como matriz, controladoras ou holdings (Grupo Econômico). |
+
+### Estrutura Societária e Econômica
+
+#### Natureza Jurídica (`legal_nature`)
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `code` | string | Código numérico oficial da natureza (ex: `"206-2"`). |
+| `name` | string | Descrição por extenso (ex: `"Sociedade Empresária Limitada"`). |
+| `active` | boolean | Indica se este é o enquadramento atual vigente. |
+
+#### Quadro de Sócios e Administradores - QSA (`partners`)
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `name` | string | Nome do sócio ou administrador. |
+| `main_document` | string | CPF ou CNPJ do participante societário. |
+| `position` | string | Qualificação/Cargo ocupado (ex: `"SÓCIO-ADMINISTRADOR"`, `"DIRETOR"`). |
+| `entity_type` | string | Tipo da entidade sócia (`"person"` ou `"company"`). |
+
+#### Atividades Econômicas - CNAE (`branch_activities`)
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `code` | string | Código CNAE da atividade. |
+| `name` | string | Título ou descrição por extenso da atividade. |
+| `main_activity` | boolean | Indica se é o CNAE Principal (`true`) ou CNAE Secundário (`false`). |
+
+---
+
+## Exemplo de Payload (Pessoa Jurídica)
+
+<CodeGroup>
+
+```json Resposta (CNPJ)
+{
+   "has_lawsuits": false,
+   "request_id": "5c618521-2ecc-4176-a573-431d2e0edeb2",
+   "response_data": [
+       {
+           "entity_id": "",
+           "entity_type": "person",
+           "main_document": "999.999.999-99",
+           "name": "JOÃO TESTE",
+           "addresses": [
+               {
+                   "street": "RUA RAMOS DE CARVALHO",
+                   "number": "999",
+                   "complement": "",
+                   "neighborhood": "CENTRO",
+                   "city": "RIO DE JANEIRO",
+                   "state": "RJ",
+                   "country": "Brasil",
+                   "zip_code": "99999999",
+                   "ibge_code": 9999999
+               }
+           ],
+           "aka_names": [],
+           "contacts": [
+               {
+                   "description": "21999999999",
+                   "contact_type": "phone"
+               }
+           ],
+           "documents": [],
+           "parents": [
+               {
+                   "name": "JANAINA DA SILVA",
+                   "kinship": "mother"
+               }
+           ],
+           "partners": [],
+           "associated_people": [],
+           "tags": {
+               "revenue_update_date": "2022-05-30T00:00:00.000Z"
+           },
+           "created_at": "2024-10-12T13:28:59.051Z",
+           "updated_at": "2024-10-12T13:28:59.051Z",
+           "nationality": "BRASILEIRA",
+           "birth_date": "1981-08-07T00:00:00.000Z",
+           "gender": "male",
+           "revenue_service_active": true
+       }
+   ]
+}
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+Agora que você entende o dicionário de dados cadastrais, veja como consultar essas informações:
+
+* 👉 **[Consultas Cadastrais](/requests/cadastral):** Veja a documentação da rota de requisição para buscar e enriquecer CPFs e CNPJs em tempo real.

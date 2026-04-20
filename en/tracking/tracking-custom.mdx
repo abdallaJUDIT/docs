@@ -1,0 +1,1082 @@
+---
+title: "Custom Tracking"
+description: "This page aims to show the Custom Tracking flow"
+icon: "searchengin"
+---
+
+Custom tracking allows you to monitor lawsuits using specific filters, returning lawsuits from all courts that match the defined criteria. This query is ideal for identifying lawsuits with specific characteristics across a wide range of jurisdictions. To use it, you must send a request to the corresponding endpoint.
+
+<Warning>
+For this type of query, make sure to check the pricing, as it is not the same as the historical query.
+</Warning>
+
+<Steps>
+  <Step title="Creating the tracking" stepNumber="1">
+    ## Request payload
+
+    The POST request must include a payload with the following properties:
+
+    search_type: This field defines the type of entity to be searched. For custom tracking, it will always have the value `custom`;
+
+    - `search_key`: This field defines the value of the entity to be searched. For custom tracking, it will always have the value `custom`;
+    - `cache_ttl_in_days` (optional): Integer that defines how many days the search result can be considered a valid cache;
+    - `search_params`: An object containing some search parameters such as: - `lawsuit_instance` (optional): This parameter allows you to define the instance in which you want to search the lawsuit; - `masked_response` Defines whether the response will be returned minified. This parameter is only applicable to queries (simple or complete) in the lawsuit search context. - masked_response = `true`: will return a complete query - masked_response = `false`: will return a simple query
+
+      `*Note` Check the commercial conditions for these different types of custom tracking.
+
+    Filters can be added to the request, allowing for a more accurate return based on the desired values. To do this, the `filter` parameter must be included within `search_params`, with the following filters available:
+
+    - `filter` (optional): An object containing the search filters, such as:
+
+    - `side` (optional): Allows searching by types of parties in the lawsuit, which can be: 'Passive', 'Active', 'Interested', 'Unknown';
+
+    - `amount_gte` (optional): Filters lawsuits with a case amount greater than or equal to the value specified in `amount_gte`;
+
+    - `amount_lte` (optional): Filters lawsuits with a case amount less than or equal to the value specified in `amount_lte`;
+
+    - `tribunals` (optional): An object containing the court filters:
+
+        - `keys` (optional): List of court codes available in the [list of courts](/en/resource/glossary#lista-de-tribunais). This filter allows you to restrict the search to lawsuits that have or do not have these specific codes;
+        - `not_equal` (optional): Boolean value that defines whether the filter will include or exclude the values specified in `keys`.
+
+    - `subject_codes` (optional): An object containing the subject filters:
+
+        - `contains` (optional): List of subject codes. Restricts the search to lawsuits that include the specified codes.
+        - `not_contains` (optional): List of subject codes. Excludes lawsuits containing the specified codes.
+
+    - `classification_codes` (optional): An object containing the procedural class filters:
+
+        - `keys` (optional): List of procedural class codes. This filter allows you to restrict the search to lawsuits that have or do not have these specific codes;
+        - `not_equal` (optional): Boolean value that defines whether the filter will include or exclude the values specified in `keys`.
+
+    - `credential` (optional): Object for using the credentials vault:
+    - `customer_key` (optional): Allows you to pass the user key registered in the credentials vault. If not provided, the API will try to find a credential registered for an empty `customer_key`.
+    - `last_step_date_gte` (optional): Restricts the search to lawsuits whose last step date is greater than the provided date.
+    - `last_step_date_lte` (optional): Restricts the search to lawsuits whose last step date is less than the provided date.
+    - `party_names` (optional): List of names that restricts the search to lawsuits containing them in any of the parties.
+
+        `Note` When using this filter together with the `Side` filter, the `Side` filter will not be considered for restricting these parties, since the `Side` filter is used to filter lawsuits where the main party being searched is on the specified side.
+
+    - `party_documents` (optional): List of documents that restricts the search to lawsuits containing them in any of the parties.
+
+        `Note` When using this filter together with the `Side` filter, the `Side` filter will not be considered for restricting these documents, since the `Side` filter is used to filter lawsuits where the main party being searched is on the specified side.
+
+    <Note>
+        All registered custom trackings are performed ***on-demand***. We recommend checking the cost conditions associated with this service before using it.
+    </Note>
+
+   ```bash
+   curl --location 'https://tracking.prod.judit.io/tracking' \
+    --header 'api-key: <API-KEY>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+    "recurrence": 2,
+    "search": {
+        "search_type": "custom",
+        "search_key": "",
+        "search_params": {
+            "filter": {
+                "subject_codes": {
+                    "contains": [
+                        "5953",
+                        "6017",
+                        "10394",
+                        "12989",
+                        "5953",
+                        "5951",
+                        "5971",
+                        "14",
+                        "030213"
+                    ]
+                },
+                "classification_codes": {
+                    "keys": [
+                        "1116",
+                        "12785"
+                    ],
+                    "not_equal": false
+                },
+                "party_documents": [
+                    "99.999.999/0009-99",
+                    "88.888.888/0008-88"
+                ]
+            }
+        }
+    }
+    }'
+    ```
+
+    <Note>
+        In the tracking creation response, the `hour_range` field is returned, indicating the time at which the court query will be performed for the first time. In the example above, the first query is scheduled to occur at 9 PM.
+    </Note>
+
+    Response:
+    ```json
+    {
+        "tracking_id": "72084866-499f-4aff-b28a-14d43b8b7d70",
+        "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+        "status": "created",
+        "recurrence": 2,
+        "search": {
+            "search_type": "custom",
+            "search_key": "custom",
+            "response_type": "lawsuit",
+            "search_params": {
+                "filter": {
+                    "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                    "subject_codes": {
+                        "contains": [
+                            "5953",
+                            "6017",
+                            "10394",
+                            "12989",
+                            "5953",
+                            "5951",
+                            "5971",
+                            "14",
+                            "030213"
+                        ],
+                        "not_contains": [],
+                        "_id": "67a246c76efb879208114303"
+                    },
+                    "classification_codes": {
+                        "keys": [
+                            "1116",
+                            "12785"
+                        ],
+                        "not_equal": false,
+                        "_id": "67a246c76efb879208114302"
+                    },
+                    "party_names": [],
+                    "party_documents": [
+                        "99.999.999/0009-99",
+                        "88.888.888/0008-88"
+                    ]
+                },
+                "pagination": {}
+            }
+        },
+        "tracked_items_count": 0,
+        "tracked_items_steps_count": 0,
+        "tags": {},
+        "created_at": "2025-02-04T16:56:39.158Z",
+        "updated_at": "2025-02-04T16:56:39.158Z"
+    }
+   ```
+    <Note>
+        The tracking will be started for the first time within the best court-request concurrency window, within the next 24 hours from the creation date.
+    </Note>
+
+    After that, it will run according to the frequency registered in the ***recurrence*** field.
+  </Step>
+
+    <Step title="Checking the tracking status" stepNumber="2">
+        The URL takes the <strong>tracking_id</strong> returned in the first request:
+
+        ```bash
+        curl --request GET
+        --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+        --header "api-key: YOUR-API-KEY"
+        --header "Content-Type: application/json"
+        ```
+
+        Response:
+        ```json
+        {
+        "tracking_id": "72866-499f-4aff-b28a-14d43b8b7d70",
+        "user_id": "7999999995a3-4891-428d-9456-dedfc12ff850",
+        "status": "created",
+        "recurrence": 2,
+        "search": {
+            "search_type": "custom",
+            "search_key": "custom",
+            "response_type": "lawsuit",
+            "search_params": {
+                "filter": {
+                    "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                    "subject_codes": {
+                        "contains": [
+                            "5953",
+                            "6017",
+                            "10394",
+                            "12989",
+                            "5953",
+                            "5951",
+                            "5971",
+                            "14",
+                            "030213"
+                        ],
+                        "not_contains": [],
+                        "_id": "67a246c76efb879208114303"
+                    },
+                    "classification_codes": {
+                        "keys": [
+                            "1116",
+                            "12785"
+                        ],
+                        "not_equal": false,
+                        "_id": "67a246c76efb879208114302"
+                    },
+                    "party_names": [],
+                    "party_documents": [
+                        "99.999.999/0009-99",
+                        "88.888.888/0008-88"
+                    ]
+                },
+                "pagination": {}
+            }
+        },
+        "tracked_items_count": 0,
+        "tracked_items_steps_count": 0,
+        "tags": {
+            "dashboard_id": null
+        },
+        "created_at": "2025-02-04T16:56:39.158Z",
+        "updated_at": "2025-02-04T16:56:39.158Z"
+        }
+        ```
+
+        The status property indicates the current state of the tracking, which can be:
+
+        <ol type="a">
+        <li>
+            <strong>created</strong>: Tracking created, but never executed.
+        </li>
+        <li>
+            <strong>updating</strong>: Has a request currently being processed.
+        </li>
+        <li>
+        <strong>updated</strong>: Tracking updated with at least one response available. The <u>updated_at</u> field indicates the last update date of the tracking, and the <u>request_id</u> property indicates the ID of the last request made by the tracking.
+        </li>
+        <li>
+            <strong>paused</strong>: Tracking paused, but can still be resumed.
+        </li>
+        <li>
+            <strong>deleted</strong>: Tracking canceled and can no longer be resumed.
+        </li>
+        </ol>
+
+        The <strong>request_id</strong> property is only created after the tracking has executed for the first time, that is, once it reaches the updated status.
+    </Step>
+    <Step title="Retrieving the response content (new case found)" stepNumber="3">
+        The URL takes the <strong>request_id</strong> returned in the first request:
+
+        ```bash
+            curl --request GET
+            --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+            --header "api-key: YOUR-API-KEY"
+            --header "Content-Type: application/json"
+            ```
+
+            <Accordion title="Example request response">
+            ```json
+            {
+            "request_status": "completed",
+            "page": 1,
+            "page_count": 1,
+            "all_pages_count": 1,
+            "all_count": 2,
+            "page_data": [
+                {
+                    "request_id": "8534hyt6ujk-71d5-48a7-a8f1-ad61b02ff461",
+                    "response_id": "26098ui81f-e0ed-4d41-8f43-4c548d8799bb",
+                    "origin": "api",
+                    "origin_id": "8534oiklj89-71d5-48a7-a8f1-ad61b02ff461",
+                    "response_type": "lawsuit",
+                    "response_data": {
+                        "amount": 17456.15,
+                        "attachments": [],
+                        "classifications": [
+                            {
+                                "code": "1116",
+                                "name": "EXECUÇÃO FISCAL"
+                            }
+                        ],
+                        "code": "6666666-66.2025.6.66.6666",
+                        "county": "CAPITAL 12 VARA FAZ PUBLICA",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "area": "NÃO INFORMADO",
+                        "justice_description": "JUSTIÇA ESTADUAL",
+                        "created_at": "2025-01-27T16:09:19.112Z",
+                        "updated_at": "2025-02-04T13:41:08.013Z",
+                        "metadata": {},
+                        "courts": [
+                            {
+                                "code": "79705",
+                                "name": " CAPITAL 17 FAZ PUBLICA"
+                            }
+                        ],
+                        "crawler": {
+                            "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                            "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a",
+                            "weight": 0,
+                            "updated_at": "2025-02-04T13:40:48.782Z"
+                        },
+                        "distribution_date": "2025-01-24T17:08:03.000Z",
+                        "free_justice": false,
+                        "instance": 1,
+                        "justice": "8",
+                        "last_step": {
+                            "lawsuit_cnj": "6666666-66.2025.8.19.66666",
+                            "lawsuit_instance": 1,
+                            "private": false,
+                            "step_id": "5d93c333",
+                            "step_date": "2025-01-27T10:30:20.000Z",
+                            "content": "Expedição de Carta pelo Correio - 1 carta",
+                            "step_type": "60",
+                            "tags": {
+                                "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                            },
+                            "steps_count": 1
+                        },
+                        "name": "ESTADO DO RIO DE JANEIRO X BANCO BV S A",
+                        "parties": [
+                            {
+                                "side": "Active",
+                                "name": "USUARIO TESTE",
+                                "main_document": "99999999999",
+                                "person_type": "EXEQUENTE",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "lawyers": [
+                                    {
+                                        "name": "USER ONE",
+                                        "main_document": "99999999999",
+                                        "documents": [
+                                            {
+                                                "document": "99999999999",
+                                                "document_type": "cpf"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                                }
+                            },
+                            {
+                                "side": "Passive",
+                                "name": "BANCO TESTE S A",
+                                "main_document": "99999999999",
+                                "person_type": "EXECUTADO",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a"
+                                },
+                                "lawyers": []
+                            }
+                        ],
+                        "related_lawsuits": [],
+                        "secrecy_level": 0,
+                        "status": "Ativo",
+                        "phase": "Inicial",
+                        "steps": [],
+                        "subjects": [
+                            {
+                                "code": "6017",
+                                "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                            },
+                            {
+                                "code": "5953",
+                                "name": "IPVA - IMPOSTO SOBRE PROPRIEDADE DE VEÍCULOS AUTOMOTORES"
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "e602ad2b-ce2a-4c70-804d-df2febbb935a",
+                            "dictionary_updated_at": "2025-02-04T13:41:02.586Z"
+                        },
+                        "tribunal": "19",
+                        "tribunal_acronym": "TJRJ"
+                    },
+                    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+                    "created_at": "2025-02-04T13:41:01.175Z",
+                    "tags": {
+                        "dashboard_id": null
+                    }
+                },
+                {
+                    "request_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+                    "response_id": "2ddaf881-d0be-42bb-9ae9-74d76447e1b2",
+                    "origin": "api",
+                    "origin_id": "85347a1e-71d5-48a7-a8f1-ad61b02ff461",
+                    "response_type": "lawsuit",
+                    "response_data": {
+                        "amount": 13687.36,
+                        "attachments": [
+                            {
+                                "attachment_id": "191737998765785327022384570650",
+                                "attachment_date": "2025-01-27T14:26:56.000Z",
+                                "attachment_name": "DESPACHO/DECISÃO 1 - Sem Sigilo (Nível 0) - 62.30KB",
+                                "step_id": "a1369a99",
+                                "extension": "html",
+                                "status": "done",
+                                "tags": {
+                                    "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d"
+                                },
+                                "user_data": null
+                            }
+                        ],
+                        "classifications": [
+                            {
+                                "code": "1116",
+                                "name": "EXECUÇÃO FISCAL"
+                            }
+                        ],
+                        "code": "3000133-12.2025.8.19.0001",
+                        "county": "CAPITAL 12 VARA FAZ PUBLICA",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "area": "NÃO INFORMADO",
+                        "justice_description": "JUSTIÇA ESTADUAL",
+                        "created_at": "2025-01-23T16:09:20.134Z",
+                        "updated_at": "2025-02-04T13:41:06.691Z",
+                        "metadata": {},
+                        "courts": [
+                            {
+                                "code": "7798",
+                                "name": "CAPITAL 11 VARA FAZ PUBLICA"
+                            },
+                            {
+                                "name": "Juízo da 11ª Vara da Fazenda Pública da Comarca da Capital"
+                            }
+                        ],
+                        "crawler": {
+                            "source_name": "JEproc - TJRJ - RJ - Lawsuit - Auth - 1 instance",
+                            "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d",
+                            "updated_at": "2025-01-31T19:53:08.995Z",
+                            "weight": 10
+                        },
+                        "distribution_date": "2025-01-22T15:19:46.000Z",
+                        "free_justice": false,
+                        "instance": 1,
+                        "judge": "Alexandre Oliveira Camacho de Franca",
+                        "justice": "8",
+                        "last_step": {
+                            "step_id": "7db05f9a",
+                            "step_date": "2025-01-29T03:48:25.000Z",
+                            "content": "7 - Confirmada a intimação eletrônica - Refer. ao Evento: 6",
+                            "steps_count": 7
+                        },
+                        "name": "ESTADO DO RIO DE JANEIRO X BANCO BV S A",
+                        "parties": [
+                            {
+                                "name": "Estado do Rio de Janeiro",
+                                "main_document": "99999999999",
+                                "documents": [
+                                    {
+                                        "document": "99999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "person_type": "Exequente",
+                                "side": "Active",
+                                "lawyers": [
+                                    {
+                                        "name": "Gustavo Areal Pires",
+                                        "documents": []
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Banco Bv S a",
+                                "main_document": "99999999999",
+                                "documents": [
+                                    {
+                                        "document": "99999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "person_type": "Executado",
+                                "side": "Passive",
+                                "lawyers": []
+                            }
+                        ],
+                        "related_lawsuits": [],
+                        "secrecy_level": 0,
+                        "status": "Ativo",
+                        "phase": "Inicial",
+                        "steps": [],
+                        "subjects": [
+                            {
+                                "code": "6017",
+                                "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "69a142ed-12ea-42bd-b467-5bdbfc43cc7d",
+                            "dictionary_updated_at": "2025-01-31T19:53:09.783Z"
+                        },
+                        "tribunal": "19",
+                        "tribunal_acronym": "TJRJ"
+                    },
+                    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+                    "created_at": "2025-02-04T13:41:01.175Z",
+                    "tags": {
+                        "dashboard_id": null
+                    }
+                }
+            ]
+            }
+        ```
+        </Accordion>
+
+        The <strong>page</strong> and <strong>page_size</strong> parameters are optional but necessary to navigate through the pages of lawsuits, in case there is more than one — which is common for searches by document.
+
+        <Accordion title="Pagination properties:" defaultOpen>
+            <ParamField body="page" name="page" type="integer" required={false}>
+                Defines the current page of the search.
+            </ParamField>
+            <ParamField body="page_count" name="page_count" type="integer" required={false}>
+                Total number of lawsuits on the page.
+            </ParamField>
+            <ParamField body="all_count" name="all_count" type="integer" required={false}>
+                Total number of lawsuits found.
+            </ParamField>
+            <ParamField body="all_pages_count" name="all_pages_count" type="integer" required={false}>
+                Number of lawsuit pages.
+            </ParamField>
+            <ParamField body="page_data" name="page_data" type="array" required={false}>
+                Array with the responses, and within the response_data property, the lawsuit content.
+            </ParamField>
+        </Accordion>
+
+        <Note>
+        For custom tracking, it will always be for new cases — that is, requests will only produce responses when a new lawsuit is distributed from the date it was registered onwards.
+        </Note>
+        The meaning of each field can be found in the **[glossary](/en/resource/glossary)**
+    </Step>
+    <Step title="Retrieving the history of a tracking" stepNumber="4">
+
+        To retrieve the history of responses generated by a specific tracking, make a GET request to the `/tracking/{tracking}` route, replacing `{tracking}` with the desired tracking ID.
+
+        You can filter the results using the `created_at_gte` and `created_at_lte` parameters, where:
+
+        `created_at_gte`: defines the start date of the query.
+        `created_at_lte`: defines the end date of the query.
+
+        Here is an example of how to do this using curl:
+
+        ```bash
+        curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+        --header 'api-key: <API-KEY>'
+        ```
+
+        Here is the expected response:
+
+        ```json
+        {
+            "request_status": "completed",
+            "page": 1,
+            "page_count": 2,
+            "all_pages_count": 1,
+            "all_count": 2,
+            "page_data": [
+                {
+                    "request_id": "644a4759-1ae2-48a4-8b09-76afffc75849393",
+                    "response_id": "a37ca823-e1d2-4de4-a973-ec9e859d21ed",
+                    "origin": "tracking",
+                    "origin_id": "cfb61e6e-f2bd-4375-8c87-373405cac6db",
+                    "response_type": "lawsuit",
+                    "response_data": {
+                        "amount": 13687.36,
+                        "attachments": [
+                            {
+                                "attachment_id": "f2f14dca-5b3f-aba2-a9bd95bd367f",
+                                "attachment_date": "2025-01-22T15:19:46.000Z",
+                                "attachment_name": "id_externo_3",
+                                "content": "CÁLCULOS",
+                                "extension": "octet-stream",
+                                "status": "done",
+                                "tags": {
+                                    "crawl_id": "bf565435-68c6-4b6b-8004-6533cbd0fb8e"
+                                },
+                                "user_data": null
+                            },
+                            {
+                                "attachment_id": "e26be17f-06ba-9f0c-7fc840e092b1",
+                                "attachment_date": "2025-01-22T15:19:46.000Z",
+                                "attachment_name": "id_externo_2",
+                                "content": "CERTIDÃO DE DÍVIDA ATIVA",
+                                "extension": "octet-stream",
+                                "status": "done",
+                                "tags": {
+                                    "crawl_id": "bf565435-68c6-4b6b-8004-6533cbd0fb8e"
+                                },
+                                "user_data": null
+                            },
+                            {
+                                "attachment_id": "54e833a9-58a3-9484-0e6e1cb6c457",
+                                "attachment_date": "2025-01-22T15:19:46.000Z",
+                                "attachment_name": "id_externo_1",
+                                "content": "PETIÇÃO INICIAL",
+                                "step_id": "ac8ea79b",
+                                "extension": "octet-stream",
+                                "status": "done",
+                                "tags": {
+                                    "crawl_id": "bf565435-68c6-4b6b-8004-6533cbd0fb8e"
+                                },
+                                "user_data": null
+                            }
+                        ],
+                        "classifications": [
+                            {
+                                "code": "1116",
+                                "name": "EXECUÇÃO FISCAL"
+                            }
+                        ],
+                        "code": "3000133-12.2025.8.19.0001",
+                        "county": "TESTE TRIBUNAL",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "area": "NÃO INFORMADO",
+                        "justice_description": "JUSTIÇA ESTADUAL",
+                        "created_at": "2025-01-23T16:09:20.134Z",
+                        "updated_at": "2025-01-24T16:10:56.948Z",
+                        "metadata": {},
+                        "courts": [
+                            {
+                                "code": "7798",
+                                "name": "TESTE RETORNO TRIUNAL"
+                            }
+                        ],
+                        "crawler": {
+                            "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                            "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b",
+                            "weight": 0,
+                            "updated_at": "2025-01-24T16:10:50.024Z"
+                        },
+                        "distribution_date": "2025-01-22T15:19:46.000Z",
+                        "free_justice": false,
+                        "instance": 1,
+                        "justice": "8",
+                        "last_step": {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "private": false,
+                            "step_id": "91dc5544",
+                            "step_date": "2025-01-22T18:40:18.000Z",
+                            "content": "Conclusos para decisão/despacho",
+                            "step_type": "51",
+                            "tags": {
+                                "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b"
+                            },
+                            "steps_count": 1
+                        },
+                        "name": "USUÁRIO EXEMPLO 1 X USUÁRIO EXEMPLO 2",
+                        "parties": [
+                            {
+                                "side": "Active",
+                                "name": "USUÁRIO EXEMPLO 1",
+                                "main_document": "99999999999",
+                                "person_type": "EXEQUENTE",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "lawyers": [
+                                    {
+                                        "name": "USUÁRIO EXEMPLO 3",
+                                        "main_document": "99999999999",
+                                        "documents": [
+                                            {
+                                                "document": "99999999999",
+                                                "document_type": "cpf"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b"
+                                }
+                            },
+                            {
+                                "side": "Passive",
+                                "name": "USUÁRIO EXEMPLO 2",
+                                "main_document": "99999999999",
+                                "person_type": "EXECUTADO",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b"
+                                },
+                                "lawyers": []
+                            }
+                        ],
+                        "related_lawsuits": [],
+                        "secrecy_level": 0,
+                        "status": "Ativo",
+                        "phase": "Inicial",
+                        "steps": [],
+                        "subjects": [
+                            {
+                                "code": "6017",
+                                "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                            },
+                            {
+                                "code": "5953",
+                                "name": "IPVA - IMPOSTO SOBRE PROPRIEDADE DE VEÍCULOS AUTOMOTORES"
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b",
+                            "dictionary_updated_at": "2025-01-24T16:10:50.384Z"
+                        },
+                        "tribunal": "19",
+                        "tribunal_acronym": "TJRJ"
+                    },
+                    "user_id": "98c1d8e0-94bf-43ab-b298-a7158a9efbc9",
+                    "created_at": "2025-01-24T16:10:53.278Z",
+                    "tags": {
+                        "dashboard_id": null
+                    }
+                },
+                {
+                    "request_id": "32e0cbb6-71ed-4165-81d5-08ef4dcf80c6",
+                    "response_id": "a6690acb-0856-4e4d-ae69-c8d808ce7d9e",
+                    "origin": "tracking",
+                    "origin_id": "cfb61e6e-f2bd-4375-8c87-373405cac6db",
+                    "response_type": "lawsuit",
+                    "response_data": {
+                        "amount": 17456.15,
+                        "attachments": [],
+                        "classifications": [
+                            {
+                                "code": "1116",
+                                "name": "EXECUÇÃO FISCAL"
+                            }
+                        ],
+                        "code": "3000233-64.2025.8.19.0001",
+                        "county": "CAPITAL 12 VARA FAZ PUBLICA",
+                        "city": "RIO DE JANEIRO",
+                        "state": "RJ",
+                        "area": "NÃO INFORMADO",
+                        "justice_description": "JUSTIÇA ESTADUAL",
+                        "created_at": "2025-01-27T16:09:19.112Z",
+                        "updated_at": "2025-01-27T16:09:19.112Z",
+                        "metadata": {},
+                        "courts": [
+                            {
+                                "code": "79705",
+                                "name": " CAPITAL 17 FAZ PUBLICA"
+                            }
+                        ],
+                        "crawler": {
+                            "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                            "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1",
+                            "weight": 0,
+                            "updated_at": "2025-01-27T16:09:18.570Z"
+                        },
+                        "distribution_date": "2025-01-24T17:08:03.000Z",
+                        "free_justice": false,
+                        "instance": 1,
+                        "justice": "8",
+                        "last_step": {
+                            "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                            "lawsuit_instance": 1,
+                            "private": false,
+                            "step_id": "5d93c333",
+                            "step_date": "2025-01-27T10:30:20.000Z",
+                            "content": "Expedição de Carta pelo Correio - 1 carta",
+                            "step_type": "60",
+                            "tags": {
+                                "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1"
+                            },
+                            "steps_count": 1
+                        },
+                        "name": "usuário teste 1 X usuário teste 2",
+                        "parties": [
+                            {
+                                "side": "Active",
+                                "name": "USUÁRIO 1",
+                                "main_document": "99999999999999",
+                                "person_type": "EXEQUENTE",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "lawyers": [
+                                    {
+                                        "name": "USUÁRIO 2",
+                                        "main_document": "99999999999",
+                                        "documents": [
+                                            {
+                                                "document": "99999999999",
+                                                "document_type": "cpf"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1"
+                                }
+                            },
+                            {
+                                "side": "Passive",
+                                "name": "USUÁRIO 2",
+                                "main_document": "99999999999999",
+                                "person_type": "EXECUTADO",
+                                "entity_type": "company",
+                                "documents": [
+                                    {
+                                        "document": "99999999999999",
+                                        "document_type": "CNPJ"
+                                    }
+                                ],
+                                "tags": {
+                                    "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1"
+                                },
+                                "lawyers": []
+                            }
+                        ],
+                        "related_lawsuits": [],
+                        "secrecy_level": 0,
+                        "status": "Ativo",
+                        "phase": "Inicial",
+                        "steps": [],
+                        "subjects": [
+                            {
+                                "code": "6017",
+                                "name": "DÍVIDA ATIVA (EXECUÇÃO FISCAL)"
+                            },
+                            {
+                                "code": "5953",
+                                "name": "IPVA - IMPOSTO SOBRE PROPRIEDADE DE VEÍCULOS AUTOMOTORES"
+                            }
+                        ],
+                        "tags": {
+                            "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1",
+                            "dictionary_updated_at": "2025-01-27T16:09:19.635Z"
+                        },
+                        "tribunal": "19",
+                        "tribunal_acronym": "TJRJ"
+                    },
+                    "user_id": "98c1d8e0-94bf-43ab-b298-a7158a9efbc9",
+                    "created_at": "2025-01-27T16:09:18.752Z",
+                    "tags": {
+                        "dashboard_id": null
+                    }
+                }
+            ]
+        }
+        ```
+    </Step>
+    <Step title="Pausing a tracking" stepNumber="4">
+        To pause a tracking, you can make a POST request to the `/tracking/{tracking}/pause` route, replacing `{tracking}` with the ID of the tracking you want to pause.
+
+        Here is an example of how to pause the tracking using curl:
+
+        ```bash
+        curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+        -H "api-key: YOUR-API_KEY"
+        ```
+
+        Here is an example of the paused tracking response:
+
+        ```json
+        {
+        "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "status": "paused",
+        "recurrence": 1,
+        "search": {
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuit",
+        "search_params": {
+                "filter": {
+                    "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                    "subject_codes": {
+                        "contains": [
+                            "5953",
+                            "6017",
+                            "10394",
+                            "12989",
+                            "5953",
+                            "5951",
+                            "5971",
+                            "14",
+                            "030213"
+                        ],
+                        "not_contains": [],
+                        "_id": "67a246c76efb879208114303"
+                    },
+                    "classification_codes": {
+                        "keys": [
+                            "1116",
+                            "12785"
+                        ],
+                        "not_equal": false,
+                        "_id": "67a246c76efb879208114302"
+                    },
+                    "party_names": [],
+                    "party_documents": [
+                        "99.999.999/0009-99",
+                        "88.888.888/0008-88"
+                    ]
+                },
+                "pagination": {}
+            }
+        },
+        "tracked_items_count": 0,
+        "tracked_items_steps_count": 0,
+        "tags": {},
+        "created_at": "2024-02-21T18:26:38.499Z",
+        "updated_at": "2024-02-21T18:26:38.499Z"
+        }
+        ```
+    </Step>
+    <Step title="Resuming a tracking" stepNumber="5">
+        To resume a paused tracking, you can make a POST request to the `/tracking/{tracking}/resume` route, replacing `{tracking}` with the ID of the tracking you want to resume.
+
+        Here is an example of how to resume a tracking using curl:
+
+        ```bash
+        curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+        -H "api-key: YOUR_API_KEY"
+        ```
+
+        Here is an example of an **active** tracking response:
+
+        ```json
+        {
+        "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "status": "updated",
+        "recurrence": 1,
+        "search": {
+        "search_type": "custom",
+        "search_key": "custom",
+        "response_type": "lawsuit",
+        "search_params": {
+                "filter": {
+                    "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                    "subject_codes": {
+                        "contains": [
+                            "5953",
+                            "6017",
+                            "10394",
+                            "12989",
+                            "5953",
+                            "5951",
+                            "5971",
+                            "14",
+                            "030213"
+                        ],
+                        "not_contains": [],
+                        "_id": "67a246c76efb879208114303"
+                    },
+                    "classification_codes": {
+                        "keys": [
+                            "1116",
+                            "12785"
+                        ],
+                        "not_equal": false,
+                        "_id": "67a246c76efb879208114302"
+                    },
+                    "party_names": [],
+                    "party_documents": [
+                        "99.999.999/0009-99",
+                        "88.888.888/0008-88"
+                    ]
+                },
+                "pagination": {}
+            }
+        },
+        "tracked_items_count": 0,
+        "tracked_items_steps_count": 0,
+        "tags": {},
+        "created_at": "2024-02-21T18:26:38.499Z",
+        "updated_at": "2024-02-21T18:26:38.499Z"
+        }
+        ```
+    </Step>
+    <Step title="Deleting a tracking" stepNumber="6">
+        To delete a tracking, you can make a DELETE request to the `/tracking/{tracking}` route, replacing `{tracking}` with the ID of the tracking you want to delete.
+
+        Here is an example of how to delete a tracking using curl:
+
+        ```bash
+        curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+        -H "api-key: YOUR_API_KEY"
+        ```
+
+        Here is an example of the deleted tracking response:
+
+        ```json
+        {
+        "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+        "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+        "status": "deleted",
+        "recurrence": 1,
+        "search": {
+            "search_type": "custom",
+            "search_key": "custom",
+            "response_type": "lawsuit",
+            "search_params": {
+                "filter": {
+                    "distribution_date_gte": "2025-02-04T16:56:39.158Z",
+                    "subject_codes": {
+                        "contains": [
+                            "5953",
+                            "6017",
+                            "10394",
+                            "12989",
+                            "5953",
+                            "5951",
+                            "5971",
+                            "14",
+                            "030213"
+                        ],
+                        "not_contains": [],
+                        "_id": "67a246c76efb879208114303"
+                    },
+                    "classification_codes": {
+                        "keys": [
+                            "1116",
+                            "12785"
+                        ],
+                        "not_equal": false,
+                        "_id": "67a246c76efb879208114302"
+                    },
+                    "party_names": [],
+                    "party_documents": [
+                        "99.999.999/0009-99",
+                        "88.888.888/0008-88"
+                    ]
+                },
+                "pagination": {}
+            }
+        },
+        "tracked_items_count": 0,
+        "tracked_items_steps_count": 0,
+        "tags": {},
+        "created_at": "2024-02-21T18:26:38.499Z",
+        "updated_at": "2024-02-21T18:26:38.499Z"
+        }
+        ```
+    </Step>
+
+</Steps>

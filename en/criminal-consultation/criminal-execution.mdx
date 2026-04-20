@@ -1,0 +1,348 @@
+---
+title: 'Penal Execution'
+description: 'Understand how the penal execution query works'
+icon: 'gavel'
+---
+
+
+
+This API lets interested parties check whether a penal execution order exists using CPF (Cadastro de Pessoa Física — Brazilian individual taxpayer ID), name, or lawsuit number (CNJ code), ensuring the accuracy and relevance of the information retrieved.
+
+## Example request for creating a penal execution query
+
+Below is an example of creating a request for a penal execution query by CPF:
+
+```json
+{
+	"search": {
+		"search_type": "cpf",
+		"search_key": "999.999.999-99",
+		"response_type": "execution"
+	}
+}
+
+```
+
+<Note>
+    For the penal execution query, `search_type` must be <strong>'cpf'</strong>, <strong>'cnpj'</strong>, <strong>'name'</strong>, or <strong>lawsuit_cnj</strong>, and the `response_type` field must always be <strong>'execution'</strong>.
+ </Note>
+
+Below is an example of creating a request for a penal execution query by CNJ:
+
+```json
+{
+	"search": {
+		"search_type": "lawsuit_cnj",
+		"search_key": "9999999-99.9999.9.99.9999",
+		"response_type": "execution"
+	},
+    "with_attachments": true
+}
+
+```
+
+<Note>
+    For lawsuit-number queries (CNJ code), the <strong>with_attachments</strong> parameter indicates whether the search should also capture attachments.
+</Note>
+
+
+## Response of the penal execution request
+
+Below is an example response for the penal execution request:
+
+```json
+{
+	"request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+	"search": {
+		"search_type": "cpf",
+		"search_key": "999.999.999-99",
+		"response_type": "execution",
+		"search_params": {
+			"filter": {},
+			"pagination": {}
+		}
+	},
+	"with_attachments": true,
+	"origin": "api",
+	"origin_id": "33fad316-cd98-40b9-bcd4-70e3c74ff947",
+	"user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
+	"status": "pending",
+	"created_at": "2024-03-14T07:35:14.272Z",
+	"updated_at": "2024-03-14T07:35:14.272Z",
+	"tags": {
+        "potential_homonym": false
+    }
+}
+```
+
+
+## Fetching the penal execution response
+
+
+Example of how to fetch the generated penal execution response:
+
+```bash
+https://requests.prod.judit.io/responses?request_id={request_id}
+```
+
+Below is an example response for a CPF query:
+
+```json
+{
+    "page": 1,
+    "page_data": [
+        {
+            "request_id": "1d3d84d9-2edb-4952-83dc-70a7d81487hj",
+            "response_id": "9a4c8dee-e0d1-4cc5-8abb-bd5616265yu6",
+            "origin": "api",
+            "origin_id": "1d3d84d9-2edb-4952-83dc-70a7d81485ol",
+            "response_type": "lawsuit",
+            "response_data": {
+                "amount": 0,
+                "attachments": [],
+                "classifications": [
+                    {
+                        "code": "386",
+                        "name": "EXECUÇÃO DA PENA"
+                    }
+                ],
+                "code": "99999999-99.9999.9.99.9999",
+                "county": "MARINGÁ - 2ª VARA DA FAZENDA PÚBLICA",
+                "courts": [
+                    {
+                        "name": "TJPR - Vara de Execução em Meio Aberto de Curitiba"
+                    }
+                ],
+                "crawler": {
+                    "source_name": "JSeeu - BR - Lawsuit - Auth - 1 instance",
+                    "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a",
+                    "weight": 10,
+                    "updated_at": "2024-11-13T12:55:43.488Z"
+                },
+                "distribution_date": "2020-07-09T04:00:48.207Z",
+                "free_justice": true,
+                "instance": 1,
+                "judge": "Usuário teste",
+                "justice": "8",
+                "last_step": {
+                    "lawsuit_cnj": "99999999-99.9999.8.16.9999",
+                    "lawsuit_instance": 1,
+                    "content": "EXPEDIÇÃO DE CERTIDÃO GERAL Referente ao evento (seq. 417) RECEBIDOS OS AUTOS(13/08/2024 16:02:19). Identificador do Cumprimento: 9999.",
+                    "tags": {
+                        "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                    },
+                    "private": false,
+                    "step_date": "2024-08-15T00:00:00.000Z",
+                    "step_id": "2b837df6",
+                    "steps_count": 418
+                },
+                "name": "ESTADO DO PARANÁ X USUÁRIO TESTE",
+                "parties": [
+                    {
+                        "side": "Active",
+                        "person_type": "AUTORIDADE",
+                        "name": "ESTADO DO PARANÁ",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                        },
+                        "entity_type": "company",
+                        "documents": [],
+                        "lawyers": []
+                    },
+                    {
+                        "side": "Passive",
+                        "person_type": "EXECUTADO",
+                        "name": "USUÁRIO TESTE",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                        },
+                        "entity_type": "person",
+                        "documents": [],
+                        "lawyers": []
+                    }
+                ],
+                "related_lawsuits": [],
+                "secrecy_level": 0,
+                "steps": [],
+                "subjects": [
+                    {
+                        "code": "7791",
+                        "name": "PENA PRIVATIVA DE LIBERDADE"
+                    }
+                ],
+                "tags": {
+                    "datalake_id": "99999999999999999999",
+                    "datalake_segment": "JUSTICA_ESTADUAL",
+                    "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a",
+                    "criminal": true,
+                    "dictionary_updated_at": "2024-11-13T12:55:47.284Z"
+                },
+                "tribunal": "16",
+                "tribunal_acronym": "TJPR"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2024-11-13T12:55:47.885Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        }
+    ],
+    "page_count": 1,
+    "all_count": 1,
+    "all_pages_count": 1
+}
+```
+
+Below is an example response for a CNJ query:
+
+```json
+{
+    "page": 1,
+    "page_data": [
+        {
+            "request_id": "a0c975a5-71ad-4013-9cdb-eefc670c9b8a",
+            "response_id": "5d08159c-28e8-4c77-a20a-1a643a2eba87",
+            "origin": "api",
+            "origin_id": "a0c975a5-71ad-4013-9cdb-eefc670c9b8a",
+            "response_type": "lawsuit",
+            "response_data": {
+                "amount": 0,
+                "attachments": [],
+                "classifications": [
+                    {
+                        "code": "386",
+                        "name": "EXECUÇÃO DA PENA"
+                    }
+                ],
+                "code": "99999999-99.9999.9.99.9999",
+                "county": "MARINGÁ - 2ª VARA DA FAZENDA PÚBLICA",
+                "courts": [
+                    {
+                        "name": "TJPR - Vara de Execução em Meio Aberto de Curitiba"
+                    }
+                ],
+                "crawler": {
+                    "source_name": "JSeeu - BR - Lawsuit - Auth - 1 instance",
+                    "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae",
+                    "weight": 10,
+                    "updated_at": "2024-11-13T13:33:16.264Z"
+                },
+                "distribution_date": "2020-07-09T04:00:48.207Z",
+                "free_justice": true,
+                "instance": 1,
+                "judge": "USUÁRIO TESTE",
+                "justice": "8",
+                "last_step": {
+                    "lawsuit_cnj": "99999999-99.9999.9.99.9999",
+                    "lawsuit_instance": 1,
+                    "content": "EXPEDIÇÃO DE CERTIDÃO GERAL Referente ao evento (seq. 417) RECEBIDOS OS AUTOS(13/08/2024 16:02:19). Identificador do Cumprimento: 0025.",
+                    "tags": {
+                        "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                    },
+                    "private": false,
+                    "step_date": "2024-08-15T00:00:00.000Z",
+                    "step_id": "2b837df6",
+                    "steps_count": 418
+                },
+                "name": "ESTADO DO PARANÁ X USUÁRIO TESTE",
+                "parties": [
+                    {
+                        "side": "Active",
+                        "person_type": "AUTORIDADE",
+                        "name": "ESTADO DO PARANÁ",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                        },
+                        "entity_type": "company",
+                        "documents": [],
+                        "lawyers": []
+                    },
+                    {
+                        "side": "Passive",
+                        "person_type": "EXECUTADO",
+                        "name": "USUÁRIO TESTE",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                        },
+                        "entity_type": "person",
+                        "documents": [],
+                        "lawyers": []
+                    }
+                ],
+                "related_lawsuits": [],
+                "secrecy_level": 0,
+                "status": "Ativo",
+                "phase": "Suspenso",
+                "steps": [
+                    {
+                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "content": "EXPEDIÇÃO DE CERTIDÃO GERAL Referente ao evento (seq. 417) RECEBIDOS OS AUTOS(13/08/2024 16:02:19). Identificador do Cumprimento: 0025.",
+                        "tags": {
+                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                        },
+                        "private": false,
+                        "step_date": "2024-08-15T00:00:00.000Z",
+                        "step_id": "2b837df6",
+                        "steps_count": 418
+                    },
+                    {
+                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "content": "RECEBIDOS OS AUTOS Recebido da Vara TJPR - Vara de Execução em Meio Aberto de Apucarana",
+                        "tags": {
+                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                        },
+                        "private": false,
+                        "step_date": "2024-08-13T00:00:00.000Z",
+                        "step_id": "e9e1d394"
+                    },
+                    {
+                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
+                        "lawsuit_instance": 1,
+                        "content": "REDISTRIBUÍDO PARA COMPETÊNCIA EXCLUSIVA EM RAZÃO DE ALTERAÇÃO DE COMPETÊNCIA DO ÓRGÃO TJPR - Vara de Execução em Meio Aberto de Curitiba",
+                        "tags": {
+                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
+                        },
+                        "private": false,
+                        "step_date": "2024-08-13T00:00:00.000Z",
+                        "step_id": "6be984c8"
+                    }
+                ],
+                "subjects": [
+                    {
+                        "code": "7791",
+                        "name": "PENA PRIVATIVA DE LIBERDADE"
+                    }
+                ],
+                "tags": {
+                    "datalake_id": "99999999999999999999",
+                    "datalake_segment": "JUSTICA_ESTADUAL",
+                    "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae",
+                    "criminal": true,
+                    "dictionary_updated_at": "2024-11-13T13:33:20.167Z"
+                },
+                "tribunal": "16",
+                "tribunal_acronym": "TJPR"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2024-11-13T13:33:14.825Z",
+            "request_created_at": "2024-11-13T13:33:14.046Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        }
+    ],
+    "page_count": 1,
+    "all_count": 1,
+    "all_pages_count": 1
+}
+```
+
+
+You can now query penal executions on Judit. This is one more improvement we're delivering.
+We've streamlined the process for interested parties, offering an easy and reliable way to check the validity and details of penal executions issued by the penal execution system. Count on us to make your search for essential legal information easier.

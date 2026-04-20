@@ -1,0 +1,244 @@
+---
+title: "Enumerations and Domains (Enums)"
+description: "This page contains the enumerations (Enums) and value domains for the properties of objects returned by the Judit API (Lawsuits, Warrants, Executions, etc.)."
+---
+
+> 🤖 This document lists the literal values accepted and returned by the properties of the Judit API across its various Schemas. Remember that in the `lawsuit` object, the header properties (such as `area`, `status`, `situation`, `secrecy_level`) are nested inside the root `response_data` object, while `side` and `person_type` are inside the objects in the `parties` array.
+
+## Lawsuit Areas (`area`)
+
+List of legal areas (Branches of Law) that a lawsuit or execution may have:
+
+<AccordionGroup>
+  <Accordion title="Fundamental and Social Rights">
+    - `DIREITO À EDUCAÇÃO`
+    - `DIREITO DA CRIANÇA E DO ADOLESCENTE`
+    - `DIREITO DA SAÚDE`
+    - `DIREITO DO CONSUMIDOR`
+    - `DIREITO DO TRABALHO`
+    - `DIREITO ASSISTENCIAL`
+  </Accordion>
+
+  <Accordion title="Public Law">
+    - `DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO`
+    - `DIREITO AMBIENTAL`
+    - `DIREITO ELEITORAL`
+    - `DIREITO INTERNACIONAL`
+    - `DIREITO MARÍTIMO`
+    - `DIREITO TRIBUTÁRIO`
+  </Accordion>
+
+  <Accordion title="Criminal and Procedural Law">
+    - `DIREITO PENAL`
+    - `DIREITO PENAL MILITAR`
+    - `DIREITO PREVIDENCIÁRIO`
+    - `DIREITO PROCESSUAL CIVIL E DO TRABALHO`
+  </Accordion>
+
+  <Accordion title="Special Matters">
+    - `QUESTÕES DE ALTA COMPLEXIDADE, GRANDE IMPACTO E REPERCUSSÃO`
+    - `REGISTROS PÚBLICOS`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Secrecy Levels (`secrecy_level`)
+
+Procedural secrecy classification system (integer from 0 to 5):
+
+| Level | Description | Permitted Access |
+| :--- | :--- | :--- |
+| `0` | **Public** | General public access. |
+| `1` | **Judicial secrecy** | Parties and their associated lawyers. |
+| `2` | **Restricted (Court staff)** | Judicial unit staff and parties. |
+| `3` | **Confidential (Chambers)** | Magistrates, court clerks, and advisors. |
+| `4` | **Confidential (Magistrates and Clerks)** | Only magistrates and court clerks. |
+| `5` | **Absolute secrecy** | Exclusive to the magistrate in charge of the lawsuit. |
+
+<Warning>
+Lawsuits with secrecy level `> 0` may return limited *payloads* or payloads with obfuscated data, depending on the originating court and the credentials (Vault) used in the search.
+</Warning>
+
+---
+
+## Types of Justice (`justice_description`)
+
+Classification of Brazilian Judiciary bodies:
+
+<AccordionGroup>
+  <Accordion title="Federal Justice and Superior Courts">
+    - `SUPREMO TRIBUNAL FEDERAL`
+    - `CONSELHO NACIONAL DE JUSTIÇA`
+    - `SUPERIOR TRIBUNAL DE JUSTIÇA`
+    - `TRIBUNAL REGIONAL FEDERAL`
+  </Accordion>
+
+  <Accordion title="Specialized Justices">
+    - `JUSTIÇA DO TRABALHO`
+    - `JUSTIÇA ELEITORAL`
+    - `JUSTIÇA MILITAR DA UNIÃO`
+    - `JUSTIÇA MILITAR ESTADUAL`
+  </Accordion>
+
+  <Accordion title="State Justice">
+    - `JUSTIÇA ESTADUAL`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Lifecycle: Status vs. Situation
+
+The API returns two similar fields, but with distinct purposes, to indicate the health of the lawsuit.
+
+### 1. Global Status (`status`)
+Macro, standardized view of the lawsuit, ideal for filters and dashboards:
+
+| Value | Description |
+| :--- | :--- |
+| `ATIVO` | Lawsuit running normally. |
+| `FINALIZADO` | Lawsuit concluded or closed. |
+
+### 2. Granular Situation (`situation`)
+More specific and variable status, captured directly from the court's header:
+
+| Value | Description |
+| :--- | :--- |
+| `INICIAL` | Lawsuit recently filed. |
+| `SENTENÇA` | Lawsuit with a judgment issued. |
+| `EXECUÇÃO OU CUMPRIMENTO` | Lawsuit in execution/collection phase. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Final decision with no further appeal possible. |
+| `RECURSO` | Lawsuit awaiting appeal judgment. |
+| `ARQUIVADO` | Lawsuit permanently archived. |
+| `SUSPENSO` | Proceedings temporarily halted. |
+| `SOBRESTADO` | Awaiting decision from a superior court. |
+| `CANCELADO` | Filing canceled. |
+
+---
+
+## Poles and Person Types (`side` and `person_type`)
+
+When iterating over the parties arrays (whether in Lawsuits, Warrants, or Executions), you will encounter these classifications:
+
+### Procedural Pole (`side`)
+Which side of the dispute the person is on.
+* `ACTIVE`: Active Pole (the one filing the action).
+* `PASSIVE`: Passive Pole (the one against whom the action is filed).
+* `INTERESTED`: Third parties or interested parties.
+* `UNKNOWN`: Not specified by the court.
+
+### Specific Role (`person_type`)
+The exact legal qualification of the party. Common examples:
+* `AUTOR` / `REQUERENTE` / `EXEQUENTE`
+* `RÉU` / `REQUERIDO` / `EXECUTADO` / `REEDUCANDO`
+* `ADVOGADO` / `DEFENSOR PÚBLICO`
+* `TESTEMUNHA` / `PERITO`
+
+---
+
+## Phases and Case Updates
+
+### Lawsuit Phases (`phase`)
+* `CONHECIMENTO`
+* `EXECUÇÃO`
+* `RECURSO`
+* `FASE` *(Generic value used when the court does not specify the exact phase)*
+
+### Case Update Codes (`step_type`)
+The codes map to the **CNJ Unified Procedural Table (TPU)**. Examples:
+* `DISTRIBUIÇÃO`
+* `CITAÇÃO`
+* `CONTESTAÇÃO`
+* `SENTENÇA`
+* `RECURSO`
+* `ARQUIVAMENTO`
+
+---
+
+## Other Useful Enumerations
+
+### Brazilian States (`state`)
+The API uses the 2-letter uppercase state acronym (UF) standard:
+`AC`, `AL`, `AP`, `AM`, `BA`, `CE`, `DF`, `ES`, `GO`, `MA`, `MT`, `MS`, `MG`, `PA`, `PB`, `PR`, `PE`, `PI`, `RJ`, `RN`, `RS`, `RO`, `RR`, `SC`, `SP`, `SE`, `TO`.
+
+### Document Types (`documents`)
+Types of identifiers present in the documents arrays of parties or entities:
+* `CPF`: Individual (natural person).
+* `CNPJ`: Legal entity.
+* `RG`: General Registry (Brazilian ID card).
+* `OAB`: Bar Association registration (usually accompanied by the state acronym, e.g., OAB/SP).
+
+---
+
+## Practical Usage Examples
+
+Below, see the correct way to validate data by accessing the `response_data` object of a lawsuit.
+
+### 1. Type Validation
+
+<CodeGroup>
+
+```javascript JavaScript
+// Example: Validating the status received from the API
+const lawsuit = response.json(); // Root object
+
+const validStatuses = ['ATIVO', 'FINALIZADO'];
+const currentStatus = lawsuit.response_data.status; // ✅ Correct access
+
+if (validStatuses.includes(currentStatus)) {
+    console.log("Status recognized:", currentStatus);
+}
+```
+
+```python Python
+# Example: Validating the secrecy level
+valid_secrecy_levels = [0, 1, 2, 3, 4, 5]
+
+# ✅ Correct access through the response_data dict
+current_level = lawsuit.get('response_data', {}).get('secrecy_level')
+
+is_valid = current_level in valid_secrecy_levels
+print(f"Valid secrecy? {is_valid}")
+```
+
+</CodeGroup>
+
+### 2. Array Filtering
+
+<CodeGroup>
+
+```javascript JavaScript
+// Example: Filter lawsuits from a list that are only Public
+const publicLawsuits = lawsuitsArray.filter(
+  lawsuit => lawsuit.response_data.secrecy_level === 0
+);
+
+// Example: Filter only lawsuits from the State of SP
+const spLawsuits = lawsuitsArray.filter(
+  lawsuit => lawsuit.response_data.state === 'SP'
+);
+```
+
+```python Python
+# Example: Filter lawsuits from a list that are only Public
+public_lawsuits = [
+    lawsuit for lawsuit in lawsuits_array 
+    if lawsuit.get('response_data', {}).get('secrecy_level') == 0
+]
+
+# Example: Filter only lawsuits from the State of SP
+sp_lawsuits = [
+    lawsuit for lawsuit in lawsuits_array 
+    if lawsuit.get('response_data', {}).get('state') == 'SP'
+]
+```
+
+</CodeGroup>
+
+---
+
+## Next Steps
+
+* 👉 **[Search Lawsuits](/en/requests/requests):** Use these enumerations as filter parameters in your searches.
+* 👉 **[Arrest Warrant](/en/schemas/warrant):** See the schema for the arrest warrant object.

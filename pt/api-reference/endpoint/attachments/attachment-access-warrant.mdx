@@ -1,0 +1,18 @@
+---
+title: "Baixar anexo de mandado"
+description: "Esta página tem como objetivo mostrar o fluxo para baixar o anexo do mandado de prisão. Um mandado de prisão possui apenas um anexo, que é o mandado expedido, de fato."
+openapi: "openapi-1 GET /warrants"
+api: "GET https://lawsuits.production.judit.io/warrants/{cnj_code}/attachments/{attachment_id}"
+---
+
+
+<ParamField path="cnj_code" type="string" required={true}>
+    Código do processo.
+</ParamField>
+
+<ParamField path="attachment_id" type="string" required={true}>
+    ID do anexo é retornado na propriedade tribunal_id
+</ParamField>
+
+
+
