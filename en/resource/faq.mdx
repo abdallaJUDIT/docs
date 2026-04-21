@@ -1,0 +1,239 @@
+---
+title: "FAQ"
+description: "Answers to the most common questions about the Judit API"
+icon: "circle-question"
+---
+
+## General
+
+### What is the Judit API?
+
+The Judit API is a complete solution for automating judicial queries in Brazil. It allows you to query lawsuits by CPF, CNPJ, OAB, NAME, or CNJ, automatically track updates, download attachments (public and private), and securely manage court credentials.
+
+---
+
+### Which courts are supported?
+
+The Judit API supports the main Brazilian courts:
+
+- **State courts**: TJSP, TJRJ, TJMG, TJRS, TJPR, TJSC, among others  
+- **Federal courts**: TRF1, TRF2, TRF3, TRF4, TRF5, TRF6  
+- **Superior courts**: STF, STJ, TST  
+- **Specialized courts**: Labor, Electoral, Military  
+
+[See the complete list here.](https://judit.io/cobertura-dos-tribunais/)
+
+---
+
+### How do I get an API Key?
+
+Request your key via [commercial WhatsApp](https://api.whatsapp.com/send/?phone=5521985284143) or send an email to `atendimento@judit.io`. You will receive:
+
+- Development API Key (free and limited)  
+- Integration documentation  
+- Access to the panel and technical support 
+
+---
+
+## Authentication
+
+### My API Key is not working
+
+Check the following points:
+
+1. The `api-key` header is present  
+2. The key is valid (not expired)  
+3. The key has permission for the endpoints used 
+
+---
+
+## Requests
+
+### How does attachment billing work?
+
+- Attachment requests use `search_type = lawsuit_attachment`  
+- Only requests with `search_type = lawsuit_cnj` are charged  
+- Individual PDFs do not generate a separate charge  
+
+---
+
+### Does the historical query charge per document queried or per lawsuit returned?
+
+It is charged for each **1,000 lawsuits returned** per document queried.
+
+---
+
+### Are lawsuits under judicial secrecy returned?
+
+It depends. To access them, you must provide the lawyer's credentials via the [credentials vault](/en/essentials/cofre-de-credenciais).
+
+---
+
+### Can a lawsuit have two instances?
+
+Yes. Two objects will be returned, one for each instance, within the same array. The first object, at position zero, will represent the most recent instance.
+
+---
+
+### Can I cancel a query?
+
+No, once processing has started, it is not possible to cancel the execution.
+
+---
+
+### I searched for a lawsuit and it was not found
+
+Our platform delivers exactly the information available at the courts. If a valid lawsuit number is not found, this may occur for three main reasons:
+
+- Incorrect number  
+- Lawsuit under judicial secrecy  
+- Lawsuit archived and unavailable at the court  
+
+---
+
+### I searched for a lawsuit and it is out of date
+
+The update may not be instantaneous, but it should occur shortly afterward. If the issue persists, contact support.
+
+---
+
+### How long can I access the query data?
+
+Responses are stored for **6 months** from the date of the request.
+
+---
+
+### What is the difference between the `private` and `secrecy_level` fields?
+
+- `secrecy_level`: indicates the level of secrecy (0 to 5) of the lawsuit  
+- `private`: indicates whether a case update is restricted to parties/lawyers  
+
+---
+
+## Tracking
+
+### How does tracking work?
+
+Automatically notifies via webhook when:
+
+#### Lawsuit tracking:
+
+- New case updates  
+- Changes to parties  
+- Inclusion of attachments (when registered with `with_attachments: true`)  
+- Status changes  
+#### New cases:
+
+- A new lawsuit is filed against the tracked document 
+
+---
+
+### What is new-case tracking?
+
+Checks whether **new lawsuits** have been filed against the CPF/CNPJ/OAB/Name.
+
+---
+
+### Does new-case tracking return phase and status?
+
+No. For that, use the CNJ query (`search_type = lawsuit_cnj`).
+
+---
+
+## Performance and Costs
+
+### How can I optimize queries?
+
+- Use filters by date and court  
+- Disable attachments if they are not needed  
+- Implement local caching to avoid duplication  
+
+---
+
+### How can I reduce costs?
+
+- Avoid unnecessary re-queries  
+- Use filters and caching  
+- Monitor consumption through the `/requests` route  
+
+---
+
+### What is the request limit (rate limit) and timeout?
+
+- Rate limit: 3 req/s  
+- Creation timeout: 15 seconds  
+- Completion timeout: up to 1 hour (with automatic retry)
+
+---
+
+## Integration
+
+### How do I integrate with my system?
+
+1. Use webhooks to receive data  
+2. Automate requests based on events (e.g., customer registration)  
+3. Implement logging and error alerts  
+
+---
+
+## Other Features
+
+### What types of search are available?
+
+- CNJ (lawsuit number)  
+- CPF/CNPJ/OAB/Name  
+- Historical lawsuit query  
+- Arrest warrant query  
+- Lawsuit count  
+- Check whether a lawsuit exists (True/False)  
+- Lawsuit query with masked result 
+- Query the number of lawsuits linked to a document
+- Query by grouped data of a document
+- Judit AI 
+
+---
+
+### Does the API cover extrajudicial proceedings?
+
+We do not yet handle administrative proceedings.
+
+---
+
+## Support
+
+### How do I get technical support?
+
+- Documentation: [docs.judit.io](https://docs.judit.io)  
+- Email: `atendimento@judit.io`  
+- Service status: [status.judit.io](https://status.judit.io) 
+- [WhatsApp](https://api.whatsapp.com/send/?phone=55219852841438865)
+
+---
+
+### How do I report a bug?
+
+Include:
+
+- `request_id`  
+- Date/Time of the error  
+- Error code  
+- Error description  
+- Environment (prod/dev)
+
+---
+
+### Does Judit have an SLA?
+
+| Plan            | Uptime | Response       | Support            |
+|-----------------|--------|----------------|--------------------|
+| Development     | 95%    | Best effort    | Email              |
+| Basic           | 99%    | < 2s           | Email              |
+| Professional    | 99.5%  | < 1s           | Email + Chat       |
+| Enterprise      | 99.9%  | < 500ms        | Dedicated 24/7     |
+
+## Next Steps
+   
+- [Glossary of terms](/en/resource/glossary)
+- [Variable Mapping](/en/resource/flow-sheet)   
+
+> **Still have questions?** Send an email to `atendimento@judit.io` or contact us via our [support](https://api.whatsapp.com/send/?phone=5511920501949).

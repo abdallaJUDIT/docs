@@ -1,0 +1,239 @@
+---
+title: "FAQ"
+description: "Respostas para as dúvidas mais comuns sobre a Judit API"
+icon: "circle-question"
+---
+
+## Geral
+
+### O que é a Judit API?
+
+A Judit API é uma solução completa para automação de consultas judiciais no Brasil. Permite consultar processos por CPF, CNPJ, OAB, NOME ou CNJ, monitorar atualizações automaticamente, baixar anexos (públicos e privados) e gerenciar credenciais de tribunais com segurança.
+
+---
+
+### Quais tribunais são suportados?
+
+A Judit API suporta os principais tribunais brasileiros:
+
+- **Estaduais**: TJSP, TJRJ, TJMG, TJRS, TJPR, TJSC, entre outros  
+- **Federais**: TRF1, TRF2, TRF3, TRF4, TRF5, TRF6  
+- **Superiores**: STF, STJ, TST  
+- **Especializados**: Trabalhistas, Eleitorais, Militares  
+
+[Veja a lista completa aqui.](https://judit.io/cobertura-dos-tribunais/)
+
+---
+
+### Como obter uma API Key?
+
+Solicite sua chave por meio do [WhatsApp comercial](https://api.whatsapp.com/send/?phone=5521985284143) ou envie e-mail para `atendimento@judit.io`. Você receberá:
+
+- API Key de desenvolvimento (gratuita e limitada)  
+- Documentação de integração  
+- Acesso ao painel e suporte técnico 
+
+---
+
+## Autenticação
+
+### Minha API Key não está funcionando
+
+Verifique os seguintes pontos:
+
+1. Header `api-key` está presente  
+2. A chave está válida (não expirou)  
+3. A chave tem permissão para os endpoints usados 
+
+---
+
+## Consultas (Requests)
+
+### Como funciona a cobrança de anexos?
+
+- Requests de anexos usam `search_type = lawsuit_attachment`  
+- Apenas requests com `search_type = lawsuit_cnj` são cobradas  
+- PDFs individuais não geram cobrança separada  
+
+---
+
+### A consulta histórica cobra por documento consultado ou por processo processo retornado?
+
+É cobrado por cada **1.000 processos retornados** a cada documento consultado.
+
+---
+
+### Processos em segredo de justiça são retornados?
+
+Depende. Para acessar, é necessário fornecer credenciais do advogado via [cofre de credenciais](/pt/essentials/cofre-de-credenciais).
+
+---
+
+### Um processo pode ter duas instâncias?
+
+Sim. Serão retornados dois objetos, um para cada instância, dentro do mesmo array. O primeiro objeto, na posição zero, representará a instância mais recente.
+
+---
+
+### Posso cancelar uma consulta?
+
+Não, após iniciado o processamento não é possível cancelar a execução.
+
+---
+
+### Busquei um processo e ele não foi encontrado
+
+Nossa plataforma entrega exatamente as informações disponíveis nos tribunais. Caso um número de processo válido não seja encontrado, isso pode ocorrer por três motivos principais:
+
+- Número incorreto  
+- Processo sob segredo de justiça  
+- Processo baixado e indisponível no tribunal  
+
+---
+
+### Busquei um processo e ele está desatualizado
+
+A atualização pode não ser instantânea, mas deve ocorrer em seguida. Se persistir, entre em contato com o suporte.
+
+---
+
+### Por quanto tempo posso acessar os dados da consulta?
+
+As respostas ficam armazenadas por **6 meses** a partir da data da request.
+
+---
+
+### Qual a diferença entre os campos `private` e `secrecy_level`?
+
+- `secrecy_level`: indica o nível de sigilo (0 a 5) do processo  
+- `private`: indica se um andamento é restrito a partes/advogados  
+
+---
+
+## Tracking (Monitoramento)
+
+### Como funciona o monitoramento?
+
+Notifica automaticamente por webhook quando:
+
+#### Processual:
+
+- Novos andamentos  
+- Alterações nas partes  
+- Inclusão de anexos (quando cadastrado com with_attachments: true)  
+- Mudança de status  
+#### Novas ações:
+
+- Novo processo é distribuido para o documento monitorado 
+
+---
+
+### O que é o monitoramento de novas ações?
+
+Verifica se **novos processos** foram abertos contra o CPF/CNPJ/OAB/Nome.
+
+---
+
+### O monitoramento de novas ações retorna fase e status?
+
+Não. Para isso, use a consulta CNJ (`search_type = lawsuit_cnj`).
+
+---
+
+## Performance e Custos
+
+### Como otimizar as consultas?
+
+- Use filtros por data e tribunal  
+- Desative anexos se não forem necessários  
+- Implemente cache local para evitar duplicidade  
+
+---
+
+### Como reduzir custos?
+
+- Evite reconsultas desnecessárias  
+- Use filtros e cache  
+- Acompanhe consumo pela rota `/requests`  
+
+---
+
+### Qual o limite de requisições (rate limit) e timeout?
+
+- Rate limit: 3 req/s  
+- Timeout criação: 15 segundos  
+- Timeout de finalização: até 1 hora (com retry automático)
+
+---
+
+## Integração
+
+### Como integrar com meu sistema?
+
+1. Use webhooks para receber os dados  
+2. Automatize requisições com base em eventos (ex: cadastro de cliente)  
+3. Implemente logging e alertas de erro  
+
+---
+
+## Outras Funcionalidades
+
+### Quais tipos de busca estão disponíveis?
+
+- CNJ (número do processo)  
+- CPF/CNPJ/OAB/Nome  
+- Consulta de histórico processual  
+- Consulta de mandados de prisão  
+- Contagem de processos  
+- Verificação se existe processo (True/False)  
+- Consulta de processos com resultado mascarado 
+- Consulta quantidade de processos atrelados a um documento.
+- Consulta por dados agrupados de um documento.
+- Judit IA 
+
+---
+
+### A API cobre processos extrajudiciais?
+
+Ainda não atuamos em processos administrativos.
+
+---
+
+## Suporte
+
+### Como obter suporte técnico?
+
+- Documentação: [docs.judit.io](https://docs.judit.io)  
+- E-mail: `atendimento@judit.io`  
+- Status de serviço: [status.judit.io](https://status.judit.io) 
+- [Whatsapp](https://api.whatsapp.com/send/?phone=55219852841438865)
+
+---
+
+### Como reportar um bug?
+
+Inclua:
+
+- `request_id`  
+- Data/Hora do erro  
+- Código de erro  
+- Descrição do erro  
+- Ambiente (prod/dev)
+
+---
+
+### A Judit possui SLA?
+
+| Plano        | Uptime | Resposta       | Suporte           |
+|--------------|--------|----------------|--------------------|
+| Desenvolvimento | 95%    | Melhor esforço  | Email              |
+| Básico       | 99%    | < 2s           | Email              |
+| Profissional | 99.5%  | < 1s           | Email + Chat       |
+| Enterprise   | 99.9%  | < 500ms        | Dedicado 24/7      |
+
+## Próximos Passos
+   
+- [Glossário de termos](/pt/resource/glossary)
+- [Mapeamento de Váriaveis](/pt/resource/flow-sheet)   
+
+> **Ficou com dúvidas?** Envie um e-mail para `atendimento@judit.io` ou entre em contato pelo nosso [suporte](https://api.whatsapp.com/send/?phone=5511920501949).

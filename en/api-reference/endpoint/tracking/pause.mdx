@@ -1,0 +1,29 @@
+---
+title: "Pause a tracking"
+openapi: "POST /tracking/{tracking_id}/pause"
+api: "POST https://tracking.prod.judit.io/tracking/{tracking_id}/pause"
+description: "This endpoint pauses a tracking by its id."
+---
+
+<ParamField path="tracking_id" type="string" required>
+    The ID of the tracking you want to pause.
+</ParamField>
+
+<ResponseExample>
+```json Response
+{
+    "tracking_id": "00000000-0000-0000-0000-000000000001",
+    "user_id": "00000000-0000-0000-0000-0000000000aa",
+    "status": "paused",
+    "recurrence": 1,
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "9999999-99.9999.9.99.9999",
+        "search_params": {}
+    },
+    "created_at": "2023-10-17T15:17:05.826Z",
+    "updated_at": "2023-10-17T15:17:05.826Z",
+    "paused_at": "2023-10-17T15:17:05.826Z"
+}
+```
+</ResponseExample>

@@ -1,0 +1,295 @@
+---
+title: "Autenticação"
+description: "A Judit API usa autenticação baseada em API Key passada via Header para garantir acesso seguro aos recursos. Aprenda a configurar sua chave em diferentes ambientes."
+---
+
+> 🤖 A Judit API **NÃO** utiliza o padrão `Authorization: Bearer <token>`. A autenticação é feita **exclusivamente** através da passagem da chave no cabeçalho HTTP customizado chamado `api-key`. Isso se aplica a todos os endpoints e URLs Base da Judit.
+
+## 1. Como Obter sua API Key
+
+Sua API Key é a credencial única que vincula suas requisições à sua conta e plano contratado.
+
+1. **Entre em contato** com nossa equipe [comercial via WhatsApp](https://api.whatsapp.com/send/?phone=5521985284143).
+2. **Forneça o contexto:** Explique seu caso de uso e volume esperado de requisições.
+3. **Receba a Chave:** Sua API Key será enviada de forma segura para o e-mail cadastrado.
+
+> **⚠️ Segurança em 1º Lugar:** Considere sua API Key como uma senha em texto claro. Nunca a exponha em repositórios públicos (ex: GitHub), código *front-end* (navegador do cliente) ou aplicativos mobile sem ofuscação.
+
+---
+
+## 2. Padrão de Autenticação (Header `api-key`)
+
+Em todas as requisições feitas para a Judit API, independentemente do serviço ou módulo (Consultas, Monitoramento, etc.), você deve incluir o cabeçalho `api-key`.
+
+### Exemplo de Requisição HTTP Básica
+
+```http
+GET /requests HTTP/1.1
+Host: requests.prod.judit.io
+api-key: sua_api_key_aqui
+Content-Type: application/json
+```
+
+### Exemplos Práticos de Implementação
+Abaixo, mostramos como realizar uma requisição autenticada utilizando a URL Base de Consultas Assíncronas (https://requests.prod.judit.io), consumindo a chave a partir de variáveis de ambiente.
+
+<CodeGroup>
+
+
+```python  Python
+import os
+import requests
+
+# Configurar API Key
+api_key = os.getenv('JUDIT_API_KEY')
+
+# Headers padrão
+headers = {
+    'api-key': api_key,
+    'Content-Type': 'application/json'
+}
+
+# Fazer requisição
+response = requests.get(
+    'https://requests.prod.judit.io/requests',
+    headers=headers
+)
+```
+
+
+```javascript  JavaScript
+// Configurar API Key
+const apiKey = process.env.JUDIT_API_KEY;
+
+// Headers padrão
+const headers = {
+    'api-key': apiKey,
+    'Content-Type': 'application/json'
+};
+
+// Fazer requisição
+const response = await fetch('https://requests.prod.judit.io/requests', {
+    method: 'GET',
+    headers: headers
+});
+```
+
+</CodeGroup>
+
+## 3. Gestão Segura e Boas Práticas
+Para evitar o vazamento da sua credencial, consolide a gestão da sua chave seguindo estas regras:
+
+### 1. **Uso Exclusivo de Variáveis de Ambiente**
+
+**Nunca** hardcode sua API Key no código:
+
+```python
+# ❌ ERRADO - Nunca faça isso
+api_key = "sk_live_1234567890abcdef"
+
+# ✅ CORRETO - Use variáveis de ambiente
+api_key = os.getenv('JUDIT_API_KEY')
+```
+
+### 2. **Configure Variáveis de Ambiente**
+
+**Linux/macOS:**
+```bash
+# No arquivo ~/.bashrc ou ~/.zshrc
+export JUDIT_API_KEY="sua-api-key-aqui"
+
+# Ou para sessão atual
+export JUDIT_API_KEY="sua-api-key-aqui"
+```
+
+**Windows:**
+```cmd
+# Command Prompt
+set JUDIT_API_KEY=sua-api-key-aqui
+
+# PowerShell
+$env:JUDIT_API_KEY="sua-api-key-aqui"
+```
+
+**Docker:**
+```dockerfile
+# Dockerfile
+ENV JUDIT_API_KEY=""
+
+# docker-compose.yml
+environment:
+  - JUDIT_API_KEY=${JUDIT_API_KEY}
+```
+
+### 3. **Arquivo .env (Desenvolvimento)**
+
+```bash
+# .env
+JUDIT_API_KEY=sua-api-key-aqui
+JUDIT_BASE_URL=https://requests.prod.judit.io
+```
+
+```python
+# Python com python-dotenv
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+api_key = os.getenv('JUDIT_API_KEY')
+```
+
+### 4. **Rotação de Chaves**
+
+- **Monitore** o uso de sua API Key regularmente
+- **Solicite nova chave** se suspeitar de comprometimento
+- **Implemente rotação** implementação em ambientes críticos
+
+## Tratamento de Erros de Autenticação
+
+### Erro 401 - Unauthorized
+
+```json
+{
+  "error": {
+        "name": "HttpUnauthorizedError",
+        "message": "UNAUTHORIZED",
+        "data": "USER_NOT_FOUND"
+    }
+}
+```
+
+**Possíveis causas:**
+- API Key não fornecida
+- API Key inválida ou expirada
+- Header `api-key` mal formatado
+
+### Erro 403 - Forbidden
+
+```json
+{
+  "error": "Forbidden",
+  "message": "Acesso negado para este recurso",
+  "code": "INSUFFICIENT_PERMISSIONS"
+}
+```
+
+**Possíveis causas:**
+- API Key válida mas sem permissão para o recurso
+- Limite de uso excedido
+- Recurso não disponível no seu plano
+
+## Validação da API Key
+
+### Teste de Conectividade
+
+```python
+import requests
+
+def test_api_key(api_key):
+    """Testa se a API Key está válida"""
+    headers = {'api-key': api_key}
+    
+    try:
+        response = requests.get(
+            'https://requests.prod.judit.io/requests',
+            headers=headers,
+            params={'page': 1, 'page_size': 1}
+        )
+        
+        if response.status_code == 200:
+            print("✅ API Key válida")
+            return True
+        elif response.status_code == 401:
+            print("❌ API Key inválida")
+            return False
+        else:
+            print(f"⚠️ Erro inesperado: {response.status_code}")
+            return False
+            
+    except requests.RequestException as e:
+        print(f"❌ Erro de conexão: {e}")
+        return False
+
+# Usar a função
+api_key = os.getenv('JUDIT_API_KEY')
+test_api_key(api_key)
+```
+
+### Monitoramento de Uso
+
+```python
+def check_api_usage(response):
+    """
+    Monitora o uso da API através dos headers da resposta.
+    
+    Nota: A API possui um rate-limit estrito de 180 requisições por minuto.
+    Esta função calcula o percentual de consumo na janela de tempo atual.
+    """
+    
+    # Captura as informações de limite nos headers (Esperado: 180 por minuto)
+    limit = response.headers.get('X-RateLimit-Limit')
+    remaining = response.headers.get('X-RateLimit-Remaining')
+    reset = response.headers.get('X-RateLimit-Reset')
+    
+    if limit and remaining:
+        # Calcula a porcentagem de uso baseada no limite retornado
+        usage_percent = ((int(limit) - int(remaining)) / int(limit)) * 100
+        
+        print(f"Limite da API: {limit} requisições/minuto")
+        print(f"Uso da API: {usage_percent:.1f}%")
+        print(f"Requisições restantes neste minuto: {remaining}")
+        
+        # Alerta se o consumo passar de 80% (aprox. 144 requisições)
+        if usage_percent > 80:
+            print("⚠️ Atenção: Próximo do limite de rate limit (180/min)!")
+```
+
+## Configuração por Ambiente
+
+```python
+# config/production.py
+import os
+
+API_KEY = os.getenv('JUDIT_API_KEY')
+BASE_URL = 'https://requests.prod.judit.io'
+TIMEOUT = 10
+RETRY_ATTEMPTS = 3
+```
+
+### Classe de Configuração
+```python
+class JuditConfig:
+    def __init__(self, environment='production'):
+        self.environment = environment
+        self.api_key = self._get_api_key()
+        self.base_url = 'https://requests.prod.judit.io'
+        
+    def _get_api_key(self):
+        key_name = f'JUDIT_API_KEY_{self.environment.upper()}'
+        api_key = os.getenv(key_name)
+        
+        if not api_key:
+            raise ValueError(f"API Key não encontrada: {key_name}")
+            
+        return api_key
+    
+    @property
+    def headers(self):
+        return {
+            'api-key': self.api_key,
+            'Content-Type': 'application/json'
+        }
+
+# Uso
+config = JuditConfig('production')
+response = requests.get(f"{config.base_url}/requests", 
+    headers=config.headers)
+```
+
+## Próximos Passos
+
+- **[Rate Limits](/pt/essentialConcepts/rate-limits)**: Entenda os limites de uso
+- **[Paginação](/pt/essentialConcepts/pagination)**: Configure consultas paginadas
+- **[Endpoints](/pt/api-reference)**: Explore os recursos disponíveis
+
+> **Suporte**: Em caso de problemas com autenticação, entre em contato com nosso [suporte técnico](https://api.whatsapp.com/send/?phone=5511920501949).

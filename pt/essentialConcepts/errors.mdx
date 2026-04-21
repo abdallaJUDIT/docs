@@ -1,0 +1,180 @@
+---
+title: "Tratamento de Erros"
+description: "A Judit API utiliza códigos de status HTTP padrão e retorna respostas estruturadas em JSON para facilitar o diagnóstico e a automação do tratamento de problemas."
+---
+
+> 🤖 Respostas de erro da Judit API sempre retornam um objeto JSON contendo a chave raiz `error`. Dentro de `error`, as chaves padrão são `name` (o código interno do erro), `message` (o grupo do erro) e `data` (um array de strings com os detalhes ou mensagens de validação).
+
+## Códigos de Status HTTP
+
+A API utiliza as convenções padrão do protocolo HTTP para indicar o sucesso ou a falha de uma requisição.
+
+### Sucesso (2xx)
+* **200 OK**: Requisição processada e dados retornados com sucesso.
+* **201 Created**: Recurso (ex: novo monitoramento) criado com sucesso.
+* **202 Accepted**: Requisição aceita e enviada para a fila de processamento assíncrono.
+
+### Erros do Cliente (4xx)
+* **400 Bad Request**: Faltam parâmetros obrigatórios ou eles estão malformados.
+* **401 Unauthorized**: O header `api-key` está ausente, incorreto ou a chave expirou.
+* **403 Forbidden**: Chave válida, mas sem permissão de acesso àquele recurso/endpoint.
+* **404 Not Found**: O recurso (ex: número do processo) não existe na base.
+* **422 Unprocessable Entity**: Dados no formato correto, mas não processáveis (ex: CNJ inválido matematicamente).
+* **429 Too Many Requests**: Limite de requisições por minuto excedido (Rate Limit).
+
+### Erros do Servidor (5xx)
+* **500 Internal Server Error**: Falha interna na Judit API.
+* **502 Bad Gateway / 503 Service Unavailable**: Instabilidade temporária de infraestrutura ou nos tribunais.
+* **504 Gateway Timeout**: O tribunal demorou muito para responder à extração.
+
+---
+
+## Estrutura (Payload) de Erro
+
+Independentemente do status HTTP (seja 400 ou 500), o corpo da resposta de erro sempre seguirá este contrato JSON previsível:
+
+```json
+{
+    "error": {
+        "name": "HttpBadRequestError",
+        "message": "BAD_REQUEST",
+        "data": [
+            "CNJ is not valid",
+            "Field 'area' is required"
+        ]
+    }
+}
+```
+
+### Dicionário do Payload
+* `name`: Código interno da exceção. Use este campo no seu código (switch/case) para automação.
+* `message`: Categoria amigável do erro.
+* `data`: Array de strings contendo as falhas específicas (muito útil para exibir validações de formulário para o usuário final).
+
+---
+
+## Códigos Internos Comuns (`name`)
+
+Abaixo estão os principais valores que a chave `name` pode assumir, ajudando você a tratar o problema programaticamente:
+
+### Autenticação e Permissões
+| Código (`name`) | Status HTTP | Causa Comum |
+| :--- | :--- | :--- |
+| `USER_NOT_FOUND` | 401 | API Key não enviada no header ou chave revogada. |
+| `INSUFFICIENT_PERMISSIONS` | 403 | Tentativa de uso de um módulo bloqueado no seu plano. |
+
+### Processamento e Validação
+| Código (`name`) | Status HTTP | Causa Comum |
+| :--- | :--- | :--- |
+| `HttpBadRequestError` | 400 | Você enviou um JSON malformado ou campos faltando. |
+| `RESOURCE_NOT_FOUND` | 404 | Você tentou buscar um CNJ que ainda não foi capturado. |
+| `REQUEST_NOT_FOUND` | 404 | O `request_id` consultado não existe na base. |
+| `PROCESSING_ERROR` | 422 | O robô falhou ao tentar ler os dados no tribunal. |
+
+---
+
+## Estratégias de Tratamento no Código
+
+A melhor prática é criar um *handler* (interceptador) centralizado na sua aplicação para logar e tratar os erros da Judit API.
+
+<CodeGroup>
+
+```python Python
+import requests
+import os
+
+def handle_judit_error(response: requests.Response) -> None:
+    """Decodifica e trata erros da Judit API."""
+    
+    # Se for sucesso, não faz nada
+    if response.status_code < 400:
+        return
+        
+    try:
+        payload = response.json()
+        error_block = payload.get('error', {})
+        
+        error_name = error_block.get('name', 'UNKNOWN_ERROR')
+        error_details = error_block.get('data', [])
+        
+        print(f"❌ Falha HTTP {response.status_code}: {error_name}")
+        
+        # Iterando sobre os motivos do erro (Ex: validações de campos)
+        if error_details:
+            print("Detalhes do problema:")
+            for detail in error_details:
+                print(f"  - {detail}")
+                
+        # Automação de decisão baseada no tipo do erro
+        if error_name == 'USER_NOT_FOUND':
+            raise PermissionError("Sua API Key está inválida. Verifique suas variáveis de ambiente.")
+            
+        elif response.status_code == 429:
+            print("⚠️ Rate Limit excedido. Acione sua rotina de Backoff.")
+            
+    except ValueError:
+        print(f"Erro Crítico {response.status_code}: O servidor não retornou um JSON válido.")
+        print(response.text)
+
+# Exemplo de uso forçando um erro (endpoint inexistente ou sem API Key)
+response = requests.get(
+    '[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)',
+    headers={'api-key': 'chave_errada'}
+)
+handle_judit_error(response)
+```
+
+```javascript Node.js
+async function handleJuditError(response) {
+    // Decodifica e trata erros da Judit API.
+    
+    // Se for sucesso, não faz nada
+    if (response.ok) {
+        return;
+    }
+
+    try {
+        const payload = await response.json();
+        const errorBlock = payload.error || {};
+        
+        const errorName = errorBlock.name || 'UNKNOWN_ERROR';
+        const errorDetails = errorBlock.data || [];
+        
+        console.error(`❌ Falha HTTP ${response.status}: ${errorName}`);
+        
+        // Iterando sobre os motivos do erro (Ex: validações de campos)
+        if (errorDetails.length > 0) {
+            console.error("Detalhes do problema:");
+            errorDetails.forEach(detail => console.error(`  - ${detail}`));
+        }
+
+        // Automação de decisão baseada no tipo do erro
+        if (errorName === 'USER_NOT_FOUND') {
+            throw new Error("Sua API Key está inválida. Verifique o arquivo .env.");
+        } 
+        
+        if (response.status === 429) {
+            console.warn("⚠️ Rate Limit excedido. Acione sua rotina de Backoff.");
+        }
+
+    } catch (e) {
+        if (e.name !== 'SyntaxError') throw e; // Repassa erros que não são de JSON
+        console.error(`Erro Crítico ${response.status}: O servidor não retornou JSON válido.`);
+    }
+}
+
+// Exemplo de uso
+fetch('[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)', {
+    headers: { 'api-key': 'chave_errada' }
+}).then(handleJuditError);
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+* 👉 **[Rate Limits](/pt/essentialConcepts/rate-limits):** Veja como construir a função de *Retry com Exponential Backoff* para tratar erros `429`.
+* 👉 **[Autenticação](/pt/authentication):** Revise como enviar suas credenciais corretamente para evitar erros `401`.
+* 👉 **[FAQ](/pt/resource/faq):** Veja as respostas para os problemas de integração mais comuns.

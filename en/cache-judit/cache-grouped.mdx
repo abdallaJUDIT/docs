@@ -1,0 +1,165 @@
+---
+title: "Grouped Query"
+description: "Grouped Query"
+icon: "shield"
+---
+
+The synchronous query lets you quickly check whether a CPF, CNPJ, OAB, or name has lawsuits registered in our datalake. It returns, in an agile way, a response indicating whether lawsuits exist or not, the number of lawsuits, a historical hot-storage query, and a synthetic lawsuits query.
+
+In the synchronous query, only data already available in our base — according to the filters applied — is returned, ensuring a faster response. However, this can result in a small delay in obtaining more complete information. To access updated and comprehensive data, it is essential to run an asynchronous query, which will search directly at the courts and bring back up-to-date information.
+
+<Warning>
+All synchronous historical queries can include specific filters to refine the results. If you want to receive a specific group of items, simply run the query providing the desired [filters](/en/requests/request-document#payload-da-solicitação).
+</Warning>
+
+Through the grouped historical query it is possible to receive, in a synthetic form, the total number of lawsuits related to a party, grouping that number by lawsuit-header information.
+
+To run the grouped historical query, simply make a `POST` request to the endpoint `https://lawsuits.production.judit.io/requests/create/grouped`, adding `search_type` and `search_key` in the payload.
+
+```bash
+curl --location 'https://lawsuits.production.judit.io/requests/create/grouped' \
+  --header 'api-key: <API-KEY>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    }
+  }'
+```
+
+### Expected response:
+
+```json
+{
+    "classifications": [
+        {
+            "count": 1,
+            "value": "PROCEDIMENTO COMUM CÍVEL"
+        },
+        {
+            "count": 1,
+            "value": "HOMOLOGAçãO DE TRANSAçãO EXTRAJUDICIAL"
+        },
+        {
+            "count": 1,
+            "value": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
+        }
+    ],
+    "subjects": [
+        {
+            "count": 1,
+            "value": "ÔNUS DA PROVA"
+        },
+        {
+            "count": 1,
+            "value": "ACIDENTE DE TRâNSITO"
+        },
+        {
+            "count": 1,
+            "value": "COISAS"
+        }
+    ],
+    "areas": [
+        {
+            "count": 4,
+            "value": "DIREITO CIVIL"
+        },
+        {
+            "count": 2,
+            "value": "DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO"
+        }
+    ],
+    "tribunals": [
+        {
+            "count": 1,
+            "value": "TRF2"
+        },
+        {
+            "count": 8,
+            "value": "TRT1"
+        },
+        {
+            "count": 1,
+            "value": "TRF1"
+        }
+    ],
+    "justices": [
+        {
+            "count": 7,
+            "value": "NÃO INFORMADO"
+        },
+        {
+            "count": 8,
+            "value": "JUSTIÇA ESTADUAL"
+        },
+        {
+            "count": 5,
+            "value": "JUSTIÇA FEDERAL"
+        }
+    ],
+    "phases": [
+        {
+            "count": 11,
+            "value": "INICIAL"
+        },
+        {
+            "count": 3,
+            "value": "TRâNSITO EM JULGADO OU ACORDO"
+        },
+        {
+            "count": 9,
+            "value": "ARQUIVADO"
+        }
+    ],
+    "states": [
+        {
+            "count": 11,
+            "value": "RJ"
+        },
+        {
+            "count": 1,
+            "value": "MG"
+        },
+        {
+            "count": 10,
+            "value": "SP"
+        }
+    ],
+    "instances": [
+        {
+            "count": 24,
+            "value": 1
+        },
+        {
+            "count": 3,
+            "value": 2
+        }
+    ],
+    "sides": [
+        {
+            "count": 8,
+            "value": "PASSIVE"
+        },
+        {
+            "count": 6,
+            "value": "INTERESTED"
+        }
+    ],
+    "person_types": [
+        {
+            "count": 1,
+            "value": "IMPETRANTE"
+        },
+        {
+            "count": 1,
+            "value": "VITIMA"
+        },
+        {
+            "count": 2,
+            "value": "REQUERENTE"
+        }
+    ],
+    "lawsuits_count": 27
+}
+```

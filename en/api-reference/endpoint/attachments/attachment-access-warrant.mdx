@@ -1,0 +1,14 @@
+---
+title: "Download warrant attachment"
+description: "Downloads the attachment document of an arrest warrant. An arrest warrant has a single attachment, which is the issued warrant document itself."
+openapi: "openapi-1 GET /warrants"
+api: "GET https://lawsuits.production.judit.io/warrants/{cnj_code}/attachments/{attachment_id}"
+---
+
+<ParamField path="cnj_code" type="string" required>
+    Lawsuit CNJ code.
+</ParamField>
+
+<ParamField path="attachment_id" type="string" required>
+    The attachment ID, returned in the `tribunal_id` property of the arrest warrant.
+</ParamField>

@@ -1,0 +1,89 @@
+---
+title: "Credential Registration"
+openapi: "openapi-1 POST /credentials"
+api: "POST https://crawler.prod.judit.io/credentials"
+description: "To register a credential or update an existing one, use the route below."
+---
+
+<ParamField body="credentials" type="array" required={false}>
+    <Expandable title="properties">
+		<ParamField body="credential" type="object" required>
+        <ParamField body="system_name" type="string" required>
+        PJE TJBA - 1º grau or * (wildcard)
+        </ParamField>
+
+    	<ParamField body="customer_key" type="string" required>
+    	00000001 (use your own way of identifying a client)
+    	</ParamField>
+
+    	<ParamField body="username" type="string" required>
+    	999.999.999-99 (CPF)
+    	</ParamField>
+
+        <ParamField body="password" type="string" required>
+         Senha123
+        </ParamField>
+        </ParamField>
+    </Expandable>
+
+</ParamField>
+
+<Accordion title="Important notes about credential registration">
+`Wildcard Credential`:  *
+
+If you register a credential under it, every court that does not have its own specific credential will use the wildcard credential.
+
+If no `customer_key` is provided, an `empty` customer_key will be created.
+
+</Accordion>
+
+If you want to remove the credential from a given system, you must send `username` and `password` as empty.
+
+<ResponseExample>
+```json
+[
+	{
+		"system_name": "PJEINTER TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJBA - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJEINTER TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	}
+]
+```
+</ResponseExample>
+
+**If the credential already exists, the message will be `CREDENTIAL_UPDATED`.**

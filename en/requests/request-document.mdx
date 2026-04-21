@@ -1,0 +1,672 @@
+---
+title: "Historical Query (by Document)"
+description: "Learn the asynchronous flow to search the complete history of lawsuits linked to a CPF, CNPJ, OAB, or Name. Understand how to create the request, track the status, and filter the final response."
+icon: "id-card"
+---
+
+> This page documents exclusively the **Asynchronous** flow of the Historical Query. The client must make a `POST /requests`, wait for processing (`GET /requests/{id}`), and retrieve the data at `GET /responses`. The Historical Query response returns a paginated array containing exclusively the Header and the Parties of the lawsuit (omitting case updates, attachments, phase, and status). You can filter the results either in the payload of the initial POST or in the *query strings* of the final GET.
+
+## Synchronous vs. Asynchronous
+
+Before integrating, it is essential to understand the architectural difference that Judit offers for this endpoint:
+
+* **Synchronous Query (Datalake Hotstorage):** The response with all lawsuits is returned instantly in the `body` of the `POST` itself. It does not require a status check. Ideal for flows sensitive to response latency, such as onboarding. *[See the Synchronous documentation here](/en/cache-judit/hotstorage).*
+* **Asynchronous Query (Datalake / On-Demand):** This is the flow we will cover on this page. It searches multiple external sources or directly in the courts (On-Demand) in real time. It requires a 3-step flow (Create -> Check -> Consume).
+
+
+
+---
+
+## Step 1: Create the Search Request (POST)
+
+To initiate the asynchronous flow, make a `POST` request providing the desired document.
+
+`POST https://requests.prod.judit.io/requests`
+
+### Historical query examples
+
+<CodeGroup>
+```json Query by CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+```
+
+```json Query by CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99"
+    }
+}
+```
+
+```json Query by OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "99999RJ"
+    }
+}
+```
+
+```json Query by Name
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "João Silva"
+    }
+}
+```
+</CodeGroup>
+
+<Warning>
+    When performing queries by name, namesakes may exist (people or companies with the same name). We recommend that, whenever possible, you use unique identifiers, such as CPF or CNPJ, to ensure greater accuracy in the results.
+</Warning>
+
+### Base Payload Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Yes** | type of entity to be searched: `"cpf"`, `"cnpj"`, `"oab"`, or `"name"`. |
+| `search.search_key` | string | **Yes** | The value to be searched (e.g., `"999.999.999-99"`, `João Silva`). |
+| `search.on_demand` | boolean | No | If `true`, forces the search in real time at the courts instead of the Datalake. |
+| `cache_ttl_in_days` | integer | No | Considers the cache valid if the last extraction occurred within the last X days. |
+| `customer_key` | string | No | User key in the Credentials Vault (used to access the courts with credentials registered in the [credentials vault](/en/essentials/cofre-de-credenciais)). |
+
+<Note>
+**About the use of `customer_key`:** This credential will only take effect if the `on_demand` parameter is set to `true`. When provided, Judit will access the courts in an authenticated manner, allowing the capture of **lawsuits under judicial secrecy** to which the credential owner (lawyer) is previously linked within the respective lawsuit.
+</Note>
+
+<CodeGroup>
+```json asynchronous request
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "cache_ttl_in_days": 7
+    }
+}
+```
+
+```json on-demand request
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "on_demand": true
+    }
+}
+```
+
+```json on-demand request with customer_key
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "on_demand": true,
+        "customer_key": "ADV01"
+    }
+}
+```
+</CodeGroup>
+
+### Prior Request Filters (`search_params.filter`)
+
+You can restrict the initial search by sending the `filter` object inside `search_params` in the body of your POST. This is highly recommended, as it prevents the bot from spending time processing courts or states or years that are not relevant to your business.
+
+Below, we detail how to build each filter step by step.
+
+#### 1. Pole and Case Value Filters
+Allows you to search for lawsuits in which the person has sued someone, has been sued, or filter by amounts in reais.
+
+* `side` (string): Which side of the lawsuit is the searched document on?
+  * `"Active"` (Plaintiff)
+  * `"Passive"` (Defendant)
+  * `"Interested"` (Third-party interested)
+  * `"Unknown"` (Pole not identified)
+* `amount_gte` (number): Case value **Greater than or Equal to** (GTE = *Greater Than or Equal*).
+* `amount_lte` (number): Case value **Less than or Equal to** (LTE = *Less Than or Equal*).
+
+<CodeGroup>
+```json
+// I want to find lawsuits where the client is the Defendant ("Passive") 
+// AND the case value is between R$ 10,000 and R$ 50,000
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "amount_gte": 10000.00,
+                "amount_lte": 50000.00
+            }
+        }
+    }
+}
+
+```
+</CodeGroup>
+
+#### 2. Court Filters (Include and Exclude Rule)
+To filter by specific states or courts, we use the `tribunals` object. It requires two pieces of information: the list of acronyms (`keys`) and a negation rule (`not_equal`).
+
+
+## List of Accepted Courts (Filters)
+
+Use the exact acronyms from the **Acronym (Key)** column below when filtering by courts (e.g., in the `tribunals.keys` parameter).
+
+<AccordionGroup>
+  <Accordion title="Superior Courts and Councils">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `STF` | SUPREMO TRIBUNAL FEDERAL |
+    | `STJ` | SUPERIOR TRIBUNAL DE JUSTIÇA |
+    | `TST` | TRIBUNAL SUPERIOR DO TRABALHO |
+    | `TSE` | TRIBUNAL SUPERIOR ELEITORAL |
+    | `STM` | SUPERIOR TRIBUNAL MILITAR |
+    | `CNJ` | CONSELHO NACIONAL DE JUSTIÇA |
+    | `CJF` | CONSELHO DA JUSTIÇA FEDERAL |
+    | `CSJT` | CONSELHO SUPERIOR DA JUSTIÇA DO TRABALHO |
+  </Accordion>
+
+  <Accordion title="Federal Justice (TRF)">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `TRF1` | TRIBUNAL REGIONAL FEDERAL DA 1ª REGIÃO |
+    | `TRF2` | TRIBUNAL REGIONAL FEDERAL DA 2ª REGIÃO |
+    | `TRF3` | TRIBUNAL REGIONAL FEDERAL DA 3ª REGIÃO |
+    | `TRF4` | TRIBUNAL REGIONAL FEDERAL DA 4ª REGIÃO |
+    | `TRF5` | TRIBUNAL REGIONAL FEDERAL DA 5ª REGIÃO |
+  </Accordion>
+
+  <Accordion title="Labor Justice (TRT)">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `TRT1` | TRT DA 1ª REGIÃO (RJ) |
+    | `TRT2` | TRT DA 2ª REGIÃO (SP - Capital) |
+    | `TRT3` | TRT DA 3ª REGIÃO (MG) |
+    | `TRT4` | TRT DA 4ª REGIÃO (RS) |
+    | `TRT5` | TRT DA 5ª REGIÃO (BA) |
+    | `TRT6` | TRT DA 6ª REGIÃO (PE) |
+    | `TRT7` | TRT DA 7ª REGIÃO (CE) |
+    | `TRT8` | TRT DA 8ª REGIÃO (PA/AP) |
+    | `TRT9` | TRT DA 9ª REGIÃO (PR) |
+    | `TRT10` | TRT DA 10ª REGIÃO (DF/TO) |
+    | `TRT11` | TRT DA 11ª REGIÃO (AM/RR) |
+    | `TRT12` | TRT DA 12ª REGIÃO (SC) |
+    | `TRT13` | TRT DA 13ª REGIÃO (PB) |
+    | `TRT14` | TRT DA 14ª REGIÃO (RO/AC) |
+    | `TRT15` | TRT DA 15ª REGIÃO (SP - Campinas) |
+    | `TRT16` | TRT DA 16ª REGIÃO (MA) |
+    | `TRT17` | TRT DA 17ª REGIÃO (ES) |
+    | `TRT18` | TRT DA 18ª REGIÃO (GO) |
+    | `TRT19` | TRT DA 19ª REGIÃO (AL) |
+    | `TRT20` | TRT DA 20ª REGIÃO (SE) |
+    | `TRT21` | TRT DA 21ª REGIÃO (RN) |
+    | `TRT22` | TRT DA 22ª REGIÃO (PI) |
+    | `TRT23` | TRT DA 23ª REGIÃO (MT) |
+    | `TRT24` | TRT DA 24ª REGIÃO (MS) |
+  </Accordion>
+
+  <Accordion title="State Justice (TJ)">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `TJAC` | TRIBUNAL DE JUSTIÇA DO ACRE |
+    | `TJAL` | TRIBUNAL DE JUSTIÇA DO ALAGOAS |
+    | `TJAP` | TRIBUNAL DE JUSTIÇA DO AMAPÁ |
+    | `TJAM` | TRIBUNAL DE JUSTIÇA DO AMAZONAS |
+    | `TJBA` | TRIBUNAL DE JUSTIÇA DA BAHIA |
+    | `TJCE` | TRIBUNAL DE JUSTIÇA DO CEARÁ |
+    | `TJDF` | TRIBUNAL DE JUSTIÇA DO DISTRITO FEDERAL E TERRITÓRIOS |
+    | `TJES` | TRIBUNAL DE JUSTIÇA DO ESPÍRITO SANTO |
+    | `TJGO` | TRIBUNAL DE JUSTIÇA DE GOIÁS |
+    | `TJMA` | TRIBUNAL DE JUSTIÇA DO MARANHÃO |
+    | `TJMT` | TRIBUNAL DE JUSTIÇA DO MATO GROSSO |
+    | `TJMS` | TRIBUNAL DE JUSTIÇA DO MATO GROSSO DO SUL |
+    | `TJMG` | TRIBUNAL DE JUSTIÇA DE MINAS GERAIS |
+    | `TJPA` | TRIBUNAL DE JUSTIÇA DO PARÁ |
+    | `TJPB` | TRIBUNAL DE JUSTIÇA DA PARAÍBA |
+    | `TJPR` | TRIBUNAL DE JUSTIÇA DO PARANÁ |
+    | `TJPE` | TRIBUNAL DE JUSTIÇA DE PERNAMBUCO |
+    | `TJPI` | TRIBUNAL DE JUSTIÇA DO PIAUÍ |
+    | `TJRJ` | TRIBUNAL DE JUSTIÇA DO RIO DE JANEIRO |
+    | `TJSP` | TRIBUNAL DE JUSTIÇA DE SÃO PAULO |
+    | `TJRN` | TRIBUNAL DE JUSTIÇA DO RIO GRANDE DO NORTE |
+    | `TJRS` | TRIBUNAL DE JUSTIÇA DO RIO GRANDE DO SUL |
+    | `TJRO` | TRIBUNAL DE JUSTIÇA DE RONDÔNIA |
+    | `TJRR` | TRIBUNAL DE JUSTIÇA DE RORAIMA |
+    | `TJSC` | TRIBUNAL DE JUSTIÇA DE SANTA CATARINA |
+    | `TJSE` | TRIBUNAL DE JUSTIÇA DE SERGIPE |
+  </Accordion>
+
+  <Accordion title="Electoral Justice (TRE)">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `TRE-AC` | TRIBUNAL REGIONAL ELEITORAL DO ACRE |
+    | `TRE-AL` | TRIBUNAL REGIONAL ELEITORAL DO ALAGOAS |
+    | `TRE-AP` | TRIBUNAL REGIONAL ELEITORAL DO AMAPÁ |
+    | `TRE-AM` | TRIBUNAL REGIONAL ELEITORAL DO AMAZONAS |
+    | `TRE-BA` | TRIBUNAL REGIONAL ELEITORAL DA BAHIA |
+    | `TRE-CE` | TRIBUNAL REGIONAL ELEITORAL DO CEARÁ |
+    | `TRE-DF` | TRIBUNAL REGIONAL ELEITORAL DO DISTRITO FEDERAL |
+    | `TRE-ES` | TRIBUNAL REGIONAL ELEITORAL DO ESPÍRITO SANTO |
+    | `TRE-GO` | TRIBUNAL REGIONAL ELEITORAL DE GOIÁS |
+    | `TRE-MA` | TRIBUNAL REGIONAL ELEITORAL DO MARANHÃO |
+    | `TRE-MT` | TRIBUNAL REGIONAL ELEITORAL DO MATO GROSSO |
+    | `TRE-MS` | TRIBUNAL REGIONAL ELEITORAL DO MATO GROSSO DO SUL |
+    | `TRE-MG` | TRIBUNAL REGIONAL ELEITORAL DE MINAS GERAIS |
+    | `TRE-PA` | TRIBUNAL REGIONAL ELEITORAL DO PARÁ |
+    | `TRE-PB` | TRIBUNAL REGIONAL ELEITORAL DA PARAÍBA |
+    | `TRE-PR` | TRIBUNAL REGIONAL ELEITORAL DO PARANÁ |
+    | `TRE-PE` | TRIBUNAL REGIONAL ELEITORAL DE PERNAMBUCO |
+    | `TRE-PI` | TRIBUNAL REGIONAL ELEITORAL DO PIAUÍ |
+    | `TRE-RJ` | TRIBUNAL REGIONAL ELEITORAL DO RIO DE JANEIRO |
+    | `TRE-RN` | TRIBUNAL REGIONAL ELEITORAL DO RIO GRANDE DO NORTE |
+    | `TRE-RS` | TRIBUNAL REGIONAL ELEITORAL DO RIO GRANDE DO SUL |
+    | `TRE-RO` | TRIBUNAL REGIONAL ELEITORAL DE RONDÔNIA |
+    | `TRE-RR` | TRIBUNAL REGIONAL ELEITORAL DE RORAIMA |
+    | `TRE-SC` | TRIBUNAL REGIONAL ELEITORAL DE SANTA CATARINA |
+    | `TRE-SE` | TRIBUNAL REGIONAL ELEITORAL DE SERGIPE |
+    | `TRE-SP` | TRIBUNAL REGIONAL ELEITORAL DE SÃO PAULO |
+    | `TRE-TO` | TRIBUNAL REGIONAL ELEITORAL DO TOCANTINS |
+  </Accordion>
+
+  <Accordion title="Military Justice (Federal and State)">
+    | Acronym (Key) | Official Name of the Body |
+    | :--- | :--- |
+    | `CJM1` | PRIMEIRA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM2` | SEGUNDA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM3` | TERCEIRA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM4` | QUARTA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM5` | QUINTA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM6` | SEXTA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM7` | SÉTIMA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM8` | OITAVA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM9` | NONA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM10` | DÉCIMA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM11` | DÉCIMA PRIMEIRA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `CJM12` | DÉCIMA SEGUNDA CIRCUNSCRIÇÃO JUDICIÁRIA MILITAR |
+    | `TJM-MG` | TRIBUNAL DE JUSTIÇA MILITAR DO ESTADO DE MINAS GERAIS |
+    | `TJM-RS` | TRIBUNAL DE JUSTIÇA MILITAR DO ESTADO DO RIO GRANDE DO SUL |
+    | `TJM-SP` | TRIBUNAL DE JUSTIÇA MILITAR DO ESTADO DE SÃO PAULO |
+  </Accordion>
+</AccordionGroup>
+
+* **Inclusion:** If `not_equal` is `false`, the API will search **ONLY** in the courts from the list.
+* **Exclusion:** If `not_equal` is `true`, the API will search throughout Brazil, **EXCEPT** in the courts from the list.
+
+<Accordion title="JSON Example: Including vs. Excluding Courts" defaultOpen>
+<CodeGroup>
+```json Search ONLY in these
+// Returns only lawsuits from São Paulo and Bahia
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "tribunals": {
+                    "keys": [
+                        "TJSP",
+                        "TJBA"
+                    ],
+                    "not_equal": false
+                }
+            }
+        }
+    }
+}
+
+```
+
+```json Search in ALL, EXCEPT these
+// Returns from all over Brazil, but ignores Federal Justice (TRFs)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "tribunals": {
+                    "keys": [
+                        "TRF1",
+                        "TRF2",
+                        "TRF3",
+                        "TRF4",
+                        "TRF5",
+                        "TRF6"
+                    ],
+                    "not_equal": true
+                }
+            }
+        }
+    }
+}
+
+```
+</CodeGroup>
+</Accordion>
+
+#### 3. Subject and Class Filters (CNJ Standard)
+The Judit API uses the official **Unified Procedural Tables (TPU)** from the National Council of Justice (CNJ). You can filter lawsuits by entering the exact numeric codes from these tables.
+
+👉 *To find out the official codes for Classes and Subjects, visit the [Public Query of SGT/CNJ](https://www.cnj.jus.br/sgt/consulta_publica_classes.php).*
+
+The filter mechanics work as follows:
+* **Subjects (`subject_codes`):** Uses the lists `contains` (I want lawsuits that contain these codes) and `not_contains` (I do not want lawsuits that contain these codes).
+* **Classes (`classification_codes`):** Uses the `keys` list and the `not_equal` rule (the same inclusion/exclusion logic as courts).
+
+<Accordion title="JSON Example: Filtering by Subjects and Classes">
+```json
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "99999999999",
+        "search_params": {
+            "filter": {
+                // I want lawsuits that have subject 10433, but I reject them if they have 1120
+                "subject_codes": {
+                    "contains": [
+                        "10433"
+                    ],
+                    "not_contains": [
+                        "1120"
+                    ]
+                },
+                // I want EXACTLY procedural class 985 (e.g., Labor Action)
+                "classification_codes": {
+                    "keys": [
+                        "985"
+                    ],
+                    "not_equal": false
+                }
+            }
+        }
+    }
+}
+```
+</Accordion>
+
+#### 4. Date and Deadline Filters
+Optimize the search by time slices using the universal date format (ISO 8601: `YYYY-MM-DDTHH:mm:ss.sssZ`).
+
+* `distribution_date_gte` (string): Returns lawsuits filed (initiated) **on or after** a date.
+* `last_step_date_gte` (string): Returns lawsuits whose **last case update** occurred **on or after** a date.
+* `last_step_date_lte` (string): Returns lawsuits whose **last case update** occurred **before** a date.
+
+<Accordion title="JSON Example: Filtering by Dates">
+```json
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "99999999999",
+        "search_params": {
+            // I want lawsuits that had any case update on or after October 10, 2024
+            "filter": {
+                "last_step_date_gte": "2024-10-10T00:00:00.000Z"
+            }
+        }
+    }
+}
+```
+</Accordion>
+
+#### 5. Restrictive Filters for Other Parties
+Want to know if João sued Company X? You can use the Names and Documents filters of other parties involved in the lawsuit.
+
+* `party_names` (array of strings): List of exact names that must appear in the lawsuit.
+* `party_documents` (array of strings): List of CPFs/CNPJs that must appear in the lawsuit.
+
+<Info>
+**Note when using together with the `side` filter:** If you use the `party_names` or `party_documents` filter together with the `side` filter, the "Pole" rule (Plaintiff/Defendant) will only be applied to the main document you are searching for, and **not** to the extra names/documents listed here.
+</Info>
+
+<Accordion title="JSON Example: Specific Parties">
+```json
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "99999999999",
+        "search_params": {
+            // Searching by the main CPF (via search_key), but requiring that
+            // "Empresa Exemplo" or the CNPJ "99.999.999/0001-99" also be present in the lawsuit.
+            "filter": {
+                "party_names": [
+                    "EMPRESA EXEMPLO LTDA"
+                ],
+                "party_documents": [
+                    "99999999000199"
+                ]
+            }
+        }
+    }
+}
+```
+</Accordion>
+
+### Request Example (POST)
+
+<CodeGroup>
+```bash cURL (Step 1)
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "on_demand": true,
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "tribunals": {
+                    "keys": ["TJBA"],
+                    "not_equal": false
+                }
+            }
+        }
+    }
+}'
+```
+</CodeGroup>
+
+Save the `request_id` (e.g., `05ee9825...`) generated in the response of this call. It is your passport to the next steps.
+
+---
+
+<Info>
+**🚀 Shortcut: Automate with Webhooks (Recommended)**
+
+If you have a Webhook URL configured, **Steps 2 and 3 below are entirely optional**. 
+Instead of programming your application to keep polling the request status, the Judit API will send the found lawsuits **incrementally** directly to your server as soon as they are captured, finishing the flow with a `request_completed` event.
+
+👉 *[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
+</Info>
+
+---
+
+## Step 2: Check the Request Status
+
+Since a document can be linked to hundreds of lawsuits in Brazil, collection takes time. You must check the macro status of the request using the ID from Step 1.
+
+`GET https://requests.prod.judit.io/requests/<REQUEST_ID>`
+
+```bash cURL (Step 2)
+curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
+```
+
+You must perform *polling* (periodic queries) on this route until the `"status"` property changes from `"pending"` to **`"completed"`**. 
+*(Note: Using Webhooks eliminates the need for this step).*
+
+### Granular Verification (On-Demand Only)
+Since the On-Demand search queries dozens of systems simultaneously, you can track the individual status of each accessed court using the *Crawls* route:
+
+```bash cURL
+curl --location 'https://crawler.prod.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
+    --header 'api-key: <api-key>'
+```
+
+<Accordion title="See example of On-Demand Status Response">
+```json
+{
+    "page": 1,
+    "page_data": [
+        {
+            "source_name": "JPje - RO - Lawsuit - Auth - 2 instance",
+            "tribunal_acronym": "TJRO",
+            "status": "done",
+            "updated_at": "2025-10-28T00:04:40.651Z"
+        },
+        {
+            "source_name": "JTJRJ - RJ - Lawsuit - Auth - 1 instance",
+            "tribunal_acronym": "TJRJ",
+            "status": "pending",
+            "updated_at": "2025-10-28T00:04:53.157Z"
+        }
+    ]
+}
+```
+</Accordion>
+
+---
+
+## Step 3: Consume and Filter the Results (GET)
+
+As soon as the status in Step 2 returns `"completed"`, the data is ready! 
+
+This is where, on the `GET /responses` route, you pull the final JSON. The big advantage of this endpoint is that **it allows you to apply dynamic filters via URL (Query Params)**, allowing you to slice, order, and paginate the final response however you want, without having to generate a new request (POST).
+
+`GET https://requests.prod.judit.io/responses/`
+
+### Dynamic URL Filters (Query Params)
+
+These are the parameters you can concatenate to your final request:
+
+| Query Param | Type / Format | Description |
+| :--- | :--- | :--- |
+| `request_id` | string (UUID) | **Required.** The ID generated in Step 1. |
+| `page` | integer | Current page number for navigation (Default: `1`). |
+| `page_size` | integer | Number of results returned per page. **Maximum allowed: 1000** (Recommended: `100`). |
+| `response_type` | JSON array | Desired response type. E.g., `["lawsuit"]`. |
+| `code` | JSON array | Filters by specific lawsuit numbers. E.g., `["0601708-42..."]`. |
+| `instance` | JSON array | Filters by jurisdiction degree. E.g., `[1, 2]`. |
+| `cached` | boolean | Returns only cached lawsuits (`true`) or newly captured ones (`false`). |
+| `classifications_code` | JSON array | Exact procedural class codes (E.g., `["437"]`). |
+| `subjects_code` | JSON array | Exact CNJ subject codes (E.g., `["6226"]`). |
+| `created_at_gte` / `lte` | string (Date) | Filters by the date the lawsuit entered the Judit database. |
+| `order` | JSON object | Orders the listing. E.g., `{"created_at": "desc"}`. |
+| `tags.criminal` | boolean | Returns `true` only for lawsuits in the criminal sphere. |
+
+<CodeGroup>
+
+```bash cURL (Basic Search)
+# Returns the lawsuits using only the required parameter
+curl -X GET "https://requests.prod.judit.io/responses?request_id=<YOUR_REQUEST_ID>" \
+  -H "api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```bash cURL (Advanced Search with Filters)
+# The -g (--globoff) parameter allows the use of brackets [] in the URL without breaking the terminal.
+# Note: In your application, remember to apply URL Encoding to these parameters.
+
+curl -g -X GET "https://requests.prod.judit.io/responses\
+?request_id=<YOUR_REQUEST_ID>\
+&response_type=[\"lawsuit\"]\
+&code=[\"0601708-42.2025.8.04.4700\"]\
+&instance=[1,2]\
+&cached=false\
+&classifications_code=[\"437\"]\
+&classifications_name=[\"PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL\"]\
+&subjects_code=[\"6226\"]\
+&subjects_name=\"INCLUSÃO INDEVIDA EM CADASTRO DE INADIMPLENTES\"\
+&created_at_gte=2026-03-01T00:00:00.000Z\
+&created_at_lte=2026-03-05T00:00:00.000Z\
+&request_created_at_gte=2026-03-02T00:00:00.000Z\
+&request_created_at_lte=2026-03-05T00:00:00.000Z\
+&page=1\
+&page_size=1000\
+&order={\"created_at\":\"desc\"}\
+&tags.criminal=true" \
+  -H "api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+</CodeGroup>
+
+### The Response Format
+
+The return provides the pagination keys and the `page_data` array, where each object contains the `response_data` (The Lawsuit Header).
+
+<ParamField body="request_status" name="request_status" type="string">
+Final status of the response (Must be `completed`).
+</ParamField>
+<ParamField body="page" name="page" type="integer">
+Current page of the search.
+</ParamField>
+<ParamField body="page_count" name="page_count" type="integer">
+Total number of lawsuits rendered on this page.
+</ParamField>
+<ParamField body="all_count" name="all_count" type="integer">
+Absolute total of lawsuits found and linked to the document.
+</ParamField>
+<ParamField body="all_pages_count" name="all_pages_count" type="integer">
+Total number of available pages.
+</ParamField>
+<ParamField body="page_data" name="page_data" type="array">
+Array of objects. Each object contains the `response_data` key that holds the [Lawsuit Header](/en/schemas/lawsuit-object).
+</ParamField>
+
+<Accordion title="See Example of the Returned Lawsuit Structure">
+```json
+{
+  "page": 1,
+  "page_count": 1,
+  "all_count": 1,
+  "all_pages_count": 1,
+  "request_status": "completed",
+  "page_data": [
+      {
+          "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+          "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
+          "response_type": "lawsuit",
+          "response_data": {
+              "code": "0000000-00.0000.0.00.0000",
+              "instance": 1,
+              "justice": "8",
+              "tribunal": "19",
+              "tribunal_acronym": "TJRJ",
+              "classifications": [
+                  { "code": "436", "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL" }
+              ],
+              "subjects": [
+                  { "code": "6226", "name": "INCLUSÃO INDEVIDA EM CADASTRO DE INADIMPLENTES" }
+              ],
+              "amount": 28790,
+              "parties": [
+                  {
+                      "name": "NOME DO CLIENTE",
+                      "side": "Active",
+                      "person_type": "Autor",
+                      "document": "99999999999",
+                      "document_type": "CPF"
+                  }
+              ]
+          }
+      }
+  ]
+}
+```
+</Accordion>
+
+<Note>
+**Lawsuit not found:** If the document has no linked lawsuits or if the filters are too restrictive, `all_count` will be `0` and the `page_data` array will return empty `[]`.
+</Note>

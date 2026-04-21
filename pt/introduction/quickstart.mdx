@@ -1,0 +1,544 @@
+---
+title: "Guia Rápido"
+description: "Tutorial completo para fazer sua primeira consulta na Judit API"
+---
+## Fluxo Básico
+
+A Judit API funciona com um padrão síncrono e assíncrono:
+
+### Requisições com padrão assíncrono:
+
+1. **Criar requisição** (`POST /requests`) - Inicia a consulta
+
+2. **Aguardar processamento** (`GET /requests`) - A API busca os dados nos tribunais(Acompanhar status)
+
+3. **Consultar resultado** (`GET /responses`) - Obtém os dados processados
+
+### Requisições com padrão síncrono:
+
+1. **Criar requisição** (`POST /lawsuits`) - Inicia a consulta e já entrega a resposta
+
+## Pré-requisitos
+
+- API Key válida [(solicite acesso conosco)](https://api.whatsapp.com/send/?phone=5521985284143)
+- Ferramenta para fazer requisições HTTP (cURL, Postman, ou código)
+
+### Ambientes e URLs Base (Base URLs)
+
+A Judit API opera com uma arquitetura dividida por contextos para garantir melhor performance e organização. Antes de configurar suas variáveis de ambiente, identifique a **Base URL** correspondente ao módulo que você deseja integrar:
+
+| Base URL | Módulo / Contexto | Operações Suportadas |
+| :--- | :--- | :--- |
+| `https://requests.prod.judit.io` | **Consultas Assíncronas** | Consulta processual, Consulta histórica, Mandados de prisão e Execução penal (fluxos de *request* e *response*). |
+| `https://tracking.prod.judit.io` | **Monitoramentos** | Criar, consultar, atualizar, pausar, deletar, reativar e buscar histórico de monitoramentos processuais. |
+| `https://lawsuits.production.judit.io` | **Consultas Síncronas** | Consulta ao Datalake (*Hot storage*), Quantidade de processos, Consulta histórica agrupada, Busca de anexos de bucket e Dados cadastrais. |
+| `https://crawler.prod.judit.io` | **Crawler & Infra** | Gerenciamento do Cofre de Credenciais. |
+
+---
+
+## Exemplo Completo
+
+### 1. Configurar Variáveis de Ambiente
+
+**Nota:** No exemplo abaixo, utilizaremos a URL de **Consultas Assíncronas**, mas lembre-se de substituí-la pela URL adequada ao seu caso de uso, conforme a tabela acima.
+
+```bash
+export JUDIT_API_KEY="sua-api-key-aqui"
+export JUDIT_BASE_URL="https://requests.prod.judit.io"
+```
+
+### 2. Criar uma Requisição
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "$JUDIT_BASE_URL/requests" \
+  -H "api-key: $JUDIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    }
+  }'
+```
+
+```python Python
+import requests
+import os
+import time
+
+api_key = os.getenv('JUDIT_API_KEY')
+base_url = os.getenv('JUDIT_BASE_URL')
+
+headers = {
+    'api-key': api_key,
+    'Content-Type': 'application/json'
+}
+
+# Criar requisição
+payload = {
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+
+response = requests.post(f"{base_url}/requests", 
+                        json=payload, 
+                        headers=headers)
+request_data = response.json()
+request_id = request_data['request_id']
+
+print(f"Requisição criada: {request_id}")
+```
+
+```javascript JavaScript
+const apiKey = process.env.JUDIT_API_KEY;
+const baseUrl = process.env.JUDIT_BASE_URL;
+
+const headers = {
+    'api-key': apiKey,
+    'Content-Type': 'application/json'
+};
+
+// Criar requisição
+const payload = {
+    search: {
+        search_type: 'cpf',
+        search_key: '999.999.999-99',
+        cache_ttl_in_days: 7
+    }
+};
+
+const response = await fetch(`${baseUrl}/requests`, {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(payload)
+});
+
+const requestData = await response.json();
+const requestId = requestData.request_id;
+
+console.log(`Requisição criada: ${requestId}`);
+```
+
+```php PHP
+<?php
+$apiKey = getenv('JUDIT_API_KEY');
+$baseUrl = getenv('JUDIT_BASE_URL');
+
+$headers = [
+    'api-key: ' . $apiKey,
+    'Content-Type: application/json'
+];
+
+// Criar requisição
+$payload = [
+    'search' => [
+        'search_type' => 'cpf',
+        'search_key' => '999.999.999-99'
+        'cache_ttl_in_days' => 7
+    ]
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $baseUrl . '/requests');
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$requestData = json_decode($response, true);
+$requestId = $requestData['request_id'];
+
+echo "Requisição criada: " . $requestId . "\n";
+curl_close($ch);
+?>
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+    "os"
+)
+
+type SearchRequest struct {
+    Search struct {
+        SearchType      string `json:"search_type"`
+        SearchKey       string `json:"search_key"`
+        ResponseType    string `json:"response_type"`
+        CacheTTLInDays  int    `json:"cache_ttl_in_days"`
+    } `json:"search"`
+}
+
+type RequestResponse struct {
+    RequestID string `json:"request_id"`
+}
+
+func main() {
+    apiKey := os.Getenv("JUDIT_API_KEY")
+    baseURL := os.Getenv("JUDIT_BASE_URL")
+    
+    // Criar requisição
+    payload := SearchRequest{}
+    payload.Search.SearchType = "cpf"
+    payload.Search.SearchKey = "999.999.999-99"
+    payload.Search.CacheTTLInDays = 7
+    
+    jsonData, _ := json.Marshal(payload)
+    
+    req, _ := http.NewRequest("POST", baseURL+"/requests", bytes.NewBuffer(jsonData))
+    req.Header.Set("api-key", apiKey)
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, _ := io.ReadAll(resp.Body)
+    var requestData RequestResponse
+    json.Unmarshal(body, &requestData)
+    
+    fmt.Printf("Requisição criada: %s\n", requestData.RequestID)
+}
+```
+
+</CodeGroup>
+
+### 3. Verificar Status da Requisição
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "$JUDIT_BASE_URL/requests/$REQUEST_ID" \
+  -H "api-key: $JUDIT_API_KEY"
+```
+
+```python Python
+# Verificar status
+status_response = requests.get(f"{base_url}/requests/{request_id}", 
+                              headers=headers)
+status_data = status_response.json()
+
+print(f"Status: {status_data['status']}")
+
+# Aguardar conclusão
+while status_data['status'] in ['pending', 'processing']:
+    time.sleep(5)  # Aguardar 5 segundos
+    status_response = requests.get(f"{base_url}/requests/{request_id}", 
+                                  headers=headers)
+    status_data = status_response.json()
+    print(f"Status: {status_data['status']}")
+```
+
+```javascript JavaScript
+// Verificar status
+let statusResponse = await fetch(`${baseUrl}/requests/${requestId}`, {
+    headers: headers
+});
+
+let statusData = await statusResponse.json();
+console.log(`Status: ${statusData.status}`);
+
+// Aguardar conclusão
+while (['pending', 'processing'].includes(statusData.status)) {
+    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 segundos
+    
+    statusResponse = await fetch(`${baseUrl}/requests/${requestId}`, {
+        headers: headers
+    });
+    statusData = await statusResponse.json();
+    console.log(`Status: ${statusData.status}`);
+}
+```
+
+```php PHP
+<?php
+// Verificar status
+$statusUrl = $baseUrl . '/requests/' . $requestId;
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $statusUrl);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'api-key: ' . $apiKey
+]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$statusResponse = curl_exec($ch);
+$statusData = json_decode($statusResponse, true);
+echo "Status: " . $statusData['status'] . "\n";
+
+// Aguardar conclusão
+while (in_array($statusData['status'], ['pending', 'processing'])) {
+    sleep(5); // Aguardar 5 segundos
+    
+    $statusResponse = curl_exec($ch);
+    $statusData = json_decode($statusResponse, true);
+    echo "Status: " . $statusData['status'] . "\n";
+}
+
+curl_close($ch);
+?>
+```
+
+```go Go
+// Verificar status
+statusURL := baseURL + "/requests/" + requestData.RequestID
+statusReq, _ := http.NewRequest("GET", statusURL, nil)
+statusReq.Header.Set("api-key", apiKey)
+
+statusResp, err := client.Do(statusReq)
+if err != nil {
+    panic(err)
+}
+defer statusResp.Body.Close()
+
+statusBody, _ := io.ReadAll(statusResp.Body)
+var statusData map[string]interface{}
+json.Unmarshal(statusBody, &statusData)
+
+fmt.Printf("Status: %s\n", statusData["status"])
+
+// Aguardar conclusão
+for statusData["status"] == "pending" || statusData["status"] == "processing" {
+    time.Sleep(5 * time.Second) // Aguardar 5 segundos
+    
+    statusResp, _ := client.Do(statusReq)
+    statusBody, _ := io.ReadAll(statusResp.Body)
+    json.Unmarshal(statusBody, &statusData)
+    
+    fmt.Printf("Status: %s\n", statusData["status"])
+    statusResp.Body.Close()
+}
+```
+
+</CodeGroup>
+
+### 4. Obter Resultados
+
+Quando o status for `completed`, consulte os resultados:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "$JUDIT_BASE_URL/responses?page=1" \
+  -H "api-key: $JUDIT_API_KEY"
+```
+
+```python Python
+# Obter resultados
+if status_data['status'] == 'completed':
+    results_response = requests.get(f"{base_url}/responses", 
+                                   headers=headers,
+                                   params={'page': 1})
+    results = results_response.json()
+    
+    print("Processos encontrados:")
+    for item in results.get('page_data', []):
+        print(f"- {item}")
+```
+
+```javascript JavaScript
+// Obter resultados
+if (statusData.status === 'completed') {
+    const resultsResponse = await fetch(`${baseUrl}/responses?page=1`, {
+        headers: headers
+    });
+    const results = await resultsResponse.json();
+    
+    console.log('Processos encontrados:');
+    results.page_data?.forEach(item => {
+        console.log(`- ${JSON.stringify(item)}`);
+    });
+}
+```
+
+```php PHP
+<?php
+// Obter resultados
+if ($statusData['status'] === 'completed') {
+    $resultsUrl = $baseUrl . '/responses?page=1';
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $resultsUrl);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'api-key: ' . $apiKey
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $resultsResponse = curl_exec($ch);
+    $results = json_decode($resultsResponse, true);
+    
+    echo "Processos encontrados:\n";
+    foreach ($results['page_data'] ?? [] as $item) {
+        echo "- " . json_encode($item) . "\n";
+    }
+    
+    curl_close($ch);
+}
+?>
+```
+
+```go Go
+// Obter resultados
+if statusData["status"] == "completed" {
+    resultsURL := baseURL + "/responses?page=1"
+    resultsReq, _ := http.NewRequest("GET", resultsURL, nil)
+    resultsReq.Header.Set("api-key", apiKey)
+    
+    resultsResp, err := client.Do(resultsReq)
+    if err != nil {
+        panic(err)
+    }
+    defer resultsResp.Body.Close()
+    
+    resultsBody, _ := io.ReadAll(resultsResp.Body)
+    var results map[string]interface{}
+    json.Unmarshal(resultsBody, &results)
+    
+    fmt.Println("Processos encontrados:")
+    if pageData, ok := results["page_data"].([]interface{}); ok {
+        for _, item := range pageData {
+            itemJSON, _ := json.Marshal(item)
+            fmt.Printf("- %s\n", string(itemJSON))
+        }
+    }
+}
+```
+
+</CodeGroup>
+
+## Tipos de Consulta Disponíveis
+
+<CodeGroup>
+
+```json Por CPF
+{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99"
+  }
+}
+```
+
+```json Por CNPJ
+{
+  "search": {
+    "search_type": "cnpj",
+    "search_key": "999.999/99999-99"
+  }
+}
+```
+
+```json Por OAB
+{
+  "search": {
+    "search_type": "oab",
+    "search_key": "999999-SP
+  }
+}
+```
+
+```json Por CNJ
+{
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "9999999-99.9999.9.99.9999"
+  }
+}
+```
+
+```json Por NOME
+{
+  "search": {
+    "search_type": "name",
+    "search_key": "Nome teste"
+  }
+}
+```
+
+</CodeGroup>
+
+## Tipos de Resposta
+
+- **`parties`**: Apenas informações das partes
+- **`attachments`**: Lista de anexos disponíveis
+- **`step`**: Movimentações processuais
+
+## Filtros Avançados
+
+Para consultas mais específicas por <strong>documento</strong>, é possivel utilizar [filtros](/pt/requests/request-document#payload-da-solicitação):
+
+```json
+{
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99",
+    "search_params": {
+      "filter": {
+        "side":"passive",
+        "amount_gte": 10000,
+        "distribution_date_gte": "2024-10-10T00:00:00.000Z",
+        "tribunals": {
+          "keys": ["TJSP", "TJRJ"],
+          "not_equal": false
+        }
+      }
+    }
+  }
+}
+```
+
+## Boas Práticas
+
+### 1. **Use Cache Inteligente**
+> **💡 Boa Prática para Consultas Assíncronas:** Se você está realizando requisições assíncronas (via `https://requests.prod.judit.io`), a utilização do parâmetro de cache é altamente recomendada. Isso acelera drasticamente o tempo de resposta do Webhook e otimiza o consumo da API.
+
+Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar buscas redundantes nos tribunais. Esse campo define por exatos quantos dias um resultado já armazenado na base da Judit será considerado válido antes de forçar uma nova extração.
+```json
+{
+  "cache_ttl_in_days": 7  // Usar cache por até 7 dias
+}
+```
+
+### 2. **Implemente Retry com Backoff**
+```javascript
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  } // Função setTimeout auxiliar de pausa baseada em setTimeout (nativa do JavaScript)
+
+  async function retryWithBackoff(func, maxRetries = 3) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return await func();
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          throw error; // Última tentativa falhou, propaga o erro
+        }
+
+        // Backoff exponencial + jitter aleatório
+        const waitTime = (2 ** attempt) * 1000 + Math.random() * 1000;
+        console.log(
+          `Tentativa ${attempt + 1} falhou. Aguardando ${waitTime.toFixed(0)}ms antes de tentar novamente...`
+        );
+        await sleep(waitTime);
+      }
+    }
+  }
+```
+
+## Próximos Passos
+
+- **[Autenticação](/pt/introduction/authentication)**: Configure a autenticação adequada
+- **[Endpoints](/pt/api-reference)**: Explore todos os endpoints disponíveis
+- **[Suporte](https://api.whatsapp.com/send/?phone=5511920501949)**: Entre em contato com nosso suporte técnico para mais informações.
+> **Dica**: Para desenvolvimento, use o [Postman Collection](https://drive.google.com/file/d/1PTNJjVzu65F-CGxFOXX82hwMctG1WxWU/view) com exemplos prontos da Judit API.

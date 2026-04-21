@@ -1,0 +1,210 @@
+---
+title: "Penal Execution Object"
+description: "The `penal_execution` object represents a Penal Execution case (sentence-serving phase). It details the progress of the sentence execution of an inmate in the courts."
+---
+
+> **🤖 Context for AIs and Code Assistants:** The structure of the Penal Execution object is similar to the [Lawsuit Object](/en/schemas/lawsuit-object), but contains specific fields such as `free_justice` and a dedicated object for the `last_step` (most recent case update). The roles of the parties (`person_type`) also differ, taking values such as `EXECUTADO` (convicted person) or `REEDUCANDO` (inmate).
+
+## General Structure
+
+The Penal Execution JSON is organized into the following blocks:
+
+* **Header (Metadata):** Data of the execution court, county, dates, and status.
+* **Parties (parties):** Array containing the State (Authority) and the Inmate.
+* **Last Case Update (last_step):** Object with the most recent case update highlighted.
+* **Case Updates (steps):** Complete array with the full history of case updates.
+* **Attachments (attachments):** Array of linked documents.
+* **Related (related_lawsuits):** Array of originating lawsuits (criminal action that generated the conviction).
+
+---
+
+## Data Dictionary
+
+### 1. Lawsuit Header (Object Root)
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `code` | string | Unique execution lawsuit number in the CNJ standard. |
+| `name` | string | Description of the lawsuit (e.g., "JUSTIÇA PÚBLICA X NOME DO EXECUTADO"). |
+| `area` | string | Area of law (usually `"DIREITO PENAL"` or `"EXECUÇÃO PENAL"`). |
+| `subject` / `subjects` | array | Subjects of the lawsuit (e.g., `"Pena Privativa de Liberdade"`). |
+| `classifications` | array | Procedural classes (e.g., `"Execução da Pena"`). |
+| `distribution_date` | string | Date on which the execution case was filed. |
+| `instance` | number | Degree of jurisdiction (e.g., `1` for the Criminal Enforcement Court). |
+| `judge` | string | Name of the judge or magistrate responsible for the execution. |
+| `justice_description` | string | Type of body (e.g., `"Justiça Estadual"`, `"Justiça Federal"`). |
+| `tribunal_acronym` | string | Official acronym of the execution court (e.g., `"TJSP"`). |
+| `courts` | string | Exact judging body (e.g., `"Vara de Execuções Criminais"`). |
+| `county` / `city` / `state` | string | Location of the county responsible for the execution. |
+| `free_justice` | boolean | Returns `true` if the inmate is a beneficiary of free legal aid. |
+| `secrecy_level` | integer | Level of secrecy (0 = Public. Levels > 0 indicate restriction). |
+
+<Note>
+**Internal Metadata:** The object may also return the keys `created_at`, `updated_at`, and `crawler` (containing `source_name` and `crawl_id`), which are technical metadata about when Judit performed the data extraction.
+</Note>
+
+### 2. Involved Parties (`parties`)
+
+Array of objects representing the parties in the execution case.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `name` | string | Name of the convicted person or public body. |
+| `main_document` | string | CPF or CNPJ linked to the party. |
+| `side` | string | Pole in the lawsuit: `ACTIVE` (State/Prosecutor), `PASSIVE` (Convicted), or `INTERESTED`. |
+| `person_type` | string | Role in the penal execution (e.g., `"EXECUTADO"`, `"REEDUCANDO"`, `"MINISTÉRIO PÚBLICO"`, `"DEFENSORIA PÚBLICA"`). |
+| `entity_type` | string | Category of the entity (`"person"` or `"company"`). |
+| `documents` | array | List of secondary documents of the party (RG, OAB, etc.). |
+| `lawyers` | array | List of lawyers or public defenders associated with the party. |
+
+### 3. Case Update History (`last_step` and `steps`)
+
+The Penal Execution API makes tracking easier by returning the most recent case update highlighted (`last_step`), in addition to the complete history (`steps`).
+
+#### Highlighted Object: `last_step`
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `step_id` | string | Unique identifier of the most recent case update. |
+| `step_date` | string | Date and time of the last case update (ISO 8601). |
+| `content` | string | Descriptive text of the case update (e.g., `"Ato ordinatório: Remessa ao Ministério Público"`). |
+| `private` | boolean | Indicates whether the case update is under secrecy. |
+| `steps_count` | number | Total number of case updates recorded in the lawsuit. |
+
+#### Complete Array: `steps`
+Array of objects identical to the `last_step` structure, ordered chronologically, containing the entire history of the sentence.
+
+### 4. Attached Documents (`attachments`)
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `attachment_id` | string | Unique internal identifier of the attachment. |
+| `attachment_name` | string | Title of the file (e.g., `"Cálculo de Liquidação de Penas"`). |
+| `attachment_date` | string | Date the document was added to the lawsuit. |
+| `step_id` | string | ID of the case update (`steps`) to which the attachment belongs. |
+| `extension` | string | File format (e.g., `"PDF"`). |
+
+---
+
+## Payload Example (Penal Execution)
+
+<CodeGroup>
+
+```json Response
+Example of response return:
+{
+    "page": 1,
+    "page_data": [
+        {
+            "request_id": "1d3d84d9-2edb-4952-83dc-70a7d81487hj",
+            "response_id": "9a4c8dee-e0d1-4cc5-8abb-bd5616265yu6",
+            "origin": "api",
+            "origin_id": "1d3d84d9-2edb-4952-83dc-70a7d81485ol",
+            "response_type": "lawsuit",
+            "response_data": {
+                "amount": 0,
+                "attachments": [],
+                "classifications": [
+                    {
+                        "code": "386",
+                        "name": "EXECUÇÃO DA PENA"
+                    }
+                ],
+                "code": "99999999-99.9999.9.99.9999",
+                "county": "MARINGÁ - 2ª VARA DA FAZENDA PÚBLICA",
+                "courts": [
+                    {
+                        "name": "TJPR - Vara de Execução em Meio Aberto de Curitiba"
+                    }
+                ],
+                "crawler": {
+                    "source_name": "JSeeu - BR - Lawsuit - Auth - 1 instance",
+                    "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a",
+                    "weight": 10,
+                    "updated_at": "2024-11-13T12:55:43.488Z"
+                },
+                "distribution_date": "2020-07-09T04:00:48.207Z",
+                "free_justice": true,
+                "instance": 1,
+                "judge": "Usuário teste",
+                "justice": "8",
+                "last_step": {
+                    "lawsuit_cnj": "99999999-99.9999.8.16.9999",
+                    "lawsuit_instance": 1,
+                    "content": "EXPEDIÇÃO DE CERTIDÃO GERAL Referente ao evento (seq. 417) RECEBIDOS OS AUTOS(13/08/2024 16:02:19). Identificador do Cumprimento: 9999.",
+                    "tags": {
+                        "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                    },
+                    "private": false,
+                    "step_date": "2024-08-15T00:00:00.000Z",
+                    "step_id": "2b837df6",
+                    "steps_count": 418
+                },
+                "name": "ESTADO DO PARANÁ X USUÁRIO TESTE",
+                "parties": [
+                    {
+                        "side": "Active",
+                        "person_type": "AUTORIDADE",
+                        "name": "ESTADO DO PARANÁ",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                        },
+                        "entity_type": "company",
+                        "documents": [],
+                        "lawyers": []
+                    },
+                    {
+                        "side": "Passive",
+                        "person_type": "EXECUTADO",
+                        "name": "USUÁRIO TESTE",
+                        "main_document": "99999999999",
+                        "tags": {
+                            "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a"
+                        },
+                        "entity_type": "person",
+                        "documents": [],
+                        "lawyers": []
+                    }
+                ],
+                "related_lawsuits": [],
+                "secrecy_level": 0,
+                "steps": [],
+                "subjects": [
+                    {
+                        "code": "7791",
+                        "name": "PENA PRIVATIVA DE LIBERDADE"
+                    }
+                ],
+                "tags": {
+                    "datalake_id": "99999999999999999999",
+                    "datalake_segment": "JUSTICA_ESTADUAL",
+                    "crawl_id": "a7fe1da7-6d2e-452f-9d36-115d80e9601a",
+                    "criminal": true,
+                    "dictionary_updated_at": "2024-11-13T12:55:47.284Z"
+                },
+                "tribunal": "16",
+                "tribunal_acronym": "TJPR"
+            },
+            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
+            "created_at": "2024-11-13T12:55:47.885Z",
+            "tags": {
+                "dashboard_id": null
+            }
+        }
+    ],
+    "page_count": 1,
+    "all_count": 1,
+    "all_pages_count": 1
+}
+```
+
+</CodeGroup>
+
+---
+
+## Next Steps
+
+Now that you understand the Penal Execution data dictionary, move on to integration:
+
+* 👉 **[Criminal Records Queries](/en/criminal-consultation/criminal-execution):** See the documentation for the endpoint to start an extraction in criminal and execution courts.
+* 👉 **[Registration Data Object](/en/schemas/entity):** See how to interpret the registration data model.

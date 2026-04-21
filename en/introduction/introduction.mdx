@@ -1,0 +1,95 @@
+---
+title: "Judit API"
+description: "A complete API for automated judicial queries in Brazil"
+---
+
+![title](/images/judit-api-charts.png)
+
+## Overview
+
+The **Judit API** is a complete solution for automating judicial queries in Brazil, providing programmatic access to lawsuit data, lawsuit tracking, and court credential management.
+
+### What is the Judit API?
+
+The Judit API lets developers integrate judicial query features into their applications, offering:
+
+- **Queries by CPF, CNPJ, OAB, NAME, or CNJ**: Search for lawsuits using different types of identifiers
+- **Automated tracking**: Follow changes in specific lawsuits
+- **Attachment access**: Download case documents and attachments
+- **Registration data**: Obtain registration information for individuals and companies
+- **Credential management**: Store and manage court credentials securely
+- **Arrest warrant queries**: Access arrest warrants with precision and relevance of information.
+- **Penal execution queries**: Obtain accurate and relevant data on penal execution cases, ensuring fast access to essential information.
+- **JUDIT AI**: Feature that automatically generates a summary of the lawsuit header, highlighting the main information clearly and quickly.
+
+### Main Use Cases
+
+#### 1. Law Firms
+- Automatic lawsuit tracking
+- Fast lookup of case updates
+- Automated document download
+
+#### 2. Legal Departments
+- Monitoring of corporate lawsuits
+- Automated case status reports
+- Integration with internal systems
+
+#### 3. Fintechs and Credit Bureaus
+- Checking judicial lawsuits for risk analysis
+- Bulk queries for due diligence
+- Continuous customer monitoring
+
+### Getting Started
+
+To start using the Judit API:
+
+1. **Obtain your API Key**: Contact our [commercial team](https://api.whatsapp.com/send/?phone=5521985284143) to request access
+2. **Read the [Quickstart Guide](/en/introduction/quickstart)**: Learn the basic query flow
+3. **Configure [Authentication](/en/introduction/authentication)**: Implement authentication correctly
+4. **Explore the [Endpoints](/en/api-reference/endpoint/requests/create)**: Learn about all available features
+
+### Advantages of the Judit API
+
+#### ⚡ **Superior Performance**
+- Smart cache with configurable TTL
+- Responses optimized for different use cases
+- Distributed infrastructure for high availability
+
+#### 🔒 **Advanced Security**
+- API Key authentication
+- Secure vault for court credentials
+- End-to-end encryption for sensitive data
+
+#### 📊 **Structured Data**
+- Standardized JSON responses
+- Advanced filters for specific queries
+- Rich metadata for each lawsuit
+
+#### 🔄 **Smart Tracking**
+- Automatic change notifications
+- Flexible recurrence configuration
+- Granular pause/resume control
+
+### API Architecture
+
+The Judit API is composed of different specialized services:
+
+- **Requests Service** (`requests.prod.judit.io`): Creation and lookup of requests
+- **Lawsuits Service** (`lawsuits.production.judit.io`): Access to the lawsuits datalake
+- **Tracking Service** (`tracking.prod.judit.io`): Lawsuit tracking
+
+### Rate Limits
+
+- **Default limit**: 500 requests per minute
+- **Monitoring**: Rate limit headers in every response
+- **Upgrade**: Custom limits available under contract
+
+### Support and Documentation
+
+- **Complete documentation**: Explore all endpoints and examples
+- **Python SDK**: Official library for quick integration
+- **Technical support**: Specialized team for questions and implementation
+
+---
+
+**Ready to get started?** Go to the [Quickstart Guide](/en/introduction/quickstart) and run your first query in minutes.

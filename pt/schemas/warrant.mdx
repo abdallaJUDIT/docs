@@ -1,0 +1,233 @@
+---
+title: "Objeto Warrant (Mandado de Prisão)"
+description: "O objeto `warrant` representa uma ordem de prisão ou recaptura extraída do Banco Nacional de Mandados de Prisão (BNMP) e dos tribunais. Ele contém os dados da ordem, da pena e do indivíduo procurado."
+---
+
+> 🤖 As consultas por mandados de prisão retornam o objeto `warrant`. A raiz contém os dados da ordem judicial e da pena. As informações sobre as leis infringidas ficam no array `law_type`, e os dados detalhados do indivíduo procurado ficam aninhados no objeto `entity` (que segue a estrutura padrão de Pessoa Física da Judit API).
+
+## Estrutura Geral
+
+O JSON do mandado é organizado em 4 blocos principais:
+
+* **Capa do Mandado:** Dados da ordem, tribunal emissor, status e cálculo da pena.
+* **Enquadramento Legal (law_type):** Array com as leis e artigos infringidos.
+* **Indivíduo (entity):** Objeto detalhado da pessoa procurada (CPF, nome, filiação).
+* **Anexos (attachments):** Array de documentos do mandado (PDFs oficiais).
+
+---
+
+## Dicionário de Dados
+
+### 1. Capa do Mandado (Raiz do Objeto)
+
+Estas propriedades vêm diretamente na raiz do objeto retornado.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `number` | string | Número interno do mandado no sistema emissor (geralmente contém o CNJ do processo de origem). |
+| `code` | string | Número único do processo judicial (padrão CNJ) vinculado ao mandado. |
+| `warrant_type` | string | Tipo do mandado emitido (ex: `"Mandado de Prisão"`, `"Mandado de Recaptura"`). |
+| `arrest_type` | string | Natureza da prisão (ex: `"definitive"`, `"temporary"`, `"preventive"`). |
+| `status` | string | Situação atual do mandado (ex: `"Aguardando Cumprimento"`, `"Cumprido"`, `"Revogado"`). |
+| `issue_date` | string | Data (ISO 8601) em que o mandado foi oficialmente expedido. |
+| `expiration_date` | string | Data (ISO 8601) em que o mandado perde sua validade prescricional. |
+| `recapture` | boolean | Indica `true` se o mandado é para recaptura de indivíduo evadido do sistema prisional. |
+| `judgementSummary` | string | Resumo textual da decisão judicial que embasou o mandado. |
+| `individual_id` | string | Identificador único interno da pessoa relacionada. |
+
+#### Órgão Emissor
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `tribunal_id` | string | Identificador numérico do tribunal responsável (ID do BNMP). |
+| `tribunal` | string | Código numérico oficial do tribunal no padrão CNJ. |
+| `tribunal_acronym` | string | Sigla oficial do tribunal (ex: `"TJSP"`, `"TJRJ"`). |
+| `justice` | string | Código identificador do ramo da justiça. |
+| `instance` | number | Grau/Instância judicial emissora (ex: `1`). |
+| `court` | string | Órgão julgador exato (Nome da vara ou juízo de origem). |
+
+#### Cálculo da Pena
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `duration` | string | Representação textual da duração total da pena (ex: `"5 anos, 2 meses e 10 dias"`). |
+| `duration_years` | number | Quantidade exata de anos da pena. |
+| `duration_months` | number | Quantidade exata de meses da pena. |
+| `duration_days` | number | Quantidade exata de dias da pena. |
+| `regime` | string | Regime inicial estipulado para o cumprimento (ex: `"FECHADO"`, `"SEMIABERTO"`, `"ABERTO"`). |
+
+### 2. Enquadramento Legal (`law_type`)
+
+Array de objetos detalhando os crimes cometidos que motivaram o mandado.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `number` | string | Título ou código identificador da lei (ex: `"Código Penal"`, `"Lei de Drogas"`). |
+| `description` | string | Texto com o artigo, parágrafo ou inciso exato infringido (ex: `"Art. 157, § 2º"`). |
+
+### 3. Indivíduo Procurado (`entity`)
+
+Objeto que contém a qualificação completa da pessoa. Segue a estrutura do [Objeto Entity](/schemas/entity) para Pessoas Físicas.
+
+| Propriedade Principal | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `name` | string | Nome completo da pessoa procurada. |
+| `main_document` | string | CPF da pessoa (apenas números). |
+| `aka_names` | array | Nomes falsos, apelidos conhecidos ou alcunhas utilizadas pelo indivíduo. |
+| `parents` | array | Filiação (nome da mãe e do pai). Muito usado por autoridades para desambiguação de homônimos. |
+| `birth_date` | string | Data de nascimento. |
+| `gender` | string | Gênero ou sexo registrado. |
+| `addresses` | array | Lista de últimos endereços conhecidos ou registrados da pessoa. |
+| `warnings_and_determinations` | string | Alertas críticos para autoridades (ex: `"Indivíduo de alta periculosidade"`, `"Membro de facção"`). |
+| `observations` | string | Notas extras ou características físicas cadastradas. |
+
+### 4. Anexos (`attachments`)
+
+Documentos oficiais da ordem judicial.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `attachment_id` | string | Identificador único interno do anexo. |
+| `extension` | string | Formato do arquivo extraído (geralmente `"PDF"` da ordem original assinada). |
+| `status` | string | Status do download do arquivo do tribunal (`"done"` ou `"pending"`). |
+
+---
+
+## Exemplo de Payload (Mandado de Prisão)
+
+<CodeGroup>
+
+```json Resposta
+Exemplo de retorno da resposta:
+{
+	"page": 1,
+	"page_data": [
+		{
+			"request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+			"response_id": "c7ae682c-3d7c-4634-a0b1-e414ae38fdeb",
+			"origin": "api",
+			"origin_id": "33fad316-cd98-40b9-bcd4-70e3c74ff947",
+			"response_type": "warrant",
+			"response_data": {
+				"_id": "65f29d5c48f9210b7040b5a3",
+				"warrant_id": "eb532bb3-2f0e-41c9-a80d-50f17258126f",
+				"entity_id": "09c91d1b-fba7-4b0e-bfc3-e87a8b092802",
+				"tribunal_id": "33123363_1",
+				"individual_id": "18155647970",
+				"warrant_type": "warrant_of_arrest",
+				"arrest_type": "definitive",
+				"law_type": {
+					"number": "2848",
+					"description": "2848, 157, § 2º, I;II;"
+				},
+				"number": "0007826652016810000101000112",
+				"previous_number": "",
+				"issue_date": "2018-05-28T11:52:37.716Z",
+				"create_date": "2018-05-28T12:05:09.040Z",
+				"expiration_date": "2028-11-27T00:00:00.000Z",
+				"status": "Pendente de Cumprimento",
+				"code": "99999999-99.9999.9.99.9999",
+				"instance": 1,
+				"tribunal": "10",
+				"justice": "8",
+				"tribunal_acronym": "TJMA",
+				"court": "Tribunal de Justiça do Estado do Maranhão",
+				"judge": "USUÁRIO TESTE",
+				"judgementSummary": "O MINISTÉRIO PÚBLICO ESTADUAL, através da douta Promotora de Justiça com exercício nesta Unidade Jurisdicional, lastreada em Inquérito Policial ofereceu denúncia contra LUÍS SOUZA, brasileiro, solteiro, natural de Cedral/MA, nascido em 17/07/1995, RG n.º 999999999999-9 SSPMA, filho de Eduardo Silva Trindade e Maria da Conceição Silva, residente na Rua centro, n.º 99, bairro Centro, São Luís/MA, incursando-o no crime tipificado no art. 157, § 2º, I e II, do Código Penal.Ante o exposto, julgo procedente a denúncia e CONDENO o acusado LUÍS SOUZA, supraqualificado, nas penas do artigo 157, § 2º, I e II, do Código Penal. Não ocorre causa de diminuição de pena. Por outro lado, presente a causa de aumento de pena pelo emprego de arma e concurso de pessoas, pelo que elevo a reprimenda no patamar mínimo de 1/3 (um terço), ou seja, 01 ano e 04 (quatro) meses de reclusão e 03 (três) dias multa, resultando na reprimenda definitiva de 05 (CINCO) ANOS E 04 (QUATRO) MESES DE RECLUSÃO E 13 (TREZE) DIAS MULTA, a qual deverá ser cumprida em regime inicialmente semiaberto, na Penitenciária Agrícola de Pedrinhas. Com o trânsito em julgado desta, o nome do condenado deverá ser inscrito no Livro Rol dos Culpados, calculada a pena de multa e intimado para pagamento, oficiando-se ao TRE para as providências quanto a sua situação eleitoral, bem como expedida carta de guia definitiva e mandado de prisão.",
+				"duration": "5 ano(s) 4 mês(es) 0 dia(s).",
+				"duration_years": 5,
+				"duration_months": 4,
+				"duration_days": 0,
+				"observations": "DEFINITIVA",
+				"regime": "Semiaberto",
+				"recapture": false,
+				"crawler": {
+					"source_name": "JBnmp - BR - Warrant - No Auth",
+					"crawl_id": "eb9c2c3a-1893-4ace-a98f-6210f8e78f72",
+					"updated_at": "2024-03-14T06:46:24.996Z",
+					"weight": 10,
+					"_id": "65f29d5c48f9210b7040b5a4"
+				},
+				"created_at": "2024-03-14T06:46:24.996Z",
+				"updated_at": "2024-03-14T06:46:24.996Z",
+				"entity": {
+					"_id": "65f29d5c48f9210b7040b59b",
+					"entity_id": "09c91d1b-fba7-4b0e-bfc3-e87a8b092802",
+					"entity_type": "person",
+					"name": "JOÃO SILVA",
+					"main_document": "99999999999",
+					"documents": [
+						{
+							"document": "99999999999",
+							"document_type": "cpf",
+							"_id": "65f29d5c48f9210b7040b59c"
+						},
+						{
+							"document": "99999999999-9",
+							"document_type": "rg",
+							"_id": "65f29d5c48f9210b7040b59d"
+						},
+						{
+							"document": "99999999999-9",
+							"document_type": "rji",
+							"_id": "65f29d5c48f9210b7040b59e"
+						}
+					],
+					"addresses": [
+						{
+							"street": "RUA CENTRO",
+							"number": "99",
+							"neighborhood": "CENTRO",
+							"city": "Sao Luis",
+							"state": "MA",
+							"ibge_code": 9999999,
+							"country": "Brasil",
+							"_id": "65f29d5c48f9210b7040b59f"
+						}
+					],
+					"contacts": [],
+					"aka_names": [
+						"LOURO"
+					],
+					"parents": [
+						{
+							"name": "USUÁRIO TESTE",
+							"kinship": "father",
+							"_id": "65f29d5c48f9210b7040b5a0"
+						},
+						{
+							"name": "MARIA SILVA",
+							"kinship": "mother",
+							"_id": "65f29d5c48f9210b7040b5a1"
+						}
+					],
+					"partners": [],
+					"birth_date": "1995-07-17T03:00:00.000Z",
+					"place_of_birth": "Cedral",
+					"gender": "male",
+					"created_at": "2024-03-14T06:46:24.996Z",
+					"updated_at": "2024-03-14T07:03:00.407Z"
+				}
+			},
+			"user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
+			"created_at": "2024-03-14T07:35:35.911Z",
+			"request_created_at": "2024-03-14T07:35:14.272Z",
+			"tags": {
+				"dashboard_id": null
+			}
+		}
+	],
+	"page_count": 1,
+	"all_count": 1,
+	"all_pages_count": 1
+}
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+* 👉 **[Consultas Penais](/pt/requests/penal):** Veja a documentação do endpoint específico para disparar buscas por mandados de prisão.
+* 👉 **[Objeto Entity](/pt/schemas/entity):** Revise todas as propriedades possíveis do objeto `entity` retornado dentro do mandado.

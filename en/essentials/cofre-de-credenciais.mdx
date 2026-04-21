@@ -1,0 +1,157 @@
+---
+title: "Credentials Vault"
+description: "Access the Courts with Your Own Credentials"
+icon: "vault"
+---
+
+JUDIT lets you add the credentials of the lawyers of your choice, enabling access, through those credentials, to lawsuits under judicial secrecy authored by those lawyers.
+
+## Endpoint to register your keys in the credentials vault
+
+To start using the credentials vault, you must make a POST request to the `crawler.prod.judit.io/credentials` route and register the lawyers' credentials for the courts made available.
+
+### Request Payload
+
+The POST request must include a payload with the following properties:
+
+- `system_name`: The acronym of the [court and system](/en/resource/glossary#credentials-vault-list) for which the new credential will be registered.
+  - `Note:` A wildcard credential can be registered using `"system_name": "*"`. If a credential is registered under the wildcard, all courts without their own specific credential will use the wildcard credential.
+- `customer_key`: Custom identifier to associate the credential with a client or lawyer. It can be any name or label defined by whoever is registering the credential, making it easier to organize and manage credentials.
+
+- `username`: CPF (Cadastro de Pessoas Físicas — Brazilian individual taxpayer ID) or OAB number (Ordem dos Advogados do Brasil — Brazilian Bar Association), as required by the court's system where the login will be performed.
+
+- `password`: Password registered at the respective court.
+
+Properties required only for courts that enforce two-factor authentication:
+
+- `custom_data`: Optional object intended to store additional information specific to the system or use-case context. It may include custom fields such as a secret required for authentication or other specific settings.
+
+- `secret`: Two-factor authentication token for the system being registered.
+
+`Note:` Registered credentials are encrypted, ensuring data security, and cannot be retrieved afterwards. To modify information already registered, simply create a new record using the same `customer_key` and the same `system_name`. The new registration will automatically replace the existing credential.
+
+Example payload for registering credentials without two-factor authentication:
+
+```json
+
+{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "00000001",
+      "username": "999.999.999-99",
+      "password": "Senha123"
+    },
+    {
+      "system_name": "ESAJ - TJAC - 1º grau",
+      "customer_key": "00000002",
+      "username": "999.999.999-99",
+      "password": "Senha123"
+    }
+  ]
+}
+```
+
+Example payload for registering credentials with two-factor authentication:
+
+```json
+
+{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "00000001",
+      "username": "999.999.999-99",
+      "password": "Senha123",
+      "custom_data": {
+				"secret": "<TOKEN>"
+			}
+    }
+  ]
+}
+```
+
+Example response to the request:
+
+```json
+
+[
+    {
+        "system_name": "ESAJ - TJAC - 1º grau",
+        "message": "CREDENTIAL_CREATED"
+    },
+    {
+        "system_name": "PJE TJBA - 1º grau",
+        "message": "CREDENTIAL_CREATED"
+    }
+]
+```
+
+## Endpoint to verify registered credentials
+
+To check whether a credential is registered, send a GET request to the `crawler.prod.judit.io/credentials` endpoint, including the `customer_key` parameter that corresponds to the credential you want to look up.
+
+The response will return every credential available in the vault associated with the queried `customer_key`. The `credential_status` field indicates the status of each credential:
+
+- active: Credential registered and active.
+- not exists: Credential not found in the system.
+
+Below is an example GET request to check whether a credential exists:
+
+```bash
+
+curl --location 'https://crawler.prod.judit.io/credentials?customer_key=teste_01' \
+--header 'api-key: <API-KEY>'
+
+```
+
+Below is an example response for the GET request above:
+
+```json
+
+{
+    "systems": [
+        {
+            "name": "*",
+            "customer_key": "",
+            "credential_status": "not exists"
+        },
+        {
+            "name": "ESAJ - TJAM - 1º grau",
+            "customer_key": "teste_01",
+            "credential_status": "active"
+        },
+        {
+            "name": "PROJUDI TJGO - 1º grau",
+            "customer_key": "teste_01",
+            "credential_status": "active"
+        }
+    ]
+}
+
+```
+## Endpoint to delete a key from the Credentials Vault
+
+To delete a system from the credentials vault, you must make a DELETE request to the `crawler.prod.judit.io/credentials` route.
+
+### Request Payload
+
+The DELETE request must include a payload with the following properties:
+
+- `system_name`: The acronym of the [court and system](/en/resource/glossary#credentials-vault-list) whose credential will be removed.
+- `customer_key`: Custom identifier added when the credential was registered.
+
+Example payload to delete a credential:
+
+```json
+
+{
+	"system_name": "PROJUDI TJGO - 1º grau",
+    "customer_key":"teste_01"
+}
+
+```
+- If the request succeeds, the response will be an empty object.
+
+
+Keeping credentials up to date at the courts is entirely the user's responsibility. It is therefore up to the user to register the credential at the corresponding court and to monitor its validity and status to ensure that it is not suspended or invalidated.

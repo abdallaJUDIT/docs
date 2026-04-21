@@ -1,0 +1,244 @@
+---
+title: "Enumerações e Domínios (Enums)"
+description: "Esta página contém as enumerações (Enums) e domínios de valores para as propriedades dos objetos retornados pela Judit API (Processos, Mandados, Execuções, etc.)."
+---
+
+> 🤖 Este documento lista os valores literais aceitos e retornados pelas propriedades da Judit API em seus diversos Schemas. Lembre-se que no objeto `lawsuit`, as propriedades de capa (como `area`, `status`, `situation`, `secrecy_level`) ficam aninhadas dentro do objeto raiz `response_data`, enquanto `side` e `person_type` ficam dentro dos objetos do array `parties`.
+
+## Áreas do Processo (`area`)
+
+Lista das áreas jurídicas (Ramos do Direito) que um processo ou execução pode ter:
+
+<AccordionGroup>
+  <Accordion title="Direitos Fundamentais e Sociais">
+    - `DIREITO À EDUCAÇÃO`
+    - `DIREITO DA CRIANÇA E DO ADOLESCENTE`
+    - `DIREITO DA SAÚDE`
+    - `DIREITO DO CONSUMIDOR`
+    - `DIREITO DO TRABALHO`
+    - `DIREITO ASSISTENCIAL`
+  </Accordion>
+
+  <Accordion title="Direito Público">
+    - `DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO`
+    - `DIREITO AMBIENTAL`
+    - `DIREITO ELEITORAL`
+    - `DIREITO INTERNACIONAL`
+    - `DIREITO MARÍTIMO`
+    - `DIREITO TRIBUTÁRIO`
+  </Accordion>
+
+  <Accordion title="Direito Penal e Processual">
+    - `DIREITO PENAL`
+    - `DIREITO PENAL MILITAR`
+    - `DIREITO PREVIDENCIÁRIO`
+    - `DIREITO PROCESSUAL CIVIL E DO TRABALHO`
+  </Accordion>
+
+  <Accordion title="Questões Especiais">
+    - `QUESTÕES DE ALTA COMPLEXIDADE, GRANDE IMPACTO E REPERCUSSÃO`
+    - `REGISTROS PÚBLICOS`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Níveis de Sigilo (`secrecy_level`)
+
+Sistema de classificação de sigilo processual (inteiro de 0 a 5):
+
+| Nível | Descrição | Acesso Permitido |
+| :--- | :--- | :--- |
+| `0` | **Público** | Acesso público geral. |
+| `1` | **Segredo de justiça** | Partes e advogados vinculados. |
+| `2` | **Restrito (Servidores)** | Servidores da unidade judicial e partes. |
+| `3` | **Sigiloso (Gabinete)** | Magistrados, chefes de cartórios e assessores. |
+| `4` | **Sigiloso (Magistrados e Chefes)** | Apenas magistrados e chefes de cartório. |
+| `5` | **Sigilo absoluto** | Exclusivo do magistrado do processo. |
+
+<Warning>
+Processos com nível de sigilo `> 0` podem retornar *payloads* limitados ou com dados ofuscados, dependendo do tribunal de origem e das credenciais (Cofre) utilizadas na busca.
+</Warning>
+
+---
+
+## Tipos de Justiça (`justice_description`)
+
+Classificação dos órgãos do Poder Judiciário brasileiro:
+
+<AccordionGroup>
+  <Accordion title="Justiça Federal e Tribunais Superiores">
+    - `SUPREMO TRIBUNAL FEDERAL`
+    - `CONSELHO NACIONAL DE JUSTIÇA`
+    - `SUPERIOR TRIBUNAL DE JUSTIÇA`
+    - `TRIBUNAL REGIONAL FEDERAL`
+  </Accordion>
+
+  <Accordion title="Justiças Especializadas">
+    - `JUSTIÇA DO TRABALHO`
+    - `JUSTIÇA ELEITORAL`
+    - `JUSTIÇA MILITAR DA UNIÃO`
+    - `JUSTIÇA MILITAR ESTADUAL`
+  </Accordion>
+
+  <Accordion title="Justiça Estadual">
+    - `JUSTIÇA ESTADUAL`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Ciclo de Vida: Status vs. Situação
+
+A API retorna dois campos semelhantes, mas com propósitos distintos para indicar a saúde do processo.
+
+### 1. Status Global (`status`)
+Visão macro e padronizada do processo, ideal para filtros e dashboards:
+
+| Valor | Descrição |
+| :--- | :--- |
+| `ATIVO` | Processo em andamento normal. |
+| `FINALIZADO` | Processo concluído ou baixado. |
+
+### 2. Situação Granular (`situation`)
+Status mais específico e variável, capturado diretamente da capa do tribunal:
+
+| Valor | Descrição |
+| :--- | :--- |
+| `INICIAL` | Processo recém-distribuído. |
+| `SENTENÇA` | Processo com sentença proferida. |
+| `EXECUÇÃO OU CUMPRIMENTO` | Processo em fase de execução/cobrança. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva sem cabimento de recurso. |
+| `RECURSO` | Processo aguardando julgamento de recurso. |
+| `ARQUIVADO` | Processo guardado definitivamente. |
+| `SUSPENSO` | Tramitação paralisada temporariamente. |
+| `SOBRESTADO` | Aguardando decisão de tribunal superior. |
+| `CANCELADO` | Distribuição cancelada. |
+
+---
+
+## Polos e Tipos de Pessoa (`side` e `person_type`)
+
+Ao iterar sobre os arrays de partes (seja em Processos, Mandados ou Execuções), você encontrará estas classificações:
+
+### Polo Processual (`side`)
+De qual lado da disputa a pessoa está.
+* `ACTIVE`: Polo Ativo (quem move a ação).
+* `PASSIVE`: Polo Passivo (contra quem a ação é movida).
+* `INTERESTED`: Terceiros ou interessados.
+* `UNKNOWN`: Não especificado pelo tribunal.
+
+### Papel Específico (`person_type`)
+A qualificação jurídica exata da parte. Exemplos comuns:
+* `AUTOR` / `REQUERENTE` / `EXEQUENTE`
+* `RÉU` / `REQUERIDO` / `EXECUTADO` / `REEDUCANDO`
+* `ADVOGADO` / `DEFENSOR PÚBLICO`
+* `TESTEMUNHA` / `PERITO`
+
+---
+
+## Fases e Andamentos
+
+### Fases do Processo (`phase`)
+* `CONHECIMENTO`
+* `EXECUÇÃO`
+* `RECURSO`
+* `FASE` *(Valor genérico usado quando o tribunal não especifica a fase exata)*
+
+### Códigos de Andamento (`step_type`)
+Os códigos mapeiam a **Tabela Processual Unificada (TPU) do CNJ**. Exemplos:
+* `DISTRIBUIÇÃO`
+* `CITAÇÃO`
+* `CONTESTAÇÃO`
+* `SENTENÇA`
+* `RECURSO`
+* `ARQUIVAMENTO`
+
+---
+
+## Outras Enumerações Úteis
+
+### Estados Brasileiros (`state`)
+A API utiliza o padrão de siglas (UF) com 2 letras maiúsculas:
+`AC`, `AL`, `AP`, `AM`, `BA`, `CE`, `DF`, `ES`, `GO`, `MA`, `MT`, `MS`, `MG`, `PA`, `PB`, `PR`, `PE`, `PI`, `RJ`, `RN`, `RS`, `RO`, `RR`, `SC`, `SP`, `SE`, `TO`.
+
+### Tipos de Documento (`documents`)
+Tipos de identificadores presentes nos arrays de documentos das partes ou entidades:
+* `CPF`: Pessoa Física.
+* `CNPJ`: Pessoa Jurídica.
+* `RG`: Registro Geral.
+* `OAB`: Inscrição na Ordem dos Advogados (geralmente acompanhada da UF, ex: OAB/SP).
+
+---
+
+## Exemplos Práticos de Uso
+
+Abaixo, veja a forma correta de validar dados acessando o objeto `response_data` de um processo.
+
+### 1. Validação de Tipos
+
+<CodeGroup>
+
+```javascript JavaScript
+// Exemplo: Validando o status recebido da API
+const lawsuit = response.json(); // Objeto raiz
+
+const validStatuses = ['ATIVO', 'FINALIZADO'];
+const currentStatus = lawsuit.response_data.status; // ✅ Acesso correto
+
+if (validStatuses.includes(currentStatus)) {
+    console.log("Status reconhecido:", currentStatus);
+}
+```
+
+```python Python
+# Exemplo: Validando o nível de sigilo
+valid_secrecy_levels = [0, 1, 2, 3, 4, 5]
+
+# ✅ Acesso correto através do dict response_data
+current_level = lawsuit.get('response_data', {}).get('secrecy_level')
+
+is_valid = current_level in valid_secrecy_levels
+print(f"Sigilo válido? {is_valid}")
+```
+
+</CodeGroup>
+
+### 2. Filtragem de Arrays
+
+<CodeGroup>
+
+```javascript JavaScript
+// Exemplo: Filtrar processos de uma lista que sejam apenas Públicos
+const publicLawsuits = lawsuitsArray.filter(
+  lawsuit => lawsuit.response_data.secrecy_level === 0
+);
+
+// Exemplo: Filtrar apenas processos do Estado de SP
+const spLawsuits = lawsuitsArray.filter(
+  lawsuit => lawsuit.response_data.state === 'SP'
+);
+```
+
+```python Python
+# Exemplo: Filtrar processos de uma lista que sejam apenas Públicos
+public_lawsuits = [
+    lawsuit for lawsuit in lawsuits_array 
+    if lawsuit.get('response_data', {}).get('secrecy_level') == 0
+]
+
+# Exemplo: Filtrar apenas processos do Estado de SP
+sp_lawsuits = [
+    lawsuit for lawsuit in lawsuits_array 
+    if lawsuit.get('response_data', {}).get('state') == 'SP'
+]
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+* 👉 **[Buscar Processos](/pt/requests/requests):** Utilize estas enumerações como parâmetros de filtro em suas buscas.
+* 👉 **[Mandado de prisão](/pt/schemas/warrant):** Veja os códigos retornados caso você envie um Enum inválido.
