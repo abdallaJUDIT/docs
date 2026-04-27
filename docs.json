@@ -23,91 +23,91 @@
                             {
                                 "group": "Primeiros Passos",
                                 "pages": [
-                                    "pt/introduction/introduction",
-                                    "pt/introduction/quickstart",
-                                    "pt/introduction/authentication"
+                                    "introduction/introduction",
+                                    "introduction/quickstart",
+                                    "introduction/authentication"
                                 ]
                             },
                             {
                                 "group": "Conceitos Fundamentais",
                                 "pages": [
-                                    "pt/essentialConcepts/pagination",
-                                    "pt/essentialConcepts/rate-limits",
-                                    "pt/essentialConcepts/errors"
+                                    "essentialConcepts/pagination",
+                                    "essentialConcepts/rate-limits",
+                                    "essentialConcepts/errors"
                                 ]
                             },
                             {
                                 "group": "Modelo de Dados (Schemas)",
                                 "pages": [
-                                    "pt/schemas/lawsuit-object",
-                                    "pt/schemas/lawsuit-enums",
-                                    "pt/schemas/warrant",
-                                    "pt/schemas/penal-execution",
-                                    "pt/schemas/entity"
+                                    "schemas/lawsuit-object",
+                                    "schemas/lawsuit-enums",
+                                    "schemas/warrant",
+                                    "schemas/penal-execution",
+                                    "schemas/entity"
                                 ]
                             },
                             {
                                 "group": "Consultas Assíncronas",
                                 "pages": [
-                                    "pt/requests/requests",
-                                    "pt/requests/request-document",
-                                    "pt/requests/custom-search"
+                                    "requests/requests",
+                                    "requests/request-document",
+                                    "requests/custom-search"
                                 ]
                             },
                             {
                                 "group": "Consultas Síncronas",
                                 "pages": [
-                                    "pt/cache-judit/hotstorage",
-                                    "pt/cache-judit/cache-grouped"
+                                    "cache-judit/hotstorage",
+                                    "cache-judit/cache-grouped"
                                 ]
                             },
                             {
                                 "group": "Monitoramento",
                                 "pages": [
-                                    "pt/tracking/tracking",
-                                    "pt/tracking/tracking-document",
-                                    "pt/tracking/tracking-custom"
+                                    "tracking/tracking",
+                                    "tracking/tracking-document",
+                                    "tracking/tracking-custom"
                                 ]
                             },
                             {
                                 "group": "Dados Cadastrais",
                                 "pages": [
-                                    "pt/registration-data/registration-data"
+                                    "registration-data/registration-data"
                                 ]
                             },
                             {
                                 "group": "Consultas Penais",
                                 "pages": [
-                                    "pt/criminal-consultation/warrant",
-                                    "pt/criminal-consultation/criminal-execution"
+                                    "criminal-consultation/warrant",
+                                    "criminal-consultation/criminal-execution"
                                 ]
                             },
                             {
                                 "group": "Transferência de Arquivos",
                                 "pages": [
-                                    "pt/file-transfer/file-transfer"
+                                    "file-transfer/file-transfer"
                                 ]
                             },
                             {
                                 "group": "Cofre de Credenciais",
                                 "pages": [
-                                    "pt/essentials/cofre-de-credenciais"
+                                    "essentials/cofre-de-credenciais"
                                 ]
                             },
                             {
                                 "group": "Webhook",
                                 "pages": [
-                                    "pt/webhook/callbacks"
+                                    "webhook/callbacks"
                                 ]
                             },
                             {
                                 "group": "Recursos",
                                 "pages": [
-                                    "pt/resource/consumption",
-                                    "pt/resource/faq",
-                                    "pt/resource/glossary",
-                                    "pt/resource/postman-collection",
-                                    "pt/resource/mcp"
+                                    "resource/consumption",
+                                    "resource/faq",
+                                    "resource/glossary",
+                                    "resource/postman-collection",
+                                    "resource/mcp"
                                 ]
                             }
                         ]
@@ -118,56 +118,56 @@
                             {
                                 "group": "Requests",
                                 "pages": [
-                                    "pt/api-reference/endpoint/requests/create",
-                                    "pt/api-reference/endpoint/requests/find-one",
-                                    "pt/api-reference/endpoint/requests/find-many"
+                                    "api-reference/endpoint/requests/create",
+                                    "api-reference/endpoint/requests/find-one",
+                                    "api-reference/endpoint/requests/find-many"
                                 ]
                             },
                             {
                                 "group": "Responses",
                                 "pages": [
-                                    "pt/api-reference/endpoint/responses/find-one",
-                                    "pt/api-reference/endpoint/responses/find-many"
+                                    "api-reference/endpoint/responses/find-one",
+                                    "api-reference/endpoint/responses/find-many"
                                 ]
                             },
                             {
                                 "group": "Fluxo de dados cadastrais",
                                 "pages": [
-                                    "pt/api-reference/endpoint/registrationData/create"
+                                    "api-reference/endpoint/registrationData/create"
                                 ]
                             },
                             {
                                 "group": "Monitoramento",
                                 "pages": [
-                                    "pt/api-reference/endpoint/tracking/create",
-                                    "pt/api-reference/endpoint/tracking/find-many",
-                                    "pt/api-reference/endpoint/tracking/find-one",
-                                    "pt/api-reference/endpoint/tracking/pause",
-                                    "pt/api-reference/endpoint/tracking/resume",
-                                    "pt/api-reference/endpoint/tracking/delete"
+                                    "api-reference/endpoint/tracking/create",
+                                    "api-reference/endpoint/tracking/find-many",
+                                    "api-reference/endpoint/tracking/find-one",
+                                    "api-reference/endpoint/tracking/pause",
+                                    "api-reference/endpoint/tracking/resume",
+                                    "api-reference/endpoint/tracking/delete"
                                 ]
                             },
                             {
                                 "group": "Consulta cache JUDIT",
                                 "pages": [
-                                    "pt/api-reference/endpoint/crawler/req-async",
-                                    "pt/api-reference/endpoint/crawler/req-count",
-                                    "pt/api-reference/endpoint/crawler/req-hotStorage",
-                                    "pt/api-reference/endpoint/crawler/req-grouped"
+                                    "api-reference/endpoint/crawler/req-async",
+                                    "api-reference/endpoint/crawler/req-count",
+                                    "api-reference/endpoint/crawler/req-hotStorage",
+                                    "api-reference/endpoint/crawler/req-grouped"
                                 ]
                             },
                             {
                                 "group": "Acesso a anexos",
                                 "pages": [
-                                    "pt/api-reference/endpoint/attachments/attachment-access",
-                                    "pt/api-reference/endpoint/attachments/attachment-access-warrant"
+                                    "api-reference/endpoint/attachments/attachment-access",
+                                    "api-reference/endpoint/attachments/attachment-access-warrant"
                                 ]
                             },
                             {
                                 "group": "Cofre de Credenciais",
                                 "pages": [
-                                    "pt/api-reference/endpoint/vault/vault",
-                                    "pt/api-reference/endpoint/vault/vaultcreate"
+                                    "api-reference/endpoint/vault/vault",
+                                    "api-reference/endpoint/vault/vaultcreate"
                                 ]
                             }
                         ]
