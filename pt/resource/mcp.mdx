@@ -1,0 +1,143 @@
+---
+title: "MCP Server"
+description: "Pergunte sobre a Judit API em linguagem natural — converse com Claude ou ChatGPT na hora, ou instale nosso servidor MCP no cliente da sua preferência."
+icon: "robot"
+---
+
+A documentação da Judit já vem com um servidor Model Context Protocol (MCP). Conecte qualquer cliente de IA e pergunte sobre a API em linguagem natural — o assistente pesquisa a doc, cita a página exata e te ajuda a integrar com a Judit mais rápido, sem precisar copiar e colar do navegador.
+
+## Conversar agora (sem instalar)
+
+Clique abaixo para abrir o Claude ou o ChatGPT já com a documentação completa da Judit pré-carregada como contexto. Ideal para perguntas pontuais ou exploração rápida.
+
+<CardGroup cols={2}>
+  <Card
+    title="Conversar com Claude"
+    icon="comment"
+    href="https://claude.ai/new?q=Estou%20integrando%20com%20a%20Judit%20API%20%28dados%20jur%C3%ADdicos%20brasileiros%29.%20Por%20favor%20leia%20https%3A%2F%2Fdocs.judit.io%2Fllms-full.txt%20para%20o%20contexto%20completo%2C%20depois%20me%20pergunte%20o%20que%20quero%20construir."
+  >
+    Abre o Claude.ai com a doc inteira pré-carregada. Sem instalação.
+  </Card>
+  <Card
+    title="Conversar com ChatGPT"
+    icon="comments"
+    href="https://chatgpt.com/?q=Estou%20integrando%20com%20a%20Judit%20API%20%28dados%20jur%C3%ADdicos%20brasileiros%29.%20Por%20favor%20leia%20https%3A%2F%2Fdocs.judit.io%2Fllms-full.txt%20para%20o%20contexto%20completo%2C%20depois%20me%20pergunte%20o%20que%20quero%20construir."
+  >
+    Abre o ChatGPT com a doc inteira pré-carregada. Sem instalação.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Os dois botões referenciam [`https://docs.judit.io/llms-full.txt`](https://docs.judit.io/llms-full.txt), um arquivo único autogerado com toda a documentação concatenada, otimizado para que IAs ingiram tudo em uma única chamada.
+</Tip>
+
+## Instalar o servidor MCP
+
+Para uso recorrente no Claude Desktop, Cursor, Claude Code, ChatGPT ou qualquer outro cliente compatível com MCP, instale o servidor uma vez e as tools ficam disponíveis nativamente no seu chat:
+
+<Card title="URL do servidor MCP" icon="link" href="https://docs.judit.io/mcp">
+  `https://docs.judit.io/mcp`
+</Card>
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    Abra o Claude Desktop, vá em **Settings → Developer → Edit Config** e adicione:
+
+    ```json
+    {
+      "mcpServers": {
+        "judit": {
+          "url": "https://docs.judit.io/mcp"
+        }
+      }
+    }
+    ```
+
+    Reinicie o Claude Desktop. As tools **judit** aparecem no input de chat.
+  </Tab>
+  <Tab title="Cursor">
+    Abra **Settings → MCP** na IDE (ou edite `~/.cursor/mcp.json`) e adicione:
+
+    ```json
+    {
+      "mcpServers": {
+        "judit": {
+          "url": "https://docs.judit.io/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Claude Code">
+    No terminal:
+
+    ```bash
+    claude mcp add --transport http judit https://docs.judit.io/mcp
+    ```
+  </Tab>
+  <Tab title="ChatGPT">
+    No ChatGPT, abra **Settings → Connectors → Add custom connector** e cole:
+
+    ```
+    https://docs.judit.io/mcp
+    ```
+
+    Disponível nos planos que suportam conectores MCP (Plus, Pro, Team, Enterprise).
+  </Tab>
+  <Tab title="Outros clientes">
+    Qualquer cliente MCP que fale transporte HTTP funciona — aponte para `https://docs.judit.io/mcp`.
+
+    Para clientes que só falam stdio (configs antigas), encapsule a URL com `mcp-remote`:
+
+    ```json
+    {
+      "mcpServers": {
+        "judit": {
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://docs.judit.io/mcp"]
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## O que faz
+
+Uma vez conectado (por qualquer um dos caminhos acima), a IA ganha duas tools que usa automaticamente sempre que você pergunta algo relacionado à Judit:
+
+| Tool | Função |
+| :--- | :--- |
+| `search_judit_docs` | Busca textual em toda a documentação, retornando os trechos mais relevantes com os caminhos das páginas. |
+| `query_docs_filesystem_judit_docs` | Lê uma página específica por path (`cat`, `head`, `rg`, etc.) quando a IA precisa do contexto completo. |
+
+Você não precisa chamar essas tools manualmente — basta conversar normalmente, e o modelo decide quando usá-las.
+
+## Exemplos de prompts
+
+- *"Como crio um monitoramento por CNJ? Me mostra o body exato da requisição."*
+- *"Qual a diferença entre Hot Storage e uma requisição comum?"*
+- *"Escreve um snippet Python que cria uma requisição, faz polling até concluir e imprime os processos."*
+- *"Quais filtros posso passar em `subject_codes`? Cita a página."*
+- *"Me explica o fluxo de execução penal de ponta a ponta."*
+
+O modelo cita a página exata da doc que usou, então dá pra conferir a resposta.
+
+## O que ele não faz
+
+Este MCP **lê apenas a documentação**. Ele não chama a Judit API por você — nenhum processo real é consultado, nenhuma requisição é criada, nenhum custo é gerado.
+
+Para realmente chamar a API, use um destes:
+
+<CardGroup cols={2}>
+  <Card title="Postman Collection" icon="paper-plane" href="/pt/resource/postman-collection">
+    Execute requisições reais com bodies pré-preenchidos e captura automática do `request_id`.
+  </Card>
+  <Card title="REST API" icon="code" href="/pt/introduction/authentication">
+    Chame os endpoints direto do seu código usando sua `api-key`.
+  </Card>
+</CardGroup>
+
+<Note>
+  O servidor MCP é hospedado pela nossa plataforma de documentação e fica em sincronia com este site automaticamente. Cada atualização da doc reflete nas respostas do MCP na próxima chamada — sem version pinning, sem redeploy do seu lado.
+</Note>
