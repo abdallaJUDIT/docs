@@ -1,9 +1,65 @@
 ---
 title: "Postman Collection"
-description: "This Collection contains all types of requests for our services available at this time."
+description: "Explore and try every Judit API endpoint directly in Postman — no download required."
 icon: "code-pull-request"
 ---
 
+The full Judit API collection lives in our public Postman workspace. Click below to open it: from there, you can browse every request with descriptions and examples, run it in the Postman web app, or fork it into your own workspace with one click.
 
+<Card
+  title="Open the Judit API in Postman"
+  icon="rocket"
+  href="https://www.postman.com/a66666-5328/judit-api"
+>
+  Opens the public workspace. Use **Fork** to copy it into your own workspace, or **Run in Postman** to import it into the desktop app.
+</Card>
 
-[Postman Collection](https://drive.google.com/file/d/1PTNJjVzu65F-CGxFOXX82hwMctG1WxWU/view?usp=sharing)
+## Quick start
+
+<Steps>
+  <Step title="Open the workspace">
+    Click the card above. The **Judit API** collection appears in the sidebar with all endpoints organized by folder.
+  </Step>
+  <Step title="Fork the collection (or import it)">
+    On the collection header, click **Fork** to copy it into your personal workspace, or **Run in Postman** to send it to your desktop app. Both keep the structure, variables, and test scripts intact.
+  </Step>
+  <Step title="Set your API key">
+    Open your forked collection, click the collection name in the sidebar, and go to the **Variables** tab. Paste your API key into the `api_key` variable's *Current value* column and click **Save**. The collection sends it automatically as the `api-key` header on every request.
+  </Step>
+  <Step title="Send your first request">
+    Open **Lawsuit & document search › 1 - Create request by CNJ**, set the `cnj_code` variable to a real lawsuit code, and click **Send**. You should get a `request_id` back — it's captured automatically into the `request_id` variable, so the next step (**2 - Get request status**) just works.
+  </Step>
+</Steps>
+
+## What's inside
+
+<AccordionGroup>
+  <Accordion title="Lawsuit & document search" icon="paper-plane">
+    End-to-end flow: create a request by CNJ or by document (CPF, CNPJ, OAB, name), poll its status, list responses, and download lawsuit attachments. The first step auto-captures `request_id` into a collection variable, so chained calls work without copy-paste.
+  </Accordion>
+  <Accordion title="Tracking" icon="bell">
+    Create, list, pause, resume, update, and delete lawsuit monitorings. Includes the full filter set (tribunals, subjects, classifications, party names/documents) and the response history endpoint.
+  </Accordion>
+  <Accordion title="Arrest warrants" icon="shield">
+    Arrest warrant lookup by CPF, name, or RJI, plus warrant attachment download.
+  </Accordion>
+  <Accordion title="Criminal execution" icon="gavel">
+    Criminal execution lookup by CPF, CNPJ, name, or CNJ.
+  </Accordion>
+  <Accordion title="Datalake queries" icon="database">
+    Synchronous queries against the Judit datalake: Hot Storage (full lawsuit list), Count (total matches), True / false, and Grouped historical (counts aggregated by classification, subject, area, tribunal, etc.).
+  </Accordion>
+  <Accordion title="Registration data" icon="id-card">
+    Look up the `entity` object (CPF or CNPJ registration data), with the option to query Receita Federal in real time.
+  </Accordion>
+  <Accordion title="Usage report" icon="chart-line">
+    List requests created in a given period, useful for billing and consumption analysis.
+  </Accordion>
+  <Accordion title="Credentials vault" icon="key">
+    Register, list, and delete credentials for tribunals that require authenticated crawling.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The collection uses Postman variables for the base URLs and your API key, so you only configure them once. If you need a sandbox key, contact us at [contato@judit.io](mailto:contato@judit.io).
+</Note>
