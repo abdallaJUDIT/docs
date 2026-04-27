@@ -106,7 +106,8 @@
                                     "pt/resource/consumption",
                                     "pt/resource/faq",
                                     "pt/resource/glossary",
-                                    "pt/resource/postman-collection"
+                                    "pt/resource/postman-collection",
+                                    "pt/resource/mcp"
                                 ]
                             }
                         ]
@@ -265,7 +266,8 @@
                                     "en/resource/consumption",
                                     "en/resource/faq",
                                     "en/resource/glossary",
-                                    "en/resource/postman-collection"
+                                    "en/resource/postman-collection",
+                                    "en/resource/mcp"
                                 ]
                             }
                         ]
