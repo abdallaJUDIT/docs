@@ -1,9 +1,65 @@
 ---
-title: "Collection para Postman"
-description: "Esta Collection contém todos os tipos de requisições dos nossos serviços disponíveis até o momento."
+title: "Postman Collection"
+description: "Explore e teste todos os endpoints da Judit API direto no Postman — sem precisar baixar nada."
 icon: "code-pull-request"
 ---
 
+A coleção completa da Judit API está no nosso workspace público no Postman. Clique abaixo para abrir: você pode navegar pelas requisições com descrições e exemplos, rodar tudo direto no Postman web ou fazer um fork para o seu próprio workspace com um clique.
 
+<Card
+  title="Abrir a Judit API no Postman"
+  icon="rocket"
+  href="https://www.postman.com/a66666-5328/workspace/judit-api-pt-br"
+>
+  Abre o workspace público. Use **Fork** para copiar a coleção para o seu workspace, ou **Run in Postman** para importar no app desktop.
+</Card>
 
-[Collection Postman](https://drive.google.com/file/d/1PTNJjVzu65F-CGxFOXX82hwMctG1WxWU/view?usp=sharing)
+## Início rápido
+
+<Steps>
+  <Step title="Abrir o workspace">
+    Clique no card acima. A coleção **Judit API** aparece na sidebar, com todos os endpoints organizados por pasta.
+  </Step>
+  <Step title="Fazer fork da coleção (ou importar)">
+    No header da coleção, clique em **Fork** para copiar para o seu workspace pessoal, ou em **Run in Postman** para enviar ao app desktop. As duas opções preservam a estrutura, variáveis e scripts de teste.
+  </Step>
+  <Step title="Configurar sua chave de API">
+    Abra a coleção que você fez fork, clique no nome dela na sidebar e vá na aba **Variables**. Cole sua chave de API na coluna *Current value* da variável `api_key` e clique em **Save**. A coleção envia automaticamente como header `api-key` em todas as requisições.
+  </Step>
+  <Step title="Enviar sua primeira requisição">
+    Abra **Consulta processual e por documento › 1 - Criar requisição por CNJ**, preencha a variável `cnj_code` com um CNJ real e clique em **Send**. Você deve receber um `request_id` — ele é capturado automaticamente na variável `request_id`, então o próximo passo (**2 - Consultar status da requisição**) funciona sem copiar e colar.
+  </Step>
+</Steps>
+
+## O que tem dentro
+
+<AccordionGroup>
+  <Accordion title="Consulta processual e por documento" icon="paper-plane">
+    Fluxo ponta a ponta: cria uma requisição por CNJ ou por documento (CPF, CNPJ, OAB, nome), consulta o status, lista as respostas e baixa anexos do processo. O primeiro passo já captura o `request_id` em uma variável da coleção, então as chamadas encadeadas funcionam sem copiar e colar.
+  </Accordion>
+  <Accordion title="Monitoramento" icon="bell">
+    Cria, lista, pausa, retoma, atualiza e deleta monitoramentos de processos. Inclui o conjunto completo de filtros (tribunais, assuntos, classificações, nomes e documentos de parte) e o endpoint de histórico de respostas.
+  </Accordion>
+  <Accordion title="Mandados de prisão" icon="shield">
+    Consulta de mandados de prisão por CPF, nome ou RJI, incluindo o download do anexo do mandado.
+  </Accordion>
+  <Accordion title="Execução penal" icon="gavel">
+    Consulta de execução penal por CPF, CNPJ, nome ou CNJ.
+  </Accordion>
+  <Accordion title="Consultas Datalake" icon="database">
+    Consultas síncronas no datalake da Judit: Hot Storage (lista completa de processos), Contagem (total de processos), True / false e Histórica agrupada (contagens agregadas por classificação, assunto, área, tribunal, etc.).
+  </Accordion>
+  <Accordion title="Dados cadastrais" icon="id-card">
+    Consulta do objeto `entity` (dados cadastrais de CPF ou CNPJ), com opção de consultar a Receita Federal em tempo real.
+  </Accordion>
+  <Accordion title="Relatório de consumo" icon="chart-line">
+    Lista as requisições criadas em um determinado período, útil para cobrança e análise de consumo.
+  </Accordion>
+  <Accordion title="Cofre de credenciais" icon="key">
+    Cadastrar, listar e deletar credenciais para tribunais que exigem autenticação para crawl.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  A coleção usa variáveis do Postman para as URLs base e sua chave de API, então você só configura uma vez. Se precisar de uma chave de sandbox, fale com a gente em [contato@judit.io](mailto:contato@judit.io).
+</Note>
