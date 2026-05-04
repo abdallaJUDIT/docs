@@ -1,8 +1,36 @@
 ---
-title: "Monitoramento de Novas Ações"
-description: "Essa página tem como objetivo mostrar o fluxo de Monitoramento de novas ações por documento."
+title: "Monitoramento de Novas Ações por Documento"
+sidebarTitle: "Por Documento"
+description: "Detecte automaticamente o nascimento de novos processos vinculados a um CPF, CNPJ ou OAB. Receba o novo processo via webhook na Judit API."
+keywords: ["novas ações", "monitoramento por documento", "cpf", "cnpj", "oab", "novos processos", "watcher"]
 icon: "satellite-dish"
 ---
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+
+<CnpjAlphaInfo />
+
+O **Monitoramento por Documento** detecta o **nascimento** de novos processos vinculados a um CPF, CNPJ ou OAB. Diferente do monitoramento por CNJ (que vigia atualizações em um processo conhecido), aqui você descobre processos que **ainda não existiam** quando você começou a monitorar.
+
+> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` com `search_type` em `cpf`, `cnpj` ou `oab`. Sempre que um novo processo for ajuizado e a Judit detectar, você recebe a notificação por webhook.
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Vigilância de carteira" icon="user-magnifying-glass">
+    Acompanhe um cliente ou contraparte e seja avisado no momento em que houver novo litígio.
+  </Card>
+  <Card title="Compliance contínuo" icon="shield-halved">
+    Mantenha o KYC vivo: novos processos relevantes contra um fornecedor disparam alerta automático.
+  </Card>
+  <Card title="Carteira de cobrança" icon="hand-holding-dollar">
+    Para grandes carteiras, descubra rapidamente quando o devedor passa a figurar como autor/réu em outras ações.
+  </Card>
+  <Card title="Inteligência por OAB" icon="user-tie">
+    Saiba quando um advogado começa a atuar em um novo processo (útil para análise estratégica).
+  </Card>
+</CardGroup>
 
 <Steps>
   <Step title="Criação do monitoramento" stepNumber="1">
@@ -60,7 +88,7 @@ icon: "satellite-dish"
     Exemplo de payload sem filtros:
 
    ```bash
-    curl --location 'https://tracking.prod.judit.io/tracking' \
+    curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
@@ -70,7 +98,7 @@ icon: "satellite-dish"
             "search_key": "999.999.999-99"
         }
     }'
-   ```
+```
 
    <Note>
       O monitoramento irá ser iniciado a primeira vez, na melhor janela de
@@ -83,7 +111,7 @@ icon: "satellite-dish"
    Exemplo de payload com alguns filtros opcionais:
 
    ```bash
-   curl --location 'https://tracking.prod.judit.io/tracking' \
+   curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: e8f62c5c-7465-426c-abc5-9735c67f25b1' \
     --header 'Content-Type: application/json' \
     --data '{
@@ -135,7 +163,7 @@ icon: "satellite-dish"
    "created_at": "2024-02-21T18:26:38.499Z",
    "updated_at": "2024-02-21T18:26:38.499Z"
    }
-   ```
+```
 
   <Note>
    Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta aos tribunais serão realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
@@ -147,10 +175,10 @@ icon: "satellite-dish"
 
       ```bash
       curl --request GET
-      --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+      --url "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
       --header "api-key: SUA-API-KEY"
       --header "Content-Type: application/json"
-      ```
+```
 
       Retorno:
       ```json
@@ -177,7 +205,7 @@ icon: "satellite-dish"
         "created_at": "2024-02-21T18:26:38.499Z",
         "updated_at": "2024-02-21T18:26:38.499Z"
       }
-      ```
+```
 
       A propriedade status informa a situação atual do monitoramento,
     podendo ser:
@@ -212,10 +240,10 @@ icon: "satellite-dish"
 
     ```bash
     curl --request GET
-    --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+    --url "https://requests.production.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
     --header "api-key: SUA-API-KEY"
     --header "Content-Type: application/json"
-    ```
+```
 
     <Accordion title="Exemplo de retorno da Request">
     ```json
@@ -605,7 +633,7 @@ icon: "satellite-dish"
       "all_count": 3,
       "all_pages_count": 1
     }
-    ```
+```
     </Accordion>
 
       O parâmetro <strong>page</strong> e <strong>page_size</strong> são opcionais, porém necessários para
@@ -649,9 +677,9 @@ icon: "satellite-dish"
         Aqui está um exemplo de como fazer isso usando curl:
 
         ```bash
-        curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+        curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
         --header 'api-key: <API-KEY>'
-        ```
+```
 
         Aqui está o retorno esperado:
 
@@ -961,7 +989,7 @@ icon: "satellite-dish"
                 }
             ]
         }
-        ```
+```
   </Step>
   <Step title="Pausando um Monitoramento" stepNumber="5">
     Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
@@ -969,9 +997,9 @@ icon: "satellite-dish"
     Aqui está um exemplo de como pausar o monitoramento usando o curl:
 
     ```bash
-    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+    curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
     -H "api-key: YOUR-API_KEY"
-    ```
+```
 
     Aqui está um exemplo de retorno do monitoramento pausado:
 
@@ -996,7 +1024,7 @@ icon: "satellite-dish"
     "created_at": "2024-02-21T18:26:38.499Z",
     "updated_at": "2024-02-21T18:26:38.499Z"
     }
-    ```
+```
   </Step>
   <Step title="Reativando um Monitoramento" stepNumber="6">
     Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
@@ -1004,9 +1032,9 @@ icon: "satellite-dish"
     Aqui está um exemplo de como reativar um monitoramento usando curl:
 
     ```bash
-    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+    curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
     -H "api-key: YOUR_API_KEY"
-    ```
+```
 
     Aqui está um exemplo de retorno do monitoramento **ativo**
 
@@ -1028,44 +1056,14 @@ icon: "satellite-dish"
     "tracked_items_count": 0,
     "tracked_items_steps_count": 0,
     "tags": {},
-    "created_at": "2024-02-21T18:26:38.499Z",
+    "created_at": "2024-02-21T18:26:38.49
+3Z"
+}
+```
+```
+9Z",
     "updated_at": "2024-02-21T18:26:38.499Z"
     }
-    ```
-  </Step>
-  <Step title="Deletando um Monitoramento" stepNumber="7">
-      Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
-
-      Aqui está um exemplo de como deletar um monitoramento usando curl:
-
-      ```bash
-      curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
-      -H "api-key: YOUR_API_KEY"
-      ```
-
-      Aqui está um exemplo do retorno do monitoramento deletado:
-
-      ```json
-      {
-      "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-      "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-      "status": "deleted",
-      "recurrence": 1,
-      "search": {
-        "search_type": "cpf",
-        "search_key": "999.999.999-99",
-        "response_type": "lawsuit",
-        "search_params": {
-        "filter": {},
-        "pagination": {}
-        }
-      },
-      "tracked_items_count": 0,
-      "tracked_items_steps_count": 0,
-      "tags": {},
-      "created_at": "2024-02-21T18:26:38.499Z",
-      "updated_at": "2024-02-21T18:26:38.499Z"
-      }
     ```
   </Step>
 </Steps>

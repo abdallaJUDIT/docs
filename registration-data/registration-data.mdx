@@ -1,268 +1,381 @@
 ---
-title: "Busca por Dados Cadastrais"
-description: "Esta página tem como objetivo mostrar o fluxo de Consulta por dados cadastrais."
+title: "Dados Cadastrais por CPF, CNPJ ou Nome"
+sidebarTitle: "Dados Cadastrais"
+description: "Obtenha dados cadastrais (Pessoa Física ou Jurídica) de forma síncrona pelo endpoint /entities da Judit API. Suporta consulta no datalake ou em tempo real na Receita Federal (on-demand)."
+keywords: ["dados cadastrais", "entities", "cpf", "cnpj", "receita federal", "on demand", "pessoa física", "pessoa jurídica"]
 icon: "Readme"
 ---
-<Steps>
- <Step title="Criação de Request" stepNumber="1">
-   Para consultar dados cadastrais via CPF, CNPJ ou Nome, a requisição deve ser realizada através do endpoint `/requests/create` da API de lawsuits. A consulta por dados cadastrais pode ser realizada diretamente em nosso datalake ou em tempo real na receita federal, para que sejam consultados os dados em tempo real, basta adicionar o parâmentro `on-demand` com o valor `true` no payload da requisção.
 
-    <Note>
-    Na consulta por dados cadastrais, o search_type deve ser <strong>'cpf'</strong>, <strong>'cnpj'</strong> ou <strong>'name'</strong>, já o campo response_type deverá sempre ser <strong>'entity'</strong>.
-    </Note>
+import { EndpointBadges } from '/snippets/badges.mdx';
 
-   **Exemplo de Consulta por CPF:**
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
-   ```bash
-   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
-    --header 'Content-Type: application/json' \
-    --header 'api-key: <API-KEY>' \
-    --data '{
+
+<CnpjAlphaInfo />
+
+A **Consulta por Dados Cadastrais** retorna informações de identificação de uma Pessoa Física ou Jurídica: nome/razão social, situação cadastral, endereços, contatos, sócios e relacionamentos. Toda a chamada é síncrona e pode ler do datalake da Judit (rápido e barato) ou direto da Receita Federal em tempo real (`on_demand: true`).
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/entities`. `search_type` aceita `cpf`, `cnpj` ou `name`. `response_type` é sempre `entity`. Para resposta em tempo real (Receita), envie `on_demand: true` no payload.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Onboarding e KYC" icon="user-check">
+    Valide nome, situação cadastral e endereço durante o cadastro do cliente sem fricção adicional.
+  </Card>
+  <Card title="Enriquecimento de base" icon="database">
+    Atualize seu CRM/ERP com dados consolidados por CPF/CNPJ.
+  </Card>
+  <Card title="Anti-fraude" icon="user-secret">
+    Confronte dados informados pelo usuário com a versão oficial em segundos.
+  </Card>
+  <Card title="Mapeamento de grupo econômico" icon="sitemap">
+    Use a resposta para descobrir filiais e relacionamentos societários ligados a um CNPJ.
+  </Card>
+</CardGroup>
+
+## Datalake vs. On-Demand (Receita Federal)
+
+| Característica | Datalake (padrão) | On-Demand (`on_demand: true`) |
+| :--- | :--- | :--- |
+| **Latência** | ms | segundos |
+| **Fonte** | Cache JUDIT | Receita Federal em tempo real |
+| **Atualidade** | Última coleta JUDIT | Estado atual da Receita |
+| **Custo** | Mais barato | Mais caro |
+| **Caso ideal** | Onboarding rápido, enriquecimento em massa | Compliance crítico, decisões de alto risco |
+
+## Passo 1: Criar a Consulta (POST)
+
+`POST https://lawsuits.production.judit.io/entities`
+
+### Exemplos por tipo de documento
+
+<CodeGroup>
+```json Por CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "entity"
+    }
+}
+```
+
+```json Por CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99",
+        "response_type": "entity"
+    }
+}
+```
+
+```json Por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "Nome teste",
+        "response_type": "entity"
+    }
+}
+```
+
+```json On-Demand (Receita Federal)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "entity",
+        "on_demand": true
+    }
+}
+```
+
+```json CNPJ com sócios não mascarados
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99",
+        "response_type": "entity",
+        "reveal_partners_documents": true
+    }
+}
+```
+</CodeGroup>
+
+<Warning>
+Ao realizar consultas por **nome**, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Sempre que possível, prefira CPF ou CNPJ para garantir maior precisão.
+</Warning>
+
+### Parâmetros do Payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | `"cpf"`, `"cnpj"` ou `"name"`. |
+| `search.search_key` | string | **Sim** | Documento ou nome a buscar. |
+| `search.response_type` | string | **Sim** | Sempre `"entity"`. |
+| `search.on_demand` | boolean | Não | Se `true`, força leitura em tempo real na Receita Federal. |
+| `search.reveal_partners_documents` | boolean | Não | (CNPJ) Retorna documentos não mascarados dos sócios. |
+
+### Exemplo de Requisição (POST)
+
+<CodeGroup>
+```bash cURL (CPF)
+curl --location 'https://lawsuits.production.judit.io/entities' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99",
+      "response_type": "entity"
+    }
+  }'
+```
+
+```bash cURL (CNPJ on-demand)
+curl --location 'https://lawsuits.production.judit.io/entities' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cnpj",
+      "search_key": "99.999.999/9999-99",
+      "response_type": "entity",
+      "on_demand": true
+    }
+  }'
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/entities",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
         "search": {
             "search_type": "cpf",
             "search_key": "999.999.999-99",
-            "response_type": "entity"
-	    }
-    }'
-    ```
+            "response_type": "entity",
+        }
+    },
+    timeout=30,
+)
+resp.raise_for_status()
+print(resp.json())
+```
 
-    **Exemplo de Consulta por CNPJ:**
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/entities", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "entity",
+    },
+  }),
+});
+console.log(await res.json());
+```
 
-    ```bash
-   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
-    --header 'Content-Type: application/json' \
-    --header 'api-key: <API-KEY>' \
-    --data '{
-        "search": {
-            "search_type": "cnpj",
-            "search_key": "99.999.999/9999-99",
-            "response_type": "entity"
-	    }
-    }'
-    ```
+```go Go
+package main
 
-    **Exemplo de Consulta por Nome:**
+import (
+    "bytes"
+    "encoding/json"
+    "io"
+    "net/http"
+    "os"
+)
 
-    <Warning>
-    Ao realizar consultas por nome na busca de dados cadastrais, é possível que existam homônimos (pessoas ou empresas com o mesmo nome). Recomendamos que, sempre que possível, utilize identificadores únicos, como CPF ou CNPJ, para garantir maior precisão nos resultados.
-    </Warning>
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type":   "cpf",
+            "search_key":    "999.999.999-99",
+            "response_type": "entity",
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/entities",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    out, _ := io.ReadAll(res.Body)
+    println(string(out))
+}
+```
+</CodeGroup>
 
-   ```bash
-   curl --location 'https://lawsuits.prod.judit.io/requests/create' \
-    --header 'Content-Type: application/json' \
-    --header 'api-key: <API-KEY>' \
-    --data '{
-        "search": {
-            "search_type": "name",
-            "search_key": "Nome teste",
-            "response_type": "entity"
-	    }
-    }'
-    ```
+## Passo 2: Ler a Resposta
 
-    <Note>
-    Ao realizar uma consulta por CNPJ, é possível obter informações detalhadas, incluindo dados não mascarados dos sócios associados ao CNPJ consultado. Para acessar essas informações, basta incluir a propriedade `reveal_partners_documents` e definir seu valor como `true`.
-    </Note>
+A resposta vem no corpo do mesmo POST. Os campos principais:
 
-    ***Resposta por CPF***
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `request_id` | string | Identificador único da consulta. |
+| `response_data` | array | Lista de entidades encontradas (segue o [Schema Entity](/schemas/entity)). |
+| `response_data[].entity_type` | string | `"person"` (PF) ou `"company"` (PJ). |
+| `response_data[].main_document` | string | CPF ou CNPJ. |
+| `response_data[].addresses` | array | Endereços associados. |
+| `response_data[].contacts` | array | Telefones e e-mails. |
+| `response_data[].partners` | array | (PJ) Sócios e administradores. |
 
-     ```json
-    {
-        "has_lawsuits": false,
-        "request_id": "5c618521-2ecc-4176-a573-431d2e0edeb2",
-        "response_data": [
-            {
-                "entity_id": "",
-                "entity_type": "person",
-                "main_document": "999.999.999-99",
-                "name": "JOÃO TESTE",
-                "addresses": [
-                    {
-                        "street": "RUA RAMOS DE CARVALHO",
-                        "number": "999",
-                        "complement": "",
-                        "neighborhood": "CENTRO",
-                        "city": "RIO DE JANEIRO",
-                        "state": "RJ",
-                        "country": "Brasil",
-                        "zip_code": "99999999",
-                        "ibge_code": 9999999
+### Exemplos de Resposta
+
+<CodeGroup>
+```json Resposta por CPF
+{
+    "has_lawsuits": false,
+    "request_id": "5c618521-2ecc-4176-a573-431d2e0edeb2",
+    "response_data": [
+        {
+            "entity_id": "",
+            "entity_type": "person",
+            "main_document": "999.999.999-99",
+            "name": "JOÃO TESTE",
+            "addresses": [
+                {
+                    "street": "RUA RAMOS DE CARVALHO",
+                    "number": "999",
+                    "neighborhood": "CENTRO",
+                    "city": "RIO DE JANEIRO",
+                    "state": "RJ",
+                    "country": "Brasil",
+                    "zip_code": "99999999"
+                }
+            ],
+            "contacts": [
+                { "description": "21999999999", "contact_type": "phone" }
+            ],
+            "parents": [
+                { "name": "JANAINA DA SILVA", "kinship": "mother" }
+            ],
+            "tags": { "revenue_update_date": "2022-05-30T00:00:00.000Z" },
+            "nationality": "BRASILEIRA",
+            "birth_date": "1981-08-07T00:00:00.000Z",
+            "gender": "male",
+            "revenue_service_active": true,
+            "created_at": "2024-10-12T13:28:59.051Z",
+            "updated_at": "2024-10-12T13:28:59.051Z"
+        }
+    ]
+}
+```
+
+```json Resposta por CNPJ
+{
+    "has_lawsuits": false,
+    "request_id": "6e5a24f7-f874-4234-8acc-419142e2b066",
+    "response_data": [
+        {
+            "entity_id": "",
+            "entity_type": "company",
+            "main_document": "99.999.999/0009-99",
+            "name": "FINGI - EM RECUPERACAO JUDICIAL",
+            "social_name": "FING",
+            "addresses": [
+                {
+                    "street": "RUA DO JOÃO CIRILO",
+                    "number": "99",
+                    "complement": "ANDAR 9",
+                    "neighborhood": "CENTRO",
+                    "city": "RIO DE JANEIRO",
+                    "state": "RJ",
+                    "country": "BRASIL",
+                    "zip_code": "99999999"
+                }
+            ],
+            "contacts": [
+                { "description": "999999999", "contact_type": "phone" },
+                { "description": "ouvidoria@fing.com.br", "contact_type": "email" }
+            ],
+            "partners": [
+                {
+                    "entity_type": "company",
+                    "main_document": "***999999**",
+                    "name": "JOÃO DE OLIVEIRA SOUZA",
+                    "position": "CONSELHEIRO DE ADMINISTRAÇÃO",
+                    "tags": {
+                        "age_group": "Entre 61 a 70 anos",
+                        "start_date": "2018-09-25T00:00:00.000Z"
                     }
-                ],
-                "aka_names": [],
-                "contacts": [
-                    {
-                        "description": "21999999999",
-                        "contact_type": "phone"
-                    }
-                ],
-                "documents": [],
-                "parents": [
-                    {
-                        "name": "JANAINA DA SILVA",
-                        "kinship": "mother"
-                    }
-                ],
-                "partners": [],
-                "associated_people": [],
-                "tags": {
-                    "revenue_update_date": "2022-05-30T00:00:00.000Z"
-                },
-                "created_at": "2024-10-12T13:28:59.051Z",
-                "updated_at": "2024-10-12T13:28:59.051Z",
-                "nationality": "BRASILEIRA",
-                "birth_date": "1981-08-07T00:00:00.000Z",
-                "gender": "male",
-                "revenue_service_active": true
-            }
-        ]
-    }
-     ```
+                }
+            ],
+            "branch_activities": [
+                {
+                    "code": "9999999",
+                    "name": "SERVIÇOS DE ATENDIMENTO AO CLIENTE - SAC",
+                    "active": true,
+                    "main_activity": true
+                }
+            ],
+            "tags": { "revenue_update_date": "2005-11-03T00:00:00.000Z" },
+            "nationality": "BRASILEIRA",
+            "birth_date": "1966-09-26T00:00:00.000Z",
+            "size": "DEMAIS",
+            "legal_nature": {
+                "code": "2046",
+                "name": "SOCIEDADE ANÔNIMA ABERTA",
+                "active": true
+            },
+            "head_office": true,
+            "revenue_service_active": true,
+            "special_status": "RECUPERACAO JUDICIAL",
+            "special_status_date": "2016-06-29T00:00:00.000Z",
+            "share_capital": 99999999999
+        }
+    ]
+}
+```
 
-    ***Resposta por CNPJ***
+```json Resposta por Nome
+{
+    "request_id": "223458ec-f3a1-4851-8d2b-19672066565c",
+    "response_data": [
+        {
+            "entity_id": "999.999.999-99",
+            "entity_type": "person",
+            "main_document": "999.999.999-99",
+            "name": "Usuário Teste",
+            "parents": [
+                { "name": "Usuário teste 1", "kinship": "mother" }
+            ],
+            "tags": {},
+            "nationality": "BRASILEIRA",
+            "birth_date": "1989-12-25T00:00:00.000Z",
+            "gender": "male",
+            "created_at": "2025-04-19T00:14:56.561Z",
+            "updated_at": "2025-04-19T00:14:56.561Z"
+        }
+    ]
+}
+```
+</CodeGroup>
 
-     ```json
-    {
-        "has_lawsuits": false,
-        "request_id": "6e5a24f7-f874-4234-8acc-419142e2b066",
-        "response_data": [
-            {
-                "entity_id": "",
-                "entity_type": "company",
-                "main_document": "99.999.999/0009-99",
-                "name": "FINGI - EM RECUPERACAO JUDICIAL",
-                "social_name": "FING",
-                "addresses": [
-                    {
-                        "street": "RUA DO JOÃO CIRILO",
-                        "number": "99",
-                        "complement": "ANDAR 9",
-                        "neighborhood": "CENTRO",
-                        "city": "RIO DE JANEIRO",
-                        "state": "RJ",
-                        "country": "BRASIL",
-                        "zip_code": "99999999",
-                        "ibge_code": 999999
-                    }
-                ],
-                "aka_names": [],
-                "contacts": [
-                    {
-                        "description": "999999999",
-                        "contact_type": "phone"
-                    },
-                    {
-                        "description": "999999999",
-                        "contact_type": "phone"
-                    },
-                    {
-                        "description": "ouvidoria@fing.com.br",
-                        "contact_type": "email"
-                    }
-                ],
-                "documents": [],
-                "parents": [],
-                "partners": [
-                    {
-                        "entity_id": "",
-                        "entity_type": "company",
-                        "main_document": "***999999**",
-                        "name": "JOÃO DE OLIVEIRA SOUZA",
-                        "position": "CONSELHEIRO DE ADMINISTRAÇÃO",
-                        "addresses": [],
-                        "aka_names": [],
-                        "contacts": [],
-                        "documents": [],
-                        "parents": [],
-                        "partners": [],
-                        "branch_activities": [],
-                        "associated_people": [],
-                        "tags": {
-                            "age_group": "Entre 61 a 70 anos",
-                            "start_date": "2018-09-25T00:00:00.000Z"
-                        },
-                        "created_at": "2024-10-12T13:32:25.135Z",
-                        "updated_at": "2024-10-12T13:32:25.135Z"
-                    }
-                ],
-                "branch_activities": [
-                    {
-                        "code": "9999999",
-                        "name": "SERVIÇOS DE ATENDIMENTO AO CLIENTE - SAC",
-                        "active": true,
-                        "main_activity": true,
-                        "tree_history": ""
-                    },
-                    {
-                        "code": "9999999",
-                        "name": "CONSTRUÇÃO DE ESTAÇÕES E REDES",
-                        "active": true,
-                        "main_activity": false,
-                        "tree_history": ""
-                    }
-                ],
-                "associated_people": [],
-                "tags": {
-                    "revenue_update_date": "2005-11-03T00:00:00.000Z"
-                },
-                "created_at": "2024-10-12T13:32:25.134Z",
-                "updated_at": "2024-10-12T13:32:25.134Z",
-                "nationality": "BRASILEIRA",
-                "birth_date": "1966-09-26T00:00:00.000Z",
-                "size": "DEMAIS",
-                "legal_nature": {
-                    "code": "2046",
-                    "name": "SOCIEDADE ANÔNIMA ABERTA",
-                    "active": true
-                },
-                "head_office": true,
-                "revenue_service_active": true,
-                "special_status": "RECUPERACAO JUDICIAL",
-                "special_status_date": "2016-06-29T00:00:00.000Z",
-                "share_capital": 99999999999
-            }
-        ]
-    }
-     ```
+> Estrutura completa de cada item: veja [Schema Entity](/schemas/entity). Glossário de campos: [Glossário](/resource/glossary).
 
-     ***Resposta por Nome***
+<Note>
+Ao consultar por CNPJ com `reveal_partners_documents: true`, retornamos os CPFs/CNPJs dos sócios sem mascaramento. Use somente quando há base legal/contratual (LGPD).
+</Note>
 
-     ```json
-     {
-        "request_id": "223458ec-f3a1-4851-8d2b-19672066565c",
-        "response_data": [
-            {
-                "entity_id": "999.999.999-99",
-                "entity_type": "person",
-                "main_document": "999.999.999-99",
-                "name": "Usuário Teste",
-                "addresses": [],
-                "aka_names": [],
-                "contacts": [],
-                "documents": [],
-                "parents": [
-                    {
-                        "name": "Usuário teste 1",
-                        "kinship": "mother"
-                    }
-                ],
-                "partners": [],
-                "associated_people": [],
-                "tags": {},
-                "created_at": "2025-04-19T00:14:56.561Z",
-                "updated_at": "2025-04-19T00:14:56.561Z",
-                "nationality": "BRASILEIRA",
-                "birth_date": "1989-12-25T00:00:00.000Z",
-                "gender": "male"
-            }
-        ]
-    }
-     ```
+## Erros comuns
 
-     <Note>
-    Ao realizar uma consulta por CNPJ, é possível obter informações detalhadas, incluindo dados não mascarados dos sócios associados ao CNPJ consultado. Para acessar essas informações, basta incluir a propriedade `reveal_partners_documents` e definir seu valor como `true`.
-    </Note>
-
-   O significado de cada campo pode ser encontrado no **[glossário](/resource/glossary)**
- </Step>
-</Steps>
+| HTTP | Quando acontece | Como tratar |
+| :--- | :--- | :--- |
+| `400` | Documento em formato inválido / `response_type` ausente. | V

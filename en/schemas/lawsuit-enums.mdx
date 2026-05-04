@@ -1,6 +1,9 @@
 ---
-title: "Enumerations and Domains (Enums)"
-description: "This page contains the enumerations (Enums) and value domains for the properties of objects returned by the Judit API (Lawsuits, Warrants, Executions, etc.)."
+title: "Enums and Domains — Judit API"
+sidebarTitle: "Enums"
+description: "Complete list of literal values accepted and returned by Lawsuit, Warrant, Penal Execution and Entity properties (area, status, side, person_type, secrecy_level and more)."
+keywords: ["enums", "values", "domains", "area", "status", "side", "person_type", "secrecy_level"]
+icon: "list-tree"
 ---
 
 > 🤖 This document lists the literal values accepted and returned by the properties of the Judit API across its various Schemas. Remember that in the `lawsuit` object, the header properties (such as `area`, `status`, `situation`, `secrecy_level`) are nested inside the root `response_data` object, while `side` and `person_type` are inside the objects in the `parties` array.
@@ -95,25 +98,25 @@ The API returns two similar fields, but with distinct purposes, to indicate the 
 ### 1. Global Status (`status`)
 Macro, standardized view of the lawsuit, ideal for filters and dashboards:
 
-| Value | Description |
-| :--- | :--- |
-| `ATIVO` | Lawsuit running normally. |
-| `FINALIZADO` | Lawsuit concluded or closed. |
+| Value | Description | Behavior on Judit |
+| :--- | :--- | :--- |
+| `ATIVO` | Lawsuit running normally. | The crawler keeps collecting steps on every tracker run. |
+| `FINALIZADO` | Lawsuit concluded or closed. | The crawler still monitors (in case the court reopens), but movements are rare. |
 
 ### 2. Granular Situation (`situation`)
 More specific and variable status, captured directly from the court's header:
 
-| Value | Description |
-| :--- | :--- |
-| `INICIAL` | Lawsuit recently filed. |
-| `SENTENÇA` | Lawsuit with a judgment issued. |
-| `EXECUÇÃO OU CUMPRIMENTO` | Lawsuit in execution/collection phase. |
-| `TRÂNSITO JULGADO OU EM ACORDO` | Final decision with no further appeal possible. |
-| `RECURSO` | Lawsuit awaiting appeal judgment. |
-| `ARQUIVADO` | Lawsuit permanently archived. |
-| `SUSPENSO` | Proceedings temporarily halted. |
-| `SOBRESTADO` | Awaiting decision from a superior court. |
-| `CANCELADO` | Filing canceled. |
+| Value | Description | Behavior on Judit |
+| :--- | :--- | :--- |
+| `INICIAL` | Lawsuit recently filed. | Tends to generate many updates in the first days — a low tracker recurrence is recommended. |
+| `SENTENÇA` | Lawsuit with a judgment issued. | Critical point — common target for `notification_filters.step_terms`. |
+| `EXECUÇÃO OU CUMPRIMENTO` | Lawsuit in execution/collection phase. | Financial events (seizures, blocks) appear in the `steps`. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Final decision with no further appeal possible. | Little follow-up activity; a high recurrence (e.g. 30 days) is enough. |
+| `RECURSO` | Lawsuit awaiting appeal judgment. | Often generates new `lawsuit_cnj` at the 2nd instance. |
+| `ARQUIVADO` | Lawsuit permanently archived. | The crawler keeps collecting, but rarely brings news. |
+| `SUSPENSO` | Proceedings temporarily halted. | May return to `ATIVO` — keep the tracker active. |
+| `SOBRESTADO` | Awaiting decision from a superior court. | Usually moves together with the lead-case decision at STF/STJ. |
+| `CANCELADO` | Filing canceled. | The court removed the lawsuit — Judit marks it invalid on future runs. |
 
 ---
 
@@ -242,3 +245,5 @@ sp_lawsuits = [
 
 * 👉 **[Search Lawsuits](/en/requests/requests):** Use these enumerations as filter parameters in your searches.
 * 👉 **[Arrest Warrant](/en/schemas/warrant):** See the schema for the arrest warrant object.
+* 👉 **[Penal Execution](/en/schemas/penal-execution):** See the schema for penal executions and related enums.
+* 👉 **[Glossary](/en/resource/glossary):** Legal and technical terms used by the Judit API.

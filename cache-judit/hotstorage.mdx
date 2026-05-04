@@ -1,57 +1,296 @@
 ---
-title: "Consulta datalake Hot Storage"
-description: "Consulta datalake Hot Storage"
+title: "Consulta Síncrona ao Datalake (Hot Storage)"
+sidebarTitle: "Hot Storage"
+description: "Consulte instantaneamente o datalake da Judit (Hot Storage) por CPF, CNPJ, OAB ou Nome. Resposta síncrona em milissegundos com dados já indexados — ideal para validações e fluxos em tempo real."
+keywords: ["hot storage", "datalake", "síncrona", "cache", "tempo real", "CPF", "CNPJ"]
 icon: "fire"
 ---
 
-A consulta síncrona permite verificar rapidamente se um CPF, CNPJ, OAB ou nome possui processos registrados em nosso datalake. Ela retorna, de forma ágil, uma resposta indicando a existência ou não de processos, quantidade de processos, consulta histórica hot storage e consulta sintética de processos.
+import { EndpointBadges } from '/snippets/badges.mdx';
 
-Na consulta síncrona, são retornados apenas os dados já disponíveis em nossa base de acordo com os filtros aplicados, garantindo uma resposta mais rápida. Contudo, isso pode resultar em um pequeno atraso na obtenção de informações mais completas. Para acessar dados atualizados e abrangentes, é fundamental realizar uma consulta assíncrona, que buscará diretamente nos tribunais trazendo as informações atualizadas.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+
+<CnpjAlphaInfo />
+
+A **Consulta Síncrona ao Hot Storage** retorna, em milissegundos, todos os processos do nosso datalake vinculados a um CPF, CNPJ, OAB, Nome ou CNJ. Não há fila nem espera por tribunal: a resposta vem direto do cache JUDIT.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits`. A resposta é síncrona (HTTP 200 com o JSON pronto). Esta rota não vai ao tribunal — ela lê o datalake da Judit, então pode haver um pequeno atraso em relação ao estado mais atual do processo. Se precisar de dados atualizados em tempo real, use [POST /requests](/requests/requests) (assíncrono).
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Síncrono vs. assíncrono — qual escolher?
+
+| Característica | Síncrono (Hot Storage) | Assíncrono (Requests) |
+| --- | --- | --- |
+| **Latência** | ms (resposta imediata) | segundos a minutos |
+| **Fonte** | Datalake JUDIT (cache) | Tribunal em tempo real |
+| **Atualidade** | Última coleta da JUDIT | Estado atual do tribunal |
+| **Webhook** | Não aplicável | Sim, opcional |
+| **Custo** | Mais barato | Mais caro |
+| **Caso ideal** | Validação rápida, dashboards, busca interativa | Diligência, atualização forçada, consulta sob demanda |
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Validação em tempo real" icon="bolt">
+    Onboarding, KYC, autocomplete — sempre que precisar de uma resposta imediata para a UI.
+  </Card>
+  <Card title="Dashboards interativos" icon="chart-line">
+    Dashboards e BI que listam processos vinculados a um cliente sem precisar atualizar o tribunal.
+  </Card>
+  <Card title="Pré-filtragem de risco" icon="filter">
+    Antes de disparar uma consulta assíncrona cara, descubra rapidamente se vale a pena.
+  </Card>
+  <Card title="Estatísticas e contagens" icon="hashtag">
+    Combine com [`/lawsuits/count`](/api-reference/endpoint/crawler/req-count) e [`/lawsuits/synthetic`](/cache-judit/cache-grouped) para análises agregadas.
+  </Card>
+</CardGroup>
 
 <Warning>
-Todas as consultas históricas síncronas podem incluir filtros específicos para refinar os resultados. Caso deseje receber um grupo específico de itens, basta realizar a consulta informando os [filtros](/requests/request-document#payload-da-solicitação) desejados.
+Todas as consultas síncronas aceitam **filtros** (tribunal, valor da causa, classes, partes, datas, fase). Veja a lista completa em [filtros da consulta histórica](/requests/request-document#payload-da-solicitação) — o mesmo objeto `search_params.filter` se aplica aqui.
 </Warning>
 
-Utilizamos Hot Storage para otimizar o desempenho de consultas frequentes em nossa base de dados. Essa camada de armazenamento é projetada para fornecer acesso rápido a dados que são frequentemente utilizados, permitindo que nossas aplicações retornem informações de forma mais ágil.
+## Passo 1: Criar a Consulta Síncrona (POST)
 
-### Request hot storage
+Para iniciar a consulta síncrona, faça uma requisição `POST` enviando o documento desejado.
 
-Para realizar a consulta de forma síncrona, é necessário primeiro criar uma requisição para o endpoint de <strong>lawsuits</strong>. Abaixo, segue um exemplo de como fazer essa requisição utilizando o cURL.
+`POST https://lawsuits.production.judit.io/lawsuits`
 
-```bash
-curl --request POST \
---url https://lawsuits.production.judit.io/lawsuits \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-"search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99"
+### Exemplos de consultas síncronas
+
+<CodeGroup>
+```json Consulta por CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
 }
-}'
-    ```
+```
 
-Segue um exemplo de request utilizando filtro para ```TJRJ```:
-```bash
-curl --request POST \
---url https://lawsuits.production.judit.io/lawsuits \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-"search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99",
-    "search_params": {
-    "filter": {
-        "tribunals": {
-            "keys": ["TJRJ"],
-            "not_equal": false
+```json Consulta por CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99"
+    }
+}
+```
+
+```json Consulta por OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "99999RJ"
+    }
+}
+```
+
+```json Consulta por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "João Silva"
+    }
+}
+```
+
+```json Consulta por CNJ
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "9999999-99.9999.9.99.9999"
+    }
+}
+```
+</CodeGroup>
+
+<Warning>
+    Ao realizar consultas por nome, é possível que existam homônimos. Sempre que possível, prefira CPF, CNPJ ou OAB para garantir maior precisão.
+</Warning>
+
+### Parâmetros do Payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | Tipo da entidade buscada: `"cpf"`, `"cnpj"`, `"oab"`, `"name"` ou `"lawsuit_cnj"`. |
+| `search.search_key` | string | **Sim** | O valor a ser buscado (ex.: `"999.999.999-99"`, `"João Silva"`). |
+| `process_status` | boolean | Não | Se `true`, a resposta inclui os campos `phase` e `status` de cada processo. |
+| `search.search_params.filter` | object | Não | Filtros estruturais (tribunal, valor, classes, partes, datas). Mesma estrutura da [consulta histórica](/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
+
+### Filtros mais comuns (`search_params.filter`)
+
+A consulta síncrona aceita os mesmos filtros da consulta histórica. Veja exemplos práticos:
+
+<CodeGroup>
+```json Filtro por tribunal (TJRJ)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "tribunals": { "keys": ["TJRJ"], "not_equal": false }
+            }
         }
     }
+}
+```
+
+```json Filtro por polo passivo + valor
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "00.000.000/0001-00",
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "amount_gte": 50000
+            }
+        }
     }
 }
-}'
 ```
+
+```json Filtro por janela de distribuição
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "distribution_date_gte": "2024-01-01T00:00:00.000Z",
+                "distribution_date_lte": "2024-12-31T23:59:59.000Z"
+            }
+        }
+    }
+}
+```
+
+```json Excluir tribunais
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "tribunals": { "keys": ["TJSP"], "not_equal": true }
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+> Lista completa de tribunais aceitos: veja [Filtros da consulta histórica](/requests/request-document#lista-de-tribunais-aceitos-filtros).
+
+### Exemplo de Requisição (POST)
+
+<CodeGroup>
+```bash cURL (CPF)
+curl --request POST \
+  --url 'https://lawsuits.production.judit.io/lawsuits' \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    }
+  }'
+```
+
+```bash cURL (com process_status)
+curl --request POST \
+  --url 'https://lawsuits.production.judit.io/lawsuits' \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    },
+    "process_status": true
+  }'
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {"search_type": "cpf", "search_key": "999.999.999-99"},
+        "process_status": True,
+    },
+    timeout=15,
+)
+resp.raise_for_status()
+print(resp.json())
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: { search_type: "cpf", search_key: "999.999.999-99" },
+    process_status: true,
+  }),
+});
+console.log(await res.json());
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "io"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type": "cpf",
+            "search_key":  "999.999.999-99",
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    out, _ := io.ReadAll(res.Body)
+    println(string(out))
+}
+```
+</CodeGroup>
+
+## Passo 2: Ler a resposta
+
+A resposta vem **no corpo do mesmo POST** (não há polling). Os campos principais:
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `has_lawsuits` | boolean | `true` se foram encontrados processos no datalake. |
+| `request_id` | string | Identificador único da consulta — útil para auditoria. |
+| `response_data` | array | Lista de processos. Cada item segue o [Schema Lawsuit](/schemas/lawsuit-object). |
+| `response_data[].phase` | string | (Opcional, com `process_status: true`) Fase atual do processo — ver tabela abaixo. |
+| `response_data[].status` | string | (Opcional, com `process_status: true`) Status atual do processo — ver tabela abaixo. |
 
 ### Valores possíveis para `phase`
 
@@ -78,319 +317,101 @@ curl --request POST \
 | Finalizado | O processo foi finalizado.    |
 
 
-### Request com retorno de fase/status
-Segue um exemplo de request solicitando o retorno da fase e o status do processo:
+### Exemplo completo de resposta
 
-<Note>
-É possivel através da consulta datalake obter no retorno os campo ```status``` e ```phase``` na consulta histórica, para obter esse retorno basta adicionar o parâmetro ```process_status``` com o valor ```true```.
-</Note>
-
-```bash
-curl --request POST \
---url https://lawsuits.production.judit.io/lawsuits \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-"search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99"
-},
-"process_status": true
-}'
-```
-
-A resposta dessa requisição será um objeto JSON com os dados da resposta:
+<Accordion title="Ver exemplo de resposta com process_status: true">
+A resposta dessa requisição será um objeto JSON com os dados retornados:
 
 
-    ```json
-    {
-"has_lawsuits": true,
-"request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
-"response_data": [
-    {
-    "code": "9999999-99.9999.9.99.9999",
-    "justice": "5",
-    "tribunal": "01",
-    "instance": 2,
-    "distribution_date": "2023-05-18T11:12:59.000Z",
-    "tribunal_acronym": "TRT1",
-    "secrecy_level": 0,
-    "tags": {
-        "is_fallback_source": true,
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-    },
-    "subjects": [
+```json
+{
+    "has_lawsuits": true,
+    "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
+    "response_data": [
         {
-        "code": "13656",
-        "name": "DOMÉSTICOS"
+            "code": "9999999-99.9999.9.99.9999",
+            "justice": "5",
+            "tribunal": "01",
+            "instance": 2,
+            "distribution_date": "2023-05-18T11:12:59.000Z",
+            "tribunal_acronym": "TRT1",
+            "secrecy_level": 0,
+            "tags": {
+                "is_fallback_source": true,
+                "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
+            },
+            "subjects": [
+                { "code": "13656", "name": "DOMÉSTICOS" }
+            ],
+            "classifications": [
+                { "code": "1009", "name": "RECURSO ORDINÁRIO TRABALHISTA" }
+            ],
+            "courts": [
+                { "code": "75580", "name": "GAB DES. GLAUCIA ZUCCARI FERNANDES BRAGA" }
+            ],
+            "parties": [
+                {
+                    "name": "Usuário teste",
+                    "side": "Active",
+                    "person_type": "Autor",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        { "name": "Advogada do Autor", "side": "Active", "person_type": "Advogado" }
+                    ]
+                },
+                {
+                    "name": "Usuário teste",
+                    "side": "Passive",
+                    "person_type": "Réu",
+                    "document": "99999999999",
+                    "document_type": "CPF",
+                    "lawyers": [
+                        { "name": "Advogado do Réu", "side": "Passive", "person_type": "Advogado" }
+                    ]
+                }
+            ],
+            "steps": [],
+            "attachments": [],
+            "related_lawsuits": [],
+            "crawler": {
+                "source_name": "JTJ - BR - Document / Lawsuit - Auth",
+                "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
+                "weight": 0,
+                "updated_at": "2024-03-18T19:21:02.466Z"
+            },
+            "amount": 7685.82,
+            "last_step": {
+                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                "lawsuit_instance": 2,
+                "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
+                "step_date": "2024-03-18T19:21:02.466Z",
+                "private": false,
+                "steps_count": 1
+            },
+            "phase": "Inicial",
+            "status": "Ativo",
+            "name": "Nome do Autor X Nome do Réu"
         }
-    ],
-    "classifications": [
-        {
-        "code": "1009",
-        "name": "RECURSO ORDINÁRIO TRABALHISTA"
-        }
-    ],
-    "courts": [
-        {
-        "code": "75580",
-        "name": "GAB DES. GLAUCIA ZUCCARI FERNANDES BRAGA"
-        }
-    ],
-    "parties": [
-        {
-        "name": "Usuário teste",
-        "side": "Active",
-        "person_type": "Autor",
-        "document": "99999999999",
-        "document_type": "CPF",
-        "lawyers": [
-            {
-            "name": "Advogada do Autor",
-            "side": "Active",
-            "person_type": "Advogado"
-            }
-        ],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        },
-        {
-        "name": "Usuário teste",
-        "side": "Passive",
-        "person_type": "Réu",
-        "document": "99999999999",
-        "document_type": "CPF",
-        "lawyers": [
-            {
-            "name": "Nome da advogada do réu",
-            "side": "Passive",
-            "person_type": "Advogado"
-            }
-        ]
-        }
-    ],
-    "steps": [],
-    "attachments": [],
-    "related_lawsuits": [],
-    "crawler": {
-        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-        "weight": 0,
-        "updated_at": "2024-03-18T19:21:02.466Z"
-    },
-    "amount": 7685.82,
-    "last_step": {
-        "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-        "lawsuit_instance": 1,
-        "step_id": "JZzfEPTs10aeE+vpu+p+bkrz5K7enJhAM5kWattktHk=",
-        "step_date": "2024-03-18T19:21:02.466Z",
-        "private": false,
-        "steps_count": 1
-    },
-    "phase": "Inicial",
-    "status": "Ativo",
-    "name": "Nome do Autor X Nome do Réu"
-    },
-    {
-    "code": "9999999-99.9999.9.99.9999",
-    "justice": "5",
-    "tribunal": "01",
-    "instance": 1,
-    "distribution_date": "2022-03-30T16:41:24.000Z",
-    "tribunal_acronym": "TRT1",
-    "secrecy_level": 0,
-    "tags": {
-        "is_fallback_source": true,
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-    },
-    "subjects": [
-        {
-        "code": "13656",
-        "name": "DOMÉSTICOS"
-        }
-    ],
-    "classifications": [
-        {
-        "code": "985",
-        "name": "AÇÃO TRABALHISTA - RITO ORDINÁRIO"
-        }
-    ],
-    "courts": [
-        {
-        "code": "33782",
-        "name": "RIO DE JANEIRO - 37ª VARA DO TRABALHO"
-        }
-    ],
-    "parties": [
-        {
-        "name": "Berenice",
-        "side": "Active",
-        "person_type": "Autor",
-        "document": "99999999999",
-        "document_type": "CPF",
-        "lawyers": [
-            {
-            "name": "Nome do advogado do Autor",
-            "side": "Active",
-            "person_type": "Advogado"
-            }
-        ],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        },
-        {
-        "name": "Jhon Doe",
-        "side": "Passive",
-        "person_type": "Réu",
-        "document": "99999999999",
-        "document_type": "CPF",
-        "lawyers": [
-            {
-            "name": "Nome da Advogada do réu",
-            "side": "Passive",
-            "person_type": "Advogado"
-            }
-        ],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        },
-        {
-        "person_type": "Advogado",
-        "side": "Active",
-        "name": "Nome do Advogado",
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        },
-        {
-        "person_type": "Advogado",
-        "side": "Passive",
-        "name": "Nome do Advogado",
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        }
-    ],
-    "steps": [],
-    "attachments": [],
-    "related_lawsuits": [],
-    "crawler": {
-        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-        "weight": 0,
-        "updated_at": "2024-03-18T19:21:02.465Z"
-    },
-    "amount": 7685.82,
-    "last_step": {
-        "lawsuit_cnj": "0100248-39.2022.5.01.0037",
-        "lawsuit_instance": 1,
-        "step_id": "u2r/3iZieAWrkFjxBZC/r4bMlFAvRO1IWvaOD8xdGl8=",
-        "step_date": "2024-03-18T19:21:02.465Z",
-        "private": false,
-        "steps_count": 1
-    },
-    "phase": "Inicial",
-    "status": "Ativo",
-    "name": "Autor X Réu"
-    },
-    {
-    "code": "8888888-88.8888.8.88.8888",
-    "justice": "8",
-    "tribunal": "19",
-    "instance": 1,
-    "distribution_date": "2023-06-06T17:35:50.000Z",
-    "tribunal_acronym": "TJRJ",
-    "secrecy_level": 0,
-    "tags": {
-        "is_fallback_source": true,
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-    },
-    "subjects": [
-        {
-        "code": "7769",
-        "name": "ABATIMENTO PROPORCIONAL DO PREÇO "
-        },
-        {
-        "code": "7748",
-        "name": "ACIDENTE AÉREO"
-        },
-        {
-        "code": "10435",
-        "name": "ACIDENTE DE TRÂNSITO"
-        }
-    ],
-    "classifications": [
-        {
-        "code": "436",
-        "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
-        }
-    ],
-    "courts": [
-        {
-        "code": "13805",
-        "name": "BARRA DA TIJUCA REGIONAL II JUI ESP CIV"
-        }
-    ],
-    "parties": [
-        {
-        "name": "USUÁRIO TESTE",
-        "side": "Active",
-        "person_type": "Autor",
-        "document": "88888888888",
-        "document_type": "CPF",
-        "lawyers": [],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        },
-        {
-        "name": "GABRIELLA",
-        "side": "Active",
-        "person_type": "Autor",
-        "document": "88888888888",
-        "document_type": "CPF",
-        "lawyers": [],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        }
-        {
-        "name": "LEONARDO",
-        "side": "Active",
-        "person_type": "Autor",
-        "document": "88888888888",
-        "document_type": "CPF",
-        "lawyers": [],
-        "tags": {
-            "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee"
-        }
-        }
-    ],
-    "steps": [],
-    "attachments": [],
-    "related_lawsuits": [],
-    "crawler": {
-        "source_name": "JTJ - BR - Document / Lawsuit - Auth",
-        "crawl_id": "28e00227-e41b-4c94-956e-7a0f105eabee",
-        "weight": 0,
-        "updated_at": "2024-03-18T19:21:02.466Z"
-    },
-    "amount": 28790,
-    "last_step": {
-        "lawsuit_cnj": "0817064-37.2023.8.19.0209",
-        "lawsuit_instance": 1,
-        "step_id": "nU9IcVb9NLoHrJeUXt+Hay139dqHAVbfxk7f0D77aRQ=",
-        "step_date": "2024-03-18T19:21:02.466Z",
-        "private": false,
-        "steps_count": 1
-    },
-    "phase": "Inicial",
-    "status": "Ativo",
-    "name": "DAVI LUIZ X GRUPO TURISMO LTDA"
-    }
-]
+    ]
 }
 ```
+</Accordion>
+
+> Estrutura completa de cada item do array `response_data`: veja [Schema Lawsuit](/schemas/lawsuit-object).
+
+## Erros comuns
+
+| HTTP | Quando acontece | Como tratar |
+| :--- | :--- | :--- |
+| `400` | `search_type` ou `search_key` inválidos / formato incorreto. | Validar o documento antes de enviar (ex.: 11 dígitos para CPF, 14 para CNPJ). |
+| `401` | API Key ausente ou inválida. | Conferir o header `api-key`. |
+| `404` | Nenhum processo encontrado. A resposta vem com `has_lawsuits: false` mesmo assim. | Tratar como ausência de exposição judicial — não é necessariamente erro. |
+| `429` | Rate limit excedido (500 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
+| `500` | Erro interno transitório. | Repetir com backoff. Se persistir, abrir ticket no [suporte](https://api.whatsapp.com/send/?phone=5511920501949). |
+
+## Próximos passos
+
+- Para **listar e filtrar** com mais profundidade (filtros avançados, polo, classes): [Consulta Histórica por documento](/requests/request-document).
+- Para **agregação** (contagens por tribunal/área/fase): [Consulta Agrupada](/cache-judit/cache-grouped).
+- Para forçar **leitura em tempo real** no tribunal: [Consulta Assíncrona](/requests/requests).

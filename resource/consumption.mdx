@@ -1,6 +1,8 @@
 ---
-title: "Relatório de consumo"
-description: ""
+title: "Consumo da Judit API"
+sidebarTitle: "Consumo"
+description: "Como acompanhar e estimar o consumo da Judit API por requisições, com exemplos práticos para extrair relatórios de uso por período."
+keywords: ["consumo", "billing", "relatório", "quota", "uso", "analytics"]
 icon: "chart-pie"
 ---
 
@@ -23,7 +25,7 @@ Para realizar a requisição:
 Copie o seguinte comando `cURL` e cole no **Postman** (modo *Raw* no Body e tipo `POST`):
 
 ```bash
-curl --location 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=<DATA INICIAL>&created_at_lte=<DATA FINAL>' \
+curl --location 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=<DATA INICIAL>&created_at_lte=<DATA FINAL>' \
 --header 'api-key: INSIRA_SUA_API_KEY_AQUI' \
 --header 'Content-Type: application/json' \
 --data ''
@@ -42,7 +44,7 @@ created_at_gte=2024-09-12&created_at_lte=2050-09-12
 Exemplo de código:
 
 ```js
-const url = 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const url = 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
 const options = {
   method: 'GET',
   headers: {
@@ -65,6 +67,7 @@ try {
 
 Trecho de exemplo:
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 {
   "page": 1,
@@ -94,6 +97,7 @@ Trecho de exemplo:
   ]
 }
 ```
+</Accordion>
 
 ---
 

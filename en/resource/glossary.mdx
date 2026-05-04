@@ -1,239 +1,224 @@
 ---
-title: "FAQ"
-description: "Answers to the most common questions about the Judit API"
+title: "Legal and Technical Glossary — Judit API"
+sidebarTitle: "Glossary"
+description: "Legal and technical terms used by the Judit API: CNJ, OAB, CNPJ, BNMP, Hot Storage, datalake, webhook, response_type and more."
+keywords: ["glossary", "terms", "cnj", "oab", "bnmp", "hot storage", "court"]
 icon: "circle-question"
 ---
 
-## General
-
-### What is the Judit API?
-
-The Judit API is a complete solution for automating judicial queries in Brazil. It allows you to query lawsuits by CPF, CNPJ, OAB, NAME, or CNJ, automatically track updates, download attachments (public and private), and securely manage court credentials.
-
----
-
-### Which courts are supported?
-
-The Judit API supports the main Brazilian courts:
-
-- **State courts**: TJSP, TJRJ, TJMG, TJRS, TJPR, TJSC, among others  
-- **Federal courts**: TRF1, TRF2, TRF3, TRF4, TRF5, TRF6  
-- **Superior courts**: STF, STJ, TST  
-- **Specialized courts**: Labor, Electoral, Military  
-
-[See the complete list here.](https://judit.io/cobertura-dos-tribunais/)
-
----
-
-### How do I get an API Key?
-
-Request your key via [commercial WhatsApp](https://api.whatsapp.com/send/?phone=5521985284143) or send an email to `atendimento@judit.io`. You will receive:
-
-- Development API Key (free and limited)  
-- Integration documentation  
-- Access to the panel and technical support 
-
----
-
-## Authentication
-
-### My API Key is not working
-
-Check the following points:
-
-1. The `api-key` header is present  
-2. The key is valid (not expired)  
-3. The key has permission for the endpoints used 
-
----
-
-## Requests
-
-### How does attachment billing work?
-
-- Attachment requests use `search_type = lawsuit_attachment`  
-- Only requests with `search_type = lawsuit_cnj` are charged  
-- Individual PDFs do not generate a separate charge  
-
----
-
-### Does the historical query charge per document queried or per lawsuit returned?
-
-It is charged for each **1,000 lawsuits returned** per document queried.
-
----
-
-### Are lawsuits under judicial secrecy returned?
-
-It depends. To access them, you must provide the lawyer's credentials via the [credentials vault](/en/essentials/cofre-de-credenciais).
-
----
-
-### Can a lawsuit have two instances?
-
-Yes. Two objects will be returned, one for each instance, within the same array. The first object, at position zero, will represent the most recent instance.
-
----
-
-### Can I cancel a query?
-
-No, once processing has started, it is not possible to cancel the execution.
-
----
-
-### I searched for a lawsuit and it was not found
-
-Our platform delivers exactly the information available at the courts. If a valid lawsuit number is not found, this may occur for three main reasons:
-
-- Incorrect number  
-- Lawsuit under judicial secrecy  
-- Lawsuit archived and unavailable at the court  
-
----
-
-### I searched for a lawsuit and it is out of date
-
-The update may not be instantaneous, but it should occur shortly afterward. If the issue persists, contact support.
-
----
-
-### How long can I access the query data?
-
-Responses are stored for **6 months** from the date of the request.
-
----
-
-### What is the difference between the `private` and `secrecy_level` fields?
-
-- `secrecy_level`: indicates the level of secrecy (0 to 5) of the lawsuit  
-- `private`: indicates whether a case update is restricted to parties/lawyers  
-
----
-
-## Tracking
-
-### How does tracking work?
-
-Automatically notifies via webhook when:
-
-#### Lawsuit tracking:
-
-- New case updates  
-- Changes to parties  
-- Inclusion of attachments (when registered with `with_attachments: true`)  
-- Status changes  
-#### New cases:
-
-- A new lawsuit is filed against the tracked document 
-
----
-
-### What is new-case tracking?
-
-Checks whether **new lawsuits** have been filed against the CPF/CNPJ/OAB/Name.
-
----
-
-### Does new-case tracking return phase and status?
-
-No. For that, use the CNJ query (`search_type = lawsuit_cnj`).
-
----
-
-## Performance and Costs
-
-### How can I optimize queries?
-
-- Use filters by date and court  
-- Disable attachments if they are not needed  
-- Implement local caching to avoid duplication  
-
----
-
-### How can I reduce costs?
-
-- Avoid unnecessary re-queries  
-- Use filters and caching  
-- Monitor consumption through the `/requests` route  
-
----
-
-### What is the request limit (rate limit) and timeout?
-
-- Rate limit: 3 req/s  
-- Creation timeout: 15 seconds  
-- Completion timeout: up to 1 hour (with automatic retry)
-
----
-
-## Integration
-
-### How do I integrate with my system?
-
-1. Use webhooks to receive data  
-2. Automate requests based on events (e.g., customer registration)  
-3. Implement logging and error alerts  
-
----
-
-## Other Features
-
-### What types of search are available?
-
-- CNJ (lawsuit number)  
-- CPF/CNPJ/OAB/Name  
-- Historical lawsuit query  
-- Arrest warrant query  
-- Lawsuit count  
-- Check whether a lawsuit exists (True/False)  
-- Lawsuit query with masked result 
-- Query the number of lawsuits linked to a document
-- Query by grouped data of a document
-- Judit AI 
-
----
-
-### Does the API cover extrajudicial proceedings?
-
-We do not yet handle administrative proceedings.
-
----
-
-## Support
-
-### How do I get technical support?
-
-- Documentation: [docs.judit.io](https://docs.judit.io)  
-- Email: `atendimento@judit.io`  
-- Service status: [status.judit.io](https://status.judit.io) 
-- [WhatsApp](https://api.whatsapp.com/send/?phone=55219852841438865)
-
----
-
-### How do I report a bug?
-
-Include:
-
-- `request_id`  
-- Date/Time of the error  
-- Error code  
-- Error description  
-- Environment (prod/dev)
-
----
-
-### Does Judit have an SLA?
-
-| Plan            | Uptime | Response       | Support            |
-|-----------------|--------|----------------|--------------------|
-| Development     | 95%    | Best effort    | Email              |
-| Basic           | 99%    | < 2s           | Email              |
-| Professional    | 99.5%  | < 1s           | Email + Chat       |
-| Enterprise      | 99.9%  | < 500ms        | Dedicated 24/7     |
-
-## Next Steps
-   
-- [Glossary of terms](/en/resource/glossary)
-- [Variable Mapping](/en/resource/flow-sheet)   
-
-> **Still have questions?** Send an email to `atendimento@judit.io` or contact us via our [support](https://api.whatsapp.com/send/?phone=5511920501949).
+Glossary organized in three layers: **Brazilian legal concepts**, **payload properties** (request/response fields) and **internal architecture** (datalake, hot storage, crawler).
+
+> 🤖 Use this glossary as a quick reference. For the full structure of each object (Lawsuit, Entity, Warrant, Penal Execution), check the [Schemas](/en/schemas/lawsuit-object).
+
+## Brazilian legal concepts
+
+<AccordionGroup>
+  <Accordion title="Official identifiers">
+    | Term | Meaning |
+    | :--- | :--- |
+    | **CNJ** | National Council of Justice — unique lawsuit number in pattern `NNNNNNN-DD.AAAA.J.TR.OOOO` (20 digits). |
+    | **CPF** | Individual taxpayer ID (Federal Revenue). 11 digits. |
+    | **CNPJ** | Legal-entity registry. 14 digits. Accepts the new **alphanumeric** format (RFB IN 2229/24). |
+    | **OAB** | Brazilian Bar Association ID. Lawyer identifier in `<number><state>` format (e.g. `123456SP`). |
+    | **RJI** | Individual Judicial Registry assigned by BNMP 2.0 to each wanted person. |
+  </Accordion>
+
+  <Accordion title="Lawsuit structure">
+    | Term | Meaning |
+    | :--- | :--- |
+    | **Lawsuit cover** | Header set: number, class, subject, claim amount, parties, distribution date, district, judge. |
+    | **Step** | Each movement/entry recorded in the case files. Listed chronologically. |
+    | **Party** | Person, company or authority involved (Plaintiff, Defendant, Interested, Lawyer). |
+    | **Side** | Party side: `Active` (Plaintiff), `Passive` (Defendant), `Interested` (Third party). |
+    | **County (comarca)** | Territorial division of the judiciary — jurisdiction of a 1st-instance judge. |
+    | **Court (vara)** | Jurisdictional unit within a county (Civil, Criminal, Labor, etc.). |
+    | **Instance** | Lawsuit degree: 1 (originating) or 2 (appeal). |
+    | **Class** | Procedure type (e.g. Common Civil Procedure, Writ of Mandamus). |
+    | **Subject** | Topic/matter as per the CNJ table (e.g. Traffic Accident). |
+    | **Distribution** | Date when the lawsuit was officially assigned to a court. |
+    | **Final judgment (trânsito em julgado)** | Final decision with no appeals available. |
+  </Accordion>
+
+  <Accordion title="Justices and courts">
+    | Term | Meaning |
+    | :--- | :--- |
+    | **State Justice** | TJ of each state — general civil/criminal jurisdiction. |
+    | **Federal Justice** | TRFs (1 to 6) — Union, agencies, federal disputes. |
+    | **Labor Justice** | TST + TRTs (1 to 24) — labor relations. |
+    | **Electoral Justice** | TSE + TREs — elections and electoral crimes. |
+    | **Military Justice** | STM + State Military Justice — military crimes. |
+    | **Superior Courts** | STF, STJ, TST, TSE, STM. |
+    | **BNMP** | National Arrest Warrant Database — CNJ database with active warrants. |
+
+    Full list: [Court Coverage](/en/resource/courtCoverage).
+  </Accordion>
+
+  <Accordion title="Secrecy and criminal justice">
+    | Term | Meaning |
+    | :--- | :--- |
+    | **Judicial secrecy** | Lawsuit restricted to bound parties. Requires the lawyer's credential (see [Credentials Vault](/en/essentials/cofre-de-credenciais)). |
+    | **`secrecy_level` 0–5** | Secrecy scale. `0` = public; `5` = absolute secrecy. |
+    | **Arrest warrant** | Judicial arrest order (preventive, temporary, definitive, recapture). Collected from BNMP. |
+    | **Penal execution** | Sentence-enforcement lawsuit, with phases like progression and parole. |
+  </Accordion>
+</AccordionGroup>
+
+## Payload properties (request/response)
+
+<AccordionGroup>
+  <Accordion title="Request identification">
+    | Field | What it is |
+    | :--- | :--- |
+    | `request_id` | UUID generated when you create a request (`POST /requests`). |
+    | `response_id` | UUID of each response generated for a request (multiple possible). |
+    | `tracking_id` | UUID of a tracker (`POST /tracking`). |
+    | `callback_id` | Unique UUID per webhook delivery (use for idempotency). |
+    | `origin_id` | UUID linking child requests to a parent request. |
+  </Accordion>
+
+  <Accordion title="Cache and freshness">
+    | Field | What it is |
+    | :--- | :--- |
+    | `cache_ttl_in_days` | How many days a cached result stays valid before forcing a fresh fetch. |
+    | `cached_response` | `true` = response from datalake; `false` = fresh fetch from court. See [Webhook](/en/webhook/callbacks). |
+    | `is_fallback_source` | Indicates the data came from a secondary source (e.g. court was offline). |
+    | `dictionary_updated_at` | Date of the last dictionary update (subjects, classes). |
+  </Accordion>
+
+  <Accordion title="Search">
+    | Field | What it is |
+    | :--- | :--- |
+    | `search_type` | `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj`, `lawsuit_id`, `rji` or `custom`. |
+    | `search_key` | Concrete value to search (CPF, CNPJ, CNJ number, etc.). |
+    | `response_type` | Expected response format: `lawsuit`, `entity`, `warrant`, `execution`. |
+    | `on_demand` | If `true`, forces real-time fetch (higher cost). Applies to `/entities` and historical queries. |
+    | `with_attachments` | If `true`, downloads attachments (only for `search_type: lawsuit_cnj` or warrant). |
+    | `process_status` | If `true`, includes `phase` and `status` in the return. |
+    | `reveal_partners_documents` | (CNPJ) Returns partner CPFs/CNPJs unmasked. |
+    | `customer_key` | Key in [Credentials Vault](/en/essentials/cofre-de-credenciais) to access lawsuits under judicial secrecy. |
+  </Accordion>
+
+  <Accordion title="Filters (search_params.filter)">
+    | Field | What it is |
+    | :--- | :--- |
+    | `side` | Party side: `Active`, `Passive`, `Interested`, `Unknown`. |
+    | `amount_gte` / `amount_lte` | Minimum/maximum claim amount. |
+    | `distribution_date_gte` / `_lte` | Distribution-date window. |
+    | `last_step_date_gte` / `_lte` | Last-step date window. |
+    | `tribunals.keys` + `not_equal` | Includes (false) or excludes (true) courts — see [Coverage](/en/resource/courtCoverage). |
+    | `subject_codes.keys` + `not_equal` | Official CNJ subject codes. |
+    | `classification_codes.keys` + `not_equal` | Official CNJ class codes. |
+    | `party_names` | Filter by party name. |
+    | `party_documents` | Filter by party CPF/CNPJ. |
+  </Accordion>
+
+  <Accordion title="Pagination and listing">
+    | Field | What it is |
+    | :--- | :--- |
+    | `page` | Current page (1-based). |
+    | `page_size` | Items per page (max 1000). |
+    | `page_count` | Total items in this page. |
+    | `all_count` | Absolute total of items matched by the filter. |
+    | `all_pages_count` | Total pages considering `page_size`. |
+    | `page_data` | Array with current-page items. |
+  </Accordion>
+
+  <Accordion title="Tracking">
+    | Field | What it is |
+    | :--- | :--- |
+    | `recurrence` | Interval (in days) between tracker runs. |
+    | `notification_emails` | Emails that receive notifications on every update. |
+    | `notification_filters.step_terms` | Terms that filter which steps trigger notifications. |
+    | `tracked_items_count` | Total items (lawsuits) the tracker is following. |
+    | `hour_range` | Hour of the day when the tracker runs. |
+  </Accordion>
+
+  <Accordion title="Entity (registration data)">
+    | Field | What it is |
+    | :--- | :--- |
+    | `entity_id` | Internal UUID. |
+    | `entity_type` | `person` (PF) or `company` (PJ). |
+    | `main_document` | CPF (PF) or CNPJ (PJ). |
+    | `aka_names` | Other associated names/aliases. |
+    | `addresses` | List of addresses. |
+    | `contacts` | Phones and emails. |
+    | `parents` | (PF) Parents (mother/father). |
+    | `partners` | (PJ) Partners and administrators. |
+    | `branch_activities` | (PJ) CNAE activities. |
+    | `legal_nature` | (PJ) Legal nature. |
+    | `revenue_service_active` | Status with the Federal Revenue. |
+  </Accordion>
+
+  <Accordion title="Warrant (arrest)">
+    | Field | What it is |
+    | :--- | :--- |
+    | `warrant_type` | `warrant_of_arrest` or `recapture`. |
+    | `arrest_type` | `preventive`, `temporary`, `definitive`. |
+    | `law_type.number` / `description` | Infringed law/articles. |
+    | `issue_date` / `expiration_date` | Issue and expiration dates. |
+    | `duration_years` / `_months` / `_days` | Calculated sentence. |
+    | `regime` | `Aberto`, `Semiaberto`, `Fechado`. |
+    | `judgementSummary` | Sentence/order text. |
+  </Accordion>
+
+  <Accordion title="Errors">
+    | Field | What it is |
+    | :--- | :--- |
+    | `error.name` | Error name (e.g. `HttpBadRequestError`, `HttpNotFoundError`). |
+    | `error.message` | Error group (e.g. `BAD_REQUEST`). |
+    | `error.data` | Validation details/messages. |
+    | `LAWSUIT_NOT_FOUND` | `application_error` returned when a search has no result. |
+  </Accordion>
+</AccordionGroup>
+
+## Judit internal architecture
+
+<AccordionGroup>
+  <Accordion title="Components">
+    | Term | What it is |
+    | :--- | :--- |
+    | **Datalake** | Central repository of lawsuits collected by Judit (≈ hundreds of millions of lawsuits). |
+    | **Hot Storage** | High-performance cache layer — source of synchronous queries. |
+    | **Crawler** | Robot that collects data at courts. Each collection generates a `crawl_id`. |
+    | **On-Demand** | Real-time fetch mode, bypassing the datalake. |
+  </Accordion>
+
+  <Accordion title="Services (microservices)">
+    | Service | URL | Function |
+    | :--- | :--- | :--- |
+    | **Requests** | `requests.production.judit.io` | Create and read async requests. |
+    | **Tracking** | `tracking.production.judit.io` | Continuous monitoring. |
+    | **Lawsuits** | `lawsuits.production.judit.io` | Synchronous datalake, registration data, attachments. |
+    | **Crawler** | `crawler.production.judit.io` | Credentials Vault. |
+    | **User** | (internal) | Auth and callback management. |
+  </Accordion>
+
+  <Accordion title="Webhook events">
+    | Event | When it fires |
+    | :--- | :--- |
+    | `response_created` | Each new response generated (cache or court). |
+    | `request_completed` | End of a request flow. |
+    | `tracking_response` | Each new movement detected by a tracker. |
+
+    Details at [Webhooks](/en/webhook/callbacks).
+  </Accordion>
+
+  <Accordion title="Tags and metadata">
+    | Term | What it is |
+    | :--- | :--- |
+    | `crawl_id` | UUID of the crawler run that collected the data. |
+    | `dashboard_id` | (Optional) Link with specific dashboards. |
+    | `criminal` | `true` for criminal-sphere lawsuits. |
+    | `is_fallback_source` | Data collected from a secondary source. |
+    | `revenue_update_date` | Last Federal Revenue update for the entity. |
+    | `datalake_id` / `datalake_segment` | Internal datalake identifiers. |
+    | `possible_homonym` / `potential_homonym` | Indicates suspected homonym in the result. |
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+- **[Court Coverage](/en/resource/courtCoverage)** — acronyms to use in filters.
+- **[Lawsuit Schema](/en/schemas/lawsuit-object)** — full structure of the main object.
+- **[Enums](/en/schemas/lawsuit-enums)** — literal values accepted per property.
+- **[FAQ](/en/resource/faq)** — frequently asked questions.

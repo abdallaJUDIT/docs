@@ -1,7 +1,14 @@
 ---
-title: "Quickstart"
-description: "Complete tutorial to run your first query against the Judit API"
+title: "Quickstart — Your first Judit API request"
+sidebarTitle: "Quickstart"
+description: "Step-by-step practical guide to make your first Judit API request in minutes: configure environment variables, create an asynchronous request, watch its status, and read the result in cURL, Python, JavaScript, PHP and Go."
+keywords: ["quickstart", "tutorial", "getting started", "example", "curl", "python", "javascript", "first request"]
+icon: "rocket"
 ---
+In **under 5 minutes**, this guide shows you how to authenticate, create your first lawsuit query, watch its status and read the result. Examples cover cURL, Python, JavaScript (Node), PHP and Go — pick the one that fits your stack.
+
+> 🤖 Prerequisites: a Judit API key (header `api-key: <YOUR_KEY>`), HTTP connectivity to `*.production.judit.io`. No `Authorization: Bearer`.
+
 ## Basic Flow
 
 The Judit API operates with both a synchronous and an asynchronous pattern:
@@ -29,10 +36,10 @@ The Judit API is built on an architecture split by context to ensure better perf
 
 | Base URL | Module / Context | Supported Operations |
 | :--- | :--- | :--- |
-| `https://requests.prod.judit.io` | **Asynchronous Queries** | Lawsuit query, Historical query, Arrest warrants, and Penal execution (*request* and *response* flows). |
-| `https://tracking.prod.judit.io` | **Tracking** | Create, read, update, pause, delete, resume, and retrieve history of lawsuit tracking. |
+| `https://requests.production.judit.io` | **Asynchronous Queries** | Lawsuit query, Historical query, Arrest warrants, and Penal execution (*request* and *response* flows). |
+| `https://tracking.production.judit.io` | **Tracking** | Create, read, update, pause, delete, resume, and retrieve history of lawsuit tracking. |
 | `https://lawsuits.production.judit.io` | **Synchronous Queries** | Datalake query (*Hot storage*), Lawsuit count, Grouped historical query, Bucket attachment retrieval, and Registration data. |
-| `https://crawler.prod.judit.io` | **Crawler & Infra** | Credentials Vault management. |
+| `https://crawler.production.judit.io` | **Crawler & Infra** | Credentials Vault management. |
 
 ---
 
@@ -44,7 +51,7 @@ The Judit API is built on an architecture split by context to ensure better perf
 
 ```bash
 export JUDIT_API_KEY="your-api-key-here"
-export JUDIT_BASE_URL="https://requests.prod.judit.io"
+export JUDIT_BASE_URL="https://requests.production.judit.io"
 ```
 
 ### 2. Create a Request
@@ -501,7 +508,7 @@ For more specific queries by <strong>document</strong>, you can use [filters](/e
 ## Best Practices
 
 ### 1. **Use Smart Caching**
-> **💡 Best Practice for Asynchronous Queries:** If you are making asynchronous requests (via `https://requests.prod.judit.io`), using the cache parameter is strongly recommended. It drastically speeds up webhook response time and optimizes API consumption.
+> **💡 Best Practice for Asynchronous Queries:** If you are making asynchronous requests (via `https://requests.production.judit.io`), using the cache parameter is strongly recommended. It drastically speeds up webhook response time and optimizes API consumption.
 
 Set the `cache_ttl_in_days` parameter in your *request* body to avoid redundant lookups at the courts. This field defines for exactly how many days a result already stored in Judit's base will be considered valid before forcing a new extraction.
 ```json
@@ -538,7 +545,4 @@ Set the `cache_ttl_in_days` parameter in your *request* body to avoid redundant 
 
 ## Next Steps
 
-- **[Authentication](/en/introduction/authentication)**: Configure authentication correctly
-- **[Endpoints](/en/api-reference)**: Explore all available endpoints
-- **[Support](https://api.whatsapp.com/send/?phone=5511920501949)**: Contact our technical support for more information.
-> **Tip**: For development, use the [Postman Collection](https://drive.google.com/file/d/1PTNJjVzu65F-CGxFOXX82hwMctG1WxWU/view) with ready-to-use Judit API examples.
+- **[Authentication](/en/introduction/authentication)**: Configure au

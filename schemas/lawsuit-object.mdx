@@ -1,6 +1,9 @@
 ---
-title: "Objeto Lawsuit (Processo Judicial)"
-description: "O objeto `lawsuit` é a estrutura de dados central que representa um processo judicial completo na Judit API. Ele contém desde a capa do processo até andamentos e anexos."
+title: "Schema Lawsuit (Processo Judicial)"
+sidebarTitle: "Lawsuit"
+description: "Estrutura completa do objeto Lawsuit retornado pela Judit API: capa do processo, partes, advogados, classificações, andamentos (steps), anexos e metadados de origem."
+keywords: ["lawsuit", "processo judicial", "schema", "response_data", "steps", "parties", "capa do processo", "cnj"]
+icon: "file-lines"
 ---
 
 > 🤖 O objeto `lawsuit` é retornado no formato JSON. A propriedade raiz que contém os metadados do processo chama-se `response_data`. O histórico é retornado no array `steps` e os envolvidos no array `parties`. Lembre-se que a autenticação para consultar este objeto é feita via header `api-key`, e não Bearer Token.
@@ -91,6 +94,7 @@ _*(Array ausente nas respostas de Consulta por Documento)*_
 
 Abaixo está a representação estrutural típica retornada pela Judit API ao consultar um processo judicial completo:
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 {
   "response_data": {
@@ -148,6 +152,7 @@ Abaixo está a representação estrutural típica retornada pela Judit API ao co
   "related_lawsuits": []
 }
 ```
+</Accordion>
 
 ---
 
@@ -161,7 +166,7 @@ Abaixo está a representação estrutural típica retornada pela Judit API ao co
 # Buscar processo específico por CNJ
 export JUDIT_API_KEY="sua_chave_aqui"
 
-curl -X GET "[https://lawsuits.production.judit.io/lawsuits/9999999-99.9999.9.99.9999](https://lawsuits.production.judit.io/lawsuits/9999999-99.9999.9.99.9999)" \
+curl -X GET "https://lawsuits.production.judit.io/lawsuits/9999999-99.9999.9.99.9999" \
   -H "api-key: $JUDIT_API_KEY" \
   -H "Content-Type: application/json"
 ```
@@ -173,7 +178,7 @@ import requests
 api_key = os.getenv('JUDIT_API_KEY')
 cnj = "9999999-99.9999.9.99.9999"
 
-url = f"[https://lawsuits.production.judit.io/lawsuits/](https://lawsuits.production.judit.io/lawsuits/){cnj}"
+url = f"https://lawsuits.production.judit.io/lawsuits/{cnj}"
 headers = {
     "api-key": api_key,
     "Content-Type": "application/json"

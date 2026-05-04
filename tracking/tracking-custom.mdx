@@ -1,8 +1,36 @@
 ---
-title: "Monitoramento customizado"
-description: "Essa página tem como objetivo mostrar o fluxo de Monitoramento cutomizado"
+title: "Monitoramento Customizado por Filtros"
+sidebarTitle: "Customizado"
+description: "Configure monitoramentos com filtros avançados (tribunal, valor da causa, data de distribuição, partes) para acompanhar apenas o que importa na Judit API."
+keywords: ["monitoramento customizado", "custom tracking", "filtros", "tribunal", "watcher avançado"]
 icon: "searchengin"
 ---
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+
+<CnpjAlphaInfo />
+
+O **Monitoramento Customizado** vigia o nascimento de novos processos com base em **filtros estruturais** (tribunal, classe, área, valor da causa, partes, datas) — sem precisar de um documento específico. Use quando você quer ser avisado de novidades em um **universo definido por critérios**, não por uma parte.
+
+> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` com `search_type: "custom"` e `search_params.filter` definido. A precificação é diferente do monitoramento por documento — confirme com o time comercial.
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Inteligência de mercado" icon="binoculars">
+    Detecte novos processos de uma classe específica em um tribunal/estado para análise de tendência.
+  </Card>
+  <Card title="Defesa proativa" icon="shield-check">
+    Empresas em setores muito litigiosos (telecom, varejo, seguros) podem rastrear novos processos com filtro por valor mínimo.
+  </Card>
+  <Card title="Acompanhamento regulatório" icon="gavel">
+    Vigie novos processos envolvendo determinada agência reguladora ou fundamento legal.
+  </Card>
+  <Card title="Vigilância setorial" icon="industry">
+    Monitore um nicho (ex.: ações coletivas em um tribunal específico) sem precisar partir de um CPF/CNPJ.
+  </Card>
+</CardGroup>
 
 O monitoramento customizado permite monitorar processos utilizando filtros específicos, retornando processos de todos os tribunais que correspondem aos critérios definidos. Essa consulta é ideal para identificar processos com características específicas em um amplo espectro de jurisdições. Para utilizá-la, é necessário enviar uma requisição ao endpoint correspondente.
 
@@ -66,7 +94,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
     </Note>
 
    ```bash
-   curl --location 'https://tracking.prod.judit.io/tracking' \
+   curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
@@ -177,12 +205,13 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
 
         ```bash
         curl --request GET
-        --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+        --url "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
         --header "api-key: SUA-API-KEY"
         --header "Content-Type: application/json"
         ```
 
         Retorno:
+        <Accordion title="Ver exemplo de resposta">
         ```json
         {
         "tracking_id": "72866-499f-4aff-b28a-14d43b8b7d70",
@@ -237,6 +266,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         "updated_at": "2025-02-04T16:56:39.158Z"
         }
         ```
+        </Accordion>
 
         A propriedade status informa a situação atual do monitoramento,
         podendo ser:
@@ -271,7 +301,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
 
         ```bash
             curl --request GET
-            --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+            --url "https://requests.production.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
             --header "api-key: SUA-API-KEY"
             --header "Content-Type: application/json"
             ```
@@ -581,12 +611,13 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         Aqui está um exemplo de como fazer isso usando curl:
 
         ```bash
-        curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+        curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
         --header 'api-key: <API-KEY>'
         ```
 
         Aqui está o retorno esperado:
 
+        <Accordion title="Ver exemplo de resposta">
         ```json
         {
             "request_status": "completed",
@@ -894,6 +925,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
             ]
         }
         ```
+        </Accordion>
     </Step>
     <Step title="Pausando um Monitoramento" stepNumber="4">
         Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
@@ -901,12 +933,13 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         Aqui está um exemplo de como pausar o monitoramento usando o curl:
 
         ```bash
-        curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+        curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
         -H "api-key: YOUR-API_KEY"
         ```
 
         Aqui está um exemplo de retorno do monitoramento pausado:
 
+        <Accordion title="Ver exemplo de resposta">
         ```json
         {
         "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
@@ -959,6 +992,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         "updated_at": "2024-02-21T18:26:38.499Z"
         }
         ```
+        </Accordion>
     </Step>
     <Step title="Reativando um Monitoramento" stepNumber="5">
         Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
@@ -966,12 +1000,13 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         Aqui está um exemplo de como reativar um monitoramento usando curl:
 
         ```bash
-        curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+        curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
         -H "api-key: YOUR_API_KEY"
         ```
 
         Aqui está um exemplo de retorno do monitoramento **ativo**
 
+        <Accordion title="Ver exemplo de resposta">
         ```json
         {
         "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
@@ -1024,6 +1059,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         "updated_at": "2024-02-21T18:26:38.499Z"
         }
         ```
+        </Accordion>
     </Step>
     <Step title="Deletando um Monitoramento" stepNumber="6">
         Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
@@ -1031,7 +1067,7 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
         Aqui está um exemplo de como deletar um monitoramento usando curl:
 
         ```bash
-        curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+        curl -X DELETE "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
         -H "api-key: YOUR_API_KEY"
         ```
 
@@ -1051,44 +1087,15 @@ Para este tipo de consulta, certifique-se sobre a precificação, pois não é a
                 "filter": {
                     "distribution_date_gte": "2025-02-04T16:56:39.158Z",
                     "subject_codes": {
-                        "contains": [
-                            "5953",
-                            "6017",
-                            "10394",
-                            "12989",
-                            "5953",
-                            "5951",
-                            "5971",
-                            "14",
-                            "030213"
-                        ],
-                        "not_contains": [],
-                        "_id": "67a246c76efb879208114303"
-                    },
-                    "classification_codes": {
-                        "keys": [
-                            "1116",
-                            "12785"
-                        ],
-                        "not_equal": false,
-                        "_id": "67a246c76efb879208114302"
-                    },
-                    "party_names": [],
-                    "party_documents": [
-                        "99.999.999/0009-99",
-                        "88.888.888/0008-88"
-                    ]
-                },
-                "pagination": {}
+                        "
+contains": [
+                            "5953"
+                        ]
+                    }
+                }
             }
-        },
-        "tracked_items_count": 0,
-        "tracked_items_steps_count": 0,
-        "tags": {},
-        "created_at": "2024-02-21T18:26:38.499Z",
-        "updated_at": "2024-02-21T18:26:38.499Z"
+        }
         }
         ```
     </Step>
-
 </Steps>

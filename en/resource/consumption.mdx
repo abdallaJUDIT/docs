@@ -1,6 +1,8 @@
 ---
-title: "Consumption Report"
-description: "How to query the history of requests made through the JUDIT API and infer the cost of each operation."
+title: "Consumption — Judit API"
+sidebarTitle: "Consumption"
+description: "How to monitor and estimate Judit API consumption by request, with practical examples to extract usage reports per period."
+keywords: ["consumption", "billing", "report", "quota", "usage"]
 icon: "chart-pie"
 ---
 
@@ -23,7 +25,7 @@ To make the request:
 Copy the following `cURL` command and paste it into **Postman** (*Raw* mode in the Body and `POST` type):
 
 ```bash
-curl --location 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=<START DATE>&created_at_lte=<END DATE>' \
+curl --location 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=<START DATE>&created_at_lte=<END DATE>' \
 --header 'api-key: INSERT_YOUR_API_KEY_HERE' \
 --header 'Content-Type: application/json' \
 --data ''
@@ -42,7 +44,7 @@ created_at_gte=2024-09-12&created_at_lte=2050-09-12
 Code example:
 
 ```js
-const url = 'https://requests.prod.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const url = 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
 const options = {
   method: 'GET',
   headers: {
@@ -65,6 +67,7 @@ try {
 
 Sample excerpt:
 
+<Accordion title="See response example">
 ```json
 {
   "page": 1,
@@ -94,6 +97,7 @@ Sample excerpt:
   ]
 }
 ```
+</Accordion>
 
 ---
 

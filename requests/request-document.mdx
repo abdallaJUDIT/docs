@@ -1,10 +1,44 @@
 ---
-title: "Consulta Histórica (Por Documento)"
-description: "Aprenda o fluxo assíncrono para buscar o histórico completo de processos vinculados a um CPF, CNPJ, OAB ou Nome. Entenda como criar a requisição, acompanhar o status e filtrar a resposta final."
+title: "Consulta Histórica por Documento (CPF/CNPJ/OAB/Nome)"
+sidebarTitle: "Histórica por Documento"
+description: "Recupere todo o histórico de processos vinculado a um CPF, CNPJ, OAB ou Nome via fluxo assíncrono da Judit API, com filtros avançados, paginação e suporte a CNPJ alfanumérico."
+keywords: ["histórica", "cpf", "cnpj", "oab", "nome", "documento", "filtros", "async"]
 icon: "id-card"
 ---
 
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+import CachedResponseInfo from '/snippets/cached-response-pt.mdx';
+
+
+<CnpjAlphaInfo />
+
+<CachedResponseInfo />
+
+A **Consulta Histórica por Documento** retorna **toda a carteira processual** vinculada a um CPF, CNPJ, OAB ou Nome. É o caminho ideal para due diligence, KYC, mapeamento de exposição judicial e qualquer cenário em que você precise saber *quais processos existem* (capa + partes), sem necessariamente entrar em cada um.
+
 > Esta página documenta exclusivamente o fluxo **Assíncrono** de consulta histórica. O cliente deve fazer um `POST /requests`, aguardar o processamento (`GET /requests/{id}`) e resgatar os dados no `GET /responses`. A resposta da Consulta Histórica retorna um array paginado contendo exclusivamente a Capa e as Partes do processo (omitindo andamentos, anexos, fase e status). É possível filtrar os resultados tanto no payload do POST inicial quanto nas *query strings* do GET final.
+
+<EndpointBadges auth billing="billable" flow="async" requiresVault />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Due diligence / KYC" icon="user-shield">
+    Antes de fechar contrato, descubra todo o passivo judicial da contraparte por CPF/CNPJ.
+  </Card>
+  <Card title="Crédito e cobrança" icon="dollar-sign">
+    Combine com filtros (`amount_gte`, `side: "Passive"`) para priorizar abordagens com base no valor de causa.
+  </Card>
+  <Card title="Vigilância de carteira" icon="briefcase">
+    Cruze com [Monitoramento por documento](/tracking/tracking-document) para detectar **novos processos** após a consulta inicial.
+  </Card>
+  <Card title="Inteligência por OAB" icon="user-tie">
+    Consulte por OAB para listar todos os processos em que um advogado atua.
+  </Card>
+</CardGroup>
 
 ## Síncrono vs. Assíncrono
 
@@ -21,7 +55,7 @@ Antes de integrar, é fundamental entender a diferença de arquitetura que a Jud
 
 Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o documento desejado.
 
-`POST https://requests.prod.judit.io/requests`
+`POST https://requests.production.judit.io/requests`
 
 ### Exemplos de consultas históricas
 
@@ -453,7 +487,7 @@ Quer saber se o João processou a Empresa X? Você pode usar os filtros de Nomes
 
 <CodeGroup>
 ```bash cURL (Passo 1)
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://requests.production.judit.io/requests/' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -494,10 +528,10 @@ Em vez de programar sua aplicação para ficar perguntando o status da requisiç
 
 Como um documento pode estar atrelado a centenas de processos no Brasil, a coleta leva tempo. Você deve consultar o status macro da requisição usando o ID do Passo 1.
 
-`GET https://requests.prod.judit.io/requests/<REQUEST_ID>`
+`GET https://requests.production.judit.io/requests/<REQUEST_ID>`
 
 ```bash cURL (Passo 2)
-curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
+curl --location 'https://requests.production.judit.io/requests/<request_id>' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data ''
@@ -510,7 +544,7 @@ Você deve realizar *polling* (consultas periódicas) nesta rota até que a prop
 Como a busca On-Demand consulta dezenas de sistemas simultaneamente, você pode acompanhar o status individual de cada tribunal acessado usando a rota de *Crawls*:
 
 ```bash cURL
-curl --location 'https://crawler.prod.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
+curl --location 'https://crawler.production.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
     --header 'api-key: <api-key>'
 ```
 
@@ -544,7 +578,7 @@ Assim que o status no Passo 2 retornar `"completed"`, os dados estão prontos!
 
 É aqui, na rota `GET /responses`, que você puxa o JSON final. A grande sacada deste endpoint é que **ele permite aplicar filtros dinâmicos via URL (Query Params)**, permitindo que você fatie, ordene e pagine a resposta final do jeito que quiser, sem precisar gerar uma nova requisição (POST).
 
-`GET https://requests.prod.judit.io/responses/`
+`GET https://requests.production.judit.io/responses/`
 
 ### Filtros Dinâmicos na URL (Query Params)
 
@@ -569,7 +603,7 @@ Estes são os parâmetros que você pode concatenar na sua requisição final:
 
 ```bash cURL (Busca Básica)
 # Retorna os processos usando apenas o parâmetro obrigatório
-curl -X GET "[https://requests.prod.judit.io/responses?request_id=](https://requests.prod.judit.io/responses?request_id=)<SEU_REQUEST_ID>" \
+curl -X GET "[https://requests.production.judit.io/responses?request_id=](https://requests.production.judit.io/responses?request_id=)<SEU_REQUEST_ID>" \
   -H "api-key: SUA_API_KEY" \
   -H "Content-Type: application/json"
 ```
@@ -578,7 +612,7 @@ curl -X GET "[https://requests.prod.judit.io/responses?request_id=](https://requ
 # O parâmetro -g (--globoff) permite o uso de colchetes [] na URL sem quebrar o terminal.
 # Nota: Na sua aplicação, lembre-se de aplicar URL Encoding nesses parâmetros.
 
-curl -g -X GET "[https://requests.prod.judit.io/responses](https://requests.prod.judit.io/responses)\
+curl -g -X GET "[https://requests.production.judit.io/responses](https://requests.production.judit.io/responses)\
 ?request_id=<SEU_REQUEST_ID>\
 &response_type=[\"lawsuit\"]\
 &code=[\"0601708-42.2025.8.04.4700\"]\
@@ -634,39 +668,20 @@ Array de objetos. Cada objeto contém a chave `response_data` que abriga a [Capa
   "all_pages_count": 1,
   "request_status": "completed",
   "page_data": [
-      {
-          "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
-          "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
-          "response_type": "lawsuit",
-          "response_data": {
-              "code": "0000000-00.0000.0.00.0000",
-              "instance": 1,
-              "justice": "8",
-              "tribunal": "19",
-              "tribunal_acronym": "TJRJ",
-              "classifications": [
-                  { "code": "436", "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL" }
-              ],
-              "subjects": [
-                  { "code": "6226", "name": "INCLUSÃO INDEVIDA EM CADASTRO DE INADIMPLENTES" }
-              ],
-              "amount": 28790,
-              "parties": [
-                  {
-                      "name": "NOME DO CLIENTE",
-                      "side": "Active",
-                      "person_type": "Autor",
-                      "document": "99999999999",
-                      "document_type": "CPF"
-                  }
-              ]
-          }
+    {
+      "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+      "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
+      "response_type": "lawsuit",
+      "response_data": {
+        "code": "0000000-00.0000.0.00.0000",
+        "tribunal_acronym": "TJSP",
+        "instance": 1,
+        "parties": [
+          { "name": "Usuário teste", "side": "Active", "person_type": "Autor" }
+        ]
       }
+    }
   ]
 }
 ```
 </Accordion>
-
-<Note>
-**Processo não encontrado:** Se o documento não possuir processos vinculados ou se os filtros forem muito restritivos, o `all_count` será `0` e o array `page_data` retornará vazio `[]`.
-</Note>

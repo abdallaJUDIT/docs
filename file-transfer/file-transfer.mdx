@@ -1,10 +1,31 @@
 ---
 title: "API de Transferência de Arquivos"
-description: "Esta API permite que clientes da JUDIT listem, consultem e façam download de arquivos disponíveis para transferência, além de atualizarem o status de cada arquivo após o consumo."
+sidebarTitle: "File Transfer"
+description: "Liste, consulte e faça download de arquivos disponíveis para transferência na Judit API. Atualize o status de cada arquivo após o consumo para fluxos auditáveis."
+keywords: ["file transfer", "download", "arquivo", "transferência", "auditoria"]
 icon: "file-export"
 ---
 
-**Base URL:** `https://lawsuits.prod.judit.io/`
+A **File Transfer API** entrega para você arquivos grandes geradas pela Judit — exportações em CSV/JSON de consultas customizadas, relatórios sob demanda, agregações volumosas — de forma assíncrona, com controle de status (`pending`, `available`, `consumed`) auditável por arquivo.
+
+> 🤖 **Base URL:** `https://lawsuits.production.judit.io/`. Após gerar um relatório (ex.: [Consulta Customizada](/requests/custom-search)), use esta API para listar arquivos pendentes, baixar via URL pré-assinada e marcar como consumidos para evitar reprocessamento.
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Relatórios sob demanda" icon="file-csv">
+    Consumir resultados de Consultas Customizadas que entregam arquivo (CSV/JSON) em vez de webhook.
+  </Card>
+  <Card title="Exportação batch" icon="boxes-stacked">
+    Receber dumps periódicos de carteira inteira (centenas de milhares de processos).
+  </Card>
+  <Card title="Auditoria" icon="clipboard-check">
+    Trilha auditável de quem baixou cada arquivo e quando — perfeito para SOX/LGPD.
+  </Card>
+  <Card title="Pipelines de dados" icon="diagram-project">
+    Integrar Judit ao seu data lake/data warehouse via consumo de arquivos em batch.
+  </Card>
+</CardGroup>
 
 ---
 
@@ -45,7 +66,7 @@ Retorna uma lista paginada de arquivos disponíveis para a empresa do usuário a
 
 ```bash
 curl -H "api-key: SUA_CHAVE_DE_API" \
-  "https://lawsuits.prod.judit.io/transfer-file?page=1&page_size=20&status=[\"completed\"]"
+  "https://lawsuits.production.judit.io/transfer-file?page=1&page_size=20&status=[\"completed\"]"
 ```
 
 ### Exemplo de resposta:
@@ -97,7 +118,7 @@ Retorna os metadados do arquivo e uma URL pré-assinada da AWS para download (v�
 
 ```bash
 curl -H "api-key: SUA_CHAVE_DE_API" \
-  "https://lawsuits.prod.judit.io/transfer-file/be4ed52a-a96b-4782-a181-b7ed75cb2f21"
+  "https://lawsuits.production.judit.io/transfer-file/be4ed52a-a96b-4782-a181-b7ed75cb2f21"
 ```
 
 ### Exemplo de resposta:
@@ -133,7 +154,7 @@ Permite marcar o arquivo como `downloaded` ou `error` após a tentativa de uso.
 curl -X PATCH -H "api-key: SUA_CHAVE_DE_API" \
      -H "Content-Type: application/json" \
      -d '{"status": "downloaded"}' \
-     "https://lawsuits.prod.judit.io/transfer-file/be4ed52a-a96b-4782-a181-b7ed75cb2f21"
+     "https://lawsuits.production.judit.io/transfer-file/be4ed52a-a96b-4782-a181-b7ed75cb2f21"
 ```
 
 ### Corpo da requisição:
@@ -162,45 +183,23 @@ Para reportar erro:
   "transfer_file_id": "be4ed52a-a96b-4782-a181-b7ed75cb2f21",
   "description": "ARQUIVO INICIAL - CARGA 0",
   "file_type": "parquet",
-  "name": "be4ed52a-a96b-4782-a181-b7ed75cb2f21-part-00001.parquet",
-  "status": "downloaded",
+  "name": "be4ed52a-a96b-4782-a181-b7ed75cb2f21-part-00001.parque
+t",
   "created_at": "2025-04-22T11:50:00.000Z",
-  "updated_at": "2025-04-22T11:55:00.000Z",
-  "completed_at": "2025-04-22T11:51:00.000Z",
-  "started_at": "2025-04-22T11:50:01.000Z",
-  "downloaded_at": "2025-04-22T11:55:00.000Z",
-  "file_size": 0.038,
-  "lawsuits_count": 19
+  "updated_at": "2025-04-22T11:50:00.000Z"
 }
 ```
 
-### Exemplo de resposta - status `error`:
+## Erros comuns
 
-```json
-{
-  "transfer_file_id": "be4ed52a-a96b-4782-a181-b7ed75cb2f21",
-  "description": "ARQUIVO INICIAL - CARGA 0",
-  "file_type": "parquet",
-  "name": "be4ed52a-a96b-4782-a181-b7ed75cb2f21-part-00001.parquet",
-  "status": "error",
-  "created_at": "2025-04-22T11:50:00.000Z",
-  "updated_at": "2025-04-22T11:57:00.000Z",
-  "completed_at": "2025-04-22T11:51:00.000Z",
-  "started_at": "2025-04-22T11:50:01.000Z",
-  "error_at": "2025-04-22T11:57:00.000Z",
-  "error_message": "Descrição do erro, stack trace ou contexto do problema.",
-  "file_size": 0.038,
-  "lawsuits_count": 19
-}
-```
+| HTTP | Motivo | Como tratar |
+| :--- | :--- | :--- |
+| `400` | Filtro ou status inválido. | Validar query params antes de enviar. |
+| `401` | API Key ausente ou inválida. | Conferir o header `api-key`. |
+| `404` | Arquivo não encontrado. | O `transfer_file_id` pode pertencer a outro tenant. |
+| `429` | Rate limit excedido. | Backoff exponencial. |
 
----
+## Próximos passos
 
-## 🧠 Observações
-
-- A URL retornada pela rota `GET /transfer-file/:id` expira em **5 minutos**.
-- Arquivos com status `error` serão analisados pela equipe técnica da JUDIT.
-
----
-
-Para dúvidas, entre em contato com nosso suporte técnico.
+- [Consulta Customizada](/requests/custom-search) — gerar relatórios grandes.
+- [Webhooks](/webhook/callbacks) — ser notificado quando um arquivo estiver pronto.

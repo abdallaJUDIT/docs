@@ -1,95 +1,95 @@
 ---
-title: "Judit API"
-description: "A complete API for automated judicial queries in Brazil"
+title: "Judit API — Official Documentation"
+sidebarTitle: "Overview"
+description: "Brazilian lawsuit query API: search lawsuits by CPF, CNPJ, OAB, NAME or CNJ; track movements; download attachments; fetch registration data; query arrest warrants and penal executions."
+keywords: ["judit api", "lawsuit query", "cpf", "cnpj", "oab", "cnj", "tracking", "brazilian courts", "datalake", "legaltech", "brazil"]
+icon: "house"
 ---
 
 ![title](/images/judit-api-charts.png)
 
-## Overview
+The **Judit API** delivers ready-to-use Brazilian lawsuit data through a single integration. Instead of maintaining scrapers for each court, your application makes one HTTP call and receives the lawsuit cover, parties, lawyers, steps, attachments and relationships — in real time or from a constantly updated datalake.
 
-The **Judit API** is a complete solution for automating judicial queries in Brazil, providing programmatic access to lawsuit data, lawsuit tracking, and court credential management.
+> 🤖 Judit covers state, federal, labor, electoral, military and superior courts plus BNMP. Authentication is via the `api-key` header. The 3 main services are `requests` (asynchronous), `tracking` (monitoring) and `lawsuits` (synchronous / cache).
 
-### What is the Judit API?
+## What you can do
 
-The Judit API lets developers integrate judicial query features into their applications, offering:
+- **Search lawsuits** by CPF, CNPJ, OAB, Name or CNJ number — asynchronous (live court fetch) or synchronous (Judit cache in milliseconds).
+- **Track lawsuits** automatically and receive webhook updates when new movements happen.
+- **Detect new lawsuits** (birth) tied to a document.
+- **Get registration data** (individuals and companies), with the option of reading from the datalake or live from the Brazilian Federal Revenue.
+- **Download attachments** and BNMP arrest warrants as PDFs.
+- **Query penal executions** (sentence enforcement).
+- **Summarize lawsuits with AI** — automatically generate a cover summary (Judit AI).
 
-- **Queries by CPF, CNPJ, OAB, NAME, or CNJ**: Search for lawsuits using different types of identifiers
-- **Automated tracking**: Follow changes in specific lawsuits
-- **Attachment access**: Download case documents and attachments
-- **Registration data**: Obtain registration information for individuals and companies
-- **Credential management**: Store and manage court credentials securely
-- **Arrest warrant queries**: Access arrest warrants with precision and relevance of information.
-- **Penal execution queries**: Obtain accurate and relevant data on penal execution cases, ensuring fast access to essential information.
-- **JUDIT AI**: Feature that automatically generates a summary of the lawsuit header, highlighting the main information clearly and quickly.
+## Common use cases
 
-### Main Use Cases
+<CardGroup cols={2}>
+  <Card title="Law firms" icon="briefcase">
+    Centralize the firm's entire caseload in a single dashboard. Watch critical movements and generate automated reports.
+  </Card>
+  <Card title="In-house legal" icon="building">
+    Track the corporate caseload and feed lawsuit status into internal systems (ERP, CRM, BI).
+  </Card>
+  <Card title="Fintechs and credit bureaus" icon="chart-line">
+    Run mass due diligence and enrich risk analysis with lawsuit data per CPF/CNPJ in real time.
+  </Card>
+  <Card title="Compliance and KYC" icon="shield-check">
+    Check counterpart-related lawsuits (PEPs, criminal records, warrants) during onboarding.
+  </Card>
+  <Card title="LegalTechs" icon="code">
+    Launch your platform without maintaining scrapers per court — focus on product, not infrastructure.
+  </Card>
+  <Card title="Collections and recovery" icon="hand-holding-dollar">
+    Identify relevant passive lawsuits (claim amount, phase, class) and prioritize outreach.
+  </Card>
+</CardGroup>
 
-#### 1. Law Firms
-- Automatic lawsuit tracking
-- Fast lookup of case updates
-- Automated document download
+## Architecture in 1 minute
 
-#### 2. Legal Departments
-- Monitoring of corporate lawsuits
-- Automated case status reports
-- Integration with internal systems
+```mermaid
+flowchart LR
+    subgraph CLIENT["Your application"]
+      A[HTTP client]
+    end
+    subgraph JUDIT["Judit"]
+      R[(Requests<br/>Async)]
+      T[(Tracking<br/>Monitoring)]
+      L[(Lawsuits<br/>Sync)]
+      W[Webhook]
+    end
+    subgraph COURTS["Brazilian courts"]
+      C1[TJSP]
+      C2[TRT...]
+      C3[BNMP]
+      C4[TRF]
+    end
+    A -->|api-key| R
+    A -->|api-key| T
+    A -->|api-key| L
+    R --> COURTS
+    T --> COURTS
+    L --> COURTS
+    R -.->|callback| W
+    T -.->|callback| W
+    W -.-> A
+```
 
-#### 3. Fintechs and Credit Bureaus
-- Checking judicial lawsuits for risk analysis
-- Bulk queries for due diligence
-- Continuous customer monitoring
+Three services, one auth pattern:
 
-### Getting Started
+| Service | URL | When to use |
+| --- | --- | --- |
+| `requests` | `https://requests.production.judit.io` | Live fetch from courts. Result arrives via webhook or polling. |
+| `tracking` | `https://tracking.production.judit.io` | Continuous lawsuit monitoring at the recurrence you choose. |
+| `lawsuits` | `https://lawsuits.production.judit.io` | Synchronous reading of the JUDIT data lake, returning the processes linked to the consulted document. |
 
-To start using the Judit API:
+## Get started in 3 steps
 
-1. **Obtain your API Key**: Contact our [commercial team](https://api.whatsapp.com/send/?phone=5521985284143) to request access
-2. **Read the [Quickstart Guide](/en/introduction/quickstart)**: Learn the basic query flow
-3. **Configure [Authentication](/en/introduction/authentication)**: Implement authentication correctly
-4. **Explore the [Endpoints](/en/api-reference/endpoint/requests/create)**: Learn about all available features
-
-### Advantages of the Judit API
-
-#### ⚡ **Superior Performance**
-- Smart cache with configurable TTL
-- Responses optimized for different use cases
-- Distributed infrastructure for high availability
-
-#### 🔒 **Advanced Security**
-- API Key authentication
-- Secure vault for court credentials
-- End-to-end encryption for sensitive data
-
-#### 📊 **Structured Data**
-- Standardized JSON responses
-- Advanced filters for specific queries
-- Rich metadata for each lawsuit
-
-#### 🔄 **Smart Tracking**
-- Automatic change notifications
-- Flexible recurrence configuration
-- Granular pause/resume control
-
-### API Architecture
-
-The Judit API is composed of different specialized services:
-
-- **Requests Service** (`requests.prod.judit.io`): Creation and lookup of requests
-- **Lawsuits Service** (`lawsuits.production.judit.io`): Access to the lawsuits datalake
-- **Tracking Service** (`tracking.prod.judit.io`): Lawsuit tracking
-
-### Rate Limits
-
-- **Default limit**: 500 requests per minute
-- **Monitoring**: Rate limit headers in every response
-- **Upgrade**: Custom limits available under contract
-
-### Support and Documentation
-
-- **Complete documentation**: Explore all endpoints and examples
-- **Python SDK**: Official library for quick integration
-- **Technical support**: Specialized team for questions and implementation
-
----
-
-**Ready to get started?** Go to the [Quickstart Guide](/en/introduction/quickstart) and run your first query in minutes.
+<Steps>
+  <Step title="Request your API Key">
+    Reach out to our [commercial team](https://api.whatsapp.com/send/?phone=5521985284143) and receive your access key.
+  </Step>
+  <Step title="Make your first query">
+    Follow the [Quickstart](/en/introduction/quickstart) to create your first request in under 5 minutes.
+  </Step>
+</Steps>

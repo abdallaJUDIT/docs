@@ -1,6 +1,9 @@
 ---
-title: "Lawsuit Object"
-description: "The `lawsuit` object is the central data structure that represents a complete judicial lawsuit in the Judit API. It contains everything from the lawsuit header to case updates and attachments."
+title: "Lawsuit Schema"
+sidebarTitle: "Lawsuit"
+description: "Full structure of the Lawsuit object returned by the Judit API: lawsuit cover, parties, lawyers, classifications, steps, attachments and origin metadata."
+keywords: ["lawsuit", "schema", "response_data", "steps", "parties", "cnj"]
+icon: "file-lines"
 ---
 
 > 🤖 The `lawsuit` object is returned in JSON format. The root property that contains the lawsuit metadata is called `response_data`. The history is returned in the `steps` array and the parties involved in the `parties` array. Remember that authentication to query this object is done via the `api-key` header, not a Bearer Token.
@@ -91,6 +94,7 @@ _*(Array absent in Document Query responses)*_
 
 Below is the typical structural representation returned by the Judit API when querying a complete judicial lawsuit:
 
+<Accordion title="See response example">
 ```json
 {
   "response_data": {
@@ -148,6 +152,7 @@ Below is the typical structural representation returned by the Judit API when qu
   "related_lawsuits": []
 }
 ```
+</Accordion>
 
 ---
 

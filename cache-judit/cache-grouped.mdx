@@ -1,166 +1,275 @@
 ---
-title: "Consultas Agrupada"
-description: "Consulta Agrupada"
+title: "Consulta Síncrona Agrupada (Synthetic)"
+sidebarTitle: "Consulta Agrupada"
+description: "Receba contagens agregadas (por tribunal, classe, área, status, fase, instância e parte) de todos os processos vinculados a um documento na Judit API — leitura síncrona ideal para dashboards e análises."
+keywords: ["agrupada", "synthetic", "grouped", "agregação", "contagem", "dashboard", "analytics"]
 icon: "shield"
 ---
 
-A consulta síncrona permite verificar rapidamente se um CPF, CNPJ, OAB ou nome possui processos registrados em nosso datalake. Ela retorna, de forma ágil, uma resposta indicando a existência ou não de processos, quantidade de processos, consulta histórica hot storage e consulta sintética de processos.
+import { EndpointBadges } from '/snippets/badges.mdx';
 
-Na consulta síncrona, são retornados apenas os dados já disponíveis em nossa base de acordo com os filtros aplicados, garantindo uma resposta mais rápida. Contudo, isso pode resultar em um pequeno atraso na obtenção de informações mais completas. Para acessar dados atualizados e abrangentes, é fundamental realizar uma consulta assíncrona, que buscará diretamente nos tribunais trazendo as informações atualizadas.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
-<Warning>
-Todas as consultas históricas síncronas podem incluir filtros específicos para refinar os resultados. Caso deseje receber um grupo específico de itens, basta realizar a consulta informando os [filtros](/requests/request-document#payload-da-solicitação) desejados.
-</Warning>
 
-Através da consulta histórica agrupada é possível receber de forma sintética o número total de processos relacionados a uma parte, agrupando esse número pelas informações da capa processual.
+<CnpjAlphaInfo />
 
-Para realização da consulta histórica agrupada basta realizar um requisição `POST` para o endpojnt `https://lawsuits.production.judit.io/requests/create/grouped` adicionando `search_type` e `search_key` no payload..
+A **Consulta Agrupada (Synthetic)** entrega, em uma única chamada síncrona, um resumo estatístico de todos os processos vinculados a um documento, agrupado por classe, assunto, área, tribunal, justiça, fase, estado, instância, lado da parte e tipo de pessoa. Use quando o cliente precisa de **visão geral**, não da lista completa.
 
-```json
-    curl --location 'https://lawsuits.production.judit.io/requests/create/grouped' \
-  --header 'api-key: <API-KEY>>' \
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/synthetic`. Resposta síncrona com contagens agregadas. Para listar os processos individualmente, use `POST /lawsuits` ([Hot Storage](/cache-judit/hotstorage)). Para apenas saber se existem processos (true/false) ou contar, use [`POST /lawsuits/count`](/api-reference/endpoint/crawler/req-count).
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Dashboards executivos" icon="chart-pie">
+    Painéis de exposição judicial: contagens por tribunal, fase, instância, área — sem precisar listar cada processo.
+  </Card>
+  <Card title="Análise de risco rápida" icon="gauge-high">
+    Em onboarding ou crédito: descubra em ms o perfil judicial de uma contraparte (cível vs. trabalhista vs. tributário).
+  </Card>
+  <Card title="Pré-segmentação" icon="layer-group">
+    Antes de decidir entre consulta detalhada ou amostral, veja o tamanho e a distribuição do conjunto.
+  </Card>
+  <Card title="Reports periódicos" icon="calendar-days">
+    Relatórios semanais/mensais agregados por carteira sem trafegar grandes volumes de processos.
+  </Card>
+</CardGroup>
+
+## Passo 1: Criar a Consulta Agrupada (POST)
+
+`POST https://lawsuits.production.judit.io/lawsuits/synthetic`
+
+### Exemplos por tipo de documento
+
+<CodeGroup>
+```json Por CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+```
+
+```json Por CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "99.999.999/9999-99"
+    }
+}
+```
+
+```json Por OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "99999RJ"
+    }
+}
+```
+
+```json Por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "João Silva"
+    }
+}
+```
+</CodeGroup>
+
+### Parâmetros do Payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | `"cpf"`, `"cnpj"`, `"oab"` ou `"name"`. |
+| `search.search_key` | string | **Sim** | Valor a ser buscado. |
+| `search.search_params.filter` | object | Não | Filtros estruturais — mesma estrutura da [consulta histórica](/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
+
+### Exemplos com filtros
+
+<CodeGroup>
+```json Filtro por polo passivo + valor
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "00.000.000/0001-00",
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "tribunals": { "keys": ["TJSP","TRT2"], "not_equal": false },
+                "amount_gte": 50000
+            }
+        }
+    }
+}
+```
+
+```json Filtro por janela de distribuição
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "distribution_date_gte": "2024-01-01T00:00:00.000Z"
+            }
+        }
+    }
+}
+```
+
+```json Excluir tribunais específicos
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "00.000.000/0001-00",
+        "search_params": {
+            "filter": {
+                "tribunals": { "keys": ["TJSP"], "not_equal": true }
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+### Exemplo de Requisição (POST)
+
+<CodeGroup>
+```bash cURL
+curl --request POST \
+  --url 'https://lawsuits.production.judit.io/lawsuits/synthetic' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
   --header 'Content-Type: application/json' \
   --data '{
     "search": {
       "search_type": "cpf",
       "search_key": "999.999.999-99"
     }
+  }'
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits/synthetic",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={"search": {"search_type": "cpf", "search_key": "999.999.999-99"}},
+    timeout=15,
+)
+resp.raise_for_status()
+print(resp.json())
+```
+
+```javascript Node.js
+const res = await fetch(
+  "https://lawsuits.production.judit.io/lawsuits/synthetic",
+  {
+    method: "POST",
+    headers: {
+      "api-key": process.env.JUDIT_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      search: { search_type: "cpf", search_key: "999.999.999-99" },
+    }),
   }
-'
+);
+console.log(await res.json());
 ```
 
-### Resposta esperada:
+```go Go
+package main
 
+import (
+    "bytes"
+    "encoding/json"
+    "io"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type": "cpf",
+            "search_key":  "999.999.999-99",
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits/synthetic",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    out, _ := io.ReadAll(res.Body)
+    println(string(out))
+}
 ```
-      {
+</CodeGroup>
+
+## Passo 2: Ler a Resposta
+
+A resposta é síncrona (HTTP 200) e agrega o universo encontrado em vários eixos. `lawsuits_count` é o total geral; cada eixo é um array `{ count, value }`.
+
+| Eixo | O que agrupa |
+| :--- | :--- |
+| `classifications` | Classes processuais (ex.: PROCEDIMENTO COMUM CÍVEL). |
+| `subjects` | Assuntos processuais (ex.: ACIDENTE DE TRÂNSITO). |
+| `areas` | Áreas do direito (ex.: DIREITO CIVIL). |
+| `tribunals` | Siglas dos tribunais (ex.: TJSP, TRT1). |
+| `justices` | Justiça (Estadual, Federal, etc.). |
+| `phases` | Fase processual atual. |
+| `states` | UF onde tramita. |
+| `instances` | Instância (1 ou 2). |
+| `sides` | Polo da parte buscada (PASSIVE, ACTIVE, INTERESTED). |
+| `person_types` | Tipo da parte (REQUERENTE, AUTOR, RÉU, etc.). |
+| `lawsuits_count` | Total geral de processos do universo. |
+
+### Exemplo de resposta
+
+<Accordion title="Ver exemplo completo de resposta">
+```json
+{
     "classifications": [
-        {
-            "count": 1,
-            "value": "PROCEDIMENTO COMUM CÍVEL"
-        },
-        {
-            "count": 1,
-            "value": "HOMOLOGAçãO DE TRANSAçãO EXTRAJUDICIAL"
-        },
-        {
-            "count": 1,
-            "value": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
-        }
+        { "count": 1, "value": "PROCEDIMENTO COMUM CÍVEL" },
+        { "count": 1, "value": "HOMOLOGAÇÃO DE TRANSAÇÃO EXTRAJUDICIAL" },
+        { "count": 1, "value": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL" }
     ],
     "subjects": [
-        {
-            "count": 1,
-            "value": "ÔNUS DA PROVA"
-        },
-        {
-            "count": 1,
-            "value": "ACIDENTE DE TRâNSITO"
-        },
-        {
-            "count": 1,
-            "value": "COISAS"
-        }
+        { "count": 1, "value": "ÔNUS DA PROVA" },
+        { "count": 1, "value": "ACIDENTE DE TRÂNSITO" },
+        { "count": 1, "value": "COISAS" }
     ],
     "areas": [
-        {
-            "count": 4,
-            "value": "DIREITO CIVIL"
-        },
-        {
-            "count": 2,
-            "value": "DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO"
-        }
+        { "count": 4, "value": "DIREITO CIVIL" },
+        { "count": 2, "value": "DIREITO ADMINISTRATIVO E OUTRAS MATÉRIAS DE DIREITO PÚBLICO" }
     ],
     "tribunals": [
-        {
-            "count": 1,
-            "value": "TRF2"
-        },
-        {
-            "count": 8,
-            "value": "TRT1"
-        },
-        {
-            "count": 1,
-            "value": "TRF1"
-        }
-    ],
-    "justices": [
-        {
-            "count": 7,
-            "value": "NÃO INFORMADO"
-        },
-        {
-            "count": 8,
-            "value": "JUSTIÇA ESTADUAL"
-        },
-        {
-            "count": 5,
-            "value": "JUSTIÇA FEDERAL"
-        }
+        { "count": 1, "value": "TRF2" },
+        { "count": 8, "value": "TRT1" },
+        { "count": 1, "valu
+e": "TRT1" }
     ],
     "phases": [
-        {
-            "count": 11,
-            "value": "INICIAL"
-        },
-        {
-            "count": 3,
-            "value": "TRâNSITO EM JULGADO OU ACORDO"
-        },
-        {
-            "count": 9,
-            "value": "ARQUIVADO"
-        }
-    ],
-    "states": [
-        {
-            "count": 11,
-            "value": "RJ"
-        },
-        {
-            "count": 1,
-            "value": "MG"
-        },
-        {
-            "count": 10,
-            "value": "SP"
-        }
-    ],
-    "instances": [
-        {
-            "count": 24,
-            "value": 1
-        },
-        {
-            "count": 3,
-            "value": 2
-        }
-    ],
-    "sides": [
-        {
-            "count": 8,
-            "value": "PASSIVE"
-        },
-        {
-            "count": 6,
-            "value": "INTERESTED"
-        }
-    ],
-    "person_types": [
-        {
-            "count": 1,
-            "value": "IMPETRANTE"
-        },
-        {
-            "count": 1,
-            "value": "VITIMA"
-        },
-        {
-            "count": 2,
-            "value": "REQUERENTE"
-        }
+        { "count": 11, "value": "INICIAL" },
+        { "count": 9, "value": "ARQUIVADO" }
     ],
     "lawsuits_count": 27
 }
 ```
+</Accordion>
+
+## Próximos passos
+
+- Para listar processos individualmente: [Hot Storage](/cache-judit/hotstorage).
+- Para contagem global: [`POST /lawsuits/count`](/api-reference/endpoint/crawler/req-count).
+- Para varrer múltiplos critérios: [Consulta Customizada](/requests/custom-search).

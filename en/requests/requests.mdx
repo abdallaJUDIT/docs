@@ -1,15 +1,67 @@
 ---
-title: "Lawsuit Search (Asynchronous)"
-description: "Learn how to perform lawsuit searches in the courts in real time, track the extraction status, and get the complete results with or without artificial intelligence."
+title: "Asynchronous Lawsuit Query by CNJ"
+sidebarTitle: "Lawsuit Query"
+description: "Asynchronous flow to query a specific lawsuit by its CNJ number on the Judit API: create the request, watch its status and read the full result, with optional AI summary."
+keywords: ["lawsuit query", "cnj", "async", "webhook", "cached_response"]
 icon: "magnifying-glass"
 ---
 
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CachedResponseInfo from '/snippets/cached-response-en.mdx';
+
+<CachedResponseInfo />
+
+The **Asynchronous Lawsuit Query** is the most complete and freshest way to fetch a lawsuit: Judit reaches the court in real time, downloads the full tree (cover, parties, lawyers, steps, classes, attachments) and returns it via webhook or polling.
+
 > 🤖 The lawsuit search route operates **asynchronously**. The client application must make a `POST /requests` to start the search, wait for processing (via Webhook or by polling `GET /requests/{id}`), and, when the status is `completed`, capture the data via `GET /responses`.
+
+<EndpointBadges auth billing="billable" flow="async" attachments />
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Forced refresh" icon="arrows-rotate">
+    The lawsuit must reflect the latest court state — the datalake cache isn't enough.
+  </Card>
+  <Card title="Full cover + steps" icon="list-tree">
+    You need every cover field, all steps, attachments and relationships.
+  </Card>
+  <Card title="AI summary" icon="sparkles">
+    Trigger `judit_ia: ["summary"]` to get a human-friendly summary ready for your UI.
+  </Card>
+  <Card title="Lawsuits under secrecy" icon="lock">
+    Combine with the [Credentials Vault](/en/essentials/cofre-de-credenciais) to reach lawsuits that require court login.
+  </Card>
+</CardGroup>
+
+> If speed beats freshness (e.g. on-screen validation, interactive dashboard), use the [Hot Storage Synchronous Query](/en/cache-judit/hotstorage) — millisecond response from Judit's datalake.
+
+## Asynchronous flow (overview)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Your application
+    participant Judit as Judit API
+    participant Court as Court
+    App->>Judit: POST /requests {search_type, search_key}
+    Judit-->>App: 200 {request_id, status: "pending"}
+    Judit->>Court: extraction at court
+    Court-->>Judit: lawsuit data
+    alt webhook configured
+        Judit-->>App: POST callback_url (response with cached_response)
+    else polling
+        App->>Judit: GET /requests/{id}
+        Judit-->>App: status: "completed"
+        App->>Judit: GET /responses?request_id=...
+        Judit-->>App: response_data with lawsuit
+    end
+```
 
 ## Understanding the Asynchronous Flow
 
 Since data extraction directly from the courts can take a few seconds or minutes (depending on court instability), the Judit API uses an asynchronous request pattern.
-
 
 
 The flow consists of 3 simple steps:
@@ -45,7 +97,7 @@ Refer to the table below to configure your search, enable attachments, or trigge
 <CodeGroup>
 
 ```bash cURL (Without Attachments)
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://requests.production.judit.io/requests/' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -58,7 +110,7 @@ curl --location 'https://requests.prod.judit.io/requests/' \
 ```
 
 ```bash cURL (With Attachments)
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://requests.production.judit.io/requests/' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -71,7 +123,7 @@ curl --location 'https://requests.prod.judit.io/requests/' \
 ```
 
 ```bash cURL (With Attachments and AI)
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://requests.production.judit.io/requests/' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -123,7 +175,7 @@ This step is crucial if you are not using **Webhooks**. Responses are inserted i
 To find out whether the extraction has finished, query the request history endpoint passing the ID generated in Step 1:
 <CodeGroup>
 ```bash cURL
-curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
+curl --location 'https://requests.production.judit.io/requests/<request_id>' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data ''
@@ -133,7 +185,7 @@ curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
 {
   "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
   "search": {
-      "search_type": "lawsuit",
+      "search_type": "lawsuit_cnj",
       "search_key": "9999999-99.9999.9.99.9999",
       "response_type": "lawsuit",
       "search_params": {
@@ -160,14 +212,75 @@ Wait until the **`status`** property changes to **`"completed"`**.
 ## Step 3: Capture the Result (The Lawsuit)
 
 As soon as the status is `completed`, you can retrieve the complete lawsuit data (and the AI summary, if requested).
-<CodeGroup>
 
+### Request example (GET)
+
+<CodeGroup>
 ```bash cURL
-curl --location 'https://requests.prod.judit.io/responses?page_size=100&request_id=<request_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
+curl --location 'https://requests.production.judit.io/responses?page_size=100&request_id=<request_id>' \
+  --header 'api-key: '"$JUDIT_API_KEY"
 ```
+
+```javascript Node.js
+const res = await fetch(
+  `https://requests.production.judit.io/responses?page_size=100&request_id=${requestId}`,
+  { headers: { "api-key": process.env.JUDIT_API_KEY } }
+);
+const data = await res.json();
+console.log(data.page_data);
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://requests.production.judit.io/responses?page_size=100&request_id=' . urlencode($requestId));
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => ['api-key: ' . getenv('JUDIT_API_KEY')],
+]);
+echo curl_exec($ch);
+```
+
+```python Python
+import os, requests
+
+resp = requests.get(
+    "https://requests.production.judit.io/responses",
+    params={"request_id": request_id, "page_size": 100},
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+    timeout=15,
+)
+print(resp.json())
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "net/url"
+    "os"
+)
+
+func main() {
+    requestID := "<request_id>"
+    base, _ := url.Parse("https://requests.production.judit.io/responses")
+    q := base.Query(); q.Set("request_id", requestID); q.Set("page_size", "100")
+    base.RawQuery = q.Encode()
+    req, _ := http.NewRequest("GET", base.String(), nil)
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    out, _ := io.ReadAll(res.Body); fmt.Println(string(out))
+}
+```
+</CodeGroup>
+
+### Response examples
+
+<Accordion title="See response examples (3 variants)">
+<CodeGroup>
 
 ```json Simple response example (200 OK)
 {
@@ -962,42 +1075,25 @@ curl --location 'https://requests.prod.judit.io/responses?page_size=100&request_
 
 ```
 
-</CodeGroup>
-### What do you get back?
+</CodeGroup></Accordion>
 
-The return is paginated and contains the [Lawsuit Object](/en/schemas/lawsuit-object) inside the `page_data` array. If you requested **Judit AI**, the summary will come as an additional object within the same list.
+### What you receive back
 
-<Warning>
-**Attachment Availability:** To ensure that a file was successfully captured and is ready for download, check the `status` property inside the individual attachment object. The value must be `"done"`.
-</Warning>
+The return is paginated and contains the [Lawsuit Object](/en/schemas/lawsuit-object) inside the `page_data` array. If you requested **Judit AI** (`use_judit_ia: true`), the `judit_ia` object brings a human-readable summary of the lawsuit + structured listing of parties, classes, subjects and movements.
 
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `request_status` | string | Final request status (`completed`, `created`, `processing`). |
+| `page` / `page_count` / `all_pages_count` / `all_count` | number | Pagination. |
+| `page_data` | array | List of responses — usually 1 per request. |
+| `page_data[].response_type` | string | `lawsuit`, `lawsuits`, `application_error`, etc. |
+| `page_data[].response_data` | object | Main content — follows the [Lawsuit Schema](/en/schemas/lawsuit-object). |
+| `page_data[].cached_response` | boolean | `true` if it came from datalake; `false` if it came fresh from court. |
 
----
+## Next steps
 
-## Accessing Captured Attachments (PDF/HTML Documents)
-
-If you sent `"with_attachments": true` in Step 1 of the request, Judit will download the public files directly from the court. As soon as the main request is completed, **these files will already be captured and securely stored in Judit's *buckets***.
-
-The metadata of these files will be listed inside the `attachments` array in the lawsuit JSON.
-
-<Info>
-**Format Fidelity:** The Judit API does not convert files. The attachment will be returned to you in the **exact same original format** in which it was captured and made available by the court. Prepare your application to receive documents (PDF, HTML, DOCX), images (JPG, PNG), and even hearing media (MP3, MP4).
-</Info>
-
-```bash cURL
-curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Lawsuit number>/<instance>/attachments/<attachment_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
-```
-
-### Attachment Properties
-* `status`: Indicates the state of the file in our database. `done` means it is ready for download.
-* `private`: If `true`, it means the document is under judicial secrecy at the court.
-* `extension`: Format of the extracted file (e.g., `pdf`, `html`, `jpg`).
-
----
-
-<Note>
-**Billing Notice:** We are not responsible for queries made with invalid CNJ/CPF numbers or judicially invalid lawsuits. Charges may be applied for requests with malformed keys sent to the API.
-</Note>
+* 👉 **[Webhook & Callbacks](/en/webhook/callbacks)** — receive automatic notifications when the search ends.
+* 👉 **[Hot Storage (sync)](/en/cache-judit/hotstorage)** — for an immediate response (cached).
+* 👉 **[Has Lawsuits? (true/false)](/en/cache-judit/has-lawsuits)** — lightweight boolean gate.
+* 👉 **[Lawsuits Count](/en/cache-judit/count)** — only the total.
+* 👉 **[Error Codes](/en/resource/errors)** — troubleshooting.

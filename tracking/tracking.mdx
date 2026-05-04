@@ -1,14 +1,44 @@
 ---
-title: "Monitoramento Processual"
-description: "Monitore documentos ou processos e se mantenha atualizado sobre todos os seus processos"
+title: "Monitoramento Processual com Webhooks"
+sidebarTitle: "Monitoramento · Visão Geral"
+description: "Acompanhe automaticamente movimentações em processos por CNJ, CPF, CNPJ ou OAB. A Judit consulta os tribunais com a recorrência configurada e envia atualizações via webhook."
+keywords: ["monitoramento", "tracking", "webhook", "recorrência", "atualização", "tribunal", "watcher"]
 icon: "radar"
 ---
 
-A JUDIT permite que você monitore processos, CPFs, CNPJs, OAB ou Código(CNJ), mantendo-o atualizado sobre qualquer nova movimentação.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
-O monitoramento é a automatização das consultas processuais do item anterior.
 
-Diariamente, nossa API busca em todos os tribunais do Brasil processos relacionados ao CPF, CNPJ, OAB ou Código(CNJ) que você está monitorando.
+<CnpjAlphaInfo />
+
+O **Monitoramento JUDIT** automatiza a vigilância processual: você cadastra um CNJ, CPF, CNPJ ou OAB, define a recorrência (em dias) e a Judit consulta os tribunais para você. Sempre que houver novidade — nova movimentação, anexo ou processo nascido — você recebe a atualização via **webhook** ou e-mail.
+
+> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida em `recurrence` (em dias).
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Carteira ativa" icon="folder-open">
+    Mantenha cada processo do escritório monitorado por CNJ, com webhooks chegando assim que houver andamento.
+  </Card>
+  <Card title="Vigilância de partes" icon="user-magnifying-glass">
+    Monitore CPFs/CNPJs e seja notificado quando **um novo processo** for ajuizado contra (ou por) seu cliente.
+  </Card>
+  <Card title="Compliance contínuo" icon="shield-halved">
+    Em revisões periódicas de KYC, identifique automaticamente novos litígios envolvendo a contraparte.
+  </Card>
+  <Card title="Alertas por palavra-chave" icon="bell">
+    Use `notification_filters.step_terms` para receber alertas só quando movimentações específicas (ex.: "sentença", "intimação") aparecerem.
+  </Card>
+</CardGroup>
+
+## Tipos de monitoramento
+
+| Cenário | Página dedicada |
+| --- | --- |
+| Monitorar **um processo específico** (CNJ) | esta página |
+| Detectar **novos processos** vinculados a CPF/CNPJ/OAB | [Por documento](/tracking/tracking-document) |
+| Filtros avançados (tribunal, valor, classe, etc.) | [Customizado](/tracking/tracking-custom) |
 
 ## Rota de Monitoramento
 
@@ -18,10 +48,12 @@ Para começar a monitorar um processo, você deve realizar uma solicitação POS
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
+- `fixed_time` (**obrigatório**): boolean. Define se o tracker roda sempre no mesmo horário do dia. Quando `true`, combine com `hour_range` (0-23) para fixar o horário. Quando `false`, a Judit escolhe a melhor janela de concorrência.
+
 - `recurrence`: A recorrência em dias de atualização dos processos.
 
-- `search`: Objeto que vai para a busca.
-    - `search_type`: No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
+- `search` (**obrigatório**): Objeto que vai para a busca.
+    - `search_type` (**obrigatório**): No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
     - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
@@ -78,6 +110,7 @@ Exemplo de payload sem filtros:
 
 Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 {
     "tracking_id": "d923253e-45c1-46e5-ac70-164839d9851c",
@@ -109,6 +142,7 @@ Aqui está um exemplo de retorno esperado ao criar um monitoramento:
     "updated_at": "2025-04-16T13:58:56.352Z"
 }
 ```
+</Accordion>
 
 <Note>
    Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta ao tribunal será realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
@@ -118,7 +152,7 @@ Aqui está um exemplo de retorno esperado ao criar um monitoramento:
 Aqui está um exemplo de como usar esses parâmetros de consulta com curl:
 
 ```bash
-curl --location 'https://tracking.prod.judit.io/tracking' \
+curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>>' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -144,7 +178,7 @@ Esta rota campos opcionais para atualização do tracking: `recurrence`, `tags` 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X PATCH "https://tracking.prod.judit.io/tracking/{monitoramento}" \
+curl -X PATCH "https://tracking.production.judit.io/tracking/{monitoramento}" \
 -H "api-key: YOUR_API_KEY"
 -d '{
   "recurrence": 5,
@@ -172,7 +206,7 @@ Para consultar todos os seus monitoramentos, você pode fazer uma solicitação 
 Aqui está um exemplo de como consultar seus monitoramentos usando curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
+curl -X GET "https://tracking.production.judit.io/tracking?page=1&page_size=10" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -180,6 +214,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 
 **Obs**: Toda movimentação serão notificadas via webhook contendo o processo por completo, incrementando as últimas movimentações.
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 {
   "_id": {
@@ -223,6 +258,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 	],
 }
 ```
+</Accordion>
 
 <Warning>
 Para cadastrar seu webhook, entre em contato com a equipe de [suporte](https://api.whatsapp.com/send/?phone=5521976748865) e solicite a criação. Alternativamente, o webhook também pode ser especificado adicionando o parâmetro callback_url no payload da requisição, conforme o exemplo abaixo:
@@ -247,7 +283,7 @@ Para consultar todas as informações sobre um monitoramento específico, você 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking?tracking_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+curl -X GET "https://tracking.production.judit.io/tracking?tracking_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -288,12 +324,13 @@ Você pode filtrar os resultados usando os parâmetros `created_at_gte` e `creat
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
-curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
 --header 'api-key: <API-KEY>'
 ```
 
 Aqui está o retorno esperado:
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 {
     "request_status": "completed",
@@ -601,6 +638,7 @@ Aqui está o retorno esperado:
     ]
 }
 ```
+</Accordion>
 ## Pausando um Monitoramento
 
 Para pausar um monitoramento, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/pause`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja pausar.
@@ -608,7 +646,7 @@ Para pausar um monitoramento, você pode fazer uma solicitação POST para a rot
 Aqui está um exemplo de como pausar o monitoramento usando o curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -644,7 +682,7 @@ Para reativar um monitoramento pausado, você pode fazer uma solicitação POST 
 Aqui está um exemplo de como reativar um monitoramento usando curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -675,40 +713,4 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
 
 ## Deletando um Monitoramento
 
-Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja deletar.
-
-Aqui está um exemplo de como deletar um monitoramento usando curl:
-
-```bash
-curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
--H "api-key: YOUR_API_KEY"
-```
-
-Aqui está um exemplo do retorno do monitoramento deletado:
-
-```json
-{
- "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
- "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
- "status": "deleted",
- "recurrence": 1,
- "search": {
-  "search_type": "lawsuit_cnj",
-  "search_key": "9999999-99.9999.9.99.9999",
-  "response_type": "lawsuit",
-  "search_params": {
-   "filter": {},
-   "pagination": {}
-  }
- },
- "tracked_items_count": 0,
- "tracked_items_steps_count": 0,
- "tags": {},
- "created_at": "2024-02-21T18:26:38.499Z",
- "updated_at": "2024-02-21T18:26:38.499Z"
-}
-```
-
-E é isso! Com esses recursos, você pode manter-se atualizado sobre qualquer movimentação em processos judiciais de seu interesse. Se você tiver alguma dúvida ou encontrar algum problema, nossa equipe de suporte está à disposição para ajudá-lo. Entre em contato conosco através do nosso portal de suporte.
-
-_Não nos responsabilizamos por consulta por documento inválido, cobranças poderão ser efetuadas decorrente de uso indevido_.
+Para deletar um 

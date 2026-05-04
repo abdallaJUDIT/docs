@@ -1,14 +1,35 @@
 ---
-title: "Credentials Vault"
-description: "Access the Courts with Your Own Credentials"
+title: "Credentials Vault for Courts"
+sidebarTitle: "Credentials Vault"
+description: "Register, query, update and delete lawyer credentials for courts securely on the Judit API. Access lawsuits under secrecy and sources that require login."
+keywords: ["credentials vault", "court login", "credential", "customer_key", "secrecy"]
 icon: "vault"
 ---
 
-JUDIT lets you add the credentials of the lawyers of your choice, enabling access, through those credentials, to lawsuits under judicial secrecy authored by those lawyers.
+The **Credentials Vault** stores, encrypted, the credentials (CPF/OAB + password) that lawyers use to authenticate in Brazilian courts. With this, Judit can access lawsuits under **judicial secrecy** on behalf of the lawyer, without your application ever storing or transmitting the password.
+
+> 🤖 Base endpoint: `https://crawler.production.judit.io/credentials`. Register once per system/court and reference it later in queries via `credential.customer_key`.
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Access to secret lawsuits" icon="lock">
+    Required to query civil and labor lawsuits under judicial secrecy.
+  </Card>
+  <Card title="Multi-tenant for firms" icon="users">
+    Use `customer_key` to separate credentials per lawyer/client of the firm.
+  </Card>
+  <Card title="LGPD/GDPR compliance" icon="shield-halved">
+    Passwords are stored encrypted in a dedicated vault — your application never transits the password.
+  </Card>
+  <Card title="Wildcard credential" icon="asterisk">
+    Register `"system_name": "*"` as fallback for courts without a specific credential.
+  </Card>
+</CardGroup>
 
 ## Endpoint to register your keys in the credentials vault
 
-To start using the credentials vault, you must make a POST request to the `crawler.prod.judit.io/credentials` route and register the lawyers' credentials for the courts made available.
+To start using the credentials vault, you must make a POST request to the `crawler.production.judit.io/credentials` route and register the lawyers' credentials for the courts made available.
 
 ### Request Payload
 
@@ -89,7 +110,7 @@ Example response to the request:
 
 ## Endpoint to verify registered credentials
 
-To check whether a credential is registered, send a GET request to the `crawler.prod.judit.io/credentials` endpoint, including the `customer_key` parameter that corresponds to the credential you want to look up.
+To check whether a credential is registered, send a GET request to the `crawler.production.judit.io/credentials` endpoint, including the `customer_key` parameter that corresponds to the credential you want to look up.
 
 The response will return every credential available in the vault associated with the queried `customer_key`. The `credential_status` field indicates the status of each credential:
 
@@ -100,7 +121,7 @@ Below is an example GET request to check whether a credential exists:
 
 ```bash
 
-curl --location 'https://crawler.prod.judit.io/credentials?customer_key=teste_01' \
+curl --location 'https://crawler.production.judit.io/credentials?customer_key=teste_01' \
 --header 'api-key: <API-KEY>'
 
 ```
@@ -132,7 +153,7 @@ Below is an example response for the GET request above:
 ```
 ## Endpoint to delete a key from the Credentials Vault
 
-To delete a system from the credentials vault, you must make a DELETE request to the `crawler.prod.judit.io/credentials` route.
+To delete a system from the credentials vault, you must make a DELETE request to the `crawler.production.judit.io/credentials` route.
 
 ### Request Payload
 

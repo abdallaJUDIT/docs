@@ -1,14 +1,35 @@
 ---
-title: "Cofre de Credenciais"
-description: "Acesse os Tribunais com Suas Próprias Credenciais"
+title: "Cofre de Credenciais para Tribunais"
+sidebarTitle: "Cofre de Credenciais"
+description: "Cadastre, consulte, atualize e remova credenciais de advogados em tribunais de forma segura na Judit API. Acesse processos sob segredo e fontes que exigem login."
+keywords: ["cofre de credenciais", "credentials vault", "login no tribunal", "credencial", "customer_key", "segredo"]
 icon: "vault"
 ---
 
-A JUDIT permite adicionar as credenciais dos advogados de sua preferência, possibilitando o acesso, por meio dessas credenciais, a processos em segredo de justiça de autoria dos respectivos advogados.
+O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + senha) que advogados usam para se autenticar em tribunais brasileiros. Com isso, a Judit pode acessar processos sob **segredo de justiça** em nome do advogado, sem que sua aplicação precise jamais armazenar ou trafegar a senha.
+
+> 🤖 Endpoint base: `https://crawler.production.judit.io/credentials`. Cadastre uma vez por sistema/tribunal e referencie depois nas consultas via `credential.customer_key`.
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Acesso a processos sob segredo" icon="lock">
+    Necessário para consultar processos cíveis e trabalhistas restritos.
+  </Card>
+  <Card title="Multi-tenant para escritórios" icon="users">
+    Use `customer_key` para separar credenciais por advogado/cliente do escritório.
+  </Card>
+  <Card title="Conformidade LGPD" icon="shield-halved">
+    Senhas são armazenadas criptografadas em cofre dedicado — sua aplicação nunca transita a senha.
+  </Card>
+  <Card title="Credencial coringa" icon="asterisk">
+    Cadastre `"system_name": "*"` como fallback para tribunais sem credencial específica.
+  </Card>
+</CardGroup>
 
 ## Rota para cadastrar suas chaves no cofre de credenciais
 
-Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
+Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.production.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
 
 ### Payload da Solicitação
 
@@ -89,7 +110,7 @@ Exemplo de resposta a solicitação:
 
 ## Rota de verificação de credenciais cadastradas
 
-Para verificar se uma credencial está cadastrada, envie uma solicitação GET para o endpoint `crawler.prod.judit.io/credentials`, incluindo o parâmetro `customer_key` correspondente à credencial que deseja consultar.
+Para verificar se uma credencial está cadastrada, envie uma solicitação GET para o endpoint `crawler.production.judit.io/credentials`, incluindo o parâmetro `customer_key` correspondente à credencial que deseja consultar.
 
 A resposta retornará todas as credenciais disponíveis no cofre associadas à `customer_key` consultada. O campo `credential_status` indicará o status de cada credencial:
 
@@ -100,7 +121,7 @@ Segue um exemplo de solicitação GET para verificar a existência de uma creden
 
 ```json
 
-curl --location 'https://crawler.prod.judit.io/credentials?customer_key=teste_01' \
+curl --location 'https://crawler.production.judit.io/credentials?customer_key=teste_01' \
 --header 'api-key: <API-KEY>'
 
 ```
@@ -132,7 +153,7 @@ Segue um exemplo de resposta para a solicitação GET realizada:
 ```
 ## Rota para deletar uma chave no cofre de Credenciais
 
-Para deletar um sistema no cofre de credenciais, você deve realizar uma solicitação DELETE para a rota `crawler.prod.judit.io/credentials`.
+Para deletar um sistema no cofre de credenciais, você deve realizar uma solicitação DELETE para a rota `crawler.production.judit.io/credentials`.
 
 ### Payload da Solicitação
 

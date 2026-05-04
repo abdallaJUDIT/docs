@@ -1,8 +1,228 @@
 ---
-title: 'Callback / Webhook'
-description: 'callbacks'
+title: "Webhooks (Callbacks) — Judit API"
+sidebarTitle: "Webhooks"
+description: "Configure callback URLs to receive query and tracking results from the Judit API in real time. Identify cached responses via cached_response."
+keywords: ["webhook", "callback", "cached_response", "notification", "push", "async"]
 icon: 'book'
 ---
+
+import CachedResponseInfo from '/snippets/cached-response-en.mdx';
+
+<CachedResponseInfo />
+
+**Webhooks** push your query and tracking results in real time: no polling required. As soon as Judit finishes processing a request, we `POST` the response object to your configured URL. It's the most efficient and cheapest way to integrate asynchronous flows.
+
+> 🤖 Delivery pattern: HTTP POST with `application/json`. Use a public HTTPS URL. Implement idempotency based on `request_id` + `cached_response`. On 5xx or timeout, we retry with backoff.
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Async at scale" icon="bolt">
+    For high volumes (hundreds/thousands of requests), webhooks eliminate polling and dramatically reduce your quota usage.
+  </Card>
+  <Card title="Tracking notifications" icon="bell">
+    Get notified the moment a tracker detects a new step or a new lawsuit is born.
+  </Card>
+  <Card title="Internal-system integration" icon="diagram-project">
+    Queue → handler → ERP/CRM/BI: event-driven pattern without polling Judit.
+  </Card>
+  <Card title="Cache vs. update identification" icon="layer-group">
+    Use `cached_response` to distinguish the initial (cache) response from the later (court-fresh) one.
+  </Card>
+</CardGroup>
+
+## How it works
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Your application
+    participant Judit as Judit API
+    participant Court as Court
+    App->>Judit: POST /requests {callback_url, search...}
+    Judit-->>App: 200 OK {request_id, status: "pending"}
+    Judit->>Judit: Check datalake (cache)
+    alt cache hit
+        Judit-->>App: POST callback_url (cached_response: true)
+    end
+    Judit->>Court: Live court fetch
+    Court-->>Judit: fresh data
+    Judit-->>App: POST callback_url (cached_response: false)
+    Judit-->>App: POST callback_url (event_type: "request_completed")
+```
+
+For each event we `POST` HTTPS to your URL with `application/json`. **Delivery is incremental** — you may receive several responses for the same `request_id` before the `request_completed` event signals the end of the flow.
+
+## Configuring your webhook
+
+There are **two ways** to receive callbacks:
+
+<CardGroup cols={2}>
+  <Card title="1. Account-wide (recommended)" icon="building">
+    Register a single URL that receives **every** callback (queries + tracking). Request via [Support](https://api.whatsapp.com/send/?phone=5511920501949) — takes minutes.
+  </Card>
+  <Card title="2. Per-request" icon="bullseye">
+    Add `callback_url` in the request payload. Useful for dynamic routing (e.g. webhook per environment or per end-customer).
+  </Card>
+</CardGroup>
+
+<CodeGroup>
+```json Request with callback_url
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "9999999-99.9999.9.99.9999"
+    },
+    "callback_url": "https://api.yourdomain.com/webhooks/judit",
+    "with_attachments": true
+}
+```
+
+```bash cURL
+curl -X POST "https://requests.production.judit.io/requests" \
+  -H "api-key: $JUDIT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "search": { "search_type": "lawsuit_cnj", "search_key": "9999999-99.9999.9.99.9999" },
+    "callback_url": "https://api.yourdomain.com/webhooks/judit",
+    "with_attachments": true
+  }'
+```
+
+```javascript Node.js
+await fetch("https://requests.production.judit.io/requests", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: { search_type: "lawsuit_cnj", search_key: "9999999-99.9999.9.99.9999" },
+    callback_url: "https://api.yourdomain.com/webhooks/judit",
+    with_attachments: true,
+  }),
+});
+```
+</CodeGroup>
+
+<Note>
+The `with_attachments` parameter applies **only to lawsuit queries** (`search_type: "lawsuit_cnj"`).
+</Note>
+
+## Events delivered
+
+| `event_type` | Fires when | Payload |
+| --- | --- | --- |
+| `response_created` | Every time a new `response_data` is generated for the request (cache or court) | `lawsuit`, `entity`, `warrant` or `execution` object |
+| `request_completed` | End of the request flow (all courts responded) | Final `request` object with `status: "completed"` |
+| `tracking_response` | Fired by trackers (each new movement detected) | Same shape as `response_created`, but via `tracking_id` |
+
+Every payload uses a standard envelope:
+
+```json
+{
+  "user_id": "ab829a35-894b-4fbd-9168-2398fd69cecc",
+  "callback_id": "d5dcbbd6-a9cc-4eef-b1d1-d58a59c4631b",
+  "event_type": "response_created",
+  "reference_type": "request",
+  "reference_id": "ec545a1e-c0ac-47cf-a3df-3668f1bdde11",
+  "payload": { /* event-specific object */ }
+}
+```
+
+- `callback_id` — unique delivery id (use for idempotency).
+- `reference_id` — the `request_id` or `tracking_id` that originated the event.
+- `payload` — content (lawsuit, registration data, etc.).
+
+## `cached_response`: reading the two deliveries
+
+Most requests produce **two deliveries** in sequence: one from cache, one from the live court. Use `cached_response` to identify.
+
+| Sequence | `event_type` | `cached_response` | Meaning |
+| --- | --- | --- | --- |
+| 1 | `response_created` | `true` | Came from Judit's datalake (fast initial response). |
+| 2 | `response_created` | `false` | Live fetch from the court. **Always the definitive version when present.** |
+| 3 | `request_completed` | — | All courts responded. Your app can close the loop. |
+
+> ⚠️ For lawsuits recently refreshed (within `cache_ttl_in_days`), you may receive **only** the `cached_response: true` delivery — no live fetch happens because the cache is still valid.
+
+## Best practices (production-grade)
+
+<AccordionGroup>
+  <Accordion title="✅ Idempotency" icon="repeat">
+    Use `callback_id` as the idempotency key: drop duplicates based on it. On retries, the same `callback_id` is redelivered.
+  </Accordion>
+  <Accordion title="✅ Reply fast (HTTP 2xx)" icon="bolt">
+    Reply `200 OK` in **less than 10 seconds**. Process asynchronously (queue/worker). Slow responses count as failure and trigger retry.
+  </Accordion>
+  <Accordion title="✅ Persist the event before processing" icon="database">
+    Production pattern: write the raw event into a queue/log and process later. Avoids loss on application errors.
+  </Accordion>
+  <Accordion title="✅ Treat `cached_response: true` as provisional" icon="layer-group">
+    Always treat the `cached_response: false` delivery (when it exists) as the final version. Your UI/reports should reflect the latest value.
+  </Accordion>
+  <Accordion title="✅ Validate source (HTTPS + IP allowlist)" icon="shield-halved">
+    Accept `POST` only from Judit IPs (ask support for the list). Always HTTPS. In regulated environments also validate the `User-Agent` header.
+  </Accordion>
+  <Accordion title="✅ Implement tolerant retry" icon="rotate">
+    On 5xx or timeout we retry with exponential backoff. If your URL stays down for too long, events are lost — keep the endpoint stable.
+  </Accordion>
+</AccordionGroup>
+
+## Webhook receiver (Node.js example)
+
+```javascript
+import express from "express";
+const app = express();
+app.use(express.json());
+
+const seen = new Set();
+const lastByRequest = new Map();
+
+app.post("/webhooks/judit", async (req, res) => {
+  const { callback_id, event_type, reference_id, payload } = req.body;
+
+  // 1. Idempotency
+  if (seen.has(callback_id)) return res.sendStatus(200);
+  seen.add(callback_id);
+
+  // 2. Reply quickly — process async
+  res.sendStatus(200);
+
+  // 3. Logic
+  if (event_type === "response_created") {
+    const cached = !!payload?.tags?.cached_response || payload?.cached_response;
+    if (!cached || !lastByRequest.has(reference_id)) {
+      lastByRequest.set(reference_id, payload);
+      await persistResponse(payload);
+    }
+  }
+  if (event_type === "request_completed") {
+    await markRequestDone(reference_id);
+  }
+});
+
+app.listen(3000);
+```
+
+```python Python (FastAPI)
+from fastapi import FastAPI, Request
+app = FastAPI()
+seen = set()
+
+@app.post("/webhooks/judit")
+async def judit(req: Request):
+    body = await req.json()
+    cb_id = body.get("callback_id")
+    if cb_id in seen:
+        return {"ok": True}
+    seen.add(cb_id)
+
+    if body["event_type"] == "response_created":
+        # Persist preferring cached_response: false
+        ...
+    return {"ok": True}
+```
 
 ## Webhook delivery request
 When a search or tracking is performed through the JUDIT API, we send back a response with the information found. To ensure that all responses are delivered to a single webhook, registration must be done by contacting our [Support](https://api.whatsapp.com/send/?phone=5511920501949). Alternatively, the webhook can also be specified by adding the <strong>callback_url</strong> parameter to the request payload, as shown in the example below:
@@ -46,6 +266,7 @@ We send a POST request to the webhook, delivering responses based on your search
 
 Example response with `cached_response: true`:
 
+<Accordion title="See response example">
 ```json
 {
     "user_id": "ab829a35-894b-4fbd-9168-2398fd69cecc",
@@ -221,9 +442,11 @@ Example response with `cached_response: true`:
     }
 }
 ```
+</Accordion>
 
 Example response with `cached_response: false`:
 
+<Accordion title="See response example">
 ```json
 {
     "user_id": "ab829a35-894b-4fbd-9168-2398fd69cecc",
@@ -485,12 +708,14 @@ Example response with `cached_response: false`:
     }
 }
 ```
+</Accordion>
 
 ### Response for lawsuit query:
 
 
 Example response with `cached_response: true`:
 
+<Accordion title="See response example">
 ```json
 {
   "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
@@ -763,9 +988,11 @@ Example response with `cached_response: true`:
   }
 }
 ```
+</Accordion>
 
 Example response with `cached_response: false`:
 
+<Accordion title="See response example">
 ```json
 {
   "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
@@ -941,266 +1168,12 @@ Example response with `cached_response: false`:
         },
         {
           "main_document": "99999999999",
-          "name": "Usuário 2",
-          "side": "Passive",
-          "person_type": "RÉU",
-          "documents": [
-            {
-              "document": "99999999999",
-              "document_type": "cnpj"
-            }
-          ],
-          "lawyers": [
-            {
-              "name": "Usuário teste 2 - (99999999999)",
-              "documents": []
-            }
-          ]
-        },
-        {
-          "name": "Usuário teste 4",
-          "side": "Active",
-          "person_type": "Advogado",
-          "documents": []
-        },
-        {
-          "name": "Usuário teste 2 - (99999999999)",
-          "side": "Passive",
-          "person_type": "Advogado",
-          "documents": []
-        }
-      ],
-      "subjects": [
-        {
-          "code": "6007",
-          "name": "REPETIÇÃO DE INDÉBITO",
-          "date": "2022-01-13T00:00:00.000Z"
-        },
-        {
-          "code": "10441",
-          "name": "ACIDENTE DE TRÂNSITO",
-          "date": "2022-01-13T00:00:00.000Z"
-        },
-        {
-          "code": "10671",
-          "name": "OBRIGAÇÃO DE FAZER / NÃO FAZER",
-          "date": "2022-01-13T00:00:00.000Z"
-        },
-        {
-          "code": "14",
-          "name": "DIREITO TRIBUTÁRIO"
-        },
-        {
-          "code": "5986",
-          "name": "CRÉDITO TRIBUTÁRIO"
-        },
-        {
-          "code": "899",
-          "name": "DIREITO CIVIL"
-        },
-        {
-          "code": "10431",
-          "name": "RESPONSABILIDADE CIVIL"
-        },
-        {
-          "code": "10439",
-          "name": "INDENIZAÇÃO POR DANO MATERIAL"
-        },
-        {
-          "code": "8826",
-          "name": "DIREITO PROCESSUAL CIVIL E DO TRABALHO"
-        },
-        {
-          "code": "9148",
-          "name": "LIQUIDAÇÃO / CUMPRIMENTO / EXECUÇÃO"
-        },
-        {
-          "code": "",
-          "name": "INDENIZAÇÃO POR DANO MORAL"
-        }
-      ],
-      "related_lawsuits": [],
-      "last_step": {
-        "step_id": "0b602661",
-        "step_date": "2025-06-29T20:07:00.000Z",
-        "content": "Remetidos os Autos (cumpridos) para 2ª Vara Cível da Regional de Bangu",
-        "steps_count": 30
-      },
-      "tags": {
-        "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1",
-        "dictionary_updated_at": "2025-08-13T13:27:33.509Z",
-        "possible_homonym": true,
-        "datalake_id": "08004925520228190204",
-        "datalake_segment": "JUSTICA_ESTADUAL"
-      },
-      "metadata": {},
-      "justice": "8",
-      "tribunal": "19",
-      "status": "Finalizado",
-      "phase": "Arquivado",
-      "crawler": {
-        "source_name": "JPje - RJ - Lawsuit - Auth - 1 instance",
-        "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1",
-        "updated_at": "2025-08-13T13:27:40.457Z",
-        "weight": 10
-      },
-      "created_at": "2024-09-25T04:13:06.923Z",
-      "updated_at": "2025-08-13T13:27:42.343Z",
-      "area": "DIREITO CIVIL",
-      "justice_description": "JUSTIÇA ESTADUAL",
-      "judge": "Juiz de Direito",
-      "steps": [
-        {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "private": false,
-          "step_id": "0b602661",
-          "step_date": "2025-06-29T20:07:00.000Z",
-          "content": "Remetidos os Autos (cumpridos) para 2ª Vara Cível da Regional de Bangu",
-          "tags": {
-            "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1"
-          },
-          "steps_count": 30
-        },
-        {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "private": false,
-          "step_id": "50bb801c",
-          "step_date": "2025-06-16T20:24:00.000Z",
-          "content": "Juntada de Petição de certidão de débito",
-          "tags": {
-            "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1"
-          }
-        },
-        {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "private": false,
-          "step_id": "3ff7cb6f",
-          "step_date": "2025-06-15T13:42:00.000Z",
-          "content": "Expedição de Certidão.",
-          "tags": {
-            "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1"
-          }
-        },
-        {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "private": false,
-          "step_id": "8055d7d9",
-          "step_date": "2022-12-14T17:31:00.000Z",
-          "content": "Arquivado Definitivamente",
-          "tags": {
-            "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1"
-          }
-        },
-        {
-          "lawsuit_cnj": "9999999-99.9999.9.99.9999",
-          "lawsuit_instance": 1,
-          "private": false,
-          "step_id": "7002b6bd",
-          "step_date": "2022-12-14T17:31:00.000Z",
-          "content": "Remetidos os Autos (outros motivos) para Central de Arquivamento do NUR 1 Comarca da Capital",
-          "tags": {
-            "crawl_id": "e3da89f2-8951-4061-98da-356e070301e1"
-          }
+          "nam
+e": "Test User"
         }
       ]
-    },
-    "request_created_at": "2025-08-13T13:27:18.416Z",
-    "created_at": "2025-08-13T13:27:19.462Z",
-    "tags": {
-      "debug": true,
-      "dashboard_id": null,
-      "cached_response": false,
-      "cached": false
-    },
-    "updatedAt": "2025-08-13T13:27:50.145Z"
-  }
-}
-```
-
-<Note>
-  The `reference_type` field can be either `request` or `tracking`.
-</Note>
-
-### Response sent for tracking
-
-Based on the recurrence configured for the tracking, the crawler is executed to:
-
-- Perform the lawsuit search at the court, in the case of lawsuit tracking.
-
-- Search for new cases linked to the document, in the case of new-cases tracking.
-
-When the crawler finds new information, a message with the updated content is sent via webhook to:
-
-- The webhook registered on the account, or
-
-- The webhook provided as a parameter in the request payload.
-
-If there are no updates to the lawsuit or no new cases at the time of crawler execution, only the request_completed message is sent.
-
-<Note> When the tracking sends its response to the webhook, the `origin_id` field will have the same value as `tracking_id`, which is the unique identifier of the tracking. </Note>
-
-### Request_completed
-
-Below is an example of the response sent at the end of a full delivery, with the confirmation message indicating that all responses have been delivered. This final message includes the statusCode <strong>"600"</strong> and the message <strong>"request_completed"</strong>, as illustrated below:
-
-```json
-{
-  "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-  "callback_id": "c2c79ac8-8ac7-41fd-a3d5-a4dddb013cfb",
-  "event_type": "response_created",
-  "reference_type": "request",
-  "reference_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
-  "payload": {
-    "request_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
-    "response_id": "5084577b-075c-48ea-b772-934032a9a7af",
-    "origin": "api",
-    "origin_id": "8ac8f0d0-1372-4281-993b-8b08a521a28a",
-    "request_created_at": "2024-11-14T13:11:22.578Z",
-    "response_type": "application_info",
-    "response_data": {
-      "code": 600,
-      "message": "REQUEST_COMPLETED"
-    },
-    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-    "created_at": "2024-11-14T13:11:57.234Z",
-    "tags": {
-      "dashboard_id": null
     }
   }
 }
 ```
-
-### Application_error
-
-Occasionally, an `application_error` message may be sent if the lawsuit or a specific instance is not found.
-```json
-{
-  "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-  "callback_id": "5e204503-b012-4ba4-a8b4-1b43b199837a",
-  "event_type": "response_created",
-  "reference_type": "request",
-  "reference_id": "949f0d48-022b-496c-a9a9-97a80c3f8044",
-  "payload": {
-    "request_id": "949f0d48-022b-496c-a9a9-97a80c3f8044",
-    "response_id": "d37eb759-7346-495b-ae6f-6da51c3e8dca",
-    "response_type": "application_error",
-    "response_data": {
-      "code": 2,
-      "message": "LAWSUIT_NOT_FOUND"
-    },
-    "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-    "created_at": "2025-08-13T13:30:06.625Z",
-    "is_scrapper_info": false,
-    "origin": "api",
-    "origin_id": "949f0d48-022b-496c-a9a9-97a80c3f8044",
-    "tags": {
-      "debug": true,
-      "dashboard_id": null
-    }
-  }
-}
-```
+</Accordion>

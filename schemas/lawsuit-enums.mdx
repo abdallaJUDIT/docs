@@ -1,6 +1,9 @@
 ---
-title: "Enumerações e Domínios (Enums)"
-description: "Esta página contém as enumerações (Enums) e domínios de valores para as propriedades dos objetos retornados pela Judit API (Processos, Mandados, Execuções, etc.)."
+title: "Enums e Domínios da Judit API"
+sidebarTitle: "Enums"
+description: "Lista completa de valores literais aceitos e retornados pelas propriedades de Lawsuit, Warrant, Penal Execution e Entity (área, status, side, person_type, secrecy_level e mais)."
+keywords: ["enums", "valores", "domínios", "área", "status", "side", "person_type", "secrecy_level"]
+icon: "list-tree"
 ---
 
 > 🤖 Este documento lista os valores literais aceitos e retornados pelas propriedades da Judit API em seus diversos Schemas. Lembre-se que no objeto `lawsuit`, as propriedades de capa (como `area`, `status`, `situation`, `secrecy_level`) ficam aninhadas dentro do objeto raiz `response_data`, enquanto `side` e `person_type` ficam dentro dos objetos do array `parties`.
@@ -95,25 +98,25 @@ A API retorna dois campos semelhantes, mas com propósitos distintos para indica
 ### 1. Status Global (`status`)
 Visão macro e padronizada do processo, ideal para filtros e dashboards:
 
-| Valor | Descrição |
-| :--- | :--- |
-| `ATIVO` | Processo em andamento normal. |
-| `FINALIZADO` | Processo concluído ou baixado. |
+| Valor | Descrição | Comportamento na Judit |
+| :--- | :--- | :--- |
+| `ATIVO` | Processo em andamento normal. | O robô continua coletando andamentos a cada execução de tracking. |
+| `FINALIZADO` | Processo concluído ou baixado. | O robô ainda monitora caso o tribunal reabra o processo, mas movimentações são raras. |
 
 ### 2. Situação Granular (`situation`)
 Status mais específico e variável, capturado diretamente da capa do tribunal:
 
-| Valor | Descrição |
-| :--- | :--- |
-| `INICIAL` | Processo recém-distribuído. |
-| `SENTENÇA` | Processo com sentença proferida. |
-| `EXECUÇÃO OU CUMPRIMENTO` | Processo em fase de execução/cobrança. |
-| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva sem cabimento de recurso. |
-| `RECURSO` | Processo aguardando julgamento de recurso. |
-| `ARQUIVADO` | Processo guardado definitivamente. |
-| `SUSPENSO` | Tramitação paralisada temporariamente. |
-| `SOBRESTADO` | Aguardando decisão de tribunal superior. |
-| `CANCELADO` | Distribuição cancelada. |
+| Valor | Descrição | Comportamento na Judit |
+| :--- | :--- | :--- |
+| `INICIAL` | Processo recém-distribuído. | Costuma gerar muitas atualizações nos primeiros dias — vale recorrência baixa no tracking. |
+| `SENTENÇA` | Processo com sentença proferida. | Ponto crítico — frequente alvo de `notification_filters.step_terms`. |
+| `EXECUÇÃO OU CUMPRIMENTO` | Processo em fase de execução/cobrança. | Movimentações financeiras (penhoras, bloqueios) ficam visíveis nos `steps`. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva sem cabimento de recurso. | Pouca atividade subsequente; recorrência alta (ex.: 30 dias) é suficiente. |
+| `RECURSO` | Processo aguardando julgamento de recurso. | Muitas vezes gera novos `lawsuit_cnj` na 2ª instância. |
+| `ARQUIVADO` | Processo guardado definitivamente. | O robô continua coletando, mas raramente retorna novidade. |
+| `SUSPENSO` | Tramitação paralisada temporariamente. | Pode voltar a `ATIVO` — manter o monitoramento ativo. |
+| `SOBRESTADO` | Aguardando decisão de tribunal superior. | Em geral movimenta junto com a decisão da causa-piloto no STF/STJ. |
+| `CANCELADO` | Distribuição cancelada. | Tribunal removeu o processo — Judit marca como inválido em coletas seguintes. |
 
 ---
 
@@ -241,4 +244,6 @@ sp_lawsuits = [
 ## Próximos Passos
 
 * 👉 **[Buscar Processos](/requests/requests):** Utilize estas enumerações como parâmetros de filtro em suas buscas.
-* 👉 **[Mandado de prisão](/schemas/warrant):** Veja os códigos retornados caso você envie um Enum inválido.
+* 👉 **[Mandado de Prisão](/schemas/warrant):** Veja o schema de mandados de prisão.
+* 👉 **[Execução Penal](/schemas/penal-execution):** Veja o schema de execuções penais e enums relacionados.
+* 👉 **[Glossário](/resource/glossary):** Termos jurídicos e técnicos da Judit API.

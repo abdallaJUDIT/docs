@@ -1,6 +1,9 @@
 ---
-title: "Warrant Object (Arrest Warrant)"
-description: "The `warrant` object represents an arrest or recapture order extracted from the National Database of Arrest Warrants (BNMP) and the courts. It contains the order data, the sentence, and the wanted individual."
+title: "Warrant Schema (Arrest Warrant)"
+sidebarTitle: "Warrant"
+description: "Structure of the Warrant object returned by the Judit API arrest warrant query. Includes order, sentence, infringed laws and individual data."
+keywords: ["warrant", "arrest warrant", "BNMP", "schema", "execution", "wanted"]
+icon: "handcuffs"
 ---
 
 > 🤖 Arrest warrant queries return the `warrant` object. The root contains the judicial order and sentence data. Information about the infringed laws is in the `law_type` array, and detailed data about the wanted individual is nested in the `entity` object (which follows the standard Individual (natural person) structure of the Judit API).

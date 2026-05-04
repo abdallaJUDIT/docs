@@ -1,0 +1,42 @@
+{/* SNIPPET: badges — Inspirado no padrão Escavador. Use logo abaixo do método+path. */}
+
+export const Badge = ({ children, color = "gray" }) => {
+  const colors = {
+    gray: { bg: "#374151", fg: "#F9FAFB" },
+    green: { bg: "#15BE62", fg: "#FFFFFF" },
+    blue: { bg: "#0EA5E9", fg: "#FFFFFF" },
+    yellow: { bg: "#EAB308", fg: "#1F2937" },
+    purple: { bg: "#8B5CF6", fg: "#FFFFFF" },
+    red: { bg: "#EF4444", fg: "#FFFFFF" },
+  };
+  const c = colors[color] || colors.gray;
+  return (
+    <span style={{
+      display: "inline-block",
+      padding: "2px 10px",
+      marginRight: "6px",
+      marginBottom: "4px",
+      borderRadius: "999px",
+      background: c.bg,
+      color: c.fg,
+      fontSize: "11px",
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      textTransform: "uppercase",
+      verticalAlign: "middle",
+    }}>{children}</span>
+  );
+};
+
+export const EndpointBadges = ({ auth = true, billing = "billable", flow = "sync", attachments = false, requiresVault = false }) => (
+  <div style={{ marginTop: "-8px", marginBottom: "16px" }}>
+    {auth && <Badge color="gray">🔒 Requer api-key</Badge>}
+    {billing === "billable" && <Badge color="yellow">💰 Cobrança por requisição</Badge>}
+    {billing === "free" && <Badge color="green">✅ Grátis</Badge>}
+    {billing === "on-demand" && <Badge color="purple">⚡ On-demand (preço diferenciado)</Badge>}
+    {flow === "async" && <Badge color="blue">⏳ Assíncrono · webhook ou polling</Badge>}
+    {flow === "sync" && <Badge color="green">⚡ Síncrono</Badge>}
+    {attachments && <Badge color="purple">📎 Suporta with_attachments</Badge>}
+    {requiresVault && <Badge color="red">🔑 Cofre de Credenciais</Badge>}
+  </div>
+);

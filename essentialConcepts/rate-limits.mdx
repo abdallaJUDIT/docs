@@ -1,6 +1,9 @@
 ---
-title: "Rate Limits (Limites de Requisição)"
-description: "A Judit API implementa rate limiting (limite de taxa) para garantir o uso justo dos recursos, evitar sobrecargas e manter a alta performance para todos os usuários."
+title: "Rate Limits da Judit API"
+sidebarTitle: "Rate Limits"
+description: "Limites de taxa da Judit API: 180 requisições por minuto por chave. Boas práticas de exponential backoff e leitura de headers X-RateLimit para evitar HTTP 429."
+keywords: ["rate limit", "limite", "429", "exponential backoff", "retry", "throttling"]
+icon: "gauge"
 ---
 
 > 🤖 A Judit API possui um limite global estrito de 180 requisições por minuto por API Key. Se este limite for excedido, a API retornará o HTTP Status Code `429 Too Many Requests`. Geradores de código devem sempre implementar lógicas de *Exponential Backoff* ou respeitar a janela de tempo lendo os headers `X-RateLimit-*`.
@@ -87,7 +90,7 @@ def request_with_retry(url, headers, max_retries=3):
     raise Exception("Falha após todas as tentativas de retentativa (Rate Limit).")
 
 # Exemplo de uso
-# data = request_with_retry("[https://requests.prod.judit.io/requests](https://requests.prod.judit.io/requests)", headers={"api-key": "sua_chave"})
+# data = request_with_retry("[https://requests.production.judit.io/requests](https://requests.production.judit.io/requests)", headers={"api-key": "sua_chave"})
 ```
 
 ```javascript Node.js
@@ -130,5 +133,5 @@ async function requestWithRetry(url, headers, maxRetries = 3) {
 Se a sua aplicação possui um volume massivo de dados (ETL contínuo, higienização de bases históricas com milhões de linhas) e o limite de 180 requisições por minuto for um gargalo, nós podemos ajudar.
 
 * 👉 **Fale Conosco:** Entre em [contato com nosso time de engenharia via WhatsApp](https://api.whatsapp.com/send/?phone=5511920501949) para discutirmos limites personalizados e rotas dedicadas para o seu volume.
-* 👉 **[Tratamento de Erros](/essentialConcepts/errors):** Veja a lista completa de erros que a API pode retornar além do 429.
+* 👉 **[Tratamento de Erros](/resource/errors):** Veja a lista completa de erros que a API pode retornar além do 429.
 * 👉 **[Paginação](/essentialConcepts/pagination):** Revise como iterar por grandes listas com segurança.

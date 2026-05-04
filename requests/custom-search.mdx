@@ -1,42 +1,55 @@
 ---
-title: "Consulta Customizada"
-description: "Esta página descreve o fluxo da Consulta Customizada."
+title: "Consulta Customizada por Filtros"
+sidebarTitle: "Consulta Customizada"
+description: "Crie buscas avançadas combinando múltiplos filtros (tribunal, valor da causa, data de distribuição, partes, classes processuais) na Judit API."
+keywords: ["custom search", "filtros", "tribunal", "valor da causa", "busca avançada", "due diligence"]
 icon: "filter"
 ---
 
-A **Consulta Customizada** permite realizar buscas com base em filtros específicos, sem a necessidade de informar CPF, CNPJ, OAB ou nome como ponto de partida. Retornamos processos de todos os tribunais que atendem aos critérios definidos.
+import { EndpointBadges } from '/snippets/badges.mdx';
 
-Essa modalidade é ideal para identificar processos com determinadas características em um amplo espectro de jurisdições.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+import CachedResponseInfo from '/snippets/cached-response-pt.mdx';
+
+
+<CnpjAlphaInfo />
+
+<CachedResponseInfo />
+
+A **Consulta Customizada** permite varrer todos os tribunais cobertos pela Judit aplicando filtros estruturais — sem precisar partir de um CPF, CNPJ, OAB ou Nome específico. É a ferramenta certa quando o universo de busca é definido por critérios objetivos (ex.: "todos os processos trabalhistas no TRT-2 distribuídos em 2024 com valor de causa acima de R$ 100 mil").
+
+> 🤖 A Consulta Customizada usa o mesmo `POST /requests` da consulta histórica, mas o `search_type` é tratado como filtro composto, sem `search_key` obrigatória. Disponível como **relatório sob demanda**.
 
 <Warning>
-    Esse tipo de consulta está disponível apenas por meio de **relatório sob demanda**. Caso tenha interesse nesse serviço, entre em contato com nosso time [comercial](https://api.whatsapp.com/send/?phone=5521985284143).
+A Consulta Customizada é entregue via **relatório sob demanda** (não em fluxo automático). Acione nosso time [comercial](https://api.whatsapp.com/send/?phone=5521985284143) para habilitar o serviço e receber o resultado por arquivo (CSV/JSON) ou via [File Transfer API](/file-transfer/file-transfer).
 </Warning>
 
-<Steps>
-    <Step title="Filtros disponíveis" stepNumber="1">
+<EndpointBadges auth billing="on-demand" flow="async" />
 
-    A seguir, listamos os principais filtros que podem ser utilizados na consulta customizada:
+## Quando usar
 
-    - **Tipo de participação**: permite filtrar por processos onde a parte principal seja autora, ré, interessada ou indefinida.
+<CardGroup cols={2}>
+  <Card title="Mapeamento de mercado" icon="binoculars">
+    Identifique o universo de processos de uma classe específica em um tribunal ou estado para análise de tendências.
+  </Card>
+  <Card title="Due diligence em massa" icon="magnifying-glass-chart">
+    Valide o passivo judicial de uma carteira inteira de empresas/pessoas combinando filtros de valor, tribunal e classe.
+  </Card>
+  <Card title="Inteligência competitiva" icon="briefcase">
+    Mapeie processos em que escritórios concorrentes atuam para análise estratégica.
+  </Card>
+  <Card title="Monitoramento por tema" icon="bullseye">
+    Detecte processos em assuntos específicos (ex.: ANS, ANATEL, Defesa do Consumidor) ao longo do tempo.
+  </Card>
+</CardGroup>
 
-    - **Valor da causa**: é possível filtrar processos com valor da causa acima ou abaixo de um determinado valor.
+## Filtros disponíveis
 
-    - **Tribunais**: permite incluir ou excluir tribunais específicos da consulta, com base na lista de tribunais atendidos.
-
-    - **Assuntos processuais**: permite incluir ou excluir determinados assuntos jurídicos, com base em seus códigos oficiais.
-
-    - **Classes processuais**: permite filtrar os processos por tipos específicos de classe (como ações civis públicas, mandados de segurança, entre outros).
-
-    - **Data de distribuição**: permite definir uma data mínima de distribuição dos processos a serem retornados.
-
-    - **Data da última movimentação**: permite filtrar os processos com base na data da última movimentação registrada.
-
-    - **Nomes das partes**: restringe a busca a processos que contenham determinados nomes de pessoas ou empresas entre as partes.
-
-    - **Documentos das partes**: restringe a busca a processos que contenham determinados CPFs ou CNPJs nas partes do processo.
-
-    - **Uso de credenciais específicas**: permite associar a consulta a credenciais previamente cadastradas no [cofre de credenciais](/essentials/cofre-de-credenciais), garantindo acesso a processos que exigem autenticação.
-
-
-    </Step>
-</Steps>
+| Filtro | Tipo | Descrição |
+| --- | --- | --- |
+| `side` | string | Lado da parte: `Active` (Autor), `Passive` (Réu), `Interested` (Interessado), ou indefinido. |
+| `amount_gte` / `amount_lte` | number | Valor da causa **mínimo** / **máximo**. |
+| `distribution_date_gte` / `distribution_date_lte` | ISO 8601 | Janela de distribuição do processo. |
+| `last_step_date_gte` / `last_step_date_lte` | ISO 8601 | Janela da última movimentação. |
+| `tribunals.keys` + `

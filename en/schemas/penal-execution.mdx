@@ -1,6 +1,9 @@
 ---
-title: "Penal Execution Object"
-description: "The `penal_execution` object represents a Penal Execution case (sentence-serving phase). It details the progress of the sentence execution of an inmate in the courts."
+title: "Penal Execution Schema"
+sidebarTitle: "Schema · Penal Execution"
+description: "Structure of the Penal Execution object returned by the Judit API: sentence enforcement, last_step and specific roles such as EXECUTED/REEDUCANDO."
+keywords: ["penal execution", "sentence enforcement", "schema"]
+icon: "gavel"
 ---
 
 > **🤖 Context for AIs and Code Assistants:** The structure of the Penal Execution object is similar to the [Lawsuit Object](/en/schemas/lawsuit-object), but contains specific fields such as `free_justice` and a dedicated object for the `last_step` (most recent case update). The roles of the parties (`person_type`) also differ, taking values such as `EXECUTADO` (convicted person) or `REEDUCANDO` (inmate).

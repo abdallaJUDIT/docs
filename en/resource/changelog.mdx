@@ -1,0 +1,107 @@
+---
+title: "Changelog — Judit API"
+sidebarTitle: "Changelog"
+description: "Public history of changes, new endpoints, improvements and fixes for the Judit API. Versions and dates so integrations can safely follow the evolution."
+keywords: ["changelog", "versions", "release notes", "updates"]
+icon: "clock-rotate-left"
+---
+
+> 🤖 This page lists changes affecting API integrations. **Breaking changes** are marked with 🚨 and announced in advance. For panel/product changes, see the blog.
+
+<Note>
+Tag convention: 🆕 new feature · ✨ improvement · 🐛 fix · 🚨 breaking change · 🔒 security · 📝 documentation.
+</Note>
+
+## 2026
+
+<Update label="2026-05-01" description="v1.28.8">
+  ### Synchronous queries — true/false and count 🆕
+
+  - **🆕 `POST /lawsuits/count`** — returns only the `total` of lawsuits matching the filters. Same `search_params.filter` object as Hot Storage. Documentation: [Lawsuits Count](/en/cache-judit/count).
+  - **🆕 `POST /lawsuits` now exposes `has_lawsuits: boolean`** at the top of the response — use with `pagination.page_size: 1` for lightweight boolean gates (KYC, qualification). Documentation: [Has Lawsuits? (true/false)](/en/cache-judit/has-lawsuits).
+  - **📝 Consolidated errors page** — [Error Codes](/en/resource/errors) gathers HTTP 4xx/5xx + `application_error` in a single place.
+  - **📝 Court coverage** — new page [/en/resource/courtCoverage](/en/resource/courtCoverage) with STJ, STF, TST, 27 TJs, 6 TRFs, 24 TRTs, TREs, Military Justice, BNMP/Federal Revenue.
+</Update>
+
+<Update label="2026-04-15" description="Documentation">
+  ### DX improvements 📝
+
+  - **📝 Multi-language across all examples** — Bash, Node.js, PHP, Python and Go.
+  - **📝 `request-document` pattern** applied to every endpoint page (Steps, multi-variant CodeGroup, AccordionGroup for filters).
+  - **📝 Reusable snippets** — `cnpj-alphanumeric`, `cached-response`, `EndpointBadges` with `auth | billing | flow | attachments | requiresVault`.
+  - **📝 3-layer glossary** — legal concepts · payload · internal architecture.
+  - **📝 `llms.txt` + `skill.md`** — Judit API now discoverable by LLMs and agents (Claude, GPT) via [llmstxt.org](https://llmstxt.org).
+  - **📝 Mermaid sequence** in the webhook flow (cache + court).
+</Update>
+
+<Update label="2026-03-20" description="Alphanumeric CNPJ">
+  ### Alphanumeric CNPJ support (RFB IN 2229/24) 🆕
+
+  - **🆕** Starting July/2026, new CNPJs may be alphanumeric. Judit already accepts the `A1B2C3D4/E5F6-90` format on every endpoint with `search_type: cnpj`.
+  - **✨** Internal validator tolerates 8 alphanumeric prefix digits + 4 numeric establishment + 2 numeric verifiers.
+  - **📝** Explanatory banner (automatically on pages with `search_type: cnpj`) on every CNPJ-search page.
+</Update>
+
+<Update label="2026-02-10" description="Tracking">
+  ### Tracking and billing 📝
+
+  - **🆕 `notification_filters.step_terms`** — filter by terms to receive only relevant steps (e.g. `["sentença", "trânsito em julgado"]`).
+  - **✨ `recurrence` now accepts values up to 90 days** — useful for archived/stayed lawsuits.
+  - **🐛** Fixed: `tracked_items_count` mismatch on some trackers.
+</Update>
+
+## 2025
+
+<Update label="2025-11-01" description="Lawsuits service">
+  ### New Lawsuits service 🚨
+
+  - **🚨 BREAKING:** `/requests/create` (MinerService POST) renamed to `POST https://lawsuits.production.judit.io/lawsuits`. **Coexistence window:** until 2026-03-01 both work; afterwards only the new route.
+  - **🚨 BREAKING:** `/requests/count` → `POST /lawsuits/count`.
+  - **🚨 BREAKING:** `/requests/create/grouped` → `POST /lawsuits/synthetic`.
+  - **🆕 `POST /entities`** — registry data query (PF/PJ) via Lawsuits service.
+  - **✨** Median latency of synchronous queries reduced by ~40%.
+</Update>
+
+<Update label="2025-08-01" description="Credentials Vault">
+  ### Credentials Vault 🆕
+
+  - **🆕** New `customer_key` resource enables access to secret lawsuits with the lawyer's credential bound to the court.
+  - **🔒** Credentials stored with at-rest encryption (AES-256) and automatic rotation.
+  - Details at [Credentials Vault](/en/essentials/cofre-de-credenciais).
+</Update>
+
+<Update label="2025-05-15" description="Webhooks v2">
+  ### Webhooks v2 ✨
+
+  - **✨** Automatic redelivery with exponential backoff (1m, 5m, 30m, 2h, 6h).
+  - **🆕 `cached_response: boolean`** — flags whether the response came from datalake (`true`) or fresh court fetch (`false`). See [Webhook](/en/webhook/callbacks#two-responses).
+  - **🆕 `callback_id`** — per-delivery UUID for idempotency.
+</Update>
+
+<Update label="2025-02-01" description="BNMP & Penal Execution">
+  ### Criminal queries 🆕
+
+  - **🆕 `response_type: warrant`** — BNMP 2.0 integration for arrest warrants (preventive, temporary, definitive, recapture).
+  - **🆕 `response_type: execution`** — penal executions with phases (enforcement, progression, parole).
+  - Documentation: [Arrest Warrants](/en/criminal-consultation/warrant), [Penal Execution](/en/criminal-consultation/criminal-execution).
+</Update>
+
+## Versioning policy
+
+The Judit API follows [SemVer](https://semver.org) **on the service URL** (`v1`, `v2`...) and versions the internal spec by SHA. Non-breaking changes flow continuously into `v1`; breaking changes earn a new route with a coexistence period of at least **120 days**, communicated by e-mail to registered technical contacts.
+
+## Deprecation policy
+
+| Change type | Notice | Notification |
+| :--- | :--- | :--- |
+| 🆕 New feature | — | Changelog |
+| ✨ Improvement (non-breaking) | — | Changelog |
+| 🐛 Fix | — | Changelog |
+| 🚨 Breaking change | 120 days | E-mail to technical contact + banner in panel + Changelog |
+| 🔒 Security patch | Immediate | E-mail to technical contact |
+
+## Next steps
+
+* 👉 **[Error Codes](/en/resource/errors)** — before opening a ticket, consult the troubleshooting.
+* 👉 **[Court Coverage](/en/resource/courtCoverage)** — to know which tribunals and justice types are supported.
+* 👉 **[Webhook](/en/webhook/callbacks)** — to receive real-time notifications.

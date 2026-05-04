@@ -1,95 +1,95 @@
 ---
-title: "Judit API"
-description: "API completa para consultas judiciais automatizadas no Brasil"
+title: "Judit API — Documentação Oficial"
+sidebarTitle: "Visão Geral"
+description: "API de consulta processual brasileira: busque processos por CPF, CNPJ, OAB, NOME ou CNJ; monitore movimentações; baixe anexos; obtenha dados cadastrais; consulte mandados de prisão e execuções penais."
+keywords: ["judit api", "consulta processual", "cpf", "cnpj", "oab", "cnj", "monitoramento", "tribunal", "processo judicial", "datalake", "brasil", "legaltech"]
+icon: "house"
 ---
 
 ![title](/images/judit-api-charts.png)
 
-## Visão Geral
+A **Judit API** entrega dados de processos judiciais brasileiros prontos para uso, em uma única integração. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe a capa do processo, partes, advogados, andamentos, anexos e relacionamentos — em tempo real ou de um datalake atualizado.
 
-A **Judit API** é uma solução completa para automação de consultas judiciais no Brasil, oferecendo acesso programático a dados processuais, monitoramento de processos e gestão de credenciais de tribunais.
+> 🤖 A Judit cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP. Autenticação é por header `api-key`. Os 3 serviços principais são `requests` (assíncrono), `tracking` (monitoramento) e `lawsuits` (síncrono / cache).
 
-### O que é a Judit API?
+## O que você consegue fazer
 
-A Judit API permite que desenvolvedores integrem funcionalidades de consulta judicial em suas aplicações, oferecendo:
+- **Buscar processos** por CPF, CNPJ, OAB, Nome ou número CNJ — assíncrono (busca direta no tribunal) ou síncrono (cache JUDIT em milissegundos).
+- **Monitorar processos** automaticamente e receber atualizações por webhook quando houver nova movimentação.
+- **Detectar novos processos** Porcessos distribuidos ligados a um documento.
+- **Obter dados cadastrais** (Pessoa Física ou Jurídica) com opção de leitura no datalake ou em tempo real na Receita Federal.
+- **Baixar anexos** e mandados de prisão (BNMP) em PDF.
+- **Consultar execuções penais** (cumprimento de pena).
+- **Resumir processos com IA** — gere resumos da capa do processo automaticamente (JUDIT IA).
 
-- **Consultas por CPF, CNPJ, OAB, NOME ou CNJ**: Busque processos usando diferentes tipos de identificadores
-- **Monitoramento automatizado**: Acompanhe mudanças em processos específicos
-- **Acesso a anexos**: Baixe documentos e anexos processuais
-- **Dados cadastrais**: Obtenha informações de registro de pessoas e empresas
-- **Gestão de credenciais**: Armazene e gerencie credenciais de tribunais de forma segura
-- **Consulta por mandados de prisão**: Tenha acesso a mandados de prisão com precisão e relevância das informações.
-- **Consulta por execução penal:**: Obtenha dados precisos e relevantes sobre processos de execução penal, garantindo acesso rápido a informações essenciais.
-- **JUDIT IA:**: Recurso que gera automaticamente um resumo da capa do processo, destacando as principais informações de forma clara e rápida.
+## Casos de uso comuns
 
-### Casos de Uso Principais
+<CardGroup cols={2}>
+  <Card title="Escritórios de advocacia" icon="briefcase">
+    Centralize todos os processos do escritório em um só painel. Monitore andamentos críticos e gere relatórios automatizados.
+  </Card>
+  <Card title="Departamentos jurídicos" icon="building">
+    Acompanhe a carteira jurídica corporativa e integre o status processual aos sistemas internos (ERP, CRM, BI).
+  </Card>
+  <Card title="Fintechs e bureaus de crédito" icon="chart-line">
+    Rode due diligence em massa e enriqueça análises de risco com dados processuais por CPF/CNPJ em tempo real.
+  </Card>
+  <Card title="Compliance e KYC" icon="shield-check">
+    Verifique processos relacionados a contraparte (PEP, antecedentes, mandados) durante o onboarding.
+  </Card>
+  <Card title="LegalTechs" icon="code">
+    Suba sua plataforma sem precisar manter coletores em cada tribunal — foque em produto, não em infraestrutura.
+  </Card>
+  <Card title="Cobrança e recuperação" icon="hand-holding-dollar">
+    Identifique processos passivos relevantes (valor, fase, classe) e priorize abordagens com base em fase processual.
+  </Card>
+</CardGroup>
 
-#### 1. Escritórios de Advocacia
-- Monitoramento automático de processos
-- Consulta rápida de andamentos processuais
-- Download automatizado de documentos
+## Arquitetura em 1 minuto
 
-#### 2. Departamentos Jurídicos
-- Acompanhamento de processos corporativos
-- Relatórios automatizados de status processual
-- Integração com sistemas internos
+```mermaid
+flowchart LR
+    subgraph CLIENT["Sua aplicação"]
+      A[Cliente HTTP]
+    end
+    subgraph JUDIT["Judit"]
+      R[(Requests<br/>Assíncrono)]
+      T[(Tracking<br/>Monitoramento)]
+      L[(Lawsuits<br/>Síncrono)]
+      W[Webhook]
+    end
+    subgraph COURTS["Tribunais brasileiros"]
+      C1[TJSP]
+      C2[TRT...]
+      C3[BNMP]
+      C4[TRF]
+    end
+    A -->|api-key| R
+    A -->|api-key| T
+    A -->|api-key| L
+    R --> COURTS
+    T --> COURTS
+    L --> COURTS
+    R -.->|callback| W
+    T -.->|callback| W
+    W -.-> A
+```
 
-#### 3. Fintechs e Bureaus de Crédito
-- Verificação de processos judiciais para análise de risco
-- Consultas em massa para due diligence
-- Monitoramento contínuo de clientes
+Três serviços, um padrão de autenticação:
 
-### Primeiros Passos
+| Serviço | URL | Quando usar |
+| --- | --- | --- |
+| `requests` | `https://requests.production.judit.io` | Consulta direta nos tribunais. Resultado chega via webhook ou polling. |
+| `tracking` | `https://tracking.production.judit.io` | Monitoramento contínuo de processos com a recorrência que você define. |
+| `lawsuits` | `https://lawsuits.production.judit.io` | Leitura síncrona do datalake JUDIT, retorno do processos atrelados ao documento consultado. |
 
-Para começar a usar a Judit API:
+## Comece em 3 passos
 
-1. **Obtenha sua API Key**: Entre em contato com nosso setor [comercial](https://api.whatsapp.com/send/?phone=5521985284143) para solicitar acesso
-2. **Leia o [Guia Rápido](/introduction/quickstart)**: Aprenda o fluxo básico de consultas
-3. **Configure a [Autenticação](/introduction/authentication)**: Implemente a autenticação correta
-4. **Explore os [Endpoints](/api-reference/endpoint/requests/create)**: Conheça todas as funcionalidades disponíveis
-
-### Vantagens da Judit API
-
-#### ⚡ **Performance Superior**
-- Cache inteligente com TTL configurável
-- Respostas otimizadas para diferentes casos de uso
-- Infraestrutura distribuída para alta disponibilidade
-
-#### 🔒 **Segurança Avançada**
-- Autenticação via API Key
-- Cofre seguro para credenciais de tribunais
-- Criptografia end-to-end para dados sensíveis
-
-#### 📊 **Dados Estruturados**
-- Respostas padronizadas em JSON
-- Filtros avançados para consultas específicas
-- Metadados ricos para cada processo
-
-#### 🔄 **Monitoramento Inteligente**
-- Notificações automáticas de mudanças
-- Configuração flexível de recorrência
-- Controle granular de pausar/reativar
-
-### Arquitetura da API
-
-A Judit API é composta por diferentes serviços especializados:
-
-- **Requests Service** (`requests.prod.judit.io`): Criação e consulta de requisições
-- **Lawsuits Service** (`lawsuits.production.judit.io`): Acesso ao datalake de processos
-- **Tracking Service** (`tracking.prod.judit.io`): Monitoramento de processos
-
-### Rate Limits
-
-- **Limite padrão**: 500 requisições por minuto
-- **Monitoramento**: Headers de rate limit em todas as respostas
-- **Upgrade**: Limites personalizados disponíveis mediante contrato
-
-### Suporte e Documentação
-
-- **Documentação completa**: Explore todos os endpoints e exemplos
-- **SDK Python**: Biblioteca oficial para integração rápida
-- **Suporte técnico**: Equipe especializada para dúvidas e implementação
-
----
-
-**Pronto para começar?** Acesse o [Guia Rápido](/introduction/quickstart) e faça sua primeira consulta em minutos.
+<Steps>
+  <Step title="Solicite sua API Key">
+    Fale com nosso [comercial](https://api.whatsapp.com/send/?phone=5521985284143) e receba sua chave de acesso.
+  </Step>
+  <Step title="Faça a primeira consulta">
+    Siga o [Guia Rápido](/introduction/quickstart) para criar sua primeira requisição em menos de 5 minutos.
+  </Step>
+</Steps>

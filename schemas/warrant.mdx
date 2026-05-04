@@ -1,6 +1,9 @@
 ---
-title: "Objeto Warrant (Mandado de Prisão)"
-description: "O objeto `warrant` representa uma ordem de prisão ou recaptura extraída do Banco Nacional de Mandados de Prisão (BNMP) e dos tribunais. Ele contém os dados da ordem, da pena e do indivíduo procurado."
+title: "Schema Warrant (Mandado de Prisão)"
+sidebarTitle: "Warrant"
+description: "Estrutura do objeto Warrant retornado pela consulta de mandados de prisão na Judit API. Inclui dados da ordem, pena, leis infringidas e do indivíduo procurado."
+keywords: ["warrant", "mandado de prisão", "BNMP", "schema", "execution", "procurado"]
+icon: "handcuffs"
 ---
 
 > 🤖 As consultas por mandados de prisão retornam o objeto `warrant`. A raiz contém os dados da ordem judicial e da pena. As informações sobre as leis infringidas ficam no array `law_type`, e os dados detalhados do indivíduo procurado ficam aninhados no objeto `entity` (que segue a estrutura padrão de Pessoa Física da Judit API).
@@ -229,5 +232,5 @@ Exemplo de retorno da resposta:
 
 ## Próximos Passos
 
-* 👉 **[Consultas Penais](/requests/penal):** Veja a documentação do endpoint específico para disparar buscas por mandados de prisão.
+* 👉 **[Consultas Penais](/criminal-consultation/criminal-execution):** Veja a documentação do endpoint específico para disparar buscas por mandados de prisão.
 * 👉 **[Objeto Entity](/schemas/entity):** Revise todas as propriedades possíveis do objeto `entity` retornado dentro do mandado.
