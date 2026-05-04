@@ -162,9 +162,11 @@ api_key = os.getenv('JUDIT_API_KEY')
 ```
 
 **Possible causes:**
+
 - API Key not provided
 - Invalid or expired API Key
 - Badly formatted `api-key` header
+- Usage limit exceeded
 
 ### 403 Error - Forbidden
 
@@ -178,7 +180,6 @@ api_key = os.getenv('JUDIT_API_KEY')
 
 **Possible causes:**
 - Valid API Key but without permission for the resource
-- Usage limit exceeded
 - Resource not available in your plan
 
 ## API Key Validation
