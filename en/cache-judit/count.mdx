@@ -50,8 +50,7 @@ To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` wi
 {
     "search": {
         "search_type": "cpf",
-        "search_key": "999.999.999-99",
-        "response_type": "lawsuits"
+        "search_key": "999.999.999-99"
     }
 }
 ```
@@ -60,8 +59,7 @@ To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` wi
 {
     "search": {
         "search_type": "cnpj",
-        "search_key": "A1B2C3D4/E5F6-90",
-        "response_type": "lawsuits"
+        "search_key": "A1B2C3D4/E5F6-90"
     }
 }
 ```
@@ -70,8 +68,7 @@ To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` wi
 {
     "search": {
         "search_type": "name",
-        "search_key": "JOHN SMITH",
-        "response_type": "lawsuits"
+        "search_key": "JOHN SMITH"
     }
 }
 ```
@@ -80,8 +77,7 @@ To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` wi
 {
     "search": {
         "search_type": "oab",
-        "search_key": "123456SP",
-        "response_type": "lawsuits"
+        "search_key": "123456SP"
     }
 }
 ```
@@ -91,7 +87,6 @@ To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` wi
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99",
-        "response_type": "lawsuits",
         "search_params": {
             "filter": {
                 "side": "Passive",
@@ -162,8 +157,7 @@ curl -X POST 'https://lawsuits.production.judit.io/lawsuits/count' \
   --data '{
     "search": {
       "search_type": "cpf",
-      "search_key": "999.999.999-99",
-      "response_type": "lawsuits"
+      "search_key": "999.999.999-99"
     }
   }'
 ```
@@ -222,7 +216,7 @@ resp = requests.post(
         "search": {
             "search_type": "cpf",
             "search_key": "999.999.999-99",
-            "response_type": "lawsuits",
+  ,
         },
     },
     timeout=15,
@@ -246,7 +240,7 @@ func main() {
         "search": map[string]string{
             "search_type":   "cpf",
             "search_key":    "999.999.999-99",
-            "response_type": "lawsuits",
+  ,
         },
     })
     req, _ := http.NewRequest("POST",

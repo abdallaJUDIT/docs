@@ -121,15 +121,11 @@ Para receber também a **quantidade** de processos, use [`POST /lawsuits/count`]
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 | :--- | :--- | :--- | :--- |
-| `search.search_type` | string | **Sim** | `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` ou `rji`. |
+| `search.search_type` | string | **Sim** | `cpf`, `cnpj`, `oab`, `name` ou `rji`. |
 | `search.search_key` | string | **Sim** | Documento ou nome a ser consultado. |
 | `search.response_type` | string | **Sim** | Use `"lawsuits"` para essa rota. |
 | `search_params.pagination.page_size` | number | Recomendado | Use `1` para minimizar tráfego — só queremos `has_lawsuits`. |
 | `search_params.filter` | object | Não | Os mesmos filtros do [Hot Storage](/cache-judit/hotstorage) (lado, tribunais, datas, valor, classes, assuntos, etc.). |
-
-<Warning>
-A rota suporta exatamente os mesmos filtros da [Consulta Hot Storage](/cache-judit/hotstorage#filtros-suportados). `state` e `secrecy_level` aparecem apenas no objeto de resposta — **não funcionam como filtros de entrada**.
-</Warning>
 
 ### Exemplo de requisição
 
@@ -141,10 +137,7 @@ curl -X POST 'https://lawsuits.production.judit.io/lawsuits' \
   --data '{
     "search": {
       "search_type": "cpf",
-      "search_key": "999.999.999-99",
-      "response_type": "lawsuits"
-    },
-    "search_params": { "pagination": { "page": 1, "page_size": 1 } }
+      "search_key": "999.999.999-99"    }
   }'
 ```
 

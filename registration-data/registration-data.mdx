@@ -57,8 +57,7 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
 {
     "search": {
         "search_type": "cpf",
-        "search_key": "999.999.999-99",
-        "response_type": "entity"
+        "search_key": "999.999.999-99"
     }
 }
 ```
@@ -67,8 +66,7 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
 {
     "search": {
         "search_type": "cnpj",
-        "search_key": "99.999.999/9999-99",
-        "response_type": "entity"
+        "search_key": "99.999.999/9999-99"
     }
 }
 ```
@@ -77,8 +75,7 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
 {
     "search": {
         "search_type": "name",
-        "search_key": "Nome teste",
-        "response_type": "entity"
+        "search_key": "Nome teste"
     }
 }
 ```
@@ -88,7 +85,6 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99",
-        "response_type": "entity",
         "on_demand": true
     }
 }
@@ -99,7 +95,6 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
     "search": {
         "search_type": "cnpj",
         "search_key": "99.999.999/9999-99",
-        "response_type": "entity",
         "reveal_partners_documents": true
     }
 }
@@ -130,8 +125,7 @@ curl --location 'https://lawsuits.production.judit.io/entities' \
   --data '{
     "search": {
       "search_type": "cpf",
-      "search_key": "999.999.999-99",
-      "response_type": "entity"
+      "search_key": "999.999.999-99"
     }
   }'
 ```
@@ -144,7 +138,6 @@ curl --location 'https://lawsuits.production.judit.io/entities' \
     "search": {
       "search_type": "cnpj",
       "search_key": "99.999.999/9999-99",
-      "response_type": "entity",
       "on_demand": true
     }
   }'
@@ -162,8 +155,7 @@ resp = requests.post(
     json={
         "search": {
             "search_type": "cpf",
-            "search_key": "999.999.999-99",
-            "response_type": "entity",
+            "search_key": "999.999.999-99",,
         }
     },
     timeout=30,
@@ -205,8 +197,7 @@ func main() {
     body, _ := json.Marshal(map[string]any{
         "search": map[string]string{
             "search_type":   "cpf",
-            "search_key":    "999.999.999-99",
-            "response_type": "entity",
+            "search_key":    "999.999.999-99",,
         },
     })
     req, _ := http.NewRequest("POST",

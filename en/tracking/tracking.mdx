@@ -1,19 +1,16 @@
 ---
-title: "Lawsuit Tracking with Webhooks"
-sidebarTitle: "Tracking · Overview"
-description: "Automatically track movements on lawsuits by CNJ, CPF, CNPJ or OAB. Judit polls courts at the configured recurrence and pushes updates via webhook."
-keywords: ["tracking", "webhook", "recurrence", "update", "court", "watcher"]
+title: "Lawsuit Tracking"
+sidebarTitle: "Lawsuit Tracking"
+description: "Automatically track movements on a specific lawsuit by its CNJ number. Judit polls the court at the configured recurrence and pushes updates via webhook."
+keywords: ["tracking", "lawsuit tracking", "webhook", "recurrence", "update", "court", "cnj"]
 icon: "radar"
 ---
 
 import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
+**Lawsuit Tracking** automatically follows a specific lawsuit by its CNJ number. You register the CNJ, define the recurrence (in days), and Judit polls the court for you. Whenever something changes — new step, attachment or decision — you get the update via **webhook** or e-mail.
 
-<CnpjAlphaInfo />
-
-**Judit Tracking** automates court watching: register a CNJ, CPF, CNPJ or OAB, define the recurrence (in days), and Judit polls the courts for you. Whenever something changes — new step, attachment or new lawsuit born — you get the update via **webhook** or e-mail.
-
-> 🤖 Base endpoint: `POST https://tracking.production.judit.io/tracking`. Tracking runs in the background, within Judit's optimal concurrency window for each court. The first run happens within 24 hours after registration; subsequent runs follow the `recurrence` (in days) you set.
+> 🤖 Base endpoint: `POST https://tracking.production.judit.io/tracking` with `search.search_type: "lawsuit_cnj"`. Tracking runs in the background, within Judit's optimal concurrency window for each court. The first run happens within 24 hours after registration; subsequent runs follow the `recurrence` (in days) you set.
 
 ## When to use
 
@@ -21,24 +18,16 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
   <Card title="Active caseload" icon="folder-open">
     Keep every lawsuit in the firm watched by CNJ — webhooks arrive the moment a new step lands.
   </Card>
-  <Card title="Party watch" icon="user-magnifying-glass">
-    Watch CPFs/CNPJs and get notified when **a new lawsuit** is filed against (or by) your client.
+  <Card title="Deadline tracking" icon="clock">
+    Get timely alerts on summons, judgments and rulings so you never miss a deadline.
   </Card>
-  <Card title="Continuous compliance" icon="shield-halved">
-    On periodic KYC reviews, automatically detect new litigation involving the counterpart.
+  <Card title="Continuous sync" icon="rotate">
+    Keep your firm's internal records always in sync with the lawsuit's latest state at the court.
   </Card>
   <Card title="Keyword alerts" icon="bell">
     Use `notification_filters.step_terms` to be alerted only when specific steps (e.g. "judgment", "summons") appear.
   </Card>
 </CardGroup>
-
-## Tracking modes
-
-| Scenario | Dedicated page |
-| --- | --- |
-| Watch a **specific lawsuit** (CNJ) | this page |
-| Detect **new lawsuits** linked to CPF/CNPJ/OAB | [By document](/en/tracking/tracking-document) |
-| Advanced filters (court, amount, class, etc.) | [Custom](/en/tracking/tracking-custom) |
 
 ## Tracking route
 
@@ -54,7 +43,7 @@ The POST request must include a payload with the following properties:
 
 - `search` (**required**): Object used for the search.
     - `search_type` (**required**): In the context of lawsuit tracking, the value of this field will always be `lawsuit_cnj`.
-    - `search_key`: The lawsuit number (CNJ code), CPF, CNPJ, OAB or NAME you want to search;
+    - `search_key`: The lawsuit number (CNJ code) you want to search;
 
 - `with_attachments` (optional): This field defines whether you want to fetch attachments related to the searched lawsuit. It can be **true** or **false**
 
@@ -711,4 +700,47 @@ Here is an example of an **active** tracking response:
 
 ## Deleting a tracking
 
-To del
+To delete a tracking, send a DELETE request to the `/tracking/{tracking_id}` route, replacing `{tracking_id}` with the ID of the tracking you want to remove.
+
+<Warning>
+Deletion is **permanent**: the tracker stops running immediately, future executions are cancelled, and the history of responses tied to it remains queryable only through [`GET /responses`](/en/api-reference/endpoint/responses/find-many) using the old `origin_id`. If you only need to suspend it temporarily, use [Pause](#pausing-a-tracking) and later [Resume](#resuming-a-tracking).
+</Warning>
+
+Example deleting a tracking with curl:
+
+```bash
+curl -X DELETE "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+-H "api-key: YOUR_API_KEY"
+```
+
+Example response of a deleted tracking:
+
+```json
+{
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "deleted",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "9999999-99.9999.9.99.9999",
+  "response_type": "lawsuit",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
+}
+```
+
+## Next steps
+
+- **[Tracking by Document](/en/tracking/tracking-document)** — detect new lawsuits linked to a CPF, CNPJ or OAB.
+- **[Custom Tracking](/en/tracking/tracking-custom)** — advanced filters (court, amount, class, phase) on top of document tracking.
+- **[Webhook & Callbacks](/en/webhook/callbacks)** — delivery behavior, idempotency and redelivery.
+- **[Mass Monitoring](/en/guides/mass-monitoring)** — practical recipe for 10k+ lawsuit portfolios.

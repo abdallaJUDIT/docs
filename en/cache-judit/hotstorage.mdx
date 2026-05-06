@@ -95,15 +95,6 @@ To start the synchronous query, make a `POST` request with the desired document.
     }
 }
 ```
-
-```json Query by CNJ
-{
-    "search": {
-        "search_type": "lawsuit_cnj",
-        "search_key": "9999999-99.9999.9.99.9999"
-    }
-}
-```
 </CodeGroup>
 
 <Warning>
@@ -114,7 +105,7 @@ To start the synchronous query, make a `POST` request with the desired document.
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `search.search_type` | string | **Yes** | Entity type: `"cpf"`, `"cnpj"`, `"oab"`, `"name"` or `"lawsuit_cnj"`. |
+| `search.search_type` | string | **Yes** | Entity type: `"cpf"`, `"cnpj"`, `"oab"` or `"name"`. |
 | `search.search_key` | string | **Yes** | Value to search (e.g. `"999.999.999-99"`, `"John Smith"`). |
 | `search.search_params.filter` | object | No | Structural filters (court, amount, classes, parties, dates). Same shape as the [historical query](/en/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
 
@@ -275,30 +266,7 @@ The response comes **in the body of the same POST** (no polling). Main fields:
 | `response_data[].phase` | string | Current lawsuit phase — see table below. |
 | `response_data[].status` | string | Current lawsuit status — see table below. |
 
-### Possible values for `phase`
-
-| Phase                               | Description                                           |
-| :---------------------------------- | :---------------------------------------------------- |
-| Aguardando execução ou julgamento   | The lawsuit is waiting to be judged.                  |
-| Arquivado                           | The lawsuit has been archived.                        |
-| Cancelado                           | The lawsuit has been canceled.                        |
-| Execução                            | The lawsuit is in the execution phase.                |
-| Execução ou cumprimento             | The lawsuit is being executed or fulfilled.           |
-| Inicial                             | The lawsuit is in the initial phase.                  |
-| Reativado                           | The lawsuit has been reactivated after archival.      |
-| Recurso                             | The lawsuit is in the appeal phase.                   |
-| Sentença                            | The lawsuit has received a sentence.                  |
-| Trânsito em julgado ou acordo       | The lawsuit is in transit in rem judicatam or settled. |
-
 ---
-
-### Possible values for `status`
-
-| Status     | Description                          |
-| :--------- | :----------------------------------- |
-| Ativo      | The lawsuit is active and ongoing.   |
-| Finalizado | The lawsuit has been finalized.      |
-
 
 ### Full response example
 
@@ -371,8 +339,6 @@ The response will be a JSON object with the data:
                 "private": false,
                 "steps_count": 1
             },
-            "phase": "Inicial",
-            "status": "Ativo",
             "name": "Plaintiff Name X Defendant Name"
         }
     ]

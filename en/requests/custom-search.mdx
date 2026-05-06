@@ -12,20 +12,7 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
 import CachedResponseInfo from '/snippets/cached-response-en.mdx';
 
-
-<CnpjAlphaInfo />
-
-<CachedResponseInfo />
-
 The **Custom Search** lets you scan every court covered by Judit applying structural filters — without needing a specific CPF, CNPJ, OAB or Name as a starting point. It is the right tool when the search universe is defined by objective criteria (e.g.: "all labor lawsuits in TRT-2 distributed in 2024 with claim amount above BRL 100k").
-
-> 🤖 The Custom Search uses the same `POST /requests` as the historical query, but `search_type` is treated as a composite filter and `search_key` is not required. Available as an **on-demand report**.
-
-<Warning>
-The Custom Search is delivered as an **on-demand report** (not a real-time flow). Reach out to our [commercial team](https://api.whatsapp.com/send/?phone=5521985284143) to enable the service and receive the result as a file (CSV/JSON) or via the [File Transfer API](/en/file-transfer/file-transfer).
-</Warning>
-
-<EndpointBadges auth billing="on-demand" flow="async" />
 
 ## When to use
 

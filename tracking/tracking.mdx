@@ -1,19 +1,16 @@
 ---
-title: "Monitoramento Processual com Webhooks"
-sidebarTitle: "Monitoramento · Visão Geral"
-description: "Acompanhe automaticamente movimentações em processos por CNJ, CPF, CNPJ ou OAB. A Judit consulta os tribunais com a recorrência configurada e envia atualizações via webhook."
-keywords: ["monitoramento", "tracking", "webhook", "recorrência", "atualização", "tribunal", "watcher"]
+title: "Monitoramento Processual"
+sidebarTitle: "Monitoramento Processual"
+description: "Acompanhe automaticamente as movimentações de um processo específico pelo seu número CNJ. A Judit consulta o tribunal com a recorrência configurada e envia atualizações via webhook."
+keywords: ["monitoramento", "tracking", "webhook", "recorrência", "atualização", "tribunal", "cnj", "processo"]
 icon: "radar"
 ---
 
 import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
+O **Monitoramento Processual** acompanha automaticamente um processo específico pelo seu número CNJ. Você cadastra o CNJ, define a recorrência (em dias) e a Judit consulta o tribunal para você. Sempre que houver novidade — nova movimentação, anexo ou decisão — você recebe a atualização via **webhook** ou e-mail.
 
-<CnpjAlphaInfo />
-
-O **Monitoramento JUDIT** automatiza a vigilância processual: você cadastra um CNJ, CPF, CNPJ ou OAB, define a recorrência (em dias) e a Judit consulta os tribunais para você. Sempre que houver novidade — nova movimentação, anexo ou processo nascido — você recebe a atualização via **webhook** ou e-mail.
-
-> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida em `recurrence` (em dias).
+> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking` com `search.search_type: "lawsuit_cnj"`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida em `recurrence` (em dias).
 
 ## Quando usar
 
@@ -21,24 +18,16 @@ O **Monitoramento JUDIT** automatiza a vigilância processual: você cadastra um
   <Card title="Carteira ativa" icon="folder-open">
     Mantenha cada processo do escritório monitorado por CNJ, com webhooks chegando assim que houver andamento.
   </Card>
-  <Card title="Vigilância de partes" icon="user-magnifying-glass">
-    Monitore CPFs/CNPJs e seja notificado quando **um novo processo** for ajuizado contra (ou por) seu cliente.
+  <Card title="Acompanhamento de prazos" icon="clock">
+    Receba alertas em tempo hábil sobre intimações, sentenças e despachos para nunca perder um prazo.
   </Card>
-  <Card title="Compliance contínuo" icon="shield-halved">
-    Em revisões periódicas de KYC, identifique automaticamente novos litígios envolvendo a contraparte.
+  <Card title="Atualização contínua" icon="rotate">
+    Mantenha a base interna do escritório sempre sincronizada com o estado mais atual do processo no tribunal.
   </Card>
   <Card title="Alertas por palavra-chave" icon="bell">
     Use `notification_filters.step_terms` para receber alertas só quando movimentações específicas (ex.: "sentença", "intimação") aparecerem.
   </Card>
 </CardGroup>
-
-## Tipos de monitoramento
-
-| Cenário | Página dedicada |
-| --- | --- |
-| Monitorar **um processo específico** (CNJ) | esta página |
-| Detectar **novos processos** vinculados a CPF/CNPJ/OAB | [Por documento](/tracking/tracking-document) |
-| Filtros avançados (tribunal, valor, classe, etc.) | [Customizado](/tracking/tracking-custom) |
 
 ## Rota de Monitoramento
 
@@ -54,7 +43,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 
 - `search` (**obrigatório**): Objeto que vai para a busca.
     - `search_type` (**obrigatório**): No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
-    - `search_key`: O número do processo (Código CNJ), CPF, CNPJ, OAB ou NAME que você deseja buscar;
+    - `search_key`: O número do processo (Código CNJ) que você deseja buscar;
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
@@ -713,4 +702,47 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
 
 ## Deletando um Monitoramento
 
-Para deletar um 
+Para deletar um monitoramento, você pode fazer uma solicitação DELETE para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja excluir.
+
+<Warning>
+A exclusão é **definitiva**: o tracker para de rodar imediatamente, suas execuções futuras são canceladas e o histórico de respostas vinculadas a ele permanece consultável apenas via [`GET /responses`](/api-reference/endpoint/responses/find-many) com o `origin_id` antigo. Se você só quer suspender temporariamente, use [Pausar](#pausando-um-monitoramento) e depois [Reativar](#reativando-um-monitoramento).
+</Warning>
+
+Aqui está um exemplo de como deletar um monitoramento usando curl:
+
+```bash
+curl -X DELETE "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+-H "api-key: YOUR_API_KEY"
+```
+
+Aqui está um exemplo de retorno do monitoramento deletado:
+
+```json
+{
+ "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
+ "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
+ "status": "deleted",
+ "recurrence": 1,
+ "search": {
+  "search_type": "lawsuit_cnj",
+  "search_key": "9999999-99.9999.9.99.9999",
+  "response_type": "lawsuit",
+  "search_params": {
+   "filter": {},
+   "pagination": {}
+  }
+ },
+ "tracked_items_count": 0,
+ "tracked_items_steps_count": 0,
+ "tags": {},
+ "created_at": "2024-02-21T18:26:38.499Z",
+ "updated_at": "2024-02-21T18:26:38.499Z"
+}
+```
+
+## Próximos passos
+
+- **[Monitoramento por Documento](/tracking/tracking-document)** — detecte novos processos vinculados a CPF, CNPJ ou OAB.
+- **[Monitoramento Customizado](/tracking/tracking-custom)** — filtros avançados (tribunal, valor, classe, fase) sobre tracking por documento.
+- **[Webhook & Callbacks](/webhook/callbacks)** — comportamento de entrega, idempotência e reentregas.
+- **[Monitoramento em Massa](/guides/monitoramento-massa)** — receita prática para portfólios de 10k+ processos.

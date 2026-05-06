@@ -121,15 +121,11 @@ For the **count** of lawsuits, use [`POST /lawsuits/count`](/en/cache-judit/coun
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `search.search_type` | string | **Yes** | `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` or `rji`. |
+| `search.search_type` | string | **Yes** | `cpf`, `cnpj`, `oab`, `name` or `rji`. |
 | `search.search_key` | string | **Yes** | Document or name to query. |
 | `search.response_type` | string | **Yes** | Use `"lawsuits"` for this route. |
 | `search_params.pagination.page_size` | number | Recommended | Use `1` to minimize traffic — we only need `has_lawsuits`. |
 | `search_params.filter` | object | No | Same filters as [Hot Storage](/en/cache-judit/hotstorage) (side, tribunals, dates, amount, classes, subjects, etc.). |
-
-<Warning>
-This route accepts the same filters as the [Hot Storage Query](/en/cache-judit/hotstorage#supported-filters). `state` and `secrecy_level` only appear in the response — **they don't work as input filters**.
-</Warning>
 
 ### Request example
 
@@ -141,10 +137,7 @@ curl -X POST 'https://lawsuits.production.judit.io/lawsuits' \
   --data '{
     "search": {
       "search_type": "cpf",
-      "search_key": "999.999.999-99",
-      "response_type": "lawsuits"
-    },
-    "search_params": { "pagination": { "page": 1, "page_size": 1 } }
+      "search_key": "999.999.999-99",    }
   }'
 ```
 

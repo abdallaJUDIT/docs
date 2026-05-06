@@ -95,15 +95,6 @@ Para iniciar a consulta síncrona, faça uma requisição `POST` enviando o docu
     }
 }
 ```
-
-```json Consulta por CNJ
-{
-    "search": {
-        "search_type": "lawsuit_cnj",
-        "search_key": "9999999-99.9999.9.99.9999"
-    }
-}
-```
 </CodeGroup>
 
 <Warning>
@@ -114,7 +105,7 @@ Para iniciar a consulta síncrona, faça uma requisição `POST` enviando o docu
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 | :--- | :--- | :--- | :--- |
-| `search.search_type` | string | **Sim** | Tipo da entidade buscada: `"cpf"`, `"cnpj"`, `"oab"`, `"name"` ou `"lawsuit_cnj"`. |
+| `search.search_type` | string | **Sim** | Tipo da entidade buscada: `"cpf"`, `"cnpj"`, `"oab"` ou `"name"`. |
 | `search.search_key` | string | **Sim** | O valor a ser buscado (ex.: `"999.999.999-99"`, `"João Silva"`). |
 | `search.search_params.filter` | object | Não | Filtros estruturais (tribunal, valor, classes, partes, datas). Mesma estrutura da [consulta histórica](/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
 
@@ -275,29 +266,7 @@ A resposta vem **no corpo do mesmo POST** (não há polling). Os campos principa
 | `response_data[].phase` | string | Fase atual do processo — ver tabela abaixo. |
 | `response_data[].status` | string | Status atual do processo — ver tabela abaixo. |
 
-### Valores possíveis para `phase`
-
-| Phase                          | Descrição                      |
-|-------------------------------|-------------------------------|
-| Aguardando execução ou julgamento | O processo está em espera para ser julgado. |
-| Arquivado                     | O processo foi arquivado.     |
-| Cancelado                     | O processo foi cancelado.     |
-| Execução                      | O processo está em fase de execução. |
-| Execução ou cumprimento       | O processo está sendo executado ou cumprido. |
-| Inicial                       | O processo está em fase inicial. |
-| Reativado                     | O processo foi reativado após arquivamento. |
-| Recurso                       | O processo está em fase de recurso. |
-| Sentença                      | O processo recebeu uma sentença. |
-| Trânsito em julgado ou acordo | O processo está em trânsito ou foi acordado. |
-
 ---
-
-### Valores possíveis para `status`
-
-| Status     | Descrição                      |
-|------------|-------------------------------|
-| Ativo      | O processo está ativo e em andamento. |
-| Finalizado | O processo foi finalizado.    |
 
 
 ### Exemplo completo de resposta
@@ -372,8 +341,6 @@ A resposta dessa requisição será um objeto JSON com os dados retornados:
                 "private": false,
                 "steps_count": 1
             },
-            "phase": "Inicial",
-            "status": "Ativo",
             "name": "Nome do Autor X Nome do Réu"
         }
     ]

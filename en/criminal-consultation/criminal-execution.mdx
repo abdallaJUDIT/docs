@@ -10,9 +10,6 @@ import { EndpointBadges } from '/snippets/badges.mdx';
 
 import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
-
-<CnpjAlphaInfo />
-
 The **Penal Execution Query** identifies sentence-enforcement lawsuits (regime, progression, parole, pardon) linked to a CPF, Name or CNJ. You receive the Penal Execution structure, with specific roles (EXECUTED/REEDUCANDO), the `last_step`, and the sentence breakdown.
 
 > 🤖 Same route as the lawsuit query: `POST /requests` with `response_type: "execution"`. For the full structure, see [Penal Execution Schema](/en/schemas/penal-execution).

@@ -87,8 +87,7 @@ The **Registration Data Query** returns identity information for an individual o
 {
     "search": {
         "search_type": "cpf",
-        "search_key": "999.999.999-99",
-        "response_type": "entity",
+        "search_key": "999.999.999-99
         "on_demand": true
     }
 }
@@ -98,8 +97,7 @@ The **Registration Data Query** returns identity information for an individual o
 {
     "search": {
         "search_type": "cnpj",
-        "search_key": "99.999.999/9999-99",
-        "response_type": "entity",
+        "search_key": "99.999.999/9999-99
         "reveal_partners_documents": true
     }
 }
@@ -143,8 +141,7 @@ curl --location 'https://lawsuits.production.judit.io/entities' \
   --data '{
     "search": {
       "search_type": "cnpj",
-      "search_key": "99.999.999/9999-99",
-      "response_type": "entity",
+      "search_key": "99.999.999/9999-99
       "on_demand": true
     }
   }'
@@ -202,8 +199,7 @@ resp = requests.post(
     json={
         "search": {
             "search_type": "cpf",
-            "search_key": "999.999.999-99",
-            "response_type": "entity",
+            "search_key": "999.999.999-99"
         }
     },
     timeout=30,
@@ -227,8 +223,7 @@ func main() {
     body, _ := json.Marshal(map[string]any{
         "search": map[string]string{
             "search_type":   "cpf",
-            "search_key":    "999.999.999-99",
-            "response_type": "entity",
+            "search_key":    "999.999.999-99"
         },
     })
     req, _ := http.NewRequest("POST",

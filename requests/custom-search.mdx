@@ -12,20 +12,11 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
 import CachedResponseInfo from '/snippets/cached-response-pt.mdx';
 
-
-<CnpjAlphaInfo />
-
-<CachedResponseInfo />
-
 A **Consulta Customizada** permite varrer todos os tribunais cobertos pela Judit aplicando filtros estruturais — sem precisar partir de um CPF, CNPJ, OAB ou Nome específico. É a ferramenta certa quando o universo de busca é definido por critérios objetivos (ex.: "todos os processos trabalhistas no TRT-2 distribuídos em 2024 com valor de causa acima de R$ 100 mil").
-
-> 🤖 A Consulta Customizada usa o mesmo `POST /requests` da consulta histórica, mas o `search_type` é tratado como filtro composto, sem `search_key` obrigatória. Disponível como **relatório sob demanda**.
 
 <Warning>
 A Consulta Customizada é entregue via **relatório sob demanda** (não em fluxo automático). Acione nosso time [comercial](https://api.whatsapp.com/send/?phone=5521985284143) para habilitar o serviço e receber o resultado por arquivo (CSV/JSON) ou via [File Transfer API](/file-transfer/file-transfer).
 </Warning>
-
-<EndpointBadges auth billing="on-demand" flow="async" />
 
 ## Quando usar
 
