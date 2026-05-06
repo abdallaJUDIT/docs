@@ -1,94 +1,246 @@
 ---
-title: 'Execução penal'
-description: 'Entenda como funciona a consulta de execução penal'
+title: "Consulta de Execução Penal"
+sidebarTitle: "Execução Penal"
+description: "Acesse processos de execução penal (cumprimento de pena) por CPF ou CNPJ na Judit API. Inclui andamentos, last_step e papéis específicos como EXECUTADO/REEDUCANDO."
+keywords: ["execução penal", "cumprimento de pena", "reeducando", "CPF", "CNPJ"]
 icon: 'gavel'
 ---
 
+import { EndpointBadges } from '/snippets/badges.mdx';
 
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
-Esta API permite que partes interessadas verifiquem se existe ordem de excução penal utilizando CPF (Cadastro de Pessoa Física), nome ou Processos (Código CNJ), assegurando a precisão e relevância das informações obtidas.
+A **Consulta de Execução Penal** identifica processos de cumprimento de pena (regime, progressão, livramento condicional, indulto) vinculados a um CPF, Nome ou número CNJ. Você recebe a estrutura de Penal Execution, com os papéis específicos (EXECUTADO/REEDUCANDO), o `last_step` (última movimentação) e detalhamento da pena.
 
-# Exemplo de request de criação para execução penal
+> 🤖 Mesma rota da consulta processual: `POST /requests` com `response_type: "execution"`. Para receber a estrutura completa, veja o [Schema Penal Execution](/schemas/penal-execution).
 
-Aqui está um exemplo da criação de uma request para execução penal por CPF:
+<EndpointBadges auth billing="billable" flow="async" attachments />
 
-```json
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="KYC reforçado / antecedentes" icon="shield-halved">
+    Verifique se a contraparte possui processo de execução penal em andamento ou histórico recente.
+  </Card>
+  <Card title="Defensoria e advocacia criminal" icon="scale-balanced">
+    Acompanhe a fase do cumprimento (regime atual, datas-base) para planejar pedidos de progressão.
+  </Card>
+  <Card title="Ressocialização" icon="people-roof">
+    Para programas sociais e de empregabilidade, identifique processos ativos com base em consentimento prévio.
+  </Card>
+  <Card title="Compliance público" icon="building-columns">
+    Verificações exigidas em concursos, contratos públicos ou cargos de confiança.
+  </Card>
+</CardGroup>
+
+Esta API permite que partes interessadas verifiquem se existe ordem de execução penal utilizando CPF, nome ou número CNJ, assegurando a precisão e relevância das informações obtidas.
+
+## Passo 1: Criar a Requisição (POST)
+
+`POST https://requests.production.judit.io/requests`
+
+### Exemplos por tipo de busca
+
+<CodeGroup>
+```json Por CPF
 {
-	"search": {
-		"search_type": "cpf",
-		"search_key": "999.999.999-99",
-		"response_type": "execution"
-	}
-}
-
-```
-
-<Note>
-    Na consulta por execução penal, o search_type deve ser <strong>'cpf'</strong>, <strong>'cnpj'</strong>, <strong>'name'</strong> ou <strong>lawsuit_cnj</strong>, já o campo response_type deverá sempre ser <strong>'execution'</strong>.
- </Note>
-
-Aqui está um exemplo da criação de uma request para execução penal por CNJ:
-
-```json
-{
-	"search": {
-		"search_type": "cpf",
-		"search_key": "999.999.999-99",
-		"response_type": "execution"
-	}
-    "with_attachments": true
-}
-
-```
-
-<Note>
-    Na consulta por processos (Código CNJ), o parâmetro <strong>with_attachments</strong> Indica se a busca incluiu a captura de anexos.
-</Note>
-
-
-# Retorno da requisição realizada para execução penal
-
-Aqui está um exemplo do retorno para execução penal:
-
-```json
-{
-	"request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
-	"search": {
-		"search_type": "cpf",
-		"search_key": "999.999.999-99",
-		"response_type": "execution",
-		"search_params": {
-			"filter": {},
-			"pagination": {}
-		}
-	},
-	"with_attachments": true,
-	"origin": "api",
-	"origin_id": "33fad316-cd98-40b9-bcd4-70e3c74ff947",
-	"user_id": "6dc91e78-400e-489c-b30c-61789e323d7c",
-	"status": "pending",
-	"created_at": "2024-03-14T07:35:14.272Z",
-	"updated_at": "2024-03-14T07:35:14.272Z",
-	"tags": {
-        "potential_homonym": false
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "execution"
     }
 }
 ```
 
-
-# Consultando resposta para execução penal
-
-
-Exemplo de como consultar a resposta gerada para execução penal
-
--- 
-
-```bash
-https://requests.prod.judit.io/responses?request_id={request_id}
+```json Por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "João Silva",
+        "response_type": "execution"
+    }
+}
 ```
 
-Segue abaixo um exemplo de resposta da consulta por CPF:
+```json Por CNJ
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "99999999-99.9999.9.99.9999",
+        "response_type": "execution"
+    }
+}
+```
 
+```json Por CNJ + anexos
+{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "99999999-99.9999.9.99.9999",
+        "response_type": "execution"
+    },
+    "with_attachments": true
+}
+```
+</CodeGroup>
+
+<Warning>
+`response_type` deve ser sempre **`"execution"`**. `search_type` aceita `"cpf"`, `"cnpj"`, `"name"` ou `"lawsuit_cnj"`. O `with_attachments: true` só vale quando a busca é por CNJ.
+</Warning>
+
+### Parâmetros do Payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | `"cpf"`, `"cnpj"`, `"name"` ou `"lawsuit_cnj"`. |
+| `search.search_key` | string | **Sim** | CPF, CNPJ, nome ou número CNJ. |
+| `search.response_type` | string | **Sim** | Sempre `"execution"`. |
+| `with_attachments` | boolean | Não | Apenas para `lawsuit_cnj`. Se `true`, baixa os anexos. |
+| `callback_url` | string | Não | URL HTTPS para receber a resposta via [Webhook](/webhook/callbacks). |
+
+### Exemplo de Requisição (POST)
+
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://requests.production.judit.io/requests' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99",
+      "response_type": "execution"
+    }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch("https://requests.production.judit.io/requests", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "execution",
+    },
+  }),
+});
+console.log(await res.json());
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://requests.production.judit.io/requests');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'api-key: ' . getenv('JUDIT_API_KEY'),
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'search' => [
+            'search_type'   => 'cpf',
+            'search_key'    => '999.999.999-99',
+            'response_type' => 'execution',
+        ],
+    ]),
+]);
+echo curl_exec($ch);
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://requests.production.judit.io/requests",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+            "response_type": "execution",
+        }
+    },
+    timeout=15,
+)
+resp.raise_for_status()
+print(resp.json())
+```
+</CodeGroup>
+
+### Resposta da criação
+
+```json
+{
+    "request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "execution"
+    },
+    "status": "pending",
+    "created_at": "2024-03-14T07:35:14.272Z",
+    "tags": { "potential_homonym": false }
+}
+```
+
+> O campo `tags.potential_homonym` é `true` quando há indícios de que o resultado possa pertencer a um homônimo — útil para validar antes de aplicar consequências jurídicas.
+
+## Passo 2: Buscar a resposta
+
+A consulta é assíncrona — você pode aguardar pelo [Webhook](/webhook/callbacks) ou consultar via `GET /responses?request_id={request_id}`.
+
+<CodeGroup>
+```bash cURL
+curl --location 'https://requests.production.judit.io/responses?request_id=<REQUEST_ID>' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+```python Python
+resp = requests.get(
+    f"https://requests.production.judit.io/responses?request_id={request_id}",
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+)
+print(resp.json())
+```
+</CodeGroup>
+
+### Estrutura da resposta
+
+| Campo | Descrição |
+| :--- | :--- |
+| `code` | Número CNJ do processo de execução. |
+| `classifications` | Classes (ex.: `EXECUÇÃO DA PENA`, `INDULTO`, `LIVRAMENTO CONDICIONAL`). |
+| `subjects` | Assuntos (ex.: `PENA PRIVATIVA DE LIBERDADE`). |
+| `phase` | Fase atual da execução — ver tabela abaixo. |
+| `status` | Status (`Ativo` / `Finalizado`). |
+| `parties` | Polo ativo (`AUTORIDADE`) e passivo (`EXECUTADO` / `REEDUCANDO`). |
+| `last_step` | Última movimentação (data + conteúdo). |
+| `steps` | Histórico completo de movimentações. |
+| `tags.criminal` | `true` confirma que é um processo criminal. |
+
+### Valores possíveis para `phase`
+
+| Phase | Comportamento |
+| :--- | :--- |
+| Inicial | A execução foi iniciada, ainda sem progressões. |
+| Em Cumprimento | Pena em cumprimento ativo. |
+| Suspenso | Cumprimento suspenso por decisão do juízo. |
+| Recurso | Há recurso pendente que afeta a execução. |
+| Trânsito em julgado ou acordo | Decisão definitiva ou acordo (ex.: indulto). |
+| Arquivado | Processo arquivado após cumprimento ou prescrição. |
+
+### Exemplo de resposta (consulta por CPF)
+
+<Accordion title="Ver exemplo de resposta">
 ```json
 Exemplo de retorno da resposta:
 {
@@ -197,9 +349,11 @@ Exemplo de retorno da resposta:
     "all_pages_count": 1
 }
 ```
+</Accordion>
 
 Segue abaixo um exemplo de resposta da consulta por CNJ:
 
+<Accordion title="Ver exemplo de resposta">
 ```json
 Exemplo de retorno da resposta:
 {
@@ -283,70 +437,32 @@ Exemplo de retorno da resposta:
                 "phase": "Suspenso",
                 "steps": [
                     {
-                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
-                        "lawsuit_instance": 1,
-                        "content": "EXPEDIÇÃO DE CERTIDÃO GERAL Referente ao evento (seq. 417) RECEBIDOS OS AUTOS(13/08/2024 16:02:19). Identificador do Cumprimento: 0025.",
-                        "tags": {
-                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
-                        },
-                        "private": false,
-                        "step_date": "2024-08-15T00:00:00.000Z",
                         "step_id": "2b837df6",
-                        "steps_count": 418
-                    },
-                    {
-                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
-                        "lawsuit_instance": 1,
-                        "content": "RECEBIDOS OS AUTOS Recebido da Vara TJPR - Vara de Execução em Meio Aberto de Apucarana",
-                        "tags": {
-                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
-                        },
-                        "private": false,
-                        "step_date": "2024-08-13T00:00:00.000Z",
-                        "step_id": "e9e1d394"
-                    },
-                    {
-                        "lawsuit_cnj": "99999999-99.9999.9.99.9999",
-                        "lawsuit_instance": 1,
-                        "content": "REDISTRIBUÍDO PARA COMPETÊNCIA EXCLUSIVA EM RAZÃO DE ALTERAÇÃO DE COMPETÊNCIA DO ÓRGÃO TJPR - Vara de Execução em Meio Aberto de Curitiba",
-                        "tags": {
-                            "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae"
-                        },
-                        "private": false,
-                        "step_date": "2024-08-13T00:00:00.000Z",
-                        "step_id": "6be984c8"
+                        "step_date": "2024-08-15T00:00:00.000Z"
                     }
                 ],
-                "subjects": [
-                    {
-                        "code": "7791",
-                        "name": "PENA PRIVATIVA DE LIBERDADE"
-                    }
-                ],
-                "tags": {
-                    "datalake_id": "99999999999999999999",
-                    "datalake_segment": "JUSTICA_ESTADUAL",
-                    "crawl_id": "730acd6f-a490-4153-a5e0-585e1c851eae",
-                    "criminal": true,
-                    "dictionary_updated_at": "2024-11-13T13:33:20.167Z"
-                },
-                "tribunal": "16",
+                "tags": { "criminal": true },
                 "tribunal_acronym": "TJPR"
-            },
-            "user_id": "7f8065a3-4891-428d-9456-dedfc12ff850",
-            "created_at": "2024-11-13T13:33:14.825Z",
-            "request_created_at": "2024-11-13T13:33:14.046Z",
-            "tags": {
-                "dashboard_id": null
             }
         }
-    ],
-    "page_count": 1,
-    "all_count": 1,
-    "all_pages_count": 1
+    ]
 }
 ```
+</Accordion>
 
+> Estrutura completa: veja [Schema Penal Execution](/schemas/penal-execution).
 
-Agora na Judit você pode consultar execuções penais. Isso é mais uma melhoria que trazemos até aqui.
-Simplificamos o processo para partes interessadas, proporcionando uma maneira fácil e confiável de verificar a validade e os detalhes das execuções penais emitidos pelo sistema de excução penal. Conte conosco para facilitar sua busca por informações legais essenciais.
+## Erros comuns
+
+| HTTP | Motivo | Como tratar |
+| :--- | :--- | :--- |
+| `400` | Payload inválido. | Validar antes de enviar. |
+| `401` | API Key ausente. | Conferir o header `api-key`. |
+| `404` | Sem execução penal. | Tratar como ausência. |
+| `429` | Rate limit excedido. | Backoff exponencial. |
+
+## Próximos passos
+
+- [Mandados de Prisão](/criminal-consultation/warrant) — ordens em aberto.
+- [Schema Penal Execution](/schemas/penal-execution) — estrutura completa.
+- [Webhooks](/webhook/callbacks) — recebimento via push.

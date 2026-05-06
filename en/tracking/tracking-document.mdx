@@ -1,8 +1,36 @@
 ---
-title: "New Cases Tracking"
-description: "This page aims to show the flow of new-cases tracking by document."
+title: "New Lawsuits Tracking by Document"
+sidebarTitle: "Tracking by Document"
+description: "Detect automatically the birth of new lawsuits linked to a CPF, CNPJ or OAB. Receive the new lawsuit via webhook on the Judit API."
+keywords: ["new lawsuits", "tracking by document", "cpf", "cnpj", "oab", "watcher"]
 icon: "satellite-dish"
 ---
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
+
+
+<CnpjAlphaInfo />
+
+**Tracking by Document** detects the **birth** of new lawsuits linked to a CPF, CNPJ or OAB. Unlike CNJ tracking (which watches updates on a known lawsuit), here you discover lawsuits that **did not exist** when you started watching.
+
+> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `search_type` in `cpf`, `cnpj` or `oab`. Whenever a new lawsuit is filed and Judit detects it, you receive a webhook notification.
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Caseload watch" icon="user-magnifying-glass">
+    Watch a customer or counterpart and get notified the moment a new lawsuit emerges.
+  </Card>
+  <Card title="Continuous compliance" icon="shield-halved">
+    Keep KYC alive: new relevant lawsuits against a supplier trigger an automatic alert.
+  </Card>
+  <Card title="Collections portfolio" icon="hand-holding-dollar">
+    For large portfolios, quickly discover when a debtor appears as plaintiff/defendant in new actions.
+  </Card>
+  <Card title="Lawyer intelligence (OAB)" icon="user-tie">
+    Learn when a lawyer begins working on a new lawsuit (useful for strategic analysis).
+  </Card>
+</CardGroup>
 
 <Steps>
   <Step title="Creating the tracking" stepNumber="1">
@@ -60,7 +88,7 @@ icon: "satellite-dish"
     Example payload without filters:
 
    ```bash
-    curl --location 'https://tracking.prod.judit.io/tracking' \
+    curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
@@ -70,7 +98,7 @@ icon: "satellite-dish"
             "search_key": "999.999.999-99"
         }
     }'
-   ```
+```
 
    <Note>
       The tracking will be started for the first time within the best court-request concurrency window, within the next 24 hours from the creation date.
@@ -81,7 +109,7 @@ icon: "satellite-dish"
    Example payload with some optional filters:
 
    ```bash
-   curl --location 'https://tracking.prod.judit.io/tracking' \
+   curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: e8f62c5c-7465-426c-abc5-9735c67f25b1' \
     --header 'Content-Type: application/json' \
     --data '{
@@ -133,7 +161,7 @@ icon: "satellite-dish"
    "created_at": "2024-02-21T18:26:38.499Z",
    "updated_at": "2024-02-21T18:26:38.499Z"
    }
-   ```
+```
 
   <Note>
    In the tracking creation response, the `hour_range` field is returned, indicating the time at which the court queries will be performed for the first time. In the example above, the first query is scheduled to occur at 9 PM.
@@ -145,10 +173,10 @@ icon: "satellite-dish"
 
       ```bash
       curl --request GET
-      --url "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+      --url "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
       --header "api-key: YOUR-API-KEY"
       --header "Content-Type: application/json"
-      ```
+```
 
       Response:
       ```json
@@ -175,7 +203,7 @@ icon: "satellite-dish"
         "created_at": "2024-02-21T18:26:38.499Z",
         "updated_at": "2024-02-21T18:26:38.499Z"
       }
-      ```
+```
 
       The status property indicates the current state of the tracking, which can be:
 
@@ -204,10 +232,10 @@ icon: "satellite-dish"
 
     ```bash
     curl --request GET
-    --url "https://requests.prod.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
+    --url "https://requests.production.judit.io/responses/?request_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9"
     --header "api-key: YOUR-API-KEY"
     --header "Content-Type: application/json"
-    ```
+```
 
     <Accordion title="Example request response">
     ```json
@@ -597,7 +625,7 @@ icon: "satellite-dish"
       "all_count": 3,
       "all_pages_count": 1
     }
-    ```
+```
     </Accordion>
 
       The <strong>page</strong> and <strong>page_size</strong> parameters are optional but necessary to navigate through the pages of lawsuits, in case there is more than one — which is common for searches by document.
@@ -637,9 +665,9 @@ icon: "satellite-dish"
         Here is an example of how to do this using curl:
 
         ```bash
-        curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+        curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
         --header 'api-key: <API-KEY>'
-        ```
+```
 
         Here is the expected response:
 
@@ -949,7 +977,7 @@ icon: "satellite-dish"
                 }
             ]
         }
-        ```
+```
   </Step>
   <Step title="Pausing a tracking" stepNumber="5">
     To pause a tracking, you can make a POST request to the `/tracking/{tracking}/pause` route, replacing `{tracking}` with the ID of the tracking you want to pause.
@@ -957,9 +985,9 @@ icon: "satellite-dish"
     Here is an example of how to pause the tracking using curl:
 
     ```bash
-    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+    curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
     -H "api-key: YOUR-API_KEY"
-    ```
+```
 
     Here is an example of the paused tracking response:
 
@@ -984,7 +1012,7 @@ icon: "satellite-dish"
     "created_at": "2024-02-21T18:26:38.499Z",
     "updated_at": "2024-02-21T18:26:38.499Z"
     }
-    ```
+```
   </Step>
   <Step title="Resuming a tracking" stepNumber="6">
     To resume a paused tracking, you can make a POST request to the `/tracking/{tracking}/resume` route, replacing `{tracking}` with the ID of the tracking you want to resume.
@@ -992,7 +1020,7 @@ icon: "satellite-dish"
     Here is an example of how to resume a tracking using curl:
 
     ```bash
-    curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+    curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
     -H "api-key: YOUR_API_KEY"
     ```
 
@@ -1019,41 +1047,6 @@ icon: "satellite-dish"
     "created_at": "2024-02-21T18:26:38.499Z",
     "updated_at": "2024-02-21T18:26:38.499Z"
     }
-    ```
-  </Step>
-  <Step title="Deleting a tracking" stepNumber="7">
-      To delete a tracking, you can make a DELETE request to the `/tracking/{tracking}` route, replacing `{tracking}` with the ID of the tracking you want to delete.
-
-      Here is an example of how to delete a tracking using curl:
-
-      ```bash
-      curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
-      -H "api-key: YOUR_API_KEY"
-      ```
-
-      Here is an example of the deleted tracking response:
-
-      ```json
-      {
-      "tracking_id": "15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9",
-      "user_id": "82082593-c664-4d7b-b174-2f0dc4791daf",
-      "status": "deleted",
-      "recurrence": 1,
-      "search": {
-        "search_type": "cpf",
-        "search_key": "999.999.999-99",
-        "response_type": "lawsuit",
-        "search_params": {
-        "filter": {},
-        "pagination": {}
-        }
-      },
-      "tracked_items_count": 0,
-      "tracked_items_steps_count": 0,
-      "tags": {},
-      "created_at": "2024-02-21T18:26:38.499Z",
-      "updated_at": "2024-02-21T18:26:38.499Z"
-      }
-    ```
+  ```
   </Step>
 </Steps>

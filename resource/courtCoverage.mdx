@@ -1,0 +1,187 @@
+---
+title: "Cobertura de Tribunais"
+sidebarTitle: "Cobertura"
+description: "Lista completa dos tribunais brasileiros cobertos pela Judit API — Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP. Use como referência para o filtro tribunals.keys nas suas consultas."
+keywords: ["cobertura", "tribunais", "tjsp", "trf", "trt", "stj", "stf", "bnmp", "filtros"]
+icon: "map"
+---
+
+A Judit cobre **todos os principais tribunais do Brasil** — Justiça Estadual (TJ), Federal (TRF), Trabalhista (TRT), Eleitoral (TRE), Militar, Superior (STF/STJ/TST/TSE) e o Banco Nacional de Mandados de Prisão (BNMP). Esta página é a referência canônica das **siglas (keys)** que você usa nos filtros `tribunals.keys` das consultas e monitoramentos.
+
+> 🤖 As siglas abaixo são exatamente as que devem ser passadas em filtros como `search_params.filter.tribunals.keys`. Cobertura nacional vai sendo expandida — se faltar algum tribunal, [fale com nosso suporte](https://api.whatsapp.com/send/?phone=5511920501949).
+
+## Cobertura por categoria
+
+<CardGroup cols={3}>
+  <Card title="Justiça Estadual" icon="building-columns">
+    Todos os 27 TJs (TJSP, TJRJ, TJMG, TJRS, ...).
+  </Card>
+  <Card title="Justiça Federal" icon="landmark">
+    TRF1, TRF2, TRF3, TRF4, TRF5, TRF6 e Justiça Federal de 1º grau.
+  </Card>
+  <Card title="Justiça do Trabalho" icon="briefcase">
+    TST + TRT1 ao TRT24.
+  </Card>
+  <Card title="Justiça Eleitoral" icon="check-to-slot">
+    TSE + TREs estaduais.
+  </Card>
+  <Card title="Justiça Militar" icon="shield">
+    STM + Justiça Militar Estadual (SP, MG, RS).
+  </Card>
+  <Card title="Tribunais Superiores" icon="scale-balanced">
+    STF, STJ, TST, TSE, STM, CNJ, CNMP.
+  </Card>
+</CardGroup>
+
+## Como usar nos filtros
+
+```json Incluir apenas tribunais específicos
+{
+  "search_params": {
+    "filter": {
+      "tribunals": {
+        "keys": ["TJSP", "TJRJ", "TRT2"],
+        "not_equal": false
+      }
+    }
+  }
+}
+```
+
+```json Excluir tribunais específicos
+{
+  "search_params": {
+    "filter": {
+      "tribunals": {
+        "keys": ["TJSP"],
+        "not_equal": true
+      }
+    }
+  }
+}
+```
+
+## Lista completa de tribunais
+
+<AccordionGroup>
+  <Accordion title="Tribunais Superiores e Conselhos">
+    | Sigla (`key`) | Nome oficial |
+    | :--- | :--- |
+    | `STF` | Supremo Tribunal Federal |
+    | `STJ` | Superior Tribunal de Justiça |
+    | `TST` | Tribunal Superior do Trabalho |
+    | `TSE` | Tribunal Superior Eleitoral |
+    | `STM` | Superior Tribunal Militar |
+    | `CNJ` | Conselho Nacional de Justiça |
+    | `CNMP` | Conselho Nacional do Ministério Público |
+  </Accordion>
+
+  <Accordion title="Justiça Estadual (TJs) — 27 unidades">
+    | Sigla | UF | Nome oficial |
+    | :--- | :--- | :--- |
+    | `TJAC` | AC | Tribunal de Justiça do Acre |
+    | `TJAL` | AL | Tribunal de Justiça de Alagoas |
+    | `TJAM` | AM | Tribunal de Justiça do Amazonas |
+    | `TJAP` | AP | Tribunal de Justiça do Amapá |
+    | `TJBA` | BA | Tribunal de Justiça da Bahia |
+    | `TJCE` | CE | Tribunal de Justiça do Ceará |
+    | `TJDFT` | DF | Tribunal de Justiça do Distrito Federal e Territórios |
+    | `TJES` | ES | Tribunal de Justiça do Espírito Santo |
+    | `TJGO` | GO | Tribunal de Justiça de Goiás |
+    | `TJMA` | MA | Tribunal de Justiça do Maranhão |
+    | `TJMG` | MG | Tribunal de Justiça de Minas Gerais |
+    | `TJMS` | MS | Tribunal de Justiça do Mato Grosso do Sul |
+    | `TJMT` | MT | Tribunal de Justiça do Mato Grosso |
+    | `TJPA` | PA | Tribunal de Justiça do Pará |
+    | `TJPB` | PB | Tribunal de Justiça da Paraíba |
+    | `TJPE` | PE | Tribunal de Justiça de Pernambuco |
+    | `TJPI` | PI | Tribunal de Justiça do Piauí |
+    | `TJPR` | PR | Tribunal de Justiça do Paraná |
+    | `TJRJ` | RJ | Tribunal de Justiça do Rio de Janeiro |
+    | `TJRN` | RN | Tribunal de Justiça do Rio Grande do Norte |
+    | `TJRO` | RO | Tribunal de Justiça de Rondônia |
+    | `TJRR` | RR | Tribunal de Justiça de Roraima |
+    | `TJRS` | RS | Tribunal de Justiça do Rio Grande do Sul |
+    | `TJSC` | SC | Tribunal de Justiça de Santa Catarina |
+    | `TJSE` | SE | Tribunal de Justiça de Sergipe |
+    | `TJSP` | SP | Tribunal de Justiça de São Paulo |
+    | `TJTO` | TO | Tribunal de Justiça do Tocantins |
+  </Accordion>
+
+  <Accordion title="Justiça Federal (TRFs) — 6 regiões">
+    | Sigla | Estados cobertos | Sede |
+    | :--- | :--- | :--- |
+    | `TRF1` | AC, AM, AP, BA, DF, GO, MA, MG, PA, PI, RO, RR, TO | Brasília/DF |
+    | `TRF2` | RJ, ES | Rio de Janeiro/RJ |
+    | `TRF3` | SP, MS | São Paulo/SP |
+    | `TRF4` | RS, SC, PR | Porto Alegre/RS |
+    | `TRF5` | AL, CE, PB, PE, RN, SE | Recife/PE |
+    | `TRF6` | MG | Belo Horizonte/MG (criado em 2022, separado do TRF1) |
+  </Accordion>
+
+  <Accordion title="Justiça do Trabalho (TRTs) — 24 regiões">
+    | Sigla | Região | UF principal |
+    | :--- | :--- | :--- |
+    | `TRT1` | 1ª Região | RJ |
+    | `TRT2` | 2ª Região | SP (capital + grande SP) |
+    | `TRT3` | 3ª Região | MG |
+    | `TRT4` | 4ª Região | RS |
+    | `TRT5` | 5ª Região | BA |
+    | `TRT6` | 6ª Região | PE |
+    | `TRT7` | 7ª Região | CE |
+    | `TRT8` | 8ª Região | PA, AP |
+    | `TRT9` | 9ª Região | PR |
+    | `TRT10` | 10ª Região | DF, TO |
+    | `TRT11` | 11ª Região | AM, RR |
+    | `TRT12` | 12ª Região | SC |
+    | `TRT13` | 13ª Região | PB |
+    | `TRT14` | 14ª Região | RO, AC |
+    | `TRT15` | 15ª Região | SP (interior) |
+    | `TRT16` | 16ª Região | MA |
+    | `TRT17` | 17ª Região | ES |
+    | `TRT18` | 18ª Região | GO |
+    | `TRT19` | 19ª Região | AL |
+    | `TRT20` | 20ª Região | SE |
+    | `TRT21` | 21ª Região | RN |
+    | `TRT22` | 22ª Região | PI |
+    | `TRT23` | 23ª Região | MT |
+    | `TRT24` | 24ª Região | MS |
+  </Accordion>
+
+  <Accordion title="Justiça Eleitoral (TREs) — 27 unidades">
+    Os TREs cobrem cada UF. Padrão de sigla: `TRE` + UF.
+
+    Exemplos: `TRESP`, `TRERJ`, `TREMG`, `TRERS`, `TREDF`, `TREBA`, `TREPE`, `TREGO`, `TREPR`, `TREES`, `TRECE`, `TREMA`, `TREPB`, `TREAM`, `TREPI`, `TRERN`, `TRESE`, `TREMS`, `TREMT`, `TRESC`, `TREPA`, `TREAL`, `TRERO`, `TREAC`, `TRETO`, `TREAP`, `TRERR`.
+  </Accordion>
+
+  <Accordion title="Justiça Militar Estadual">
+    | Sigla | UF |
+    | :--- | :--- |
+    | `TJMSP` | São Paulo |
+    | `TJMMG` | Minas Gerais |
+    | `TJMRS` | Rio Grande do Sul |
+
+    > Nas demais UFs a competência militar estadual é exercida pelos próprios TJs.
+  </Accordion>
+
+  <Accordion title="Bancos nacionais e fontes auxiliares">
+    | Sigla / Fonte | Descrição |
+    | :--- | :--- |
+    | `BNMP` | Banco Nacional de Mandados de Prisão (CNJ) |
+    | `RECEITA` | Receita Federal do Brasil (rota `/entities` com `on_demand: true`) |
+    | `JTJ` | Coletor unificado de Justiça Estadual (interno Judit) |
+  </Accordion>
+</AccordionGroup>
+
+## Falta algum tribunal?
+
+Se o tribunal que você precisa não está nesta lista, fale com nossa equipe. Estamos sempre expandindo a cobertura e priorizamos demandas de clientes ativos.
+
+<CardGroup cols={2}>
+  <Card title="Pedir nova cobertura" icon="circle-plus" href="https://api.whatsapp.com/send/?phone=5511920501949">
+    Mande a sigla do tribunal e seu volume estimado.
+  </Card>
+  <Card title="Reportar problema" icon="bug" href="https://api.whatsapp.com/send/?phone=5511920501949">
+    Erro de cobertura, dados ausentes ou desatualizados.
+  </Card>
+</CardGroup>

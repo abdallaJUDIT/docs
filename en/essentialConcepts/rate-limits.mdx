@@ -1,6 +1,9 @@
 ---
-title: "Rate Limits"
-description: "The Judit API implements rate limiting to ensure fair use of resources, prevent overload, and maintain high performance for every user."
+title: "Rate Limits on the Judit API"
+sidebarTitle: "Rate Limits"
+description: "Judit API rate limits: 180 requests per minute per API Key. Best practices for exponential backoff and reading X-RateLimit headers to avoid HTTP 429 responses."
+keywords: ["rate limit", "429", "exponential backoff", "retry", "throttling"]
+icon: "gauge"
 ---
 
 > 🤖 The Judit API has a strict global limit of 180 requests per minute per API Key. If this limit is exceeded, the API will return the HTTP Status Code `429 Too Many Requests`. Code generators should always implement *Exponential Backoff* logic or respect the time window by reading the `X-RateLimit-*` headers.
@@ -87,7 +90,7 @@ def request_with_retry(url, headers, max_retries=3):
     raise Exception("Failed after all retry attempts (Rate Limit).")
 
 # Example usage
-# data = request_with_retry("https://requests.prod.judit.io/requests", headers={"api-key": "your_key"})
+# data = request_with_retry("https://requests.production.judit.io/requests", headers={"api-key": "your_key"})
 ```
 
 ```javascript Node.js
@@ -130,5 +133,5 @@ async function requestWithRetry(url, headers, maxRetries = 3) {
 If your application has a massive data volume (continuous ETL, cleansing of historical bases with millions of rows) and the 180-requests-per-minute limit is a bottleneck, we can help.
 
 * 👉 **Talk to us:** [Contact our engineering team via WhatsApp](https://api.whatsapp.com/send/?phone=5511920501949) to discuss custom limits and dedicated routes for your volume.
-* 👉 **[Error Handling](/en/essentialConcepts/errors):** See the complete list of errors the API can return beyond 429.
+* 👉 **[Error Handling](/en/resource/errors):** See the complete list of errors the API can return beyond 429.
 * 👉 **[Pagination](/en/essentialConcepts/pagination):** Review how to iterate over large lists safely.

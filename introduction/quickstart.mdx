@@ -1,7 +1,14 @@
 ---
-title: "Guia Rápido"
-description: "Tutorial completo para fazer sua primeira consulta na Judit API"
+title: "Guia Rápido — Primeira consulta na Judit API"
+sidebarTitle: "Guia Rápido"
+description: "Passo a passo prático para realizar sua primeira consulta na Judit API em minutos: configure variáveis de ambiente, crie uma requisição assíncrona, monitore o status e leia o resultado em cURL, Python, JavaScript, PHP e Go."
+keywords: ["quickstart", "tutorial", "getting started", "exemplo", "curl", "python", "javascript", "first request"]
+icon: "rocket"
 ---
+Em **menos de 5 minutos**, este guia mostra como autenticar, criar sua primeira consulta processual, acompanhar o status e ler o resultado. Os exemplos cobrem cURL, Python, JavaScript (Node), PHP e Go — escolha o que combina com sua stack.
+
+> 🤖 Pré-requisitos: API Key da Judit (header `api-key: <SUA_CHAVE>`), conexão HTTP com `*.production.judit.io`. Sem `Authorization: Bearer`.
+
 ## Fluxo Básico
 
 A Judit API funciona com um padrão síncrono e assíncrono:
@@ -29,10 +36,10 @@ A Judit API opera com uma arquitetura dividida por contextos para garantir melho
 
 | Base URL | Módulo / Contexto | Operações Suportadas |
 | :--- | :--- | :--- |
-| `https://requests.prod.judit.io` | **Consultas Assíncronas** | Consulta processual, Consulta histórica, Mandados de prisão e Execução penal (fluxos de *request* e *response*). |
-| `https://tracking.prod.judit.io` | **Monitoramentos** | Criar, consultar, atualizar, pausar, deletar, reativar e buscar histórico de monitoramentos processuais. |
+| `https://requests.production.judit.io` | **Consultas Assíncronas** | Consulta processual, Consulta histórica, Mandados de prisão e Execução penal (fluxos de *request* e *response*). |
+| `https://tracking.production.judit.io` | **Monitoramentos** | Criar, consultar, atualizar, pausar, deletar, reativar e buscar histórico de monitoramentos processuais. |
 | `https://lawsuits.production.judit.io` | **Consultas Síncronas** | Consulta ao Datalake (*Hot storage*), Quantidade de processos, Consulta histórica agrupada, Busca de anexos de bucket e Dados cadastrais. |
-| `https://crawler.prod.judit.io` | **Crawler & Infra** | Gerenciamento do Cofre de Credenciais. |
+| `https://crawler.production.judit.io` | **Crawler & Infra** | Gerenciamento do Cofre de Credenciais. |
 
 ---
 
@@ -44,7 +51,7 @@ A Judit API opera com uma arquitetura dividida por contextos para garantir melho
 
 ```bash
 export JUDIT_API_KEY="sua-api-key-aqui"
-export JUDIT_BASE_URL="https://requests.prod.judit.io"
+export JUDIT_BASE_URL="https://requests.production.judit.io"
 ```
 
 ### 2. Criar uma Requisição
@@ -443,7 +450,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "oab",
-    "search_key": "999999-SP
+    "search_key": "999999SP
   }
 }
 ```
@@ -468,8 +475,9 @@ if statusData["status"] == "completed" {
 
 </CodeGroup>
 
-## Tipos de Resposta
+## Tipos de Resposta possiveis (a depender do tipo de consulta)
 
+- **`Capa Processual`**: Informações de capa do processo
 - **`parties`**: Apenas informações das partes
 - **`attachments`**: Lista de anexos disponíveis
 - **`step`**: Movimentações processuais
@@ -501,7 +509,7 @@ Para consultas mais específicas por <strong>documento</strong>, é possivel uti
 ## Boas Práticas
 
 ### 1. **Use Cache Inteligente**
-> **💡 Boa Prática para Consultas Assíncronas:** Se você está realizando requisições assíncronas (via `https://requests.prod.judit.io`), a utilização do parâmetro de cache é altamente recomendada. Isso acelera drasticamente o tempo de resposta do Webhook e otimiza o consumo da API.
+> **💡 Boa Prática para Consultas Assíncronas:** Se você está realizando requisições assíncronas (via `https://requests.production.judit.io`), a utilização do parâmetro de cache é altamente recomendada. Isso acelera drasticamente o tempo de resposta do Webhook e otimiza o consumo da API.
 
 Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar buscas redundantes nos tribunais. Esse campo define por exatos quantos dias um resultado já armazenado na base da Judit será considerado válido antes de forçar uma nova extração.
 ```json
@@ -538,7 +546,4 @@ Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar
 
 ## Próximos Passos
 
-- **[Autenticação](/introduction/authentication)**: Configure a autenticação adequada
-- **[Endpoints](/api-reference)**: Explore todos os endpoints disponíveis
-- **[Suporte](https://api.whatsapp.com/send/?phone=5511920501949)**: Entre em contato com nosso suporte técnico para mais informações.
-> **Dica**: Para desenvolvimento, use o [Postman Collection](https://drive.google.com/file/d/1PTNJjVzu65F-CGxFOXX82hwMctG1WxWU/view) com exemplos prontos da Judit API.
+- **[Autenticação](/introduction/authentication)**: Configure a autenticação 

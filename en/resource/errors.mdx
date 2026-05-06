@@ -1,0 +1,249 @@
+---
+title: "Error Codes — Judit API"
+sidebarTitle: "Error Codes"
+description: "Consolidated list of HTTP codes, application_error, internal exceptions and troubleshooting for the Judit API. Authentication, validation, secrecy, court failures, rate limit and how to resolve each."
+keywords: ["errors", "codes", "http", "application_error", "401", "403", "404", "429", "500", "lawsuit_not_found", "user_not_found", "troubleshooting"]
+icon: "triangle-exclamation"
+---
+
+> 🤖 This is the single error reference for the Judit API: HTTP 2xx/4xx/5xx codes, internal exceptions (`name`), `application_error` returned in payload (even when HTTP is 200), and practical troubleshooting.
+
+## Anatomy of an error
+
+The Judit API distinguishes two error types:
+
+<CardGroup cols={2}>
+  <Card title="Transport errors (HTTP 4xx/5xx)" icon="plug-circle-xmark">
+    The request failed on basic validation, authentication, authorization or server side. The payload follows `{ error: { name, message, data } }`.
+  </Card>
+  <Card title="Application errors (response_type: application_error)" icon="circle-exclamation">
+    HTTP is `200`, but the query did not return the expected object. It can be "lawsuit not found", "homonym", secrecy, etc. Comes inside `responses[].response_type = application_error`.
+  </Card>
+</CardGroup>
+
+## HTTP Status Codes
+
+The API uses standard HTTP conventions.
+
+### Success (2xx)
+
+| HTTP | Meaning | When it happens |
+| :--- | :--- | :--- |
+| `200` | **OK** | Request processed and data returned successfully. |
+| `201` | **Created** | Resource (e.g. new tracker, new request) created successfully. |
+| `202` | **Accepted** | Request accepted and queued for asynchronous processing. |
+
+### Client Errors (4xx)
+
+| HTTP | Typical `error.message` | When it happens | How to resolve |
+| :--- | :--- | :--- | :--- |
+| `400` | `BAD_REQUEST` | Malformed payload, missing required fields, invalid enum. | Check `error.data` — lists failed validations. See [Lawsuit Schema](/en/schemas/lawsuit-object). |
+| `401` | `UNAUTHORIZED` | `api-key` missing or invalid. | Check the `api-key` header (no space, no `Bearer`). See [Authentication](/en/introduction/authentication). |
+| `403` | `FORBIDDEN` | `api-key` is valid but lacks permission (e.g. unbought feature, secrecy without credential). | Verify the feature is enabled in your plan and that there's a court credential in the [Vault](/en/essentials/cofre-de-credenciais). |
+| `404` | `NOT_FOUND` | Resource doesn't exist — invalid `request_id`/`tracking_id`, CNJ not in datalake. | Confirm the ID. For new CNJs, fire a previous async query via [`POST /requests`](/en/requests/requests). |
+| `409` | `CONFLICT` | Tracking already exists for the same CNJ + key; attempt to create duplicated resource. | List existing trackers via `GET /tracking`. Update the existing one instead of recreating. |
+| `422` | `UNPROCESSABLE_ENTITY` | Valid structure but semantically invalid (e.g. `search_type` incompatible with `response_type`). | See the table at [Search Types](/en/requests/requests#supported-search-types). |
+| `429` | `TOO_MANY_REQUESTS` | Plan rate limit exceeded. | Implement exponential backoff. Check `X-RateLimit-*` headers in response. |
+
+### Server Errors (5xx)
+
+| HTTP | Typical `error.message` | When it happens | How to resolve |
+| :--- | :--- | :--- | :--- |
+| `500` | `INTERNAL_SERVER_ERROR` | Unexpected Judit-side failure. | Retry with backoff. If it persists, open a ticket at `support@judit.io` referencing the `request_id`. |
+| `502` / `504` | `BAD_GATEWAY` / `GATEWAY_TIMEOUT` | Originating court down or timeout. Common in synchronous queries. | Retry — if it persists, async flow via [`POST /requests`](/en/requests/requests) is more resilient. |
+| `503` | `SERVICE_UNAVAILABLE` | Maintenance. | Wait a few minutes. Watch status.judit.io (if enabled). |
+
+## HTTP error payload structure
+
+Regardless of status (400 or 500), the response body always follows this contract:
+
+```json
+{
+    "error": {
+        "name": "HttpBadRequestError",
+        "message": "BAD_REQUEST",
+        "data": [
+            {
+                "field": "search.search_key",
+                "rule": "required",
+                "message": "search_key is required"
+            }
+        ]
+    }
+}
+```
+
+| Field | Description |
+| :--- | :--- |
+| `error.name` | Exception code (e.g. `HttpBadRequestError`, `HttpNotFoundError`, `HttpUnauthorizedError`, `USER_NOT_FOUND`). Use in your `switch`/`case` for automation. |
+| `error.message` | Friendly category (`BAD_REQUEST`, `UNAUTHORIZED`, etc.). |
+| `error.data` | Details — array of validations or string with specific message. Useful for displaying form validations to the end user. |
+
+## Internal codes (`error.name`)
+
+Use these values for programmatic automation:
+
+### Authentication and permissions
+
+| Code (`name`) | HTTP | Common cause |
+| :--- | :--- | :--- |
+| `USER_NOT_FOUND` | 401 | API key not sent or revoked. |
+| `INSUFFICIENT_PERMISSIONS` | 403 | Attempt to use a module blocked in your plan. |
+| `HttpUnauthorizedError` | 401 | Generic — invalid key. |
+
+### Validation and processing
+
+| Code (`name`) | HTTP | Common cause |
+| :--- | :--- | :--- |
+| `HttpBadRequestError` | 400 | Malformed JSON or missing fields. |
+| `RESOURCE_NOT_FOUND` | 404 | CNJ not yet captured. |
+| `REQUEST_NOT_FOUND` | 404 | Queried `request_id` does not exist. |
+| `PROCESSING_ERROR` | 422 | Bot failed to read court data. |
+
+## Application errors (`application_error`)
+
+When you receive `response_type: application_error` instead of the expected payload, the query was successfully processed, but the result is a logical exception.
+
+| `response_data.code` | Meaning | When it happens | How to resolve |
+| :--- | :--- | :--- | :--- |
+| `LAWSUIT_NOT_FOUND` | Lawsuit not found. | Non-existent CNJ or inaccessible. | Verify the number and tribunal. May be under secrecy — add `customer_key` (Vault). |
+| `ENTITY_NOT_FOUND` | Person/company not found. | CPF/CNPJ doesn't appear in datalake or court. | Try `on_demand: true` to force court fetch. |
+| `WARRANT_NOT_FOUND` | Warrant not found in BNMP. | No warrants for the given document. | Try `name` or `rji` search if applicable. |
+| `EXECUTION_NOT_FOUND` | Penal execution not found. | No records for the document. | Check the originating court (Penal Execution Justice). |
+| `INVALID_CREDENTIAL` | Vault credential invalid or expired. | Court login/token expired. | Update the credential at [Vault](/en/essentials/cofre-de-credenciais). |
+| `CRAWLER_ERROR` | Court collection failed. | Court down, captcha failure, layout change. | Retry. If it persists, automatic fallback flow kicks in. |
+| `RATE_LIMIT_TRIBUNAL` | Tribunal-imposed limit. | Court blocked further collection. | Judit retries automatically next cycle. Use a higher `cache_ttl_in_days`. |
+| `SECRECY_RESTRICTED` | Secret lawsuit without associated credential. | `secrecy_level > 0` and `api-key` has no court credential. | Register a credential at [Vault](/en/essentials/cofre-de-credenciais) and reference via `customer_key`. |
+| `HOMONYM_AMBIGUOUS` | Name search returned homonyms. | Common name without extra criteria. | Refine via CPF/CNPJ or apply filters (`tribunals`, `state`). |
+
+### application_error example
+
+```json
+{
+    "request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+    "responses": [
+        {
+            "response_id": "b6c1a4f0-1234-5678-9abc-def012345678",
+            "response_type": "application_error",
+            "response_data": {
+                "code": "LAWSUIT_NOT_FOUND",
+                "message": "Lawsuit 0000000-00.0000.0.00.0000 not found in datalake or court."
+            }
+        }
+    ]
+}
+```
+
+## Centralized handler (ready-to-use code)
+
+Create a single interceptor to log and handle Judit API errors.
+
+<CodeGroup>
+```python Python
+import requests, os
+
+def handle_judit_error(response: requests.Response) -> None:
+    """Decode and handle Judit API errors."""
+    if response.status_code < 400:
+        return
+    try:
+        payload = response.json()
+        error_block = payload.get('error', {})
+        error_name = error_block.get('name', 'UNKNOWN_ERROR')
+        error_details = error_block.get('data', [])
+        print(f"❌ HTTP {response.status_code}: {error_name}")
+        if error_details:
+            print("Details:")
+            for detail in error_details:
+                print(f"  - {detail}")
+        if error_name == 'USER_NOT_FOUND':
+            raise PermissionError("Invalid API key. Check JUDIT_API_KEY.")
+        if response.status_code == 429:
+            print("⚠️ Rate limit exceeded. Trigger backoff.")
+    except ValueError:
+        print(f"Critical error {response.status_code}: response is not valid JSON.")
+        print(response.text)
+```
+
+```javascript Node.js
+async function handleJuditError(response) {
+  if (response.ok) return;
+  try {
+    const payload = await response.json();
+    const errorBlock = payload.error || {};
+    const errorName = errorBlock.name || 'UNKNOWN_ERROR';
+    const errorDetails = errorBlock.data || [];
+    console.error(`❌ HTTP ${response.status}: ${errorName}`);
+    if (errorDetails.length > 0) {
+      console.error("Details:");
+      errorDetails.forEach(detail => console.error(`  - ${JSON.stringify(detail)}`));
+    }
+    if (errorName === 'USER_NOT_FOUND') {
+      throw new Error("Invalid API key. Check JUDIT_API_KEY.");
+    }
+    if (response.status === 429) {
+      console.warn("⚠️ Rate limit exceeded. Trigger backoff.");
+    }
+  } catch (e) {
+    if (e.name !== 'SyntaxError') throw e;
+    console.error(`Critical error ${response.status}: response is not valid JSON.`);
+  }
+}
+```
+</CodeGroup>
+
+## Handling patterns
+
+<AccordionGroup>
+  <Accordion title="Exponential backoff on 429 and 5xx">
+    Implement retry with jitter:
+
+    ```python
+    import time, random
+    for attempt in range(5):
+        resp = requests.post(url, headers=h, json=body)
+        if resp.status_code < 500 and resp.status_code != 429:
+            break
+        sleep = (2 ** attempt) + random.random()
+        time.sleep(sleep)
+    ```
+
+    The `Retry-After` header (when present) must be respected.
+  </Accordion>
+
+  <Accordion title="Idempotency via `callback_id`">
+    Webhooks redeliver on failure. Always check `callback_id` before processing — store it in a table (id, received_at). If already present, ignore.
+  </Accordion>
+
+  <Accordion title="`application_error` vs HTTP 4xx distinction">
+    Treat `application_error` as a **valid query result** (the integration is fine), while HTTP 4xx indicates that **the call** is wrong. Log them separately in monitoring.
+  </Accordion>
+
+  <Accordion title="Secrecy (`secrecy_level`)">
+    When the lawsuit is secret and the `api-key` has no registered credential for the court, Judit returns `application_error: SECRECY_RESTRICTED`. To access, register the lawyer's credential at [Vault](/en/essentials/cofre-de-credenciais) and reference it via `customer_key` in the query.
+  </Accordion>
+
+  <Accordion title="Quotas and limits">
+    On 429, read `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` to adjust dispatching. For mass flows, adopt a sliding window.
+  </Accordion>
+</AccordionGroup>
+
+## Quick troubleshooting table
+
+| Symptom | Most likely hypothesis | Next step |
+| :--- | :--- | :--- |
+| HTTP 401 always | Missing `api-key` header / wrong value / space/line break. | `echo $JUDIT_API_KEY \| wc -c` — check the size. |
+| HTTP 403 on a specific route | Feature not enabled in your plan. | Talk to Judit at `support@judit.io`. |
+| `LAWSUIT_NOT_FOUND` for an existing CNJ | CNJ is under secrecy. | See [Credentials Vault](/en/essentials/cofre-de-credenciais). |
+| Webhook doesn't arrive | URL not public/HTTPS, or returning ≠ 2xx. | See [Webhook](/en/webhook/callbacks#endpoint-requirements). |
+| 2 webhooks with same `request_id` | Expected behavior — first comes from cache (`cached_response: true`), second from court. | See [cached_response](/en/webhook/callbacks#two-responses). |
+| Tracking with no new events | `recurrence` too high or `notification_filters.step_terms` too restrictive. | Lower recurrence; relax filters. |
+| Empty `name` response | Homonym or accented name. | Search by CPF/CNPJ; remove accents for testing. |
+
+## Next steps
+
+* 👉 **[Rate Limits](/en/essentialConcepts/rate-limits)** — Retry with Exponential Backoff function to handle `429`.
+* 👉 **[Authentication](/en/introduction/authentication)** — how to send credentials correctly to avoid `401`.
+* 👉 **[Webhook & Callbacks](/en/webhook/callbacks)** — redelivery behavior and idempotency.
+* 👉 **[Glossary](/en/resource/glossary)** — technical terms referenced here.
+* 👉 **[FAQ](/en/resource/faq)** — frequently asked questions.

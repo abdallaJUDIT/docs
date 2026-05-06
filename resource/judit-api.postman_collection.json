@@ -1,0 +1,206 @@
+{
+  "info": {
+    "name": "Judit API",
+    "description": "Coleção oficial da Judit API. Configure a variável `api_key` em Variables ou no ambiente. Cobre Requests (assíncrono), Tracking, Lawsuits (síncrono), Crawler/Vault, Entities, Warrants e Penal Execution.\n\nDocs: https://docs.judit.io",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "api-key", "type": "string" },
+      { "key": "value", "value": "{{api_key}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "api_key", "value": "REPLACE_WITH_YOUR_KEY" },
+    { "key": "requests_url", "value": "https://requests.production.judit.io" },
+    { "key": "tracking_url", "value": "https://tracking.production.judit.io" },
+    { "key": "lawsuits_url", "value": "https://lawsuits.production.judit.io" },
+    { "key": "crawler_url", "value": "https://crawler.production.judit.io" }
+  ],
+  "item": [
+    {
+      "name": "Requests (assíncrono)",
+      "item": [
+        {
+          "name": "POST /requests — criar consulta",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"with_attachments\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /responses?request_id={id}",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{requests_url}}/responses?request_id=REPLACE_REQUEST_ID",
+              "host": ["{{requests_url}}"],
+              "path": ["responses"],
+              "query": [{ "key": "request_id", "value": "REPLACE_REQUEST_ID" }]
+            }
+          }
+        },
+        {
+          "name": "POST /requests — busca custom (filtros)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\",\n    \"search_params\": {\n      \"filter\": {\n        \"side\": \"Passive\",\n        \"tribunals\": { \"keys\": [\"TRT01\",\"TRT02\"], \"not_equal\": false }\n      }\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /requests — Mandado (warrant)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"warrant\"\n  },\n  \"with_attachments\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracking",
+      "item": [
+        {
+          "name": "POST /tracking — criar tracker",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{tracking_url}}/tracking", "host": ["{{tracking_url}}"], "path": ["tracking"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"recurrence\": 7,\n  \"notification_filters\": { \"step_terms\": [\"sentença\",\"execução\"] },\n  \"callback_url\": \"https://your-app.com/webhooks/judit\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /tracking — listar trackers",
+          "request": { "method": "GET", "url": { "raw": "{{tracking_url}}/tracking", "host": ["{{tracking_url}}"], "path": ["tracking"] } }
+        },
+        {
+          "name": "PATCH /tracking/{id} — pausar",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{tracking_url}}/tracking/REPLACE_ID", "host": ["{{tracking_url}}"], "path": ["tracking", "REPLACE_ID"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"paused\": true\n}" }
+          }
+        },
+        {
+          "name": "DELETE /tracking/{id}",
+          "request": { "method": "DELETE", "url": { "raw": "{{tracking_url}}/tracking/REPLACE_ID", "host": ["{{tracking_url}}"], "path": ["tracking", "REPLACE_ID"] } }
+        }
+      ]
+    },
+    {
+      "name": "Lawsuits (síncrono)",
+      "item": [
+        {
+          "name": "POST /lawsuits — Hot Storage (lista)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/lawsuits", "host": ["{{lawsuits_url}}"], "path": ["lawsuits"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"search_params\": { \"pagination\": { \"page\": 1, \"page_size\": 50 } }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /lawsuits — Tem Processo? (page_size=1)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/lawsuits", "host": ["{{lawsuits_url}}"], "path": ["lawsuits"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"search_params\": { \"pagination\": { \"page\": 1, \"page_size\": 1 } }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /lawsuits/count — Quantidade",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/lawsuits/count", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "count"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /lawsuits/synthetic — Agregações",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/lawsuits/synthetic", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "synthetic"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cnpj\",\n    \"search_key\": \"99.999.999/9999-99\",\n    \"response_type\": \"synthetic_lawsuits\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /lawsuits/{cnj}",
+          "request": { "method": "GET", "url": { "raw": "{{lawsuits_url}}/lawsuits/REPLACE_CNJ", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "REPLACE_CNJ"] } }
+        },
+        {
+          "name": "POST /entities — Dados cadastrais",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/entities", "host": ["{{lawsuits_url}}"], "path": ["entities"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"entity\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /steps/count — Andamentos por CNJ",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{lawsuits_url}}/steps/count", "host": ["{{lawsuits_url}}"], "path": ["steps", "count"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"lawsuit_cnj\": [\"0000000-00.0000.0.00.0000\"]\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crawler / Cofre",
+      "item": [
+        {
+          "name": "POST /credentials — cadastrar credencial",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{crawler_url}}/credentials", "host": ["{{crawler_url}}"], "path": ["credentials"] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_key\": \"my-oab-sp\",\n  \"tribunal\": \"TJSP\",\n  \"username\": \"...\",\n  \"password\": \"...\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

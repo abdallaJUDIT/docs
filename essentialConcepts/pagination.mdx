@@ -1,6 +1,9 @@
 ---
-title: "Paginação (Offset)"
-description: "A Judit API utiliza paginação baseada em página e tamanho (Offset) para permitir a navegação através de grandes conjuntos de dados de forma previsível e controlada."
+title: "Paginação (Offset) na Judit API"
+sidebarTitle: "Paginação"
+description: "Como navegar por grandes conjuntos de dados na Judit API usando paginação por offset com page e page_size, com exemplos em cURL, Python e JavaScript."
+keywords: ["paginação", "pagination", "page", "page_size", "offset", "query params"]
+icon: "list-ol"
 ---
 
 > 🤖 A paginação da Judit API não utiliza cursores. Ela é baseada no padrão *Offset*, utilizando exclusivamente os parâmetros de *query* `page` (número da página) e `page_size` (quantidade de itens). O limite máximo estrito para `page_size` é de <strong>1000 itens</strong>. Os metadados de paginação são retornados na raiz do objeto de resposta.
@@ -45,11 +48,11 @@ Abaixo, demonstramos como buscar a primeira página de requisições e iterar so
 
 ```bash cURL
 # 1. Buscando a primeira página (10 itens)
-curl -X GET "[https://requests.prod.judit.io/requests?page=1&page_size=10](https://requests.prod.judit.io/requests?page=1&page_size=10)" \
+curl -X GET "[https://requests.production.judit.io/requests?page=1&page_size=10](https://requests.production.judit.io/requests?page=1&page_size=10)" \
   -H "api-key: $JUDIT_API_KEY"
 
 # 2. Buscando uma página específica (ex: página 3, 25 itens)
-curl -X GET "[https://requests.prod.judit.io/requests?page=3&page_size=25](https://requests.prod.judit.io/requests?page=3&page_size=25)" \
+curl -X GET "[https://requests.production.judit.io/requests?page=3&page_size=25](https://requests.production.judit.io/requests?page=3&page_size=25)" \
   -H "api-key: $JUDIT_API_KEY"
 ```
 
@@ -58,7 +61,7 @@ import requests
 import os
 
 api_key = os.getenv('JUDIT_API_KEY')
-base_url = "[https://requests.prod.judit.io](https://requests.prod.judit.io)"
+base_url = "[https://requests.production.judit.io](https://requests.production.judit.io)"
 
 def get_requests_page(page=1, page_size=20):
     """Busca uma página específica do histórico de requisições"""
@@ -88,7 +91,7 @@ if data:
 
 ```javascript JavaScript
 const apiKey = process.env.JUDIT_API_KEY;
-const baseUrl = "[https://requests.prod.judit.io](https://requests.prod.judit.io)";
+const baseUrl = "[https://requests.production.judit.io](https://requests.production.judit.io)";
 
 async function getRequestsPage(page = 1, pageSize = 20) {
     const params = new URLSearchParams({
@@ -226,5 +229,5 @@ async function fetchAllDataSafely(delayMs = 200) {
 ## Próximos Passos
 
 * 👉 **[Rate Limits](/essentialConcepts/rate-limits)**: Entenda as quotas de requisições da sua conta.
-* 👉 **[Autenticação](/authentication)**: Revise como enviar suas credenciais.
-* 👉 **[Endpoints](/api-reference)**: Explore os recursos que suportam listagem.
+* 👉 **[Autenticação](/introduction/authentication)**: Revise como enviar suas credenciais.
+* 👉 **[Endpoints](/api-reference/endpoint/requests/create)**: Explore os recursos que suportam listagem.

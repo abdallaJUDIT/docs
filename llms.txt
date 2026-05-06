@@ -1,0 +1,110 @@
+# Judit API
+
+> A Judit API entrega dados de processos judiciais brasileiros prontos para uso. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe a capa do processo, partes, advogados, andamentos, anexos e relacionamentos — em tempo real ou de um datalake atualizado. Cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP.
+
+## Autenticação
+
+- Todas as chamadas exigem o header HTTP `api-key: <SUA_API_KEY>`.
+- Não usa `Authorization: Bearer <token>`.
+- Solicite chave em https://api.whatsapp.com/send/?phone=5521985284143
+
+## Serviços e bases
+
+- **Requests** (`https://requests.production.judit.io`) — consulta assíncrona aos tribunais; resultado por webhook ou polling.
+- **Tracking** (`https://tracking.production.judit.io`) — monitoramento contínuo com recorrência configurável.
+- **Lawsuits** (`https://lawsuits.production.judit.io`) — leitura síncrona do datalake JUDIT, dados cadastrais, anexos, contagens, agregações.
+- **Crawler** (`https://crawler.production.judit.io`) — Cofre de Credenciais (login em tribunais).
+
+## Endpoints principais
+
+### requests.production.judit.io
+- POST /requests — Criar requisição
+- GET /requests — Listar requisições
+- GET /requests/{request_id} — Buscar requisição
+- DELETE /requests/{request_id} — Excluir (soft-delete)
+- GET /responses — Listar resultados
+- GET /responses/{response_id} — Buscar resultado
+- GET /responses/tracking/{origin_id} — Resultados de um tracking
+
+### tracking.production.judit.io
+- POST /tracking — Criar monitoramento
+- POST /tracking/bulk — Criar em lote
+- GET /tracking — Listar monitoramentos
+- GET /tracking/{tracking_id} — Buscar monitoramento
+- PATCH /tracking/{tracking_id} — Atualizar
+- DELETE /tracking/{tracking_id} — Excluir
+- POST /tracking/{tracking_id}/pause — Pausar
+- POST /tracking/{tracking_id}/resume — Retomar
+- GET /tracked-item — Listar itens
+- GET /tracked-item-count — Contar itens
+- GET /tracked-item/{tracked_item_id} — Buscar item
+
+### lawsuits.production.judit.io
+- POST /entities — Dados cadastrais (CPF/CNPJ/Nome)
+- POST /lawsuits — Buscar processos no datalake (síncrono)
+- GET /lawsuits/{lawsuit_cnj} — Buscar único processo
+- POST /lawsuits/count — Contagem de processos
+- POST /lawsuits/synthetic — Agregações sintéticas (por tribunal/classe/área/etc.)
+- POST /steps/count — Contagem de andamentos por CNJ
+- GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id} — Download de anexo
+- GET /warrants/{lawsuit_cnj}/attachments/{attachment_id} — Download de anexo de mandado
+- GET /transfer-file — Listar transferências
+- GET /transfer-file/{transfer_file_id} — Obter transferência
+- PATCH /transfer-file/{transfer_file_id} — Atualizar status
+
+## Tipos de busca
+
+`search.search_type` aceita: `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj`, `lawsuit_id`, `custom`.
+
+## CNPJ alfanumérico (IN RFB 2229/24)
+
+Aceito sem alterações na integração. Use `A1B2C3D4/E5F6-90` para teste.
+
+## cached_response
+
+Em consultas processuais e históricas, a resposta carrega o campo `cached_response`:
+- `true` — veio do datalake (cache JUDIT).
+- `false` — resposta atualizada após nova coleta no tribunal.
+
+É normal receber dois webhooks aparentemente iguais para o mesmo `request_id`: o primeiro com `cached_response: true` e o último (atualizado) com `cached_response: false`.
+
+## Documentação
+
+- Visão geral: https://docs.judit.io/
+- Quickstart: https://docs.judit.io/introduction/quickstart
+- Autenticação: https://docs.judit.io/introduction/authentication
+- Consulta processual (assíncrona): https://docs.judit.io/requests/requests
+- Consulta histórica por documento: https://docs.judit.io/requests/request-document
+- Consulta customizada: https://docs.judit.io/requests/custom-search
+- Hot Storage (síncrona): https://docs.judit.io/cache-judit/hotstorage
+- Consulta agrupada: https://docs.judit.io/cache-judit/cache-grouped
+- Monitoramento: https://docs.judit.io/tracking/tracking
+- Dados cadastrais: https://docs.judit.io/registration-data/registration-data
+- Mandados de prisão: https://docs.judit.io/criminal-consultation/warrant
+- Execução penal: https://docs.judit.io/criminal-consultation/criminal-execution
+- File Transfer: https://docs.judit.io/file-transfer/file-transfer
+- Cofre de Credenciais: https://docs.judit.io/essentials/cofre-de-credenciais
+- Webhook: https://docs.judit.io/webhook/callbacks
+- Schemas (Lawsuit, Warrant, Penal Execution, Entity, Enums): https://docs.judit.io/schemas/lawsuit-object
+- Rate Limits: https://docs.judit.io/essentialConcepts/rate-limits
+- Erros: https://docs.judit.io/essentialConcepts/errors
+- Postman Collection: https://docs.judit.io/resource/postman-collection
+- MCP (Model Context Protocol): https://docs.judit.io/resource/mcp
+
+## Specs OpenAPI ao vivo
+
+- Requests: https://requests.production.judit.io/docs/spec
+- Tracking: https://tracking.production.judit.io/docs/spec
+- Lawsuits: https://lawsuits.production.judit.io/docs/spec
+
+## Rate limits
+
+- Padrão: 500 req/min por API Key.
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.
+- HTTP 429 quando excedido. Implementar backoff exponencial.
+
+## Webhooks
+
+- Cadastro: parâmetro `callback_url` no payload da requisição, ou via suporte para webhook único da conta.
+- Entrega: HTTP POST com o objeto resposta.
+- O webhook leva o campo `cached_response` para o cliente diferenciar resposta de cache vs atualização.

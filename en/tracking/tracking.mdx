@@ -1,14 +1,33 @@
 ---
 title: "Lawsuit Tracking"
-description: "Monitor documents or lawsuits and stay up to date on all your cases"
+sidebarTitle: "Lawsuit Tracking"
+description: "Automatically track movements on a specific lawsuit by its CNJ number. Judit polls the court at the configured recurrence and pushes updates via webhook."
+keywords: ["tracking", "lawsuit tracking", "webhook", "recurrence", "update", "court", "cnj"]
 icon: "radar"
 ---
 
-JUDIT allows you to monitor lawsuits, CPFs, CNPJs, OAB or Code (CNJ), keeping you up to date on any new step.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
-Tracking is the automation of the lawsuit queries described in the previous section.
+**Lawsuit Tracking** automatically follows a specific lawsuit by its CNJ number. You register the CNJ, define the recurrence (in days), and Judit polls the court for you. Whenever something changes — new step, attachment or decision — you get the update via **webhook** or e-mail.
 
-Every day, our API searches all courts in Brazil for lawsuits related to the CPF, CNPJ, OAB or Code (CNJ) you are tracking.
+> 🤖 Base endpoint: `POST https://tracking.production.judit.io/tracking` with `search.search_type: "lawsuit_cnj"`. Tracking runs in the background, within Judit's optimal concurrency window for each court. The first run happens within 24 hours after registration; subsequent runs follow the `recurrence` (in days) you set.
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Active caseload" icon="folder-open">
+    Keep every lawsuit in the firm watched by CNJ — webhooks arrive the moment a new step lands.
+  </Card>
+  <Card title="Deadline tracking" icon="clock">
+    Get timely alerts on summons, judgments and rulings so you never miss a deadline.
+  </Card>
+  <Card title="Continuous sync" icon="rotate">
+    Keep your firm's internal records always in sync with the lawsuit's latest state at the court.
+  </Card>
+  <Card title="Keyword alerts" icon="bell">
+    Use `notification_filters.step_terms` to be alerted only when specific steps (e.g. "judgment", "summons") appear.
+  </Card>
+</CardGroup>
 
 ## Tracking route
 
@@ -18,11 +37,13 @@ To start tracking a lawsuit, you must make a POST request to the `/tracking` rou
 
 The POST request must include a payload with the following properties:
 
+- `fixed_time` (**required**): boolean. Whether the tracker runs at the same hour every day. When `true`, combine with `hour_range` (0-23) to fix the hour. When `false`, Judit picks the best concurrency window.
+
 - `recurrence`: The recurrence, in days, for updating the lawsuits.
 
-- `search`: Object used for the search.
-    - `search_type`: In the context of lawsuit tracking, the value of this field will always be `lawsuit_cnj`.
-    - `search_key`: The lawsuit number (CNJ code), CPF, CNPJ, OAB or NAME you want to search;
+- `search` (**required**): Object used for the search.
+    - `search_type` (**required**): In the context of lawsuit tracking, the value of this field will always be `lawsuit_cnj`.
+    - `search_key`: The lawsuit number (CNJ code) you want to search;
 
 - `with_attachments` (optional): This field defines whether you want to fetch attachments related to the searched lawsuit. It can be **true** or **false**
 
@@ -78,6 +99,7 @@ Example payload without filters:
 
 Here is an example of the expected response when creating a tracking:
 
+<Accordion title="See response example">
 ```json
 {
     "tracking_id": "d923253e-45c1-46e5-ac70-164839d9851c",
@@ -109,6 +131,7 @@ Here is an example of the expected response when creating a tracking:
     "updated_at": "2025-04-16T13:58:56.352Z"
 }
 ```
+</Accordion>
 
 <Note>
    In the tracking creation response, the `hour_range` field is returned, indicating the time at which the court query will be performed for the first time. In the example above, the first query is scheduled to occur at 9 PM.
@@ -118,7 +141,7 @@ Here is an example of the expected response when creating a tracking:
 Here is an example of how to use these query parameters with curl:
 
 ```bash
-curl --location 'https://tracking.prod.judit.io/tracking' \
+curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -142,7 +165,7 @@ This route accepts optional fields for updating the tracking: `recurrence`, `tag
 Here is an example of how to do this using curl:
 
 ```bash
-curl -X PATCH "https://tracking.prod.judit.io/tracking/{tracking}" \
+curl -X PATCH "https://tracking.production.judit.io/tracking/{tracking}" \
 -H "api-key: YOUR_API_KEY"
 -d '{
   "recurrence": 5,
@@ -170,7 +193,7 @@ To list all your trackings, you can make a GET request to the `/tracking` route.
 Here is an example of how to query your trackings using curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
+curl -X GET "https://tracking.production.judit.io/tracking?page=1&page_size=10" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -178,6 +201,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 
 **Note**: Every step will be notified via webhook containing the complete lawsuit, incrementing with the latest steps.
 
+<Accordion title="See response example">
 ```json
 {
   "_id": {
@@ -221,6 +245,7 @@ curl -X GET "https://tracking.prod.judit.io/tracking?page=1&page_size=10" \
 	],
 }
 ```
+</Accordion>
 
 <Warning>
 To register your webhook, contact the [support](https://api.whatsapp.com/send/?phone=5521976748865) team and request its creation. Alternatively, the webhook can also be specified by adding the callback_url parameter in the request payload, as shown in the example below:
@@ -245,7 +270,7 @@ To retrieve all information about a specific tracking, you can make a GET reques
 Here is an example of how to do this using curl:
 
 ```bash
-curl -X GET "https://tracking.prod.judit.io/tracking?tracking_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+curl -X GET "https://tracking.production.judit.io/tracking?tracking_id=15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -286,12 +311,13 @@ You can filter the results using the `created_at_gte` and `created_at_lte` param
 Here is an example of how to do this using curl:
 
 ```bash
-curl --location 'https://requests.prod.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
+curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2024-03-05T00%3A00%3A00&created_at_lte=2025-03-11T00%3A00%3A00' \
 --header 'api-key: <API-KEY>'
 ```
 
 Here is the expected response:
 
+<Accordion title="See response example">
 ```json
 {
     "request_status": "completed",
@@ -599,6 +625,7 @@ Here is the expected response:
     ]
 }
 ```
+</Accordion>
 ## Pausing a tracking
 
 To pause a tracking, you can make a POST request to the `/tracking/{tracking}/pause` route, replacing `{tracking}` with the ID of the tracking you want to pause.
@@ -606,7 +633,7 @@ To pause a tracking, you can make a POST request to the `/tracking/{tracking}/pa
 Here is an example of how to pause the tracking using curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/pause" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -642,7 +669,7 @@ To resume a paused tracking, you can make a POST request to the `/tracking/{trac
 Here is an example of how to resume a tracking using curl:
 
 ```bash
-curl -X POST "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
 -H "api-key: YOUR_API_KEY"
 ```
 
@@ -673,16 +700,20 @@ Here is an example of an **active** tracking response:
 
 ## Deleting a tracking
 
-To delete a tracking, you can make a DELETE request to the `/tracking/{tracking}` route, replacing `{tracking}` with the ID of the tracking you want to delete.
+To delete a tracking, send a DELETE request to the `/tracking/{tracking_id}` route, replacing `{tracking_id}` with the ID of the tracking you want to remove.
 
-Here is an example of how to delete a tracking using curl:
+<Warning>
+Deletion is **permanent**: the tracker stops running immediately, future executions are cancelled, and the history of responses tied to it remains queryable only through [`GET /responses`](/en/api-reference/endpoint/responses/find-many) using the old `origin_id`. If you only need to suspend it temporarily, use [Pause](#pausing-a-tracking) and later [Resume](#resuming-a-tracking).
+</Warning>
+
+Example deleting a tracking with curl:
 
 ```bash
-curl -X DELETE "https://tracking.prod.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
+curl -X DELETE "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9" \
 -H "api-key: YOUR_API_KEY"
 ```
 
-Here is an example of the deleted tracking response:
+Example response of a deleted tracking:
 
 ```json
 {
@@ -707,6 +738,9 @@ Here is an example of the deleted tracking response:
 }
 ```
 
-That's it! With these resources, you can stay up to date on any step in lawsuits of your interest. If you have any questions or encounter any issues, our support team is available to help. Contact us through our support portal.
+## Next steps
 
-_We are not responsible for queries made with invalid documents, and charges may apply due to misuse._
+- **[Tracking by Document](/en/tracking/tracking-document)** — detect new lawsuits linked to a CPF, CNPJ or OAB.
+- **[Custom Tracking](/en/tracking/tracking-custom)** — advanced filters (court, amount, class, phase) on top of document tracking.
+- **[Webhook & Callbacks](/en/webhook/callbacks)** — delivery behavior, idempotency and redelivery.
+- **[Mass Monitoring](/en/guides/mass-monitoring)** — practical recipe for 10k+ lawsuit portfolios.

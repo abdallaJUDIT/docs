@@ -1,0 +1,298 @@
+---
+title: "Synchronous Query — Has Lawsuits? (true/false)"
+sidebarTitle: "Has Lawsuits? (true/false)"
+description: "Check in milliseconds whether a CPF, CNPJ, OAB or Name has any lawsuits in the Judit datalake. Returns a single boolean — perfect for KYC gates, lead qualification and routing."
+keywords: ["true false", "has lawsuits", "boolean", "cpf has lawsuit", "cnpj has lawsuit", "kyc", "synchronous"]
+icon: "circle-check"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
+
+<CnpjAlphaInfo />
+
+The **Has Lawsuits? Synchronous Query** returns, in milliseconds, a boolean indicating whether a CPF, CNPJ, OAB or Name has **any lawsuit** in the Judit datalake. It's the lightest, cheapest path for binary gates — KYC, lead qualification, alerting and routing.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits` with `pagination.page_size: 1`. The response includes the top-level boolean `has_lawsuits`. Use `page_size: 1` to minimize payload — the goal here is just to know **if it exists**, not to bring the full list.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="KYC gate" icon="shield-halved">
+    During onboarding, decide whether to run a full diligence only when `has_lawsuits = true`.
+  </Card>
+  <Card title="Lead qualification" icon="filter">
+    Auto-tag leads as "with legal risk" before deepening the analysis.
+  </Card>
+  <Card title="Routing & alerts" icon="route">
+    Route to specific flows (risk desk, advanced compliance) only people who have lawsuits.
+  </Card>
+  <Card title="Status badges" icon="bolt">
+    Paint a "has-lawsuits / clean" badge on CRM/ERP without bringing the full list.
+  </Card>
+</CardGroup>
+
+<Note>
+For the **count** of lawsuits, use [`POST /lawsuits/count`](/en/cache-judit/count). For the full list of lawsuits, use [`POST /lawsuits` (Hot Storage)](/en/cache-judit/hotstorage).
+</Note>
+
+## Step 1: Create the query (POST)
+
+`POST https://lawsuits.production.judit.io/lawsuits`
+
+### Payload examples
+
+<CodeGroup>
+```json By CPF (minimal)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json By CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "A1B2C3D4/E5F6-90",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json By Name
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "JOHN SMITH",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json By OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "123456SP",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json With filters (only labor lawsuits, defendant side)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 },
+        "filter": {
+            "side": "Passive",
+            "tribunals": { "keys": ["TRT01","TRT02","TRT15"], "not_equal": false },
+            "distribution_date_gte": "2020-01-01T00:00:00Z"
+        }
+    }
+}
+```
+</CodeGroup>
+
+### Payload parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Yes** | `cpf`, `cnpj`, `oab`, `name` or `rji`. |
+| `search.search_key` | string | **Yes** | Document or name to query. |
+| `search.response_type` | string | **Yes** | Use `"lawsuits"` for this route. |
+| `search_params.pagination.page_size` | number | Recommended | Use `1` to minimize traffic — we only need `has_lawsuits`. |
+| `search_params.filter` | object | No | Same filters as [Hot Storage](/en/cache-judit/hotstorage) (side, tribunals, dates, amount, classes, subjects, etc.). |
+
+### Request example
+
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://lawsuits.production.judit.io/lawsuits' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99",    }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "lawsuits",
+    },
+    search_params: { pagination: { page: 1, page_size: 1 } },
+  }),
+});
+const { has_lawsuits } = await res.json();
+console.log("Has lawsuits?", has_lawsuits);
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://lawsuits.production.judit.io/lawsuits');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'api-key: ' . getenv('JUDIT_API_KEY'),
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'search' => [
+            'search_type'   => 'cpf',
+            'search_key'    => '999.999.999-99',
+            'response_type' => 'lawsuits',
+        ],
+        'search_params' => [ 'pagination' => [ 'page' => 1, 'page_size' => 1 ] ],
+    ]),
+]);
+$body = json_decode(curl_exec($ch), true);
+echo $body['has_lawsuits'] ? 'Has lawsuits' : 'No lawsuits';
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+            "response_type": "lawsuits",
+        },
+        "search_params": {"pagination": {"page": 1, "page_size": 1}},
+    },
+    timeout=15,
+)
+data = resp.json()
+print("Has lawsuits?", data["has_lawsuits"])
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type":   "cpf",
+            "search_key":    "999.999.999-99",
+            "response_type": "lawsuits",
+        },
+        "search_params": map[string]any{
+            "pagination": map[string]int{"page": 1, "page_size": 1},
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    var out struct{ HasLawsuits bool `json:"has_lawsuits"` }
+    json.NewDecoder(res.Body).Decode(&out)
+    fmt.Println("Has lawsuits?", out.HasLawsuits)
+}
+```
+</CodeGroup>
+
+## Step 2: Read the response
+
+The response is a synchronous JSON. The relevant field for this use case is `has_lawsuits`.
+
+```json Response
+{
+    "has_lawsuits": true,
+    "request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+    "lawsuits": [
+        {
+            "code": "0000000-00.0000.0.00.0000",
+            "...": "..."
+        }
+    ]
+}
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `has_lawsuits` | boolean | `true` if there is at least one lawsuit in the datalake; `false` otherwise. |
+| `request_id` | string | UUID of the query — useful for auditing. |
+| `lawsuits` | array | List of lawsuits (empty or with 1 item, if `page_size: 1`). |
+
+<Note>
+If you only want the boolean and don't need the `lawsuits` array, we still recommend `page_size: 1` (the API always returns the full structure, but with a minimized array). For just the count (e.g. "has 12 lawsuits"), use [`POST /lawsuits/count`](/en/cache-judit/count).
+</Note>
+
+## Patterns and tips
+
+<AccordionGroup>
+  <Accordion title="Combine with filters for contextual gates">
+    Want to know if the person has an **active labor lawsuit on the defendant side in the last 5 years**? Combine `tribunals.keys`, `side`, `distribution_date_gte`. All in a single synchronous call.
+  </Accordion>
+
+  <Accordion title="Handling homonyms in name searches">
+    `name` searches may return homonym matches. For common names (e.g. "John Smith"), confirm via CPF before blocking the user. Judit returns heuristics (`possible_homonym`, `potential_homonym`) in the list — if you only need the boolean, complement the gate with another document check.
+  </Accordion>
+
+  <Accordion title="Cost vs. full list">
+    This route is billed as a standard synchronous query. If you're already going to fetch the full list right after, skip this step and use [Hot Storage](/en/cache-judit/hotstorage) directly.
+  </Accordion>
+
+  <Accordion title="Cache (TTL)">
+    The result can be cached client-side following `cache_ttl_in_days`. For critical KYC flows, consider a shorter TTL (1 day) or force a refresh via [`POST /requests`](/en/requests/requests) with `on_demand: true`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+* 👉 **[Lawsuits Count](/en/cache-judit/count)** — get the total count instead of a boolean.
+* 👉 **[Hot Storage (full list)](/en/cache-judit/hotstorage)** — bring the lawsuit list with pagination.
+* 👉 **[Synthetic Aggregations](/en/cache-judit/cache-grouped)** — group by tribunal, class, phase, etc.
+* 👉 **[Asynchronous query (Requests)](/en/requests/requests)** — when you need fresh data from court.

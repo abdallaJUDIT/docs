@@ -1,10 +1,44 @@
 ---
-title: "Historical Query (by Document)"
-description: "Learn the asynchronous flow to search the complete history of lawsuits linked to a CPF, CNPJ, OAB, or Name. Understand how to create the request, track the status, and filter the final response."
+title: "Historical Query by Document (CPF/CNPJ/OAB/Name)"
+sidebarTitle: "Historical by Document"
+description: "Retrieve the full lawsuit history linked to a CPF, CNPJ, OAB or Name through Judit API's asynchronous flow, with advanced filters, pagination and alphanumeric CNPJ support."
+keywords: ["historical", "cpf", "cnpj", "oab", "name", "document", "filters", "async"]
 icon: "id-card"
 ---
 
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
+
+import CachedResponseInfo from '/snippets/cached-response-en.mdx';
+
+
+<CnpjAlphaInfo />
+
+<CachedResponseInfo />
+
+The **Historical Query by Document** returns **the entire lawsuit caseload** linked to a CPF, CNPJ, OAB or Name. It is the path of choice for due diligence, KYC, judicial-exposure mapping and any scenario where you need to know *which lawsuits exist* (cover + parties), without necessarily diving into each one.
+
 > This page documents exclusively the **Asynchronous** flow of the Historical Query. The client must make a `POST /requests`, wait for processing (`GET /requests/{id}`), and retrieve the data at `GET /responses`. The Historical Query response returns a paginated array containing exclusively the Header and the Parties of the lawsuit (omitting case updates, attachments, phase, and status). You can filter the results either in the payload of the initial POST or in the *query strings* of the final GET.
+
+<EndpointBadges auth billing="billable" flow="async" requiresVault />
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Due diligence / KYC" icon="user-shield">
+    Before signing a contract, discover the counterpart's full judicial exposure by CPF/CNPJ.
+  </Card>
+  <Card title="Credit and collections" icon="dollar-sign">
+    Combine with filters (`amount_gte`, `side: "Passive"`) to prioritize outreach by claim amount.
+  </Card>
+  <Card title="Caseload watch" icon="briefcase">
+    Cross-reference with [Tracking by document](/en/tracking/tracking-document) to detect **new lawsuits** after the initial query.
+  </Card>
+  <Card title="Lawyer intelligence (OAB)" icon="user-tie">
+    Query by OAB to list every lawsuit a lawyer is involved in.
+  </Card>
+</CardGroup>
 
 ## Synchronous vs. Asynchronous
 
@@ -21,7 +55,7 @@ Before integrating, it is essential to understand the architectural difference t
 
 To initiate the asynchronous flow, make a `POST` request providing the desired document.
 
-`POST https://requests.prod.judit.io/requests`
+`POST https://requests.production.judit.io/requests`
 
 ### Historical query examples
 
@@ -453,7 +487,7 @@ Want to know if João sued Company X? You can use the Names and Documents filter
 
 <CodeGroup>
 ```bash cURL (Step 1)
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://requests.production.judit.io/requests/' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -494,10 +528,10 @@ Instead of programming your application to keep polling the request status, the 
 
 Since a document can be linked to hundreds of lawsuits in Brazil, collection takes time. You must check the macro status of the request using the ID from Step 1.
 
-`GET https://requests.prod.judit.io/requests/<REQUEST_ID>`
+`GET https://requests.production.judit.io/requests/<REQUEST_ID>`
 
 ```bash cURL (Step 2)
-curl --location 'https://requests.prod.judit.io/requests/<request_id>' \
+curl --location 'https://requests.production.judit.io/requests/<request_id>' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data ''
@@ -510,7 +544,7 @@ You must perform *polling* (periodic queries) on this route until the `"status"`
 Since the On-Demand search queries dozens of systems simultaneously, you can track the individual status of each accessed court using the *Crawls* route:
 
 ```bash cURL
-curl --location 'https://crawler.prod.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
+curl --location 'https://crawler.production.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
     --header 'api-key: <api-key>'
 ```
 
@@ -544,7 +578,7 @@ As soon as the status in Step 2 returns `"completed"`, the data is ready!
 
 This is where, on the `GET /responses` route, you pull the final JSON. The big advantage of this endpoint is that **it allows you to apply dynamic filters via URL (Query Params)**, allowing you to slice, order, and paginate the final response however you want, without having to generate a new request (POST).
 
-`GET https://requests.prod.judit.io/responses/`
+`GET https://requests.production.judit.io/responses/`
 
 ### Dynamic URL Filters (Query Params)
 
@@ -569,7 +603,7 @@ These are the parameters you can concatenate to your final request:
 
 ```bash cURL (Basic Search)
 # Returns the lawsuits using only the required parameter
-curl -X GET "https://requests.prod.judit.io/responses?request_id=<YOUR_REQUEST_ID>" \
+curl -X GET "https://requests.production.judit.io/responses?request_id=<YOUR_REQUEST_ID>" \
   -H "api-key: YOUR_API_KEY" \
   -H "Content-Type: application/json"
 ```
@@ -578,7 +612,7 @@ curl -X GET "https://requests.prod.judit.io/responses?request_id=<YOUR_REQUEST_I
 # The -g (--globoff) parameter allows the use of brackets [] in the URL without breaking the terminal.
 # Note: In your application, remember to apply URL Encoding to these parameters.
 
-curl -g -X GET "https://requests.prod.judit.io/responses\
+curl -g -X GET "https://requests.production.judit.io/responses\
 ?request_id=<YOUR_REQUEST_ID>\
 &response_type=[\"lawsuit\"]\
 &code=[\"0601708-42.2025.8.04.4700\"]\
@@ -625,7 +659,7 @@ Total number of available pages.
 Array of objects. Each object contains the `response_data` key that holds the [Lawsuit Header](/en/schemas/lawsuit-object).
 </ParamField>
 
-<Accordion title="See Example of the Returned Lawsuit Structure">
+<Accordion title="Ver Exemplo da Estrutura do Processo Retornado">
 ```json
 {
   "page": 1,
@@ -634,39 +668,20 @@ Array of objects. Each object contains the `response_data` key that holds the [L
   "all_pages_count": 1,
   "request_status": "completed",
   "page_data": [
-      {
-          "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
-          "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
-          "response_type": "lawsuit",
-          "response_data": {
-              "code": "0000000-00.0000.0.00.0000",
-              "instance": 1,
-              "justice": "8",
-              "tribunal": "19",
-              "tribunal_acronym": "TJRJ",
-              "classifications": [
-                  { "code": "436", "name": "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL" }
-              ],
-              "subjects": [
-                  { "code": "6226", "name": "INCLUSÃO INDEVIDA EM CADASTRO DE INADIMPLENTES" }
-              ],
-              "amount": 28790,
-              "parties": [
-                  {
-                      "name": "NOME DO CLIENTE",
-                      "side": "Active",
-                      "person_type": "Autor",
-                      "document": "99999999999",
-                      "document_type": "CPF"
-                  }
-              ]
-          }
+    {
+      "request_id": "05ee9825-b2b4-480b-b29e-f071ca7d9c72",
+      "response_id": "e49d2e2c-92ed-4dad-8701-c53a569d675b",
+      "response_type": "lawsuit",
+      "response_data": {
+        "code": "0000000-00.0000.0.00.0000",
+        "tribunal_acronym": "TJSP",
+        "instance": 1,
+        "parties": [
+          { "name": "Usuário teste", "side": "Active", "person_type": "Autor" }
+        ]
       }
+    }
   ]
 }
 ```
 </Accordion>
-
-<Note>
-**Lawsuit not found:** If the document has no linked lawsuits or if the filters are too restrictive, `all_count` will be `0` and the `page_data` array will return empty `[]`.
-</Note>

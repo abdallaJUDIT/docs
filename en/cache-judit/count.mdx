@@ -1,0 +1,301 @@
+---
+title: "Synchronous Query — Lawsuits Count"
+sidebarTitle: "Lawsuits Count"
+description: "Get in milliseconds the total count of lawsuits in the Judit datalake for a CPF, CNPJ, OAB or Name. Supports the same filters as the Hot Storage query — tribunal, side, class, amount, dates."
+keywords: ["count", "total", "quantity", "lawsuits count", "cpf", "cnpj", "synchronous"]
+icon: "hashtag"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
+
+<CnpjAlphaInfo />
+
+The **Lawsuits Count Synchronous Query** returns only the **total** of lawsuits in the Judit datalake matching the given criteria. No listing, no pagination — just the number. Perfect for dashboards, risk scoring and volume-driven decisions.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/count`. The response is synchronous (HTTP 200 with `{ "total": <number> }`) and supports the **same filter object** as the [Hot Storage Query](/en/cache-judit/hotstorage) — tribunal, side, classes, subjects, claim amount, dates, etc.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## When to use
+
+<CardGroup cols={2}>
+  <Card title="Risk score and tiering" icon="chart-line">
+    "≥ 5 labor lawsuits, defendant side, last 3 years = high risk." In one call.
+  </Card>
+  <Card title="Portfolio dashboards" icon="gauge">
+    How many lawsuits does each portfolio client accumulate? Ping all of them in parallel in milliseconds.
+  </Card>
+  <Card title="Exposure limits" icon="scale-balanced">
+    Decide credit limits or insurance policies based on lawsuit counts per class.
+  </Card>
+  <Card title="Pre-check before Hot Storage" icon="filter">
+    Knowing the result is "0" before requesting a full list saves payload billing.
+  </Card>
+</CardGroup>
+
+<Note>
+To just check **whether** there is a lawsuit (boolean), use [`POST /lawsuits` with `page_size: 1`](/en/cache-judit/has-lawsuits). For the full lawsuit list, use [`POST /lawsuits` (Hot Storage)](/en/cache-judit/hotstorage).
+</Note>
+
+## Step 1: Create the query (POST)
+
+`POST https://lawsuits.production.judit.io/lawsuits/count`
+
+### Payload examples
+
+<CodeGroup>
+```json By CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+```
+
+```json By CNPJ (alphanumeric)
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "A1B2C3D4/E5F6-90"
+    }
+}
+```
+
+```json By Name
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "JOHN SMITH"
+    }
+}
+```
+
+```json By OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "123456SP"
+    }
+}
+```
+
+```json Filtered (defendant + labor tribunals + last 3 years)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "tribunals": { "keys": ["TRT01","TRT02","TRT15"], "not_equal": false },
+                "distribution_date_gte": "2022-01-01T00:00:00Z",
+                "amount_gte": 5000
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+### Payload parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Yes** | `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` or `rji`. |
+| `search.search_key` | string | **Yes** | Document or name to count. |
+| `search.response_type` | string | **Yes** | Use `"lawsuits"`. |
+| `search.search_params.filter` | object | No | Filters (same shape as [Hot Storage](/en/cache-judit/hotstorage)). |
+
+### Supported filters (search_params.filter)
+
+<AccordionGroup>
+  <Accordion title="Party identity and role">
+    | Filter | Type | Behavior |
+    | :--- | :--- | :--- |
+    | `side` | enum | `Active`, `Passive`, `Interested`, `Unknown`. |
+    | `party_names` | string[] | Filter by party exact name. |
+    | `party_documents` | string[] | Filter by party CPF/CNPJ. |
+  </Accordion>
+
+  <Accordion title="Dates">
+    | Filter | Type | Behavior |
+    | :--- | :--- | :--- |
+    | `distribution_date_gte` / `_lte` | datetime | Distribution-date window. |
+    | `last_step_date_gte` / `_lte` | datetime | Last-step-date window. |
+  </Accordion>
+
+  <Accordion title="Tribunals, classes and subjects">
+    | Filter | Type | Behavior |
+    | :--- | :--- | :--- |
+    | `tribunals` | `{ keys, not_equal }` | Includes (`false`) or excludes (`true`) the tribunals. List at [Coverage](/en/resource/courtCoverage). |
+    | `classification_codes` / `classification_names` | `{ keys, not_equal }` | Official CNJ class codes/names. |
+    | `subject_codes` / `subject_names` | `{ contains, not_contains }` | Official CNJ subject codes/names. |
+  </Accordion>
+
+  <Accordion title="Claim amount">
+    | Filter | Type | Behavior |
+    | :--- | :--- | :--- |
+    | `amount_gte` | number | Minimum claim amount. |
+    | `amount_lte` | number | Maximum claim amount. |
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Fields `state` and `secrecy_level` only appear in the response — **they don't work as input filters** here. To filter by secrecy, read `secrecy_level` on the [Hot Storage](/en/cache-judit/hotstorage) response.
+</Warning>
+
+### Request example
+
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://lawsuits.production.judit.io/lawsuits/count' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"
+    }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits/count", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "lawsuits",
+    },
+  }),
+});
+const { total } = await res.json();
+console.log(`Total lawsuits: ${total}`);
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://lawsuits.production.judit.io/lawsuits/count');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'api-key: ' . getenv('JUDIT_API_KEY'),
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'search' => [
+            'search_type'   => 'cpf',
+            'search_key'    => '999.999.999-99',
+            'response_type' => 'lawsuits',
+        ],
+    ]),
+]);
+$body = json_decode(curl_exec($ch), true);
+echo "Total: " . $body['total'];
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits/count",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+  ,
+        },
+    },
+    timeout=15,
+)
+print("Total:", resp.json()["total"])
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type":   "cpf",
+            "search_key":    "999.999.999-99",
+  ,
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits/count",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    var out struct{ Total int `json:"total"` }
+    json.NewDecoder(res.Body).Decode(&out)
+    fmt.Println("Total:", out.Total)
+}
+```
+</CodeGroup>
+
+## Step 2: Read the response
+
+```json Response
+{
+    "total": 12
+}
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `total` | number | Number of lawsuits matching the filters. |
+
+<Note>
+Without filters, `total` brings **all** datalake lawsuits linked to the queried document/name. Apply filters to tier by category (e.g. "labor on defendant side", "civil with amount above $100k").
+</Note>
+
+## Patterns and tips
+
+<AccordionGroup>
+  <Accordion title="Fan-out for portfolios">
+    For large portfolios, fire calls in parallel (10-50 simultaneous) — the route is synchronous and lightweight. Respect your plan limits.
+  </Accordion>
+
+  <Accordion title="Combine with aggregations">
+    Want more than the total number? Combine with [`POST /lawsuits/synthetic`](/en/cache-judit/cache-grouped) to receive buckets per tribunal, class, phase, side, etc. — also synchronous.
+  </Accordion>
+
+  <Accordion title="Threshold tiering">
+    Define thresholds (`>= 5 lawsuits = high tier`) in your code and pass granular filters to the endpoint to refine. For example, count **only** labor lawsuits for a pre-employment check, or **only** civil with amount above $50k for credit.
+  </Accordion>
+
+  <Accordion title="Avoid redundant recounts">
+    Cache `total` by (document, hash of filters). Refresh every N hours per criticality. If you need fresh court data, use [`POST /requests`](/en/requests/requests).
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+* 👉 **[Has Lawsuits? (true/false)](/en/cache-judit/has-lawsuits)** — light boolean gate.
+* 👉 **[Hot Storage (full list)](/en/cache-judit/hotstorage)** — paginated listing.
+* 👉 **[Synthetic Aggregations](/en/cache-judit/cache-grouped)** — buckets per tribunal, class, phase, side.
+* 👉 **[Asynchronous query (Requests)](/en/requests/requests)** — fresh data from court.

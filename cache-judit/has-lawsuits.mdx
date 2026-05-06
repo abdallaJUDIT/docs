@@ -1,0 +1,298 @@
+---
+title: "Consulta Síncrona — Tem Processo? (true/false)"
+sidebarTitle: "Tem Processo? (true/false)"
+description: "Verifica em milissegundos se um CPF, CNPJ, OAB ou Nome possui processos no datalake da Judit. Retorna apenas um booleano — ideal para gates de KYC, fluxos de qualificação e roteamento."
+keywords: ["true false", "has lawsuits", "boolean", "cpf tem processo", "cnpj tem processo", "kyc", "consulta síncrona"]
+icon: "circle-check"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+<CnpjAlphaInfo />
+
+A **Consulta Síncrona Tem Processo?** retorna, em milissegundos, um booleano indicando se um CPF, CNPJ, OAB ou Nome tem **algum processo** no datalake da Judit. É o caminho mais leve e barato para gates binários — KYC, qualificação de leads, alertas e roteamento.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits` com `pagination.page_size: 1`. A resposta inclui o booleano `has_lawsuits` no topo. Para minimizar payload e custo, use `page_size: 1` — o objetivo aqui é só saber **se existe**, não trazer a lista completa.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Gate de KYC" icon="shield-halved">
+    Em onboarding, decida se vale executar uma diligência completa apenas quando `has_lawsuits = true`.
+  </Card>
+  <Card title="Qualificação de leads" icon="filter">
+    Marque automaticamente leads como "com risco jurídico" antes de aprofundar a análise.
+  </Card>
+  <Card title="Roteamento e alertas" icon="route">
+    Direcione para fluxos específicos (mesa de risco, compliance avançado) somente quem tem processo.
+  </Card>
+  <Card title="Telas de status" icon="bolt">
+    Pinte um badge "tem processo / sem processo" em CRM/ERP sem trazer a lista completa.
+  </Card>
+</CardGroup>
+
+<Note>
+Para receber também a **quantidade** de processos, use [`POST /lawsuits/count`](/cache-judit/count). Para receber a lista completa de processos, use [`POST /lawsuits` (Hot Storage)](/cache-judit/hotstorage).
+</Note>
+
+## Passo 1: Criar a Consulta (POST)
+
+`POST https://lawsuits.production.judit.io/lawsuits`
+
+### Exemplos de payload
+
+<CodeGroup>
+```json Por CPF (mínimo)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json Por CNPJ
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "A1B2C3D4/E5F6-90",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json Por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "JOÃO DA SILVA",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json Por OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "123456SP",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 }
+    }
+}
+```
+
+```json Com filtros (somente trabalhistas ativos no polo passivo)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "response_type": "lawsuits"
+    },
+    "search_params": {
+        "pagination": { "page": 1, "page_size": 1 },
+        "filter": {
+            "side": "Passive",
+            "tribunals": { "keys": ["TRT01","TRT02","TRT15"], "not_equal": false },
+            "distribution_date_gte": "2020-01-01T00:00:00Z"
+        }
+    }
+}
+```
+</CodeGroup>
+
+### Parâmetros do payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | `cpf`, `cnpj`, `oab`, `name` ou `rji`. |
+| `search.search_key` | string | **Sim** | Documento ou nome a ser consultado. |
+| `search.response_type` | string | **Sim** | Use `"lawsuits"` para essa rota. |
+| `search_params.pagination.page_size` | number | Recomendado | Use `1` para minimizar tráfego — só queremos `has_lawsuits`. |
+| `search_params.filter` | object | Não | Os mesmos filtros do [Hot Storage](/cache-judit/hotstorage) (lado, tribunais, datas, valor, classes, assuntos, etc.). |
+
+### Exemplo de requisição
+
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://lawsuits.production.judit.io/lawsuits' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99"    }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "lawsuits",
+    },
+    search_params: { pagination: { page: 1, page_size: 1 } },
+  }),
+});
+const { has_lawsuits } = await res.json();
+console.log("Tem processo?", has_lawsuits);
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://lawsuits.production.judit.io/lawsuits');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'api-key: ' . getenv('JUDIT_API_KEY'),
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'search' => [
+            'search_type'   => 'cpf',
+            'search_key'    => '999.999.999-99',
+            'response_type' => 'lawsuits',
+        ],
+        'search_params' => [ 'pagination' => [ 'page' => 1, 'page_size' => 1 ] ],
+    ]),
+]);
+$body = json_decode(curl_exec($ch), true);
+echo $body['has_lawsuits'] ? 'Tem processo' : 'Sem processo';
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+            "response_type": "lawsuits",
+        },
+        "search_params": {"pagination": {"page": 1, "page_size": 1}},
+    },
+    timeout=15,
+)
+data = resp.json()
+print("Tem processo?", data["has_lawsuits"])
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type":   "cpf",
+            "search_key":    "999.999.999-99",
+            "response_type": "lawsuits",
+        },
+        "search_params": map[string]any{
+            "pagination": map[string]int{"page": 1, "page_size": 1},
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    var out struct{ HasLawsuits bool `json:"has_lawsuits"` }
+    json.NewDecoder(res.Body).Decode(&out)
+    fmt.Println("Tem processo?", out.HasLawsuits)
+}
+```
+</CodeGroup>
+
+## Passo 2: Ler a resposta
+
+A resposta é um JSON síncrono. O campo importante para esse caso de uso é `has_lawsuits`.
+
+```json Resposta
+{
+    "has_lawsuits": true,
+    "request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
+    "lawsuits": [
+        {
+            "code": "0000000-00.0000.0.00.0000",
+            "...": "..."
+        }
+    ]
+}
+```
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `has_lawsuits` | boolean | `true` se há ao menos um processo no datalake; `false` caso contrário. |
+| `request_id` | string | UUID da consulta — útil para auditoria. |
+| `lawsuits` | array | Lista de processos (vazia ou com 1 item, se `page_size: 1`). |
+
+<Note>
+Se você quer **somente** o booleano e nem precisa do array `lawsuits`, ainda assim recomendamos `page_size: 1` (a API sempre retorna a estrutura completa, mas com array minimizado). Para apenas a contagem (ex.: "tem 12 processos"), use [`POST /lawsuits/count`](/cache-judit/count).
+</Note>
+
+## Padrões e dicas
+
+<AccordionGroup>
+  <Accordion title="Combine com filtros para gates contextuais">
+    Quer saber se a pessoa tem processo **trabalhista ativo no polo passivo nos últimos 5 anos**? Combine `tribunals.keys`, `side`, `distribution_date_gte`. Tudo em uma única chamada síncrona.
+  </Accordion>
+
+  <Accordion title="Tratamento de homônimos em consultas por nome">
+    Buscas por `name` podem retornar resultados de homônimos. Para nomes comuns (ex.: "João da Silva"), confirme via CPF antes de bloquear o usuário. A Judit traz heurísticas (`possible_homonym`, `potential_homonym`) na lista — se você precisa só do booleano, complemente o gate com outra checagem documental.
+  </Accordion>
+
+  <Accordion title="Custo vs. lista completa">
+    Esta rota é cobrada como uma consulta síncrona padrão. Se você já vai fazer uma consulta completa logo em seguida, pode pular este passo e usar diretamente o [Hot Storage](/cache-judit/hotstorage).
+  </Accordion>
+
+  <Accordion title="Cache (TTL)">
+    O resultado pode ser cacheado pelo seu cliente conforme `cache_ttl_in_days`. Para fluxos críticos de KYC, considere TTL menor (1 dia) ou força refresh via [`POST /requests`](/requests/requests) com `on_demand: true`.
+  </Accordion>
+</AccordionGroup>
+
+## Próximos passos
+
+* 👉 **[Quantidade de Processos](/cache-judit/count)** — receba a contagem total em vez do booleano.
+* 👉 **[Hot Storage (lista completa)](/cache-judit/hotstorage)** — traga a lista de processos com paginação.
+* 👉 **[Agregações Sintéticas](/cache-judit/cache-grouped)** — agrupamentos por tribunal, classe, fase, etc.
+* 👉 **[Consulta assíncrona (Requests)](/requests/requests)** — quando precisar de dados frescos do tribunal.

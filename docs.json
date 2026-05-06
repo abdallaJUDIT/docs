@@ -1,361 +1,381 @@
 {
-    "$schema": "https://mintlify.com/docs.json",
-    "theme": "mint",
-    "name": "JUDIT - Docs",
-    "colors": {
-        "primary": "#15BE62",
-        "light": "#0CAE56",
-        "dark": "#15BE62"
-    },
-    "logo": {
-        "dark": "/logo/dark.svg",
-        "light": "/logo/light.svg"
-    },
-    "favicon": "/favicon.png",
-    "navigation": {
-        "languages": [
-            {
-                "language": "pt-BR",
-                "tabs": [
-                    {
-                        "tab": "Documentação",
-                        "groups": [
-                            {
-                                "group": "Primeiros Passos",
-                                "pages": [
-                                    "introduction/introduction",
-                                    "introduction/quickstart",
-                                    "introduction/authentication"
-                                ]
-                            },
-                            {
-                                "group": "Conceitos Fundamentais",
-                                "pages": [
-                                    "essentialConcepts/pagination",
-                                    "essentialConcepts/rate-limits",
-                                    "essentialConcepts/errors"
-                                ]
-                            },
-                            {
-                                "group": "Modelo de Dados (Schemas)",
-                                "pages": [
-                                    "schemas/lawsuit-object",
-                                    "schemas/lawsuit-enums",
-                                    "schemas/warrant",
-                                    "schemas/penal-execution",
-                                    "schemas/entity"
-                                ]
-                            },
-                            {
-                                "group": "Consultas Assíncronas",
-                                "pages": [
-                                    "requests/requests",
-                                    "requests/request-document",
-                                    "requests/custom-search"
-                                ]
-                            },
-                            {
-                                "group": "Consultas Síncronas",
-                                "pages": [
-                                    "cache-judit/hotstorage",
-                                    "cache-judit/cache-grouped"
-                                ]
-                            },
-                            {
-                                "group": "Monitoramento",
-                                "pages": [
-                                    "tracking/tracking",
-                                    "tracking/tracking-document",
-                                    "tracking/tracking-custom"
-                                ]
-                            },
-                            {
-                                "group": "Dados Cadastrais",
-                                "pages": [
-                                    "registration-data/registration-data"
-                                ]
-                            },
-                            {
-                                "group": "Consultas Penais",
-                                "pages": [
-                                    "criminal-consultation/warrant",
-                                    "criminal-consultation/criminal-execution"
-                                ]
-                            },
-                            {
-                                "group": "Transferência de Arquivos",
-                                "pages": [
-                                    "file-transfer/file-transfer"
-                                ]
-                            },
-                            {
-                                "group": "Cofre de Credenciais",
-                                "pages": [
-                                    "essentials/cofre-de-credenciais"
-                                ]
-                            },
-                            {
-                                "group": "Webhook",
-                                "pages": [
-                                    "webhook/callbacks"
-                                ]
-                            },
-                            {
-                                "group": "Recursos",
-                                "pages": [
-                                    "resource/consumption",
-                                    "resource/faq",
-                                    "resource/glossary",
-                                    "resource/postman-collection",
-                                    "resource/mcp"
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "tab": "Referência da API",
-                        "groups": [
-                            {
-                                "group": "Requests",
-                                "pages": [
-                                    "api-reference/endpoint/requests/create",
-                                    "api-reference/endpoint/requests/find-one",
-                                    "api-reference/endpoint/requests/find-many"
-                                ]
-                            },
-                            {
-                                "group": "Responses",
-                                "pages": [
-                                    "api-reference/endpoint/responses/find-one",
-                                    "api-reference/endpoint/responses/find-many"
-                                ]
-                            },
-                            {
-                                "group": "Fluxo de dados cadastrais",
-                                "pages": [
-                                    "api-reference/endpoint/registrationData/create"
-                                ]
-                            },
-                            {
-                                "group": "Monitoramento",
-                                "pages": [
-                                    "api-reference/endpoint/tracking/create",
-                                    "api-reference/endpoint/tracking/find-many",
-                                    "api-reference/endpoint/tracking/find-one",
-                                    "api-reference/endpoint/tracking/pause",
-                                    "api-reference/endpoint/tracking/resume",
-                                    "api-reference/endpoint/tracking/delete"
-                                ]
-                            },
-                            {
-                                "group": "Consulta cache JUDIT",
-                                "pages": [
-                                    "api-reference/endpoint/crawler/req-async",
-                                    "api-reference/endpoint/crawler/req-count",
-                                    "api-reference/endpoint/crawler/req-hotStorage",
-                                    "api-reference/endpoint/crawler/req-grouped"
-                                ]
-                            },
-                            {
-                                "group": "Acesso a anexos",
-                                "pages": [
-                                    "api-reference/endpoint/attachments/attachment-access",
-                                    "api-reference/endpoint/attachments/attachment-access-warrant"
-                                ]
-                            },
-                            {
-                                "group": "Cofre de Credenciais",
-                                "pages": [
-                                    "api-reference/endpoint/vault/vault",
-                                    "api-reference/endpoint/vault/vaultcreate"
-                                ]
-                            }
-                        ]
-                    }
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "JUDIT - Docs",
+  "description": "Documentação oficial da Judit API: consultas processuais, monitoramento, dados cadastrais, mandados de prisão e execução penal por CPF, CNPJ, OAB, NOME e CNJ.",
+  "metadata": {
+    "og:site_name": "Judit API Docs",
+    "og:locale": "pt_BR"
+  },
+  "seo": {
+    "indexing": "navigable"
+  },
+  "colors": {
+    "primary": "#15BE62",
+    "light": "#0CAE56",
+    "dark": "#15BE62"
+  },
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "languages": [
+      {
+        "language": "pt-BR",
+        "tabs": [
+          {
+            "tab": "Documentação",
+            "groups": [
+              {
+                "group": "Primeiros Passos",
+                "pages": [
+                  "introduction/introduction",
+                  "introduction/quickstart",
+                  "introduction/authentication"
                 ]
-            },
-            {
-                "language": "en",
-                "tabs": [
-                    {
-                        "tab": "Documentation",
-                        "groups": [
-                            {
-                                "group": "Getting Started",
-                                "pages": [
-                                    "en/introduction/introduction",
-                                    "en/introduction/quickstart",
-                                    "en/introduction/authentication"
-                                ]
-                            },
-                            {
-                                "group": "Core Concepts",
-                                "pages": [
-                                    "en/essentialConcepts/pagination",
-                                    "en/essentialConcepts/rate-limits",
-                                    "en/essentialConcepts/errors"
-                                ]
-                            },
-                            {
-                                "group": "Data Models (Schemas)",
-                                "pages": [
-                                    "en/schemas/lawsuit-object",
-                                    "en/schemas/lawsuit-enums",
-                                    "en/schemas/warrant",
-                                    "en/schemas/penal-execution",
-                                    "en/schemas/entity"
-                                ]
-                            },
-                            {
-                                "group": "Asynchronous Requests",
-                                "pages": [
-                                    "en/requests/requests",
-                                    "en/requests/request-document",
-                                    "en/requests/custom-search"
-                                ]
-                            },
-                            {
-                                "group": "Synchronous Requests",
-                                "pages": [
-                                    "en/cache-judit/hotstorage",
-                                    "en/cache-judit/cache-grouped"
-                                ]
-                            },
-                            {
-                                "group": "Tracking",
-                                "pages": [
-                                    "en/tracking/tracking",
-                                    "en/tracking/tracking-document",
-                                    "en/tracking/tracking-custom"
-                                ]
-                            },
-                            {
-                                "group": "Registration Data",
-                                "pages": [
-                                    "en/registration-data/registration-data"
-                                ]
-                            },
-                            {
-                                "group": "Criminal Records",
-                                "pages": [
-                                    "en/criminal-consultation/warrant",
-                                    "en/criminal-consultation/criminal-execution"
-                                ]
-                            },
-                            {
-                                "group": "File Transfer",
-                                "pages": [
-                                    "en/file-transfer/file-transfer"
-                                ]
-                            },
-                            {
-                                "group": "Credentials Vault",
-                                "pages": [
-                                    "en/essentials/cofre-de-credenciais"
-                                ]
-                            },
-                            {
-                                "group": "Webhook",
-                                "pages": [
-                                    "en/webhook/callbacks"
-                                ]
-                            },
-                            {
-                                "group": "Resources",
-                                "pages": [
-                                    "en/resource/consumption",
-                                    "en/resource/faq",
-                                    "en/resource/glossary",
-                                    "en/resource/postman-collection",
-                                    "en/resource/mcp"
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "tab": "API Reference",
-                        "groups": [
-                            {
-                                "group": "Requests",
-                                "pages": [
-                                    "en/api-reference/endpoint/requests/create",
-                                    "en/api-reference/endpoint/requests/find-one",
-                                    "en/api-reference/endpoint/requests/find-many"
-                                ]
-                            },
-                            {
-                                "group": "Responses",
-                                "pages": [
-                                    "en/api-reference/endpoint/responses/find-one",
-                                    "en/api-reference/endpoint/responses/find-many"
-                                ]
-                            },
-                            {
-                                "group": "Registration Data Flow",
-                                "pages": [
-                                    "en/api-reference/endpoint/registrationData/create"
-                                ]
-                            },
-                            {
-                                "group": "Tracking",
-                                "pages": [
-                                    "en/api-reference/endpoint/tracking/create",
-                                    "en/api-reference/endpoint/tracking/find-many",
-                                    "en/api-reference/endpoint/tracking/find-one",
-                                    "en/api-reference/endpoint/tracking/pause",
-                                    "en/api-reference/endpoint/tracking/resume",
-                                    "en/api-reference/endpoint/tracking/delete"
-                                ]
-                            },
-                            {
-                                "group": "JUDIT Cache Query",
-                                "pages": [
-                                    "en/api-reference/endpoint/crawler/req-async",
-                                    "en/api-reference/endpoint/crawler/req-count",
-                                    "en/api-reference/endpoint/crawler/req-hotStorage",
-                                    "en/api-reference/endpoint/crawler/req-grouped"
-                                ]
-                            },
-                            {
-                                "group": "Attachment Access",
-                                "pages": [
-                                    "en/api-reference/endpoint/attachments/attachment-access",
-                                    "en/api-reference/endpoint/attachments/attachment-access-warrant"
-                                ]
-                            },
-                            {
-                                "group": "Credentials Vault",
-                                "pages": [
-                                    "en/api-reference/endpoint/vault/vault",
-                                    "en/api-reference/endpoint/vault/vaultcreate"
-                                ]
-                            }
-                        ]
-                    }
+              },
+              {
+                "group": "Conceitos Fundamentais",
+                "pages": [
+                  "essentialConcepts/pagination",
+                  "essentialConcepts/rate-limits"
                 ]
-            }
+              },
+              {
+                "group": "Modelo de Dados (Schemas)",
+                "pages": [
+                  "schemas/lawsuit-object",
+                  "schemas/lawsuit-enums",
+                  "schemas/warrant",
+                  "schemas/penal-execution",
+                  "schemas/entity"
+                ]
+              },
+              {
+                "group": "Consultas Assíncronas",
+                "pages": [
+                  "requests/requests",
+                  "requests/request-document",
+                  "requests/custom-search"
+                ]
+              },
+              {
+                "group": "Consultas Síncronas",
+                "pages": [
+                  "cache-judit/hotstorage",
+                  "cache-judit/has-lawsuits",
+                  "cache-judit/count",
+                  "cache-judit/cache-grouped"
+                ]
+              },
+              {
+                "group": "Monitoramento",
+                "pages": [
+                  "tracking/tracking",
+                  "tracking/tracking-document",
+                  "tracking/tracking-custom"
+                ]
+              },
+              {
+                "group": "Dados Cadastrais",
+                "pages": [
+                  "registration-data/registration-data"
+                ]
+              },
+              {
+                "group": "Consultas Penais",
+                "pages": [
+                  "criminal-consultation/warrant",
+                  "criminal-consultation/criminal-execution"
+                ]
+              },
+              {
+                "group": "Transferência de Arquivos",
+                "pages": [
+                  "file-transfer/file-transfer"
+                ]
+              },
+              {
+                "group": "Cofre de Credenciais",
+                "pages": [
+                  "essentials/cofre-de-credenciais"
+                ]
+              },
+              {
+                "group": "Webhook",
+                "pages": [
+                  "webhook/callbacks"
+                ]
+              },
+              {
+                "group": "Recursos",
+                "pages": [
+                  "resource/consumption",
+                  "resource/faq",
+                  "resource/glossary",
+                  "resource/postman-collection",
+                  "resource/mcp",
+                  "resource/courtCoverage",
+                  "resource/errors"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Referência da API",
+            "groups": [
+              {
+                "group": "Requests · Consultas Assíncronas",
+                "pages": [
+                  "api-reference/endpoint/requests/create",
+                  "api-reference/endpoint/requests/find-one",
+                  "api-reference/endpoint/requests/find-many"
+                ]
+              },
+              {
+                "group": "Responses · Resultados das Consultas",
+                "pages": [
+                  "api-reference/endpoint/responses/find-one",
+                  "api-reference/endpoint/responses/find-many"
+                ]
+              },
+              {
+                "group": "Tracking · Monitoramento",
+                "pages": [
+                  "api-reference/endpoint/tracking/create",
+                  "api-reference/endpoint/tracking/find-many",
+                  "api-reference/endpoint/tracking/find-one",
+                  "api-reference/endpoint/tracking/pause",
+                  "api-reference/endpoint/tracking/resume",
+                  "api-reference/endpoint/tracking/delete"
+                ]
+              },
+              {
+                "group": "Lawsuits · Consultas Síncronas (Cache JUDIT)",
+                "pages": [
+                  "api-reference/endpoint/crawler/req-async",
+                  "api-reference/endpoint/crawler/req-count",
+                  "api-reference/endpoint/crawler/req-hotStorage",
+                  "api-reference/endpoint/crawler/req-grouped"
+                ]
+              },
+              {
+                "group": "Lawsuits · Dados Cadastrais 2",
+                "pages": [
+                  "api-reference/endpoint/registrationData/create"
+                ]
+              },
+              {
+                "group": "Lawsuits · Anexos de Processos",
+                "pages": [
+                  "api-reference/endpoint/attachments/attachment-access",
+                  "api-reference/endpoint/attachments/attachment-access-warrant"
+                ]
+              },
+              {
+                "group": "Cofre de Credenciais",
+                "pages": [
+                  "api-reference/endpoint/vault/vault",
+                  "api-reference/endpoint/vault/vaultcreate"
+                ]
+              }
+            ]
+          }
         ]
-    },
-    "navbar": {
-        "primary": {
-            "type": "button",
-            "label": "Dashboard",
-            "href": "https://plataforma.judit.io/"
-        }
-    },
-    "api": {
-        "playground": {
-            "display": "interactive"
-        },
-        "mdx": {
-            "server": [
-                "https://requests.prod.judit.io",
-                "https://tracking.prod.judit.io"
-            ],
-            "auth": {
-                "method": "key",
-                "name": "api-key"
-            }
-        }
+      },
+      {
+        "language": "en",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "en/introduction/introduction",
+                  "en/introduction/quickstart",
+                  "en/introduction/authentication"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "en/essentialConcepts/pagination",
+                  "en/essentialConcepts/rate-limits"
+                ]
+              },
+              {
+                "group": "Data Models (Schemas)",
+                "pages": [
+                  "en/schemas/lawsuit-object",
+                  "en/schemas/lawsuit-enums",
+                  "en/schemas/warrant",
+                  "en/schemas/penal-execution",
+                  "en/schemas/entity"
+                ]
+              },
+              {
+                "group": "Asynchronous Requests",
+                "pages": [
+                  "en/requests/requests",
+                  "en/requests/request-document",
+                  "en/requests/custom-search"
+                ]
+              },
+              {
+                "group": "Synchronous Requests",
+                "pages": [
+                  "en/cache-judit/hotstorage",
+                  "en/cache-judit/has-lawsuits",
+                  "en/cache-judit/count",
+                  "en/cache-judit/cache-grouped"
+                ]
+              },
+              {
+                "group": "Tracking",
+                "pages": [
+                  "en/tracking/tracking",
+                  "en/tracking/tracking-document",
+                  "en/tracking/tracking-custom"
+                ]
+              },
+              {
+                "group": "Registration Data",
+                "pages": [
+                  "en/registration-data/registration-data"
+                ]
+              },
+              {
+                "group": "Criminal Records",
+                "pages": [
+                  "en/criminal-consultation/warrant",
+                  "en/criminal-consultation/criminal-execution"
+                ]
+              },
+              {
+                "group": "File Transfer",
+                "pages": [
+                  "en/file-transfer/file-transfer"
+                ]
+              },
+              {
+                "group": "Credentials Vault",
+                "pages": [
+                  "en/essentials/cofre-de-credenciais"
+                ]
+              },
+              {
+                "group": "Webhook",
+                "pages": [
+                  "en/webhook/callbacks"
+                ]
+              },
+              {
+                "group": "Resources",
+                "pages": [
+                  "en/resource/consumption",
+                  "en/resource/faq",
+                  "en/resource/glossary",
+                  "en/resource/postman-collection",
+                  "en/resource/mcp",
+                  "en/resource/courtCoverage",
+                  "en/resource/errors"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Reference",
+            "groups": [
+              {
+                "group": "Requests · Asynchronous Queries",
+                "pages": [
+                  "en/api-reference/endpoint/requests/create",
+                  "en/api-reference/endpoint/requests/find-one",
+                  "en/api-reference/endpoint/requests/find-many"
+                ]
+              },
+              {
+                "group": "Responses · Query Results",
+                "pages": [
+                  "en/api-reference/endpoint/responses/find-one",
+                  "en/api-reference/endpoint/responses/find-many"
+                ]
+              },
+              {
+                "group": "Tracking · Monitoring",
+                "pages": [
+                  "en/api-reference/endpoint/tracking/create",
+                  "en/api-reference/endpoint/tracking/find-many",
+                  "en/api-reference/endpoint/tracking/find-one",
+                  "en/api-reference/endpoint/tracking/pause",
+                  "en/api-reference/endpoint/tracking/resume",
+                  "en/api-reference/endpoint/tracking/delete"
+                ]
+              },
+              {
+                "group": "Lawsuits · Synchronous Queries (JUDIT Cache)",
+                "pages": [
+                  "en/api-reference/endpoint/crawler/req-async",
+                  "en/api-reference/endpoint/crawler/req-count",
+                  "en/api-reference/endpoint/crawler/req-hotStorage",
+                  "en/api-reference/endpoint/crawler/req-grouped"
+                ]
+              },
+              {
+                "group": "Lawsuits · Registration Data",
+                "pages": [
+                  "en/api-reference/endpoint/registrationData/create"
+                ]
+              },
+              {
+                "group": "Lawsuits · Lawsuit Attachments",
+                "pages": [
+                  "en/api-reference/endpoint/attachments/attachment-access",
+                  "en/api-reference/endpoint/attachments/attachment-access-warrant"
+                ]
+              },
+              {
+                "group": "Credentials Vault",
+                "pages": [
+                  "en/api-reference/endpoint/vault/vault",
+                  "en/api-reference/endpoint/vault/vaultcreate"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://plataforma.judit.io/"
     }
+  },
+  "api": {
+    "openapi": [
+      "https://requests.production.judit.io/docs/spec",
+      "https://tracking.production.judit.io/docs/spec",
+      "https://lawsuits.production.judit.io/docs/spec"
+    ],
+    "playground": {
+      "display": "interactive"
+    },
+    "mdx": {
+      "server": [
+        "https://requests.production.judit.io",
+        "https://tracking.production.judit.io",
+        "https://lawsuits.production.judit.io"
+      ],
+      "auth": {
+        "method": "key",
+        "name": "api-key"
+      }
+    }
+  }
 }

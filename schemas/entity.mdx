@@ -1,6 +1,9 @@
 ---
-title: "Objeto Entity (Dados Cadastrais)"
-description: "O objeto `entity` é a estrutura de dados retornada nas consultas de CPF (Pessoa Física) e CNPJ (Pessoa Jurídica). Ele consolida informações cadastrais, de contato, endereços e vínculos."
+title: "Schema Entity (Dados Cadastrais)"
+sidebarTitle: "Entity"
+description: "Estrutura do objeto Entity retornado pela consulta de dados cadastrais por CPF (Pessoa Física) ou CNPJ (Pessoa Jurídica). Inclui contatos, endereços, sócios e vínculos."
+keywords: ["entity", "dados cadastrais", "cpf", "cnpj", "pessoa física", "pessoa jurídica", "sócios", "vínculos"]
+icon: "id-card"
 ---
 
 > 🤖 As consultas de Dados Cadastrais retornam um objeto base comum chamado `entity`. Dependendo se a consulta foi feita por um CPF ou CNPJ, a propriedade `entity_type` retornará `"person"` ou `"company"`, respectivamente. Alguns campos, como `parents` (filiação) ou `share_capital` (capital social), são exclusivos do seu respectivo tipo de entidade.
@@ -183,4 +186,4 @@ Se a consulta for de um **CNPJ** (`entity_type: "company"`), o objeto poderá co
 
 Agora que você entende o dicionário de dados cadastrais, veja como consultar essas informações:
 
-* 👉 **[Consultas Cadastrais](/requests/cadastral):** Veja a documentação da rota de requisição para buscar e enriquecer CPFs e CNPJs em tempo real.
+* 👉 **[Consultas Cadastrais](/registration-data/registration-data):** Veja a documentação da rota de requisição para buscar e enriquecer CPFs e CNPJs em tempo real.

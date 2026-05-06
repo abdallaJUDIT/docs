@@ -1,6 +1,9 @@
 ---
-title: "Pagination (Offset)"
-description: "The Judit API uses page-and-size (Offset) pagination to let you navigate through large data sets in a predictable and controlled way."
+title: "Pagination (Offset) on the Judit API"
+sidebarTitle: "Pagination"
+description: "How to traverse large datasets in the Judit API using offset-based pagination with page and page_size, with cURL, Python and JavaScript examples."
+keywords: ["pagination", "page", "page_size", "offset", "query params"]
+icon: "list-ol"
 ---
 
 > 🤖 Judit API pagination does not use cursors. It is based on the *Offset* pattern, using exclusively the query parameters `page` (page number) and `page_size` (number of items). The strict maximum limit for `page_size` is <strong>1000 items</strong>. Pagination metadata is returned at the root of the response object.
@@ -45,11 +48,11 @@ Below, we show how to fetch the first page of requests and iterate over the data
 
 ```bash cURL
 # 1. Fetching the first page (10 items)
-curl -X GET "https://requests.prod.judit.io/requests?page=1&page_size=10" \
+curl -X GET "https://requests.production.judit.io/requests?page=1&page_size=10" \
   -H "api-key: $JUDIT_API_KEY"
 
 # 2. Fetching a specific page (e.g., page 3, 25 items)
-curl -X GET "https://requests.prod.judit.io/requests?page=3&page_size=25" \
+curl -X GET "https://requests.production.judit.io/requests?page=3&page_size=25" \
   -H "api-key: $JUDIT_API_KEY"
 ```
 
@@ -58,7 +61,7 @@ import requests
 import os
 
 api_key = os.getenv('JUDIT_API_KEY')
-base_url = "https://requests.prod.judit.io"
+base_url = "https://requests.production.judit.io"
 
 def get_requests_page(page=1, page_size=20):
     """Fetches a specific page from the request history"""
@@ -88,7 +91,7 @@ if data:
 
 ```javascript JavaScript
 const apiKey = process.env.JUDIT_API_KEY;
-const baseUrl = "https://requests.prod.judit.io";
+const baseUrl = "https://requests.production.judit.io";
 
 async function getRequestsPage(page = 1, pageSize = 20) {
     const params = new URLSearchParams({
@@ -227,4 +230,4 @@ async function fetchAllDataSafely(delayMs = 200) {
 
 * 👉 **[Rate Limits](/en/essentialConcepts/rate-limits)**: Understand your account's request quotas.
 * 👉 **[Authentication](/en/introduction/authentication)**: Review how to send your credentials.
-* 👉 **[Endpoints](/en/api-reference)**: Explore the resources that support listings.
+* 👉 **[Endpoints](/en/api-reference/endpoint/requests/create)**: Explore the resources that support listings.

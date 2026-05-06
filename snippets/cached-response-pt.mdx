@@ -1,0 +1,16 @@
+{/* SNIPPET: cached-response-pt — Aviso explicando o campo cached_response */}
+
+<Info>
+**Resposta em cache (`cached_response`)**
+
+Quando você cria uma consulta processual ou histórica, a Judit primeiro verifica se o dado já está em nossa base. Se estiver, devolvemos imediatamente o resultado — tanto na resposta da API quanto via webhook (se você tiver cadastrado) — com o campo `cached_response: true`.
+
+Em paralelo, a Judit dispara uma atualização nos tribunais. Se houver alguma mudança, você recebe **uma segunda resposta** com `cached_response: false`. Esse é o resultado mais atual.
+
+Por isso, é normal receber dois webhooks aparentemente iguais para o mesmo `request_id`:
+
+- O primeiro vem do cache (`cached_response: true`)
+- O último é o atualizado (`cached_response: false`)
+
+Use esse campo para identificar com precisão qual retorno representa o estado mais recente do processo.
+</Info>

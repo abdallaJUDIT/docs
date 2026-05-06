@@ -1,18 +1,8 @@
 ---
 title: "Download lawsuit attachment"
 description: "Downloads an attachment from a lawsuit."
-openapi: "openapi-1 GET /lawsuits"
-api: "GET https://lawsuits.production.judit.io/lawsuits/{cnj_code}/{instance}/attachments/{attachment_id}"
+openapi: "GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
+api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
+icon: "paperclip"
 ---
 
-<ParamField path="cnj_code" type="string" required>
-    Lawsuit CNJ code.
-</ParamField>
-
-<ParamField path="instance" type="integer" required>
-    The lawsuit instance.
-</ParamField>
-
-<ParamField path="attachment_id" type="string" required>
-    The attachment ID, taken from the `attachments` list returned by the lawsuit query.
-</ParamField>

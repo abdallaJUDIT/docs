@@ -1,42 +1,42 @@
 ---
-title: "Custom Search"
-description: "This page describes the flow of the Custom Search."
+title: "Custom Search by Filters"
+sidebarTitle: "Custom Search"
+description: "Build advanced searches combining multiple filters (court, claim amount, distribution date, parties, lawsuit class) on the Judit API."
+keywords: ["custom search", "filters", "court", "claim amount", "advanced search", "due diligence"]
 icon: "filter"
 ---
 
-The **Custom Search** allows you to perform queries based on specific filters, without the need to provide a CPF, CNPJ, OAB, or name as a starting point. We return lawsuits from all courts that meet the defined criteria.
+import { EndpointBadges } from '/snippets/badges.mdx';
 
-This option is ideal for identifying lawsuits with certain characteristics across a wide range of jurisdictions.
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
-<Warning>
-    This type of query is available only through an **on-demand report**. If you are interested in this service, contact our [commercial](https://api.whatsapp.com/send/?phone=5521985284143) team.
-</Warning>
+import CachedResponseInfo from '/snippets/cached-response-en.mdx';
 
-<Steps>
-    <Step title="Available filters" stepNumber="1">
+The **Custom Search** lets you scan every court covered by Judit applying structural filters — without needing a specific CPF, CNPJ, OAB or Name as a starting point. It is the right tool when the search universe is defined by objective criteria (e.g.: "all labor lawsuits in TRT-2 distributed in 2024 with claim amount above BRL 100k").
 
-    Below are the main filters that can be used in the custom search:
+## When to use
 
-    - **Type of participation**: allows you to filter by lawsuits where the main party is the plaintiff, defendant, interested party, or undefined.
+<CardGroup cols={2}>
+  <Card title="Market mapping" icon="binoculars">
+    Identify the universe of lawsuits in a specific class, court or state to drive trend analysis.
+  </Card>
+  <Card title="Mass due diligence" icon="magnifying-glass-chart">
+    Validate the judicial liabilities of an entire portfolio combining filters by amount, court and class.
+  </Card>
+  <Card title="Competitive intelligence" icon="briefcase">
+    Map lawsuits where competitor firms participate for strategic analysis.
+  </Card>
+  <Card title="Topic monitoring" icon="bullseye">
+    Detect lawsuits in specific subjects (e.g. consumer protection, regulatory) over time.
+  </Card>
+</CardGroup>
 
-    - **Case value**: you can filter lawsuits with a case value above or below a certain amount.
+## Available filters
 
-    - **Courts**: allows you to include or exclude specific courts from the query, based on the list of supported courts.
-
-    - **Procedural subjects**: allows you to include or exclude certain legal subjects, based on their official codes.
-
-    - **Procedural classes**: allows you to filter lawsuits by specific class types (such as public civil actions, writs of mandamus, among others).
-
-    - **Filing date**: allows you to define a minimum filing date for the lawsuits to be returned.
-
-    - **Last case update date**: allows you to filter lawsuits based on the date of the last registered case update.
-
-    - **Party names**: restricts the search to lawsuits that contain certain names of people or companies among the parties.
-
-    - **Party documents**: restricts the search to lawsuits that contain certain CPFs or CNPJs in the parties of the lawsuit.
-
-    - **Use of specific credentials**: allows you to associate the query with credentials previously registered in the [credentials vault](/en/essentials/cofre-de-credenciais), ensuring access to lawsuits that require authentication.
-
-
-    </Step>
-</Steps>
+| Filter | Type | Description |
+| --- | --- | --- |
+| `side` | string | Party side: `Active` (plaintiff), `Passive` (defendant), `Interested`, or undefined. |
+| `amount_gte` / `amount_lte` | number | **Minimum** / **maximum** claim amount. |
+| `distribution_date_gte` / `distribution_date_lte` | ISO 8601 | Distribution-date window. |
+| `last_step_date_gte` / `last_step_date_lte` | ISO 8601 | Last-step date window. |
+| `tribunals.keys` + `not_equal` | array

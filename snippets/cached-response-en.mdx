@@ -1,0 +1,16 @@
+{/* SNIPPET: cached-response-en — Notice explaining the cached_response field */}
+
+<Info>
+**Cached response (`cached_response`)**
+
+When you create a lawsuit or historical query, Judit first checks whether the data already exists in our database. If it does, we return the result immediately — both in the API response and via webhook (if registered) — with the field `cached_response: true`.
+
+In parallel, Judit triggers a fresh fetch against the courts. If anything has changed, you receive **a second response** with `cached_response: false`. That is the most up-to-date result.
+
+This is why it is normal to receive two seemingly identical webhooks for the same `request_id`:
+
+- The first one comes from cache (`cached_response: true`)
+- The last one is the updated result (`cached_response: false`)
+
+Use this field to reliably identify which response represents the most recent state of the lawsuit.
+</Info>

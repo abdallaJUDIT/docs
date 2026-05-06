@@ -1,0 +1,301 @@
+---
+title: "Consulta Síncrona — Quantidade de Processos"
+sidebarTitle: "Quantidade de Processos"
+description: "Retorna em milissegundos a contagem total de processos no datalake da Judit para um CPF, CNPJ, OAB ou Nome. Suporta os mesmos filtros da consulta Hot Storage — tribunal, polo, classe, valor, datas."
+keywords: ["count", "contagem", "quantidade", "total", "processos", "cpf", "cnpj", "consulta síncrona"]
+icon: "hashtag"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+<CnpjAlphaInfo />
+
+A **Consulta Síncrona de Quantidade** retorna apenas o **total** de processos no datalake da Judit que correspondem aos critérios informados. Sem listar processos, sem paginação — só o número. Perfeita para dashboards, scoring de risco e tomadas de decisão baseadas em volume.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/count`. A resposta é síncrona (HTTP 200 com `{ "total": <number> }`) e suporta o **mesmo objeto de filtros** da [Consulta Hot Storage](/cache-judit/hotstorage) — tribunal, polo, classes, assuntos, valor da causa, datas etc.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Score e tiering de risco" icon="chart-line">
+    "≥ 5 processos trabalhistas no passivo nos últimos 3 anos = risco alto." Em uma chamada.
+  </Card>
+  <Card title="Dashboards de portfólio" icon="gauge">
+    Quantos processos cada cliente do portfólio acumula? Pingue todos com chamadas paralelas em milissegundos.
+  </Card>
+  <Card title="Limites de exposição" icon="scale-balanced">
+    Decida limites de crédito ou apólices com base na contagem de processos por classe.
+  </Card>
+  <Card title="Pré-checagem antes do Hot Storage" icon="filter">
+    Saber que o resultado é "0" antes de pedir uma lista completa economiza pagamento de payload.
+  </Card>
+</CardGroup>
+
+<Note>
+Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `page_size: 1`](/cache-judit/has-lawsuits). Para a lista completa de processos, use [`POST /lawsuits` (Hot Storage)](/cache-judit/hotstorage).
+</Note>
+
+## Passo 1: Criar a Consulta (POST)
+
+`POST https://lawsuits.production.judit.io/lawsuits/count`
+
+### Exemplos de payload
+
+<CodeGroup>
+```json Por CPF
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99"
+    }
+}
+```
+
+```json Por CNPJ (alfanumérico)
+{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "A1B2C3D4/E5F6-90"
+    }
+}
+```
+
+```json Por Nome
+{
+    "search": {
+        "search_type": "name",
+        "search_key": "JOÃO DA SILVA"
+    }
+}
+```
+
+```json Por OAB
+{
+    "search": {
+        "search_type": "oab",
+        "search_key": "123456SP"
+    }
+}
+```
+
+```json Filtrado (passivo + tribunais trabalhistas + últimos 3 anos)
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "filter": {
+                "side": "Passive",
+                "tribunals": { "keys": ["TRT01","TRT02","TRT15"], "not_equal": false },
+                "distribution_date_gte": "2022-01-01T00:00:00Z",
+                "amount_gte": 5000
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+### Parâmetros do payload
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | `cpf`, `cnpj`, `oab`, `name`, `lawsuit_cnj` ou `rji`. |
+| `search.search_key` | string | **Sim** | Documento ou nome a contar. |
+| `search.response_type` | string | **Sim** | Use `"lawsuits"`. |
+| `search.search_params.filter` | object | Não | Filtros (mesma estrutura do [Hot Storage](/cache-judit/hotstorage)). |
+
+### Filtros suportados (search_params.filter)
+
+<AccordionGroup>
+  <Accordion title="Identidade e papel da parte">
+    | Filtro | Tipo | Comportamento |
+    | :--- | :--- | :--- |
+    | `side` | enum | `Active`, `Passive`, `Interested`, `Unknown`. |
+    | `party_names` | string[] | Filtro por nome exato da parte. |
+    | `party_documents` | string[] | Filtro por CPF/CNPJ da parte. |
+  </Accordion>
+
+  <Accordion title="Datas">
+    | Filtro | Tipo | Comportamento |
+    | :--- | :--- | :--- |
+    | `distribution_date_gte` / `_lte` | datetime | Janela de distribuição. |
+    | `last_step_date_gte` / `_lte` | datetime | Janela de última movimentação. |
+  </Accordion>
+
+  <Accordion title="Tribunais, classes e assuntos">
+    | Filtro | Tipo | Comportamento |
+    | :--- | :--- | :--- |
+    | `tribunals` | `{ keys, not_equal }` | Inclui (`false`) ou exclui (`true`) os tribunais. Lista em [Cobertura](/resource/courtCoverage). |
+    | `classification_codes` / `classification_names` | `{ keys, not_equal }` | Códigos/nomes oficiais de classe (CNJ). |
+    | `subject_codes` / `subject_names` | `{ contains, not_contains }` | Códigos/nomes oficiais de assunto (CNJ). |
+  </Accordion>
+
+  <Accordion title="Valor da causa">
+    | Filtro | Tipo | Comportamento |
+    | :--- | :--- | :--- |
+    | `amount_gte` | number | Valor mínimo da causa. |
+    | `amount_lte` | number | Valor máximo da causa. |
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Os campos `state` e `secrecy_level` aparecem somente na resposta — **não funcionam como filtros de entrada** nessa rota. Para filtrar por sigilo, use `secrecy_level` no objeto retornado pelo [Hot Storage](/cache-judit/hotstorage).
+</Warning>
+
+### Exemplo de requisição
+
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://lawsuits.production.judit.io/lawsuits/count' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "search": {
+      "search_type": "cpf",
+      "search_key": "999.999.999-99
+    }
+  }'
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits/count", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_type: "cpf",
+      search_key: "999.999.999-99",
+      response_type: "lawsuits",
+    },
+  }),
+});
+const { total } = await res.json();
+console.log(`Total de processos: ${total}`);
+```
+
+```php PHP
+<?php
+$ch = curl_init('https://lawsuits.production.judit.io/lawsuits/count');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'api-key: ' . getenv('JUDIT_API_KEY'),
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'search' => [
+            'search_type'   => 'cpf',
+            'search_key'    => '999.999.999-99',
+            'response_type' => 'lawsuits',
+        ],
+    ]),
+]);
+$body = json_decode(curl_exec($ch), true);
+echo "Total: " . $body['total'];
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits/count",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_type": "cpf",
+            "search_key": "999.999.999-99",
+,
+        },
+    },
+    timeout=15,
+)
+print("Total:", resp.json()["total"])
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "os"
+)
+
+func main() {
+    body, _ := json.Marshal(map[string]any{
+        "search": map[string]string{
+            "search_type":   "cpf",
+            "search_key":    "999.999.999-99",
+,
+        },
+    })
+    req, _ := http.NewRequest("POST",
+        "https://lawsuits.production.judit.io/lawsuits/count",
+        bytes.NewReader(body))
+    req.Header.Set("api-key", os.Getenv("JUDIT_API_KEY"))
+    req.Header.Set("Content-Type", "application/json")
+    res, _ := http.DefaultClient.Do(req)
+    defer res.Body.Close()
+    var out struct{ Total int `json:"total"` }
+    json.NewDecoder(res.Body).Decode(&out)
+    fmt.Println("Total:", out.Total)
+}
+```
+</CodeGroup>
+
+## Passo 2: Ler a resposta
+
+```json Resposta
+{
+    "total": 12
+}
+```
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `total` | number | Quantidade de processos que correspondem aos filtros. |
+
+<Note>
+Sem filtros, o `total` traz **todos** os processos do datalake vinculados ao documento/nome consultado. Aplique filtros para tier por categoria (ex.: "trabalhistas no passivo", "cíveis com valor acima de R$ 100k").
+</Note>
+
+## Padrões e dicas
+
+<AccordionGroup>
+  <Accordion title="Fan-out para portfólio">
+    Para portfólios grandes, dispare chamadas em paralelo (10-50 simultâneas) — a rota é síncrona e leve. Respeite os limites do seu plano.
+  </Accordion>
+
+  <Accordion title="Combine com agregações">
+    Quer mais que o número total? Combine com [`POST /lawsuits/synthetic`](/cache-judit/cache-grouped) para receber buckets por tribunal, classe, fase, polo, etc. — também síncrono.
+  </Accordion>
+
+  <Accordion title="Tier por threshold">
+    Defina thresholds (`>= 5 processos = tier alto`) no seu lado e passe filtros granulares ao endpoint para refinar. Por exemplo, contar **só** trabalhistas para um pré-emprego, ou **só** cíveis com valor acima de R$ 50k para crédito.
+  </Accordion>
+
+  <Accordion title="Evite re-contagens redundantes">
+    Cacheie o `total` por (documento, hash dos filtros). Atualize a cada N horas conforme criticidade. Se precisar de dados frescos do tribunal, use [`POST /requests`](/requests/requests).
+  </Accordion>
+</AccordionGroup>
+
+## Próximos passos
+
+* 👉 **[Tem Processo? (true/false)](/cache-judit/has-lawsuits)** — gate booleano leve.
+* 👉 **[Hot Storage (lista completa)](/cache-judit/hotstorage)** — listagem com paginação.
+* 👉 **[Agregações Sintéticas](/cache-judit/cache-grouped)** — buckets por tribunal, classe, fase, polo.
+* 👉 **[Consulta assíncrona (Requests)](/requests/requests)** — dados frescos do tribunal.

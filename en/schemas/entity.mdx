@@ -1,6 +1,9 @@
 ---
-title: "Entity object (Registration data)"
-description: "The `entity` object is the data structure returned by CPF (natural person) and CNPJ (legal entity) queries. It consolidates registration information, contact data, addresses, and relationships."
+title: "Entity Schema (Registration Data)"
+sidebarTitle: "Entity"
+description: "Structure of the Entity object returned by registration data queries by CPF (individual) or CNPJ (legal entity). Includes contacts, addresses, partners and links."
+keywords: ["entity", "registration data", "cpf", "cnpj", "individual", "legal entity", "partners"]
+icon: "id-card"
 ---
 
 > 🤖 Registration data queries return a common base object called `entity`. Depending on whether the query was made by CPF or CNPJ, the `entity_type` property will return `"person"` or `"company"`, respectively. Some fields, such as `parents` (parentage) or `share_capital`, are exclusive to their respective entity type.
@@ -189,4 +192,4 @@ If the query is for a **CNPJ** (`entity_type: "company"`), the object may contai
 
 Now that you understand the registration data dictionary, see how to query this information:
 
-* 👉 **[Registration data queries](/en/requests/cadastral):** See the documentation for the request route to fetch and enrich CPFs and CNPJs in real time.
+* 👉 **[Registration data queries](/en/registration-data/registration-data):** See the documentation for the request route to fetch and enrich CPFs and CNPJs in real time.
