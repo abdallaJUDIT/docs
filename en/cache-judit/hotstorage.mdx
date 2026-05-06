@@ -116,7 +116,6 @@ To start the synchronous query, make a `POST` request with the desired document.
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Yes** | Entity type: `"cpf"`, `"cnpj"`, `"oab"`, `"name"` or `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Yes** | Value to search (e.g. `"999.999.999-99"`, `"John Smith"`). |
-| `process_status` | boolean | No | If `true`, the response includes `phase` and `status` fields per lawsuit. |
 | `search.search_params.filter` | object | No | Structural filters (court, amount, classes, parties, dates). Same shape as the [historical query](/en/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
 
 ### Most common filters (`search_params.filter`)
@@ -201,20 +200,6 @@ curl --request POST \
   }'
 ```
 
-```bash cURL (with process_status)
-curl --request POST \
-  --url 'https://lawsuits.production.judit.io/lawsuits' \
-  --header 'Content-Type: application/json' \
-  --header 'api-key: '"$JUDIT_API_KEY" \
-  --data '{
-    "search": {
-      "search_type": "cpf",
-      "search_key": "999.999.999-99"
-    },
-    "process_status": true
-  }'
-```
-
 ```python Python
 import os, requests
 
@@ -226,7 +211,6 @@ resp = requests.post(
     },
     json={
         "search": {"search_type": "cpf", "search_key": "999.999.999-99"},
-        "process_status": True,
     },
     timeout=15,
 )
@@ -243,7 +227,6 @@ const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
   },
   body: JSON.stringify({
     search: { search_type: "cpf", search_key: "999.999.999-99" },
-    process_status: true,
   }),
 });
 console.log(await res.json());
@@ -289,8 +272,8 @@ The response comes **in the body of the same POST** (no polling). Main fields:
 | `has_lawsuits` | boolean | `true` when lawsuits were found in the datalake. |
 | `request_id` | string | Unique query identifier — useful for auditing. |
 | `response_data` | array | List of lawsuits. Each item follows the [Lawsuit Schema](/en/schemas/lawsuit-object). |
-| `response_data[].phase` | string | (Optional, with `process_status: true`) Current lawsuit phase — see table below. |
-| `response_data[].status` | string | (Optional, with `process_status: true`) Current lawsuit status — see table below. |
+| `response_data[].phase` | string | Current lawsuit phase — see table below. |
+| `response_data[].status` | string | Current lawsuit status — see table below. |
 
 ### Possible values for `phase`
 
@@ -319,7 +302,7 @@ The response comes **in the body of the same POST** (no polling). Main fields:
 
 ### Full response example
 
-<Accordion title="See response example with process_status: true">
+<Accordion title="See response example">
 The response will be a JSON object with the data:
 
 ```json

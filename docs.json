@@ -110,13 +110,6 @@
                 ]
               },
               {
-                "group": "Guias",
-                "pages": [
-                  "guides/kyc-completo",
-                  "guides/monitoramento-massa"
-                ]
-              },
-              {
                 "group": "Recursos",
                 "pages": [
                   "resource/consumption",
@@ -125,7 +118,6 @@
                   "resource/postman-collection",
                   "resource/mcp",
                   "resource/courtCoverage",
-                  "resource/changelog",
                   "resource/errors"
                 ]
               }
@@ -136,7 +128,6 @@
             "groups": [
               {
                 "group": "Requests · Consultas Assíncronas",
-                "openapi": "https://requests.production.judit.io/docs/spec",
                 "pages": [
                   "api-reference/endpoint/requests/create",
                   "api-reference/endpoint/requests/find-one",
@@ -145,7 +136,6 @@
               },
               {
                 "group": "Responses · Resultados das Consultas",
-                "openapi": "https://requests.production.judit.io/docs/spec",
                 "pages": [
                   "api-reference/endpoint/responses/find-one",
                   "api-reference/endpoint/responses/find-many"
@@ -153,7 +143,6 @@
               },
               {
                 "group": "Tracking · Monitoramento",
-                "openapi": "https://tracking.production.judit.io/docs/spec",
                 "pages": [
                   "api-reference/endpoint/tracking/create",
                   "api-reference/endpoint/tracking/find-many",
@@ -165,7 +154,6 @@
               },
               {
                 "group": "Lawsuits · Consultas Síncronas (Cache JUDIT)",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
                 "pages": [
                   "api-reference/endpoint/crawler/req-async",
                   "api-reference/endpoint/crawler/req-count",
@@ -174,15 +162,13 @@
                 ]
               },
               {
-                "group": "Lawsuits · Dados Cadastrais",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
+                "group": "Lawsuits · Dados Cadastrais 2",
                 "pages": [
                   "api-reference/endpoint/registrationData/create"
                 ]
               },
               {
                 "group": "Lawsuits · Anexos de Processos",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
                 "pages": [
                   "api-reference/endpoint/attachments/attachment-access",
                   "api-reference/endpoint/attachments/attachment-access-warrant"
@@ -287,13 +273,6 @@
                 ]
               },
               {
-                "group": "Guides",
-                "pages": [
-                  "en/guides/kyc-completo",
-                  "en/guides/mass-monitoring"
-                ]
-              },
-              {
                 "group": "Resources",
                 "pages": [
                   "en/resource/consumption",
@@ -302,7 +281,6 @@
                   "en/resource/postman-collection",
                   "en/resource/mcp",
                   "en/resource/courtCoverage",
-                  "en/resource/changelog",
                   "en/resource/errors"
                 ]
               }
@@ -313,7 +291,6 @@
             "groups": [
               {
                 "group": "Requests · Asynchronous Queries",
-                "openapi": "https://requests.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/requests/create",
                   "en/api-reference/endpoint/requests/find-one",
@@ -322,7 +299,6 @@
               },
               {
                 "group": "Responses · Query Results",
-                "openapi": "https://requests.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/responses/find-one",
                   "en/api-reference/endpoint/responses/find-many"
@@ -330,7 +306,6 @@
               },
               {
                 "group": "Tracking · Monitoring",
-                "openapi": "https://tracking.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/tracking/create",
                   "en/api-reference/endpoint/tracking/find-many",
@@ -342,7 +317,6 @@
               },
               {
                 "group": "Lawsuits · Synchronous Queries (JUDIT Cache)",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/crawler/req-async",
                   "en/api-reference/endpoint/crawler/req-count",
@@ -352,14 +326,12 @@
               },
               {
                 "group": "Lawsuits · Registration Data",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/registrationData/create"
                 ]
               },
               {
                 "group": "Lawsuits · Lawsuit Attachments",
-                "openapi": "https://lawsuits.production.judit.io/docs/spec",
                 "pages": [
                   "en/api-reference/endpoint/attachments/attachment-access",
                   "en/api-reference/endpoint/attachments/attachment-access-warrant"
@@ -386,6 +358,11 @@
     }
   },
   "api": {
+    "openapi": [
+      "https://requests.production.judit.io/docs/spec",
+      "https://tracking.production.judit.io/docs/spec",
+      "https://lawsuits.production.judit.io/docs/spec"
+    ],
     "playground": {
       "display": "interactive"
     },

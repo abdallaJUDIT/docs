@@ -8,15 +8,18 @@ icon: "house"
 
 ![title](/images/judit-api-charts.png)
 
-A **Judit API** entrega dados de processos judiciais brasileiros prontos para uso, em uma única integração. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe a capa do processo, partes, advogados, andamentos, anexos e relacionamentos — em tempo real ou de um datalake atualizado.
+A **Judit API** entrega dados de processos judiciais brasileiros prontos para uso, em uma única integração. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe os dados que você precisa — seja a capa completa de um processo específico, a lista de processos vinculados a uma pessoa/empresa, ou o monitoramento contínuo de movimentações.
 
-> 🤖 A Judit cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP. Autenticação é por header `api-key`. Os 3 serviços principais são `requests` (assíncrono), `tracking` (monitoramento) e `lawsuits` (síncrono / cache).
+> 🤖 A Judit cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP. Autenticação é por header `api-key`. Os 3 serviços principais são `requests` (consultas assíncronas), `tracking` (monitoramento contínuo) e `lawsuits` (consultas síncronas direto do datalake JUDIT).
 
 ## O que você consegue fazer
 
-- **Buscar processos** por CPF, CNPJ, OAB, Nome ou número CNJ — assíncrono (busca direta no tribunal) ou síncrono (cache JUDIT em milissegundos).
-- **Monitorar processos** automaticamente e receber atualizações por webhook quando houver nova movimentação.
-- **Detectar novos processos** Porcessos distribuidos ligados a um documento.
+- **Consulta Processual por CNJ** — recupere a árvore completa de **um processo específico** pelo número CNJ. Sempre **on-demand**: a Judit devolve o que tem em base (se existir) e, em paralelo, vai buscar a versão mais recente no tribunal.
+- **Consulta Histórica por Documento** — descubra **todos os processos vinculados** a um CPF, CNPJ, OAB ou Nome. Disponível em **três modalidades**:
+  - **Direto da base (síncrona / Hot Storage)** — leitura do datalake JUDIT em milissegundos. Modalidade mais econômica e ideal para consultas de alto volume.
+  - **Assíncrona** — fila assíncrona que retorna a lista histórica vinculada ao documento, sem ir ao tribunal em tempo real. Custo intermediário.
+  - **On-demand (assíncrona)** — coleta em tempo real direto nos tribunais. Mais cara, indicada quando o estado mais atual é mandatório.
+- **Monitorar processos** automaticamente e receber atualizações por webhook quando houver nova movimentação ou nascer um novo processo.
 - **Obter dados cadastrais** (Pessoa Física ou Jurídica) com opção de leitura no datalake ou em tempo real na Receita Federal.
 - **Baixar anexos** e mandados de prisão (BNMP) em PDF.
 - **Consultar execuções penais** (cumprimento de pena).

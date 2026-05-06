@@ -116,7 +116,6 @@ Para iniciar a consulta síncrona, faça uma requisição `POST` enviando o docu
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Sim** | Tipo da entidade buscada: `"cpf"`, `"cnpj"`, `"oab"`, `"name"` ou `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Sim** | O valor a ser buscado (ex.: `"999.999.999-99"`, `"João Silva"`). |
-| `process_status` | boolean | Não | Se `true`, a resposta inclui os campos `phase` e `status` de cada processo. |
 | `search.search_params.filter` | object | Não | Filtros estruturais (tribunal, valor, classes, partes, datas). Mesma estrutura da [consulta histórica](/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
 
 ### Filtros mais comuns (`search_params.filter`)
@@ -201,20 +200,6 @@ curl --request POST \
   }'
 ```
 
-```bash cURL (com process_status)
-curl --request POST \
-  --url 'https://lawsuits.production.judit.io/lawsuits' \
-  --header 'Content-Type: application/json' \
-  --header 'api-key: '"$JUDIT_API_KEY" \
-  --data '{
-    "search": {
-      "search_type": "cpf",
-      "search_key": "999.999.999-99"
-    },
-    "process_status": true
-  }'
-```
-
 ```python Python
 import os, requests
 
@@ -226,7 +211,6 @@ resp = requests.post(
     },
     json={
         "search": {"search_type": "cpf", "search_key": "999.999.999-99"},
-        "process_status": True,
     },
     timeout=15,
 )
@@ -243,7 +227,6 @@ const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
   },
   body: JSON.stringify({
     search: { search_type: "cpf", search_key: "999.999.999-99" },
-    process_status: true,
   }),
 });
 console.log(await res.json());
@@ -289,8 +272,8 @@ A resposta vem **no corpo do mesmo POST** (não há polling). Os campos principa
 | `has_lawsuits` | boolean | `true` se foram encontrados processos no datalake. |
 | `request_id` | string | Identificador único da consulta — útil para auditoria. |
 | `response_data` | array | Lista de processos. Cada item segue o [Schema Lawsuit](/schemas/lawsuit-object). |
-| `response_data[].phase` | string | (Opcional, com `process_status: true`) Fase atual do processo — ver tabela abaixo. |
-| `response_data[].status` | string | (Opcional, com `process_status: true`) Status atual do processo — ver tabela abaixo. |
+| `response_data[].phase` | string | Fase atual do processo — ver tabela abaixo. |
+| `response_data[].status` | string | Status atual do processo — ver tabela abaixo. |
 
 ### Valores possíveis para `phase`
 
@@ -319,7 +302,7 @@ A resposta vem **no corpo do mesmo POST** (não há polling). Os campos principa
 
 ### Exemplo completo de resposta
 
-<Accordion title="Ver exemplo de resposta com process_status: true">
+<Accordion title="Ver exemplo de resposta">
 A resposta dessa requisição será um objeto JSON com os dados retornados:
 
 

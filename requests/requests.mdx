@@ -136,6 +136,23 @@ curl --location 'https://requests.production.judit.io/requests/' \
 }'
 ```
 
+```bash cURL (Com customer_key)
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0000000-00.0000.0.00.0000",
+        "search_params": {
+            "credential": {
+                "customer_key": "CUSTOMER-KEY"
+            }
+        }
+    }
+}'
+```
+
 ```json Exemplo de Resposta (Status 201)
 {
     "request_id": "84b4d8f5-50f8-4c14-818f-912c722a6908",
@@ -1081,6 +1098,5 @@ func main() {
 ### O que você recebe de volta?
 
 O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judi
-esa de seus direitos perante o Usuário 2."
-                }
+esa de seus direitos perante o Usuário 2.}
  

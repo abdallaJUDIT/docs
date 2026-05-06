@@ -27,6 +27,200 @@ O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + sen
   </Card>
 </CardGroup>
 
+## Antes de cadastrar no Cofre: cadastro no tribunal
+
+Antes de cadastrar uma credencial no **Cofre de Credenciais**, é necessário que essa credencial já exista no tribunal correspondente.
+
+A Judit não cria usuários, senhas ou permissões dentro dos sistemas dos tribunais. O cadastro deve ser realizado diretamente no portal do tribunal pelo cliente, advogado, escritório ou responsável autorizado.
+
+Após a criação ou validação da credencial no tribunal, ela poderá ser cadastrada no Cofre de Credenciais da Judit e associada a uma chave de identificação chamada `customer_key`.
+
+<Info>
+A `customer_key` não é a senha do tribunal. Ela é apenas uma chave de referência utilizada para selecionar, dentro do Cofre de Credenciais, qual credencial deve ser usada na consulta.
+</Info>
+
+### Fluxo de cadastro e uso
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Cliente as Cliente
+    participant Tribunal as Portal do Tribunal
+    participant Cofre as Cofre de Credenciais
+    participant Judit as Judit API
+
+    Cliente->>Tribunal: Cria ou valida usuário/senha no tribunal
+    Cliente->>Cofre: Cadastra a credencial na Judit
+    Cofre-->>Cliente: Associa a credencial a uma customer_key
+    Cliente->>Judit: Envia a requisição informando a customer_key
+    Judit->>Tribunal: Acessa o tribunal com a credencial cadastrada
+    Tribunal-->>Judit: Retorna os dados disponíveis para aquela credencial
+```
+
+### Permissões da credencial no tribunal
+
+O retorno da consulta autenticada depende diretamente das permissões da credencial cadastrada no próprio tribunal.
+
+Isso significa que a Judit só conseguirá acessar processos, documentos, anexos ou movimentações que estejam disponíveis para aquele usuário no portal do tribunal.
+
+Por exemplo:
+
+- se a credencial possui acesso ao processo, a consulta poderá retornar dados autenticados;
+- se a credencial não possui permissão no tribunal, a consulta poderá retornar apenas dados públicos ou não conseguir acessar o conteúdo protegido;
+- se o processo estiver em segredo de justiça, o acesso dependerá das permissões concedidas à credencial no sistema do tribunal.
+
+<Warning>
+Cadastrar uma credencial no Cofre não garante, por si só, acesso a processos sigilosos ou documentos restritos. O acesso sempre depende das permissões existentes no tribunal.
+</Warning>
+
+### Autenticação em dois fatores
+
+Alguns tribunais podem exigir autenticação em dois fatores, também conhecida como **2FA**, **MFA**, token, código por e-mail, SMS, aplicativo autenticador ou certificado digital.
+
+Quando isso acontece, o comportamento pode variar conforme a regra de autenticação do próprio tribunal.
+
+Em geral:
+
+- se o tribunal exigir o segundo fator apenas no primeiro acesso ou em intervalos específicos, a credencial poderá funcionar após a validação inicial;
+- se o tribunal exigir o segundo fator a cada novo login, a consulta autenticada poderá depender de uma etapa adicional de validação;
+- se o código de autenticação expirar rapidamente ou exigir ação manual recorrente, a execução automatizada poderá ser impactada.
+
+<Warning>
+Tribunais com autenticação em dois fatores podem aumentar o tempo de execução da consulta ou exigir validações adicionais. Nesses casos, o suporte da Judit deve ser acionado para avaliar a viabilidade operacional do uso da credencial.
+</Warning>
+
+### Como obter o segredo 2FA para cadastro no Cofre
+
+Em tribunais que exigem autenticação em dois fatores por aplicativo autenticador, como Google Authenticator, Microsoft Authenticator, Authy ou similares, é necessário cadastrar no Cofre o **segredo 2FA** da credencial.
+
+Esse segredo também pode ser identificado como `secret`, `secrecy`, chave secreta, chave manual ou chave de configuração, dependendo do sistema utilizado.
+
+<Warning>
+Não cadastre o código temporário de 6 dígitos no campo de 2FA.  
+Esse código muda a cada poucos segundos e não deve ser usado como segredo da credencial.
+</Warning>
+
+#### Diferença entre segredo 2FA e código temporário
+
+| Informação | O que é | Deve ser cadastrado no Cofre? |
+| :--- | :--- | :--- |
+| **Segredo 2FA** | Chave fixa usada para gerar os códigos temporários | **Sim** |
+| **Código temporário** | Código de 6 dígitos gerado pelo aplicativo autenticador | **Não** |
+
+#### Como identificar o segredo 2FA
+
+Durante a configuração do 2FA no portal do tribunal, normalmente o tribunal exibe um **QR Code** para ser lido por um aplicativo autenticador.
+
+Além do QR Code, alguns tribunais também exibem uma opção como:
+
+- `Não consigo ler o QR Code`
+- `Inserir chave manualmente`
+- `Exibir chave secreta`
+- `Chave de configuração`
+- `Secret key`
+- `Setup key`
+
+A chave exibida nessa etapa é o **segredo 2FA** que deve ser cadastrado no Cofre de Credenciais.
+
+<Info>
+O segredo 2FA geralmente é uma sequência alfanumérica maior que um código comum, podendo conter letras e números.  
+Exemplo meramente ilustrativo: `JBSWY3DPEHPK3PXP`
+</Info>
+
+#### Fluxo recomendado para cadastro com 2FA
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Cliente as Cliente
+    participant Tribunal as Portal do Tribunal
+    participant Auth as Aplicativo Autenticador
+    participant Cofre as Cofre de Credenciais
+
+    Cliente->>Tribunal: Inicia a configuração do 2FA
+    Tribunal-->>Cliente: Exibe QR Code ou chave manual
+    Cliente->>Tribunal: Copia a chave manual / segredo 2FA
+    Cliente->>Auth: Configura o autenticador com o QR Code ou segredo
+    Auth-->>Cliente: Gera códigos temporários de 6 dígitos
+    Cliente->>Cofre: Cadastra usuário, senha e segredo 2FA
+```
+
+#### O que cadastrar no Cofre
+
+Ao cadastrar uma credencial com autenticação em dois fatores, informe:
+
+- usuário/login do tribunal;
+- senha do tribunal;
+- `customer_key` desejada para identificar a credencial;
+- segredo 2FA, quando o tribunal exigir autenticação por aplicativo autenticador.
+
+<Warning>
+O segredo 2FA deve ser a chave fixa de configuração do autenticador, e não o código temporário gerado pelo aplicativo.
+</Warning>
+
+#### Caso o 2FA já esteja configurado
+
+Se o 2FA já tiver sido configurado anteriormente e o tribunal não exibir mais a chave secreta, normalmente não é possível recuperar o segredo diretamente pelo aplicativo autenticador.
+
+Nesse cenário, o caminho recomendado é:
+
+1. acessar o portal do tribunal com a credencial;
+2. remover, redefinir ou reconfigurar a autenticação em dois fatores;
+3. iniciar uma nova configuração de 2FA;
+4. copiar a chave manual ou segredo exibido no momento da configuração;
+5. cadastrar esse segredo no Cofre de Credenciais.
+
+<Note>
+Cada tribunal pode ter um fluxo diferente para redefinição do 2FA. Caso o portal não permita visualizar ou reconfigurar o segundo fator, será necessário acionar o suporte do próprio tribunal ou o responsável pela credencial.
+</Note>
+
+## Boas práticas para cadastro de credenciais
+
+Recomendamos que as credenciais cadastradas no Cofre sejam:
+
+- credenciais institucionais ou de serviço, quando permitido pelo tribunal;
+- criadas com permissões compatíveis com os processos que precisam ser consultados;
+- validadas previamente no portal do tribunal antes do uso via API;
+- mantidas atualizadas sempre que houver troca de senha ou alteração de acesso;
+- configuradas com um método de autenticação em dois fatores compatível com a operação automatizada, quando aplicável.
+
+<Note>
+Caso a senha seja alterada, a credencial expire ou o tribunal solicite uma nova validação de acesso, será necessário atualizar ou revalidar a credencial no Cofre para manter a consulta funcionando corretamente.
+</Note>
+
+## Como selecionar a credencial no payload da requisição
+
+Para utilizar uma credencial cadastrada no Cofre de Credenciais durante a consulta, informe o campo `customer_key` dentro de `search.search_params.credential`.
+
+O valor de `customer_key` deve corresponder à chave da credencial previamente cadastrada no Cofre.
+
+<Note>
+A consulta será executada utilizando a credencial associada à `customer_key` informada no payload.
+</Note>
+
+### Exemplo de requisição
+
+```bash
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0000000-00.0000.0.00.0000",
+        "search_params": {
+            "credential": {
+                "customer_key": "CUSTOMER-KEY"
+            }
+        }
+    }
+}'
+```
+
+<Warning>
+Caso a `customer_key` informada não exista, esteja inválida ou esteja vinculada a uma credencial expirada, a consulta poderá falhar ou não utilizar a credencial esperada.
+</Warning>
+
 ## Rota para cadastrar suas chaves no cofre de credenciais
 
 Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.production.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
@@ -151,6 +345,37 @@ Segue um exemplo de resposta para a solicitação GET realizada:
 }
 
 ```
+
+## Como utilizar o Cofre de Credenciais na requisição
+
+O **Cofre de Credenciais** permite vincular uma consulta a uma credencial previamente cadastrada para o cliente.  
+Para isso, informe a chave da credencial no campo `customer_key`, dentro de `search.search_params.credential`.
+
+Essa chave identifica qual credencial deve ser utilizada na execução da consulta.
+
+<Note>
+O valor de `customer_key` deve corresponder a uma chave já cadastrada no Cofre de Credenciais. Caso a chave informada não exista ou esteja inválida, a consulta poderá falhar ou não utilizar a credencial esperada.
+</Note>
+
+### Exemplo de requisição
+
+```bash
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0000000-00.0000.0.00.0000",
+    "search_params": {
+      "credential": {
+        "customer_key": "CUSTOMER-KEY"
+      }
+    }
+  }
+}'
+```
+
 ## Rota para deletar uma chave no cofre de Credenciais
 
 Para deletar um sistema no cofre de credenciais, você deve realizar uma solicitação DELETE para a rota `crawler.production.judit.io/credentials`.
