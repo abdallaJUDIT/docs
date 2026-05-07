@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: Judit Miner API — Requests, responses & tribunals
+  description: |
+    OpenAPI description for miner API routes that manage lawsuit search **requests**
+    (count, create, status), paginated **responses** (lawsuit results), and the
+    **tribunals** reference list (ids used in request filters).
+
+    - `company_id` and `user_id` are **not** sent by the client on `POST /requests/create`;
+      the server fills them from the authenticated session.
+    - On `POST /requests/count`, the server merges `company_id` and `user_id` from context
+      first; clients should send only filter fields (see request body schema).
+    - Request and response bodies use **JSON**. Date-time fields are ISO 8601 strings.
+    - Count/create bodies are validated with a **strict** object (unknown keys are rejected).
+
+    Authentication and `miner_enabled` behavior are enforced by `@judit-io/server`
+    (e.g. JWT / gateway); this spec requires an API key provided in the `api-key` header.
+  version: 1.0.0
+
+servers:
+  - url: https://miner.production.judit.io
+    description: Production server
+
+tags:
+  - name: Requests
+    description: Create and inspect lawsuit search requests
+  - name: Responses
+    description: Paginated lawsuit results for a completed find request
+  - name: Tribunals
+    description: Reference data for tribunal identifiers used in filters
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /requests/count:
+    post:
+      tags: [Requests]
+      summary: Count matching lawsuits and record a count request
+      description: |
+        Runs a lawsuit count with the given filters (excluding lawsuits that already
+        have a response for the company), persists a **count**-type request in **completed**
+        status, and returns the total and new `request_id`.
+
+        Returns **201 Created** on success.
+      operationId: postRequestsCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestLawsuitsFiltersBody'
+            examples:
+              judgementBond:
+                summary: Judgement bond with tribunals
+                value:
+                  kind: judgement-bond
+                  tribunals: [1, 2]
+                  budget_years: [2024]
+                  natures: [common]
+      responses:
+        '201':
+          description: Count stored; response includes totals and optional echo of filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountRequestSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /requests/create:
+    post:
+      tags: [Requests]
+      summary: Create a find request and enqueue processing
+      description: |
+        Validates billing (credits vs. priced tiers), creates a **find**-type request
+        in **pending** status, persists filters, publishes chunk events for async work,
+        and returns `request_id`, `status`, and computed **`cost`** (credits charged).
+
+        Returns **201 Created** on success. May return **403** if credits or plan
+        configuration are missing or insufficient.
+      operationId: postRequestsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestLawsuitsFiltersBody'
+            examples:
+              withLimit:
+                summary: Find with responses cap
+                value:
+                  kind: sentence-execution
+                  tribunals: [1]
+                  tags: [possible_precatory]
+                  responses_limit: 500
+      responses:
+        '201':
+          description: Request accepted; async processing started.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRequestSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: |
+            Billing or plan guard. Non-exhaustive machine codes used by the API:
+            `MISSING_CREDITS`, `MISSING_CONFIGURATIONS`, `INSUFFICIENT_CREDITS`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPayload'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /requests/{request_id}:
+    get:
+      tags: [Requests]
+      summary: Get one request by ID for the current company
+      description: |
+        Returns request metadata and, when present, a subset of stored filters.
+        **404** if the request does not exist for the company.
+      operationId: getRequestById
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          description: Numeric request identifier
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Request found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindOneRequestSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /responses:
+    get:
+      tags: [Responses]
+      summary: List lawsuit responses for a completed find request
+      description: |
+        Returns a paginated list of **full lawsuit** objects for the given `request_id`,
+        scoped to the authenticated company.
+
+        Preconditions enforced by the API:
+        - Request must exist (**404** `REQUEST_NOT_FOUND`).
+        - Request status must be **completed** (**422** `REQUEST_NOT_COMPLETED`).
+        - Request type must be **find** (**422** `INVALID_REQUEST_TYPE`).
+
+        `request_id` may be supplied in the query string; the implementation also
+        reads `request_id` from the body if your client sends one (non-standard for GET).
+      operationId: getResponses
+      parameters:
+        - name: request_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: page
+          in: query
+          required: false
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          description: Page size (default 10, max 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Paginated lawsuits linked to the request’s responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindManyResponsesSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Request not found for company
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPayload'
+        '422':
+          description: Business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPayload'
+
+  /tribunals:
+    get:
+      tags: [Tribunals]
+      summary: List tribunals (id and acronym)
+      description: |
+        Returns all tribunals from persistence, ordered by **acronym** ascending.
+        Each item’s `name` field is the tribunal **acronym** (`TypeormTribunal.acronym`),
+        suitable for display and for cross-checking `tribunals` arrays in request filters.
+
+        Registered with `miner_enabled: true` like the request/response routes.
+      operationId: getTribunals
+      responses:
+        '200':
+          description: Ordered list of tribunals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TribunalNamesList'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: api-key
+      description: Replace with the actual API key requirement for your Miner API deployment.
+
+  responses:
+    BadRequest:
+      description: Validation failed (Zod); `errors` is a list of human-readable messages.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorPayload'
+    NotFound:
+      description: Resource not found (e.g. `REQUEST_NOT_FOUND`)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorPayload'
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorPayload'
+
+  schemas:
+    ErrorPayload:
+      type: object
+      description: |
+        Shape depends on `@judit-io/server` error serialization; typically includes
+        machine-readable codes or message lists. Treat as opaque unless you confirm
+        against your gateway.
+      additionalProperties: true
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+
+    LawsuitKind:
+      type: string
+      enum: [judgement-bond, sentence-execution]
+
+    LawsuitNature:
+      type: string
+      enum: [alimentary, common]
+
+    LawsuitTag:
+      type: string
+      enum:
+        - precatory_dispatched
+        - possible_precatory
+        - possible_approved_calculation
+
+    AmountTier:
+      type: string
+      enum:
+        - 0-100k
+        - 100k-250k
+        - 250k-500k
+        - 500k-750k
+        - 750k-1.5M
+        - 1.5M+
+
+    RequestLawsuitsFiltersBody:
+      type: object
+      additionalProperties: false
+      required: [kind]
+      properties:
+        kind:
+          $ref: '#/components/schemas/LawsuitKind'
+        amount_min:
+          type: number
+          description: Minimum lawsuit amount filter (cannot be combined with `amount_tier`)
+        amount_max:
+          type: number
+          description: Maximum lawsuit amount filter (cannot be combined with `amount_tier`)
+        amount_tier:
+          $ref: '#/components/schemas/AmountTier'
+        tribunals:
+          type: array
+          items:
+            type: integer
+        budget_years:
+          type: array
+          items:
+            type: integer
+          description: Only when `kind` is `judgement-bond`
+        natures:
+          type: array
+          items:
+            $ref: '#/components/schemas/LawsuitNature'
+          description: Only when `kind` is `judgement-bond`
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/LawsuitTag'
+          description: Only when `kind` is `sentence-execution`
+        responses_limit:
+          type: integer
+          minimum: 1
+          description: |
+            Caps how many lawsuits are included in a **find** request (`/requests/create` only).
+
+      description: |
+        Mirrors `requestLawsuitsInputSchema` in `@judit-io/miner-shared` (strict object).
+
+        Cross-field rules (enforced server-side):
+        - If both `amount_min` and `amount_max` are set, `amount_min` ≤ `amount_max`.
+        - For `sentence-execution`: `budget_years` and `natures` must be absent.
+        - For `judgement-bond`: `tags` must be absent.
+        - `amount_tier` cannot be used together with `amount_min` or `amount_max`.
+
+    RequestStatus:
+      type: string
+      enum: [pending, completed, failed]
+
+    RequestType:
+      type: string
+      enum: [count, find]
+
+    StoredRequestFilter:
+      type: object
+      description: Subset of filters returned on GET request (when stored on the entity)
+      properties:
+        kind:
+          $ref: '#/components/schemas/LawsuitKind'
+        tribunals:
+          type: array
+          items:
+            type: integer
+        amount_min:
+          type: number
+        amount_max:
+          type: number
+        budget_years:
+          type: array
+          items:
+            type: integer
+        natures:
+          type: array
+          items:
+            $ref: '#/components/schemas/LawsuitNature'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/LawsuitTag'
+
+    CountRequestSuccess:
+      type: object
+      required: [request_id, total_lawsuits, status]
+      properties:
+        request_id:
+          type: integer
+          format: int64
+        total_lawsuits:
+          type: integer
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        filter:
+          $ref: '#/components/schemas/StoredRequestFilter'
+
+    CreateRequestSuccess:
+      type: object
+      required: [request_id, status, cost]
+      properties:
+        request_id:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        cost:
+          type: number
+          description: Total credits charged for this request (sum of tier prices × counts)
+
+    FindOneRequestSuccess:
+      type: object
+      required:
+        - request_id
+        - status
+        - type
+        - total_lawsuits
+        - created_at
+        - updated_at
+      properties:
+        request_id:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        type:
+          $ref: '#/components/schemas/RequestType'
+        total_lawsuits:
+          type: integer
+        processed_lawsuits:
+          type: integer
+          description: Present when truthy in persistence layer
+        error_message:
+          type: string
+        filter:
+          $ref: '#/components/schemas/StoredRequestFilter'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LawsuitRepositoryOutput:
+      type: object
+      description: |
+        Full lawsuit graph returned by the lawsuit repository with `load_full_lawsuit: true`
+        (parties, lawyers, steps, courts, metadata, etc.), omitting internal crawler fields.
+        This schema is intentionally open; see `Lawsuit` / `LawsuitRepositoryOutput` in
+        `@judit-io/miner-shared` and `@judit-io/entities` for the canonical shape.
+      additionalProperties: true
+      properties:
+        lawsuit_id:
+          type: integer
+        tribunal_id:
+          type: integer
+        base:
+          type: number
+        kind:
+          $ref: '#/components/schemas/LawsuitKind'
+        code:
+          type: string
+        instance:
+          type: integer
+        name:
+          type: string
+        amount:
+          type: number
+        is_enriched:
+          type: boolean
+        favorites:
+          type: object
+          additionalProperties:
+            type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FindManyResponsesSuccess:
+      type: object
+      required: [data, page, page_size, total, total_pages]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LawsuitRepositoryOutput'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        total_pages:
+          type: integer
+          minimum: 0
+
+    TribunalNameEntry:
+      type: object
+      required: [tribunal_id, name]
+      properties:
+        tribunal_id:
+          type: integer
+          description: Identifier used in `tribunals` on count/create filters
+        name:
+          type: string
+          description: Tribunal acronym (from `TypeormTribunal.acronym`)
+
+    TribunalNamesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/TribunalNameEntry'

@@ -1,0 +1,199 @@
+---
+title: "Conceitos do Miner — kind, natures, tags e tiers"
+sidebarTitle: "Conceitos"
+description: "Entenda os campos que filtram a busca no Miner: tipo de processo (judgement-bond vs sentence-execution), naturezas, tags, faixas de valor e regras de combinação válida."
+keywords: ["miner conceitos", "kind", "judgement-bond", "sentence-execution", "natures", "tags", "amount_tier", "responses_limit"]
+icon: "book"
+---
+
+<Note>
+**Beta público.** O conjunto de filtros pode receber novas opções (especialmente `tags` para `sentence-execution`). Trate enums como abertos e ignore valores desconhecidos.
+</Note>
+
+A busca no Miner é definida por um único objeto de filtro — o mesmo schema é usado em `POST /requests/count` (gratuito) e `POST /requests/create` (cobra créditos). Esta página explica cada campo, os valores possíveis e as combinações válidas.
+
+## `kind` (obrigatório)
+
+Define **que tipo de ativo** você está garimpando. É o primeiro filtro a escolher porque condiciona quais outros campos podem aparecer.
+
+| Valor | O que é | Filtros adicionais permitidos |
+| --- | --- | --- |
+| `judgement-bond` | **Precatórios** — créditos contra a Fazenda Pública decorrentes de sentenças transitadas em julgado. | `budget_years`, `natures` |
+| `sentence-execution` | **Execuções de sentença** — fase de cumprimento, com possibilidade de aprovação de cálculo ou expedição de precatório. | `tags` |
+
+<Warning>
+Você **não pode** misturar campos exclusivos: `tags` com `kind: judgement-bond` ou `budget_years`/`natures` com `kind: sentence-execution` falham com `400`.
+</Warning>
+
+## `natures` (apenas `judgement-bond`)
+
+Tipo do crédito decorrente do precatório.
+
+| Valor | Significado |
+| --- | --- |
+| `alimentary` | Precatório de natureza **alimentar** — verbas salariais, pensões, indenizações por morte, benefícios previdenciários. Tem prioridade de pagamento. |
+| `common` | Precatório **comum** — qualquer outro tipo de crédito (tributário, indenizatório civil, desapropriação, etc.). |
+
+```json
+{
+  "kind": "judgement-bond",
+  "natures": ["alimentary"]
+}
+```
+
+> Combine os dois para incluir tudo: `"natures": ["alimentary", "common"]`.
+
+## `budget_years` (apenas `judgement-bond`)
+
+Anos orçamentários nos quais o precatório foi inscrito. Use para filtrar safras específicas — geralmente o ano de inscrição é o ano civil seguinte ao da sentença transitada em julgado.
+
+```json
+{
+  "kind": "judgement-bond",
+  "budget_years": [2023, 2024]
+}
+```
+
+## `tags` (apenas `sentence-execution`)
+
+Sinais detectados pela base Judit que indicam estágio de maturação da execução.
+
+| Valor | O que indica |
+| --- | --- |
+| `precatory_dispatched` | **Precatório já expedido** na execução. O ativo está prestes a virar `judgement-bond`. |
+| `possible_precatory` | Sinais textuais sugerindo que um precatório será expedido em breve (decisões, despachos, certidões). |
+| `possible_approved_calculation` | Cálculo de liquidação aparentemente homologado — etapa que costuma anteceder o precatório. |
+
+```json
+{
+  "kind": "sentence-execution",
+  "tags": ["possible_precatory", "possible_approved_calculation"]
+}
+```
+
+> Múltiplas tags são tratadas como **OR** — qualquer processo que tenha **pelo menos uma** das tags entra no resultado.
+
+## Faixa de valor
+
+Há **duas formas mutuamente exclusivas** de filtrar por valor:
+
+### Modo 1 — Limites livres (`amount_min` / `amount_max`)
+
+```json
+{
+  "kind": "judgement-bond",
+  "amount_min": 50000,
+  "amount_max": 500000
+}
+```
+
+| Campo | Tipo | Regra |
+| --- | --- | --- |
+| `amount_min` | number | Valor mínimo, em reais (R$). |
+| `amount_max` | number | Valor máximo, em reais. Deve ser ≥ `amount_min`. |
+
+Use quando você precisa de um corte específico (ex.: "entre R$ 50k e R$ 500k").
+
+### Modo 2 — Faixa pré-definida (`amount_tier`)
+
+```json
+{
+  "kind": "sentence-execution",
+  "amount_tier": "250k-500k"
+}
+```
+
+| Valor de `amount_tier` | Faixa em R$ |
+| --- | --- |
+| `0-100k` | até R$ 100.000 |
+| `100k-250k` | R$ 100.000 a R$ 250.000 |
+| `250k-500k` | R$ 250.000 a R$ 500.000 |
+| `500k-750k` | R$ 500.000 a R$ 750.000 |
+| `750k-1.5M` | R$ 750.000 a R$ 1.500.000 |
+| `1.5M+` | acima de R$ 1.500.000 |
+
+Use quando estiver alinhado às faixas comerciais da Judit — é o caminho recomendado porque a [precificação por créditos](/miner/credits) também é por faixa.
+
+<Warning>
+**Não combine os dois modos.** Enviar `amount_tier` junto com `amount_min` ou `amount_max` falha com `400`. Escolha um.
+</Warning>
+
+## `tribunals`
+
+Array de IDs numéricos dos tribunais a incluir. Vazio ou ausente = todos os tribunais cobertos pelo Miner.
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18, 1]
+}
+```
+
+Para descobrir os IDs: chame [`GET /tribunals`](/api-reference/endpoint/miner/tribunals-list) ou veja a [tabela completa](/miner/tribunals).
+
+## `responses_limit` (apenas `/requests/create`)
+
+Teto opcional para o número de processos materializados em uma busca. **Não tem efeito em `/requests/count`** — o count sempre retorna o total real.
+
+```json
+{
+  "kind": "sentence-execution",
+  "tribunals": [10],
+  "tags": ["possible_precatory"],
+  "responses_limit": 500
+}
+```
+
+| Cenário | Comportamento |
+| --- | --- |
+| `responses_limit` omitido | Materializa **todos** os processos que batem (até o limite do plano). |
+| `responses_limit: N` (N ≤ total) | Materializa exatamente N processos, ordenados por critério interno. Custo proporcional. |
+| `responses_limit: N` (N > total) | Materializa todos os disponíveis. Cobrança apenas pelo total real. |
+
+Use para **controlar custo** quando o `count` retornou um volume alto e você só quer uma amostra.
+
+## Regras de combinação
+
+Resumo de tudo que falha com `400`:
+
+| Tentativa | Por quê |
+| --- | --- |
+| `kind: judgement-bond` + `tags: [...]` | `tags` é exclusivo de `sentence-execution`. |
+| `kind: sentence-execution` + `budget_years: [...]` | `budget_years` é exclusivo de `judgement-bond`. |
+| `kind: sentence-execution` + `natures: [...]` | `natures` é exclusivo de `judgement-bond`. |
+| `amount_min: 100000` + `amount_tier: "250k-500k"` | Modos de valor mutuamente exclusivos. |
+| `amount_min: 100000, amount_max: 50000` | `min` deve ser ≤ `max`. |
+| Qualquer chave fora do schema (ex.: `state: "SP"`) | `RequestLawsuitsFiltersBody` é **strict** — chaves desconhecidas são rejeitadas. |
+
+## Schema completo (referência rápida)
+
+```json
+{
+  "kind": "judgement-bond" | "sentence-execution",                // obrigatório
+  "tribunals": [10, 18],                                          // opcional
+  "amount_min": 50000,                                            // opcional (não combina com amount_tier)
+  "amount_max": 500000,                                           // opcional (não combina com amount_tier)
+  "amount_tier": "250k-500k",                                     // opcional (não combina com min/max)
+  "budget_years": [2023, 2024],                                   // só para judgement-bond
+  "natures": ["alimentary", "common"],                            // só para judgement-bond
+  "tags": ["possible_precatory"],                                 // só para sentence-execution
+  "responses_limit": 1000                                         // só em /requests/create
+}
+```
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Como funciona a cobrança" icon="coins" href="/miner/credits">
+    Cálculo do `cost`, faixas de preço e tratamento de erros de billing.
+  </Card>
+  <Card title="Lista de tribunais" icon="building-columns" href="/miner/tribunals">
+    Tabela completa de IDs aceitos no campo `tribunals`.
+  </Card>
+  <Card title="Quickstart" icon="bolt" href="/miner/quickstart">
+    Receita prática com count → create → poll → paginate.
+  </Card>
+  <Card title="Referência da API" icon="code" href="/api-reference/endpoint/miner/requests-count">
+    Spec interativa para testar cada endpoint.
+  </Card>
+</CardGroup>

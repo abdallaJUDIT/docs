@@ -1,0 +1,199 @@
+---
+title: "Miner Concepts — kind, natures, tags and tiers"
+sidebarTitle: "Concepts"
+description: "Understand the fields that filter a Miner query: lawsuit kind (judgement-bond vs sentence-execution), natures, tags, amount ranges and valid combination rules."
+keywords: ["miner concepts", "kind", "judgement-bond", "sentence-execution", "natures", "tags", "amount_tier", "responses_limit"]
+icon: "book"
+---
+
+<Note>
+**Public beta.** The filter set may receive new options (especially `tags` for `sentence-execution`). Treat enums as open and ignore unknown values.
+</Note>
+
+A Miner query is defined by a single filter object — the same schema is used by `POST /requests/count` (free) and `POST /requests/create` (charges credits). This page explains every field, its valid values and how they combine.
+
+## `kind` (required)
+
+Defines **which type of asset** you're discovering. It's the first filter to choose because it constrains which other fields can appear.
+
+| Value | What it is | Allowed extra filters |
+| --- | --- | --- |
+| `judgement-bond` | **Judgement bonds** — credits against the public administration arising from final judgments (Brazilian "precatórios"). | `budget_years`, `natures` |
+| `sentence-execution` | **Sentence executions** — enforcement phase, where calculation may be approved or a bond may be issued. | `tags` |
+
+<Warning>
+You **cannot** mix exclusive fields: `tags` with `kind: judgement-bond` or `budget_years`/`natures` with `kind: sentence-execution` fail with `400`.
+</Warning>
+
+## `natures` (only for `judgement-bond`)
+
+Type of credit underlying the bond.
+
+| Value | Meaning |
+| --- | --- |
+| `alimentary` | **Alimentary** bond — wage credits, pensions, death indemnities, social-security benefits. Has payment priority. |
+| `common` | **Common** bond — any other credit (tax, civil indemnity, expropriation, etc.). |
+
+```json
+{
+  "kind": "judgement-bond",
+  "natures": ["alimentary"]
+}
+```
+
+> Combine both to include everything: `"natures": ["alimentary", "common"]`.
+
+## `budget_years` (only for `judgement-bond`)
+
+Budget years in which the bond was registered. Use to filter specific vintages — typically the registration year is the calendar year following the final judgment.
+
+```json
+{
+  "kind": "judgement-bond",
+  "budget_years": [2023, 2024]
+}
+```
+
+## `tags` (only for `sentence-execution`)
+
+Signals detected by Judit's base that indicate a maturation stage of the execution.
+
+| Value | What it indicates |
+| --- | --- |
+| `precatory_dispatched` | **Bond already dispatched** within the execution. The asset is about to become a `judgement-bond`. |
+| `possible_precatory` | Textual signals suggesting a bond will be issued soon (rulings, dispatches, certifications). |
+| `possible_approved_calculation` | Liquidation calculation seemingly approved — the step that usually precedes the bond. |
+
+```json
+{
+  "kind": "sentence-execution",
+  "tags": ["possible_precatory", "possible_approved_calculation"]
+}
+```
+
+> Multiple tags are treated as **OR** — any lawsuit with **at least one** of the tags is included.
+
+## Amount range
+
+There are **two mutually exclusive** ways to filter by amount:
+
+### Mode 1 — Free limits (`amount_min` / `amount_max`)
+
+```json
+{
+  "kind": "judgement-bond",
+  "amount_min": 50000,
+  "amount_max": 500000
+}
+```
+
+| Field | Type | Rule |
+| --- | --- | --- |
+| `amount_min` | number | Minimum amount, in BRL. |
+| `amount_max` | number | Maximum amount, in BRL. Must be ≥ `amount_min`. |
+
+Use when you need a specific cut (e.g. "between R$ 50k and R$ 500k").
+
+### Mode 2 — Pre-defined tier (`amount_tier`)
+
+```json
+{
+  "kind": "sentence-execution",
+  "amount_tier": "250k-500k"
+}
+```
+
+| `amount_tier` value | Range in BRL |
+| --- | --- |
+| `0-100k` | up to R$ 100,000 |
+| `100k-250k` | R$ 100,000 to R$ 250,000 |
+| `250k-500k` | R$ 250,000 to R$ 500,000 |
+| `500k-750k` | R$ 500,000 to R$ 750,000 |
+| `750k-1.5M` | R$ 750,000 to R$ 1,500,000 |
+| `1.5M+` | above R$ 1,500,000 |
+
+Use when you align with Judit's commercial tiers — this is the recommended path because [credit pricing](/en/miner/credits) is also tier-based.
+
+<Warning>
+**Don't combine the two modes.** Sending `amount_tier` together with `amount_min` or `amount_max` fails with `400`. Pick one.
+</Warning>
+
+## `tribunals`
+
+Array of numeric court IDs to include. Empty or absent = every court covered by Miner.
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18, 1]
+}
+```
+
+To discover the IDs: call [`GET /tribunals`](/en/api-reference/endpoint/miner/tribunals-list) or check the [full table](/en/miner/tribunals).
+
+## `responses_limit` (only on `/requests/create`)
+
+Optional cap on the number of lawsuits materialized in a query. **Has no effect on `/requests/count`** — count always returns the real total.
+
+```json
+{
+  "kind": "sentence-execution",
+  "tribunals": [10],
+  "tags": ["possible_precatory"],
+  "responses_limit": 500
+}
+```
+
+| Scenario | Behavior |
+| --- | --- |
+| `responses_limit` omitted | Materializes **everything** that matches (subject to plan limit). |
+| `responses_limit: N` (N ≤ total) | Materializes exactly N lawsuits, ordered by an internal criterion. Cost proportional. |
+| `responses_limit: N` (N > total) | Materializes everything available. Charged only for the real total. |
+
+Use it to **control cost** when `count` returned a high volume and you only want a sample.
+
+## Combination rules
+
+Summary of everything that fails with `400`:
+
+| Attempt | Why |
+| --- | --- |
+| `kind: judgement-bond` + `tags: [...]` | `tags` is exclusive to `sentence-execution`. |
+| `kind: sentence-execution` + `budget_years: [...]` | `budget_years` is exclusive to `judgement-bond`. |
+| `kind: sentence-execution` + `natures: [...]` | `natures` is exclusive to `judgement-bond`. |
+| `amount_min: 100000` + `amount_tier: "250k-500k"` | Mutually exclusive amount modes. |
+| `amount_min: 100000, amount_max: 50000` | `min` must be ≤ `max`. |
+| Any unknown key (e.g. `state: "SP"`) | `RequestLawsuitsFiltersBody` is **strict** — unknown keys are rejected. |
+
+## Full schema (quick reference)
+
+```json
+{
+  "kind": "judgement-bond" | "sentence-execution",                // required
+  "tribunals": [10, 18],                                          // optional
+  "amount_min": 50000,                                            // optional (cannot combine with amount_tier)
+  "amount_max": 500000,                                           // optional (cannot combine with amount_tier)
+  "amount_tier": "250k-500k",                                     // optional (cannot combine with min/max)
+  "budget_years": [2023, 2024],                                   // judgement-bond only
+  "natures": ["alimentary", "common"],                            // judgement-bond only
+  "tags": ["possible_precatory"],                                 // sentence-execution only
+  "responses_limit": 1000                                         // /requests/create only
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="How billing works" icon="coins" href="/en/miner/credits">
+    `cost` calculation, price tiers and billing-error handling.
+  </Card>
+  <Card title="Court list" icon="building-columns" href="/en/miner/tribunals">
+    Full table of IDs accepted in the `tribunals` field.
+  </Card>
+  <Card title="Quickstart" icon="bolt" href="/en/miner/quickstart">
+    Practical recipe with count → create → poll → paginate.
+  </Card>
+  <Card title="API Reference" icon="code" href="/en/api-reference/endpoint/miner/requests-count">
+    Interactive spec to test every endpoint.
+  </Card>
+</CardGroup>

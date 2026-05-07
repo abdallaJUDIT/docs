@@ -1,0 +1,232 @@
+---
+title: "Quickstart — Your first Miner query in 10 minutes"
+sidebarTitle: "Quickstart"
+description: "Practical recipe to go from zero to your first batch of lawsuits returned by Miner: count, create the query, poll status and paginate results."
+keywords: ["miner quickstart", "first query", "tutorial", "example", "judgement bond"]
+icon: "bolt"
+---
+
+<Note>
+**Public beta.** Before starting, confirm with Judit's commercial team that your API key has `miner_enabled` granted — without that flag, every call returns `403`.
+</Note>
+
+This is the minimum recipe to go from zero to your first batch of lawsuits. By the end you will have: counted how many lawsuits match your filters, spent credits on a real query, waited for processing, and paginated the results.
+
+## Prerequisites
+
+1. **Judit API key** with `miner_enabled: true` (ask the commercial team).
+2. **Credit balance** sufficient — check it on the dashboard.
+3. An HTTP client (cURL, Postman or your language of choice).
+
+## Step 1: List available courts
+
+Before filtering, you need the Miner-internal court IDs. They are **not the acronyms**: every court has its own numeric identifier in Miner.
+
+```bash
+curl --request GET \
+  --url 'https://miner.production.judit.io/tribunals' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+Snippet of the response:
+
+```json
+[
+  { "tribunal_id": 10,    "name": "TJSP" },
+  { "tribunal_id": 18,    "name": "TJRJ" },
+  { "tribunal_id": 1,     "name": "TRF3" },
+  { "tribunal_id": 193,   "name": "TRF1" }
+]
+```
+
+> Note the IDs of the courts you want to cover. Full list at [Supported courts](/en/miner/tribunals).
+
+## Step 2: Count without spending credits (`/requests/count`)
+
+The `/requests/count` route is **free** — use it to find out the volume before purchasing the query.
+
+```bash
+curl --request POST \
+  --url 'https://miner.production.judit.io/requests/count' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "kind": "judgement-bond",
+    "tribunals": [10, 18],
+    "budget_years": [2024],
+    "natures": ["common"]
+  }'
+```
+
+Response:
+
+```json
+{
+  "request_id": 20,
+  "filter": {
+    "kind": "judgement-bond",
+    "tribunals": [10, 18],
+    "budget_years": [2024],
+    "natures": ["common"]
+  },
+  "total_lawsuits": 7326,
+  "status": "completed"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `total_lawsuits` | How many new lawsuits for your company match the filters (already excluding what you queried before). |
+| `request_id` | ID of the count record — kept in history but not used downstream. |
+| `status` | Always `completed` for count (it's synchronous). |
+
+## Step 3: Create the find (charges credits)
+
+Once `total_lawsuits` makes sense for your case, trigger the real query with `/requests/create`. This is when credits are debited.
+
+```bash
+curl --request POST \
+  --url 'https://miner.production.judit.io/requests/create' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "kind": "judgement-bond",
+    "tribunals": [10, 18],
+    "budget_years": [2024],
+    "natures": ["common"],
+    "responses_limit": 1000
+  }'
+```
+
+> 💡 **`responses_limit`** is an optional cap on the number of materialized lawsuits in this query. If omitted, returns everything that matches. Use it to control cost when `count` returns a large volume.
+
+Response (`201 Created`):
+
+```json
+{
+  "request_id": 47,
+  "status": "pending",
+  "cost": 12500
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `request_id` | ID you'll use in the next steps. **Save it.** |
+| `status` | Always `pending` here. |
+| `cost` | Total credits charged (sum of tier prices × counts). Detailed in [Credits & billing](/en/miner/credits). |
+
+<Warning>
+If the response is `403` with code `INSUFFICIENT_CREDITS` or `MISSING_CONFIGURATIONS`, your account lacks balance or plan. See [Common errors](#common-errors).
+</Warning>
+
+## Step 4: Poll until done
+
+Processing is async. Use `GET /requests/{request_id}` to track:
+
+```bash
+curl --request GET \
+  --url 'https://miner.production.judit.io/requests/47' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+Response while processing:
+
+```json
+{
+  "request_id": 47,
+  "status": "pending",
+  "type": "find",
+  "total_lawsuits": 1000,
+  "processed_lawsuits": 312,
+  "filter": { "kind": "judgement-bond", "tribunals": [10, 18], "budget_years": [2024], "natures": ["common"] },
+  "created_at": "2026-05-06T18:00:00.000Z",
+  "updated_at": "2026-05-06T18:01:30.000Z"
+}
+```
+
+Repeat every 30 s until `status` becomes **`completed`**. Typical time: 2–10 minutes for up to 1000 lawsuits.
+
+```python Python (poll example)
+import os, time, requests
+
+API = "https://miner.production.judit.io"
+HEADERS = {"api-key": os.environ["JUDIT_API_KEY"]}
+REQ_ID = 47
+
+while True:
+    r = requests.get(f"{API}/requests/{REQ_ID}", headers=HEADERS, timeout=15)
+    r.raise_for_status()
+    data = r.json()
+    print(f"{data['processed_lawsuits']}/{data['total_lawsuits']} — {data['status']}")
+    if data["status"] in ("completed", "failed"):
+        break
+    time.sleep(30)
+```
+
+## Step 5: Paginate the returned lawsuits
+
+With `status: completed`, fetch the lawsuits via `/responses`:
+
+```bash
+curl --request GET \
+  --url 'https://miner.production.judit.io/responses?request_id=47&page=1&page_size=50' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+Response:
+
+```json
+{
+  "data": [
+    {
+      "lawsuit_id": 10293847,
+      "tribunal_id": 10,
+      "kind": "judgement-bond",
+      "code": "9999999-99.9999.9.99.9999",
+      "instance": 1,
+      "name": "Plaintiff X Defendant",
+      "amount": 152800.45,
+      "is_enriched": true,
+      "favorites": {},
+      "created_at": "2026-05-06T18:05:21.000Z",
+      "updated_at": "2026-05-06T18:05:21.000Z"
+    }
+  ],
+  "page": 1,
+  "page_size": 50,
+  "total": 1000,
+  "total_pages": 20
+}
+```
+
+Iterate over `page=2..20` until `total_pages` is exhausted. Each item follows `LawsuitRepositoryOutput` — lawsuit cover + parties, lawyers, steps and metadata.
+
+## Common errors
+
+| HTTP | Code | When | How to handle |
+| --- | --- | --- | --- |
+| `400` | (validation) | Invalid filter combination (e.g. `tags` with `kind: judgement-bond`). | Review rules in [Concepts](/en/miner/concepts#combination-rules). |
+| `403` | `MISSING_CREDITS` | Account has no credit balance. | Top up or contact commercial. |
+| `403` | `MISSING_CONFIGURATIONS` | Plan has no Miner pricing tiers. | Request configuration. |
+| `403` | `INSUFFICIENT_CREDITS` | Balance is below the computed `cost`. | Reduce `responses_limit` or top up. |
+| `404` | `REQUEST_NOT_FOUND` | `request_id` does not exist for your company. | Check the ID; `request_id` is per-company, not global. |
+| `422` | `REQUEST_NOT_COMPLETED` | Reading `/responses` while status is still `pending`. | Poll `/requests/{id}` until `completed`. |
+| `422` | `INVALID_REQUEST_TYPE` | Reading `/responses` for a `count`-type request. | Use the `request_id` returned by `/requests/create`. |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Full concepts" icon="book" href="/en/miner/concepts">
+    All valid combinations of `kind`, `natures`, `tags`, `amount_tier`.
+  </Card>
+  <Card title="Credits & billing" icon="coins" href="/en/miner/credits">
+    How `cost` is computed and how to handle billing errors.
+  </Card>
+  <Card title="API Reference" icon="code" href="/en/api-reference/endpoint/miner/requests-count">
+    Interactive spec with every endpoint and schema.
+  </Card>
+  <Card title="Court list" icon="building-columns" href="/en/miner/tribunals">
+    IDs and acronyms for the 60+ supported courts.
+  </Card>
+</CardGroup>

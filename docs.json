@@ -65,7 +65,6 @@
                 "group": "Consultas Síncronas",
                 "pages": [
                   "cache-judit/hotstorage",
-                  "cache-judit/has-lawsuits",
                   "cache-judit/count",
                   "cache-judit/cache-grouped"
                 ]
@@ -155,7 +154,6 @@
               {
                 "group": "Lawsuits · Consultas Síncronas (Cache JUDIT)",
                 "pages": [
-                  "api-reference/endpoint/crawler/req-async",
                   "api-reference/endpoint/crawler/req-count",
                   "api-reference/endpoint/crawler/req-hotStorage",
                   "api-reference/endpoint/crawler/req-grouped"
@@ -179,6 +177,36 @@
                 "pages": [
                   "api-reference/endpoint/vault/vault",
                   "api-reference/endpoint/vault/vaultcreate"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Miner API",
+            "groups": [
+              {
+                "group": "Primeiros Passos",
+                "pages": [
+                  "miner/introduction",
+                  "miner/quickstart"
+                ]
+              },
+              {
+                "group": "Conceitos",
+                "pages": [
+                  "miner/concepts",
+                  "miner/credits",
+                  "miner/tribunals"
+                ]
+              },
+              {
+                "group": "Referência da API · Miner",
+                "pages": [
+                  "api-reference/endpoint/miner/requests-count",
+                  "api-reference/endpoint/miner/requests-create",
+                  "api-reference/endpoint/miner/requests-find-one",
+                  "api-reference/endpoint/miner/responses-find-many",
+                  "api-reference/endpoint/miner/tribunals-list"
                 ]
               }
             ]
@@ -228,7 +256,6 @@
                 "group": "Synchronous Requests",
                 "pages": [
                   "en/cache-judit/hotstorage",
-                  "en/cache-judit/has-lawsuits",
                   "en/cache-judit/count",
                   "en/cache-judit/cache-grouped"
                 ]
@@ -318,7 +345,6 @@
               {
                 "group": "Lawsuits · Synchronous Queries (JUDIT Cache)",
                 "pages": [
-                  "en/api-reference/endpoint/crawler/req-async",
                   "en/api-reference/endpoint/crawler/req-count",
                   "en/api-reference/endpoint/crawler/req-hotStorage",
                   "en/api-reference/endpoint/crawler/req-grouped"
@@ -345,6 +371,36 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "Miner API",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "en/miner/introduction",
+                  "en/miner/quickstart"
+                ]
+              },
+              {
+                "group": "Concepts",
+                "pages": [
+                  "en/miner/concepts",
+                  "en/miner/credits",
+                  "en/miner/tribunals"
+                ]
+              },
+              {
+                "group": "API Reference · Miner",
+                "pages": [
+                  "en/api-reference/endpoint/miner/requests-count",
+                  "en/api-reference/endpoint/miner/requests-create",
+                  "en/api-reference/endpoint/miner/requests-find-one",
+                  "en/api-reference/endpoint/miner/responses-find-many",
+                  "en/api-reference/endpoint/miner/tribunals-list"
+                ]
+              }
+            ]
           }
         ]
       }
@@ -361,7 +417,8 @@
     "openapi": [
       "https://requests.production.judit.io/docs/spec",
       "https://tracking.production.judit.io/docs/spec",
-      "https://lawsuits.production.judit.io/docs/spec"
+      "https://lawsuits.production.judit.io/docs/spec",
+      "openapi/miner.yaml"
     ],
     "playground": {
       "display": "interactive"
@@ -370,7 +427,8 @@
       "server": [
         "https://requests.production.judit.io",
         "https://tracking.production.judit.io",
-        "https://lawsuits.production.judit.io"
+        "https://lawsuits.production.judit.io",
+        "https://miner.production.judit.io"
       ],
       "auth": {
         "method": "key",

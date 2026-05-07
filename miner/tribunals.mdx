@@ -1,0 +1,171 @@
+---
+title: "Tribunais aceitos no Miner"
+sidebarTitle: "Tribunais"
+description: "Lista completa dos 60+ tribunais cobertos pelo Miner: IDs numéricos para usar no filtro `tribunals` e seus acrônimos. STJ, todos os TJs estaduais, TRFs federais, TRTs trabalhistas e TRE-SP."
+keywords: ["tribunais miner", "tribunal_id", "TJSP", "TJRJ", "TRF", "TRT", "STJ", "filtro tribunais"]
+icon: "building-columns"
+---
+
+<Note>
+**Beta público.** A cobertura por tribunal pode crescer durante a fase beta. Para obter sempre a lista atual em runtime, use `GET /tribunals` (rota gratuita).
+</Note>
+
+Cada tribunal coberto pelo Miner tem um identificador numérico interno (`tribunal_id`) — esse é o valor que você passa no campo `tribunals` ao filtrar uma busca. **Os IDs não são os acrônimos** e tampouco são o `tribunal_acronym` da consulta processual padrão da Judit.
+
+Para filtrar por tribunal:
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18, 1, 193]
+}
+```
+
+Ou, em runtime, busque a lista atualizada:
+
+```bash
+curl --request GET \
+  --url 'https://miner.production.judit.io/tribunals' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+## Lista completa (ordenada por acrônimo)
+
+A lista abaixo reflete os tribunais retornados por `GET /tribunals`. Use o **`tribunal_id`** no campo `tribunals` da requisição.
+
+### Justiça Superior
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `927126` | **STJ** | Superior Tribunal de Justiça |
+
+### Justiça Estadual (TJ)
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `538384` | **TJAC** | Tribunal de Justiça do Acre |
+| `477825` | **TJAL** | Tribunal de Justiça de Alagoas |
+| `511165` | **TJAM** | Tribunal de Justiça do Amazonas |
+| `586715` | **TJAP** | Tribunal de Justiça do Amapá |
+| `511221` | **TJBA** | Tribunal de Justiça da Bahia |
+| `5028` | **TJCE** | Tribunal de Justiça do Ceará |
+| `510788` | **TJDF** | Tribunal de Justiça do Distrito Federal |
+| `5468` | **TJES** | Tribunal de Justiça do Espírito Santo |
+| `581028` | **TJGO** | Tribunal de Justiça de Goiás |
+| `510756` | **TJMA** | Tribunal de Justiça do Maranhão |
+| `23480` | **TJMG** | Tribunal de Justiça de Minas Gerais |
+| `173` | **TJMS** | Tribunal de Justiça de Mato Grosso do Sul |
+| `510571` | **TJMT** | Tribunal de Justiça de Mato Grosso |
+| `512372` | **TJPA** | Tribunal de Justiça do Pará |
+| `477557` | **TJPB** | Tribunal de Justiça da Paraíba |
+| `477564` | **TJPE** | Tribunal de Justiça de Pernambuco |
+| `815112` | **TJPI** | Tribunal de Justiça do Piauí |
+| `456559` | **TJPR** | Tribunal de Justiça do Paraná |
+| `18` | **TJRJ** | Tribunal de Justiça do Rio de Janeiro |
+| `477866` | **TJRN** | Tribunal de Justiça do Rio Grande do Norte |
+| `510866` | **TJRO** | Tribunal de Justiça de Rondônia |
+| `1045760` | **TJRR** | Tribunal de Justiça de Roraima |
+| `583514` | **TJRS** | Tribunal de Justiça do Rio Grande do Sul |
+| `3768` | **TJSC** | Tribunal de Justiça de Santa Catarina |
+| `477577` | **TJSE** | Tribunal de Justiça de Sergipe |
+| `10` | **TJSP** | Tribunal de Justiça de São Paulo |
+| `581271` | **TJTO** | Tribunal de Justiça do Tocantins |
+
+### Justiça Militar Estadual (TJM)
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `1330350` | **TJMMG** | Tribunal de Justiça Militar de Minas Gerais |
+| `4531239` | **TJMRS** | Tribunal de Justiça Militar do Rio Grande do Sul |
+| `906456` | **TJMSP** | Tribunal de Justiça Militar de São Paulo |
+
+### Justiça Federal (TRF)
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `193` | **TRF1** | Tribunal Regional Federal da 1ª Região |
+| `37524` | **TRF2** | Tribunal Regional Federal da 2ª Região |
+| `1` | **TRF3** | Tribunal Regional Federal da 3ª Região |
+| `482427` | **TRF4** | Tribunal Regional Federal da 4ª Região |
+| `64` | **TRF5** | Tribunal Regional Federal da 5ª Região |
+| `633695` | **TRF6** | Tribunal Regional Federal da 6ª Região |
+
+### Justiça do Trabalho (TRT)
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `510443` | **TRT1** | TRT da 1ª Região (RJ) |
+| `150610` | **TRT2** | TRT da 2ª Região (SP capital) |
+| `510432` | **TRT3** | TRT da 3ª Região (MG) |
+| `510516` | **TRT4** | TRT da 4ª Região (RS) |
+| `510783` | **TRT5** | TRT da 5ª Região (BA) |
+| `510900` | **TRT6** | TRT da 6ª Região (PE) |
+| `511096` | **TRT7** | TRT da 7ª Região (CE) |
+| `511317` | **TRT8** | TRT da 8ª Região (PA/AP) |
+| `510720` | **TRT9** | TRT da 9ª Região (PR) |
+| `510976` | **TRT10** | TRT da 10ª Região (DF/TO) |
+| `511188` | **TRT11** | TRT da 11ª Região (AM/RR) |
+| `511091` | **TRT12** | TRT da 12ª Região (SC) |
+| `511153` | **TRT13** | TRT da 13ª Região (PB) |
+| `511228` | **TRT14** | TRT da 14ª Região (RO/AC) |
+| `510428` | **TRT15** | TRT da 15ª Região (SP interior) |
+| `511213` | **TRT16** | TRT da 16ª Região (MA) |
+| `511043` | **TRT17** | TRT da 17ª Região (ES) |
+| `510950` | **TRT18** | TRT da 18ª Região (GO) |
+| `511269` | **TRT19** | TRT da 19ª Região (AL) |
+| `511245` | **TRT20** | TRT da 20ª Região (SE) |
+| `511337` | **TRT21** | TRT da 21ª Região (RN) |
+| `527067` | **TRT22** | TRT da 22ª Região (PI) |
+| `511127` | **TRT23** | TRT da 23ª Região (MT) |
+| `511211` | **TRT24** | TRT da 24ª Região (MS) |
+
+### Justiça Eleitoral (TRE)
+
+| `tribunal_id` | Acrônimo | Tribunal |
+| --- | --- | --- |
+| `1151652` | **TRE-SP** | Tribunal Regional Eleitoral de São Paulo |
+
+## Padrões úteis
+
+### Cobrir todo o eixo Sudeste estadual
+
+```json
+{
+  "tribunals": [10, 18, 23480, 5468]
+}
+```
+(TJSP, TJRJ, TJMG, TJES)
+
+### Cobrir todos os TRFs federais
+
+```json
+{
+  "tribunals": [193, 37524, 1, 482427, 64, 633695]
+}
+```
+
+### Cobrir grandes capitais trabalhistas (TRT2 + TRT15)
+
+```json
+{
+  "tribunals": [150610, 510428]
+}
+```
+(TRT2 — São Paulo capital; TRT15 — interior de SP)
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Conceitos" icon="book" href="/miner/concepts">
+    Como combinar `tribunals` com `kind`, `natures`, `tags` e faixas de valor.
+  </Card>
+  <Card title="Quickstart" icon="bolt" href="/miner/quickstart">
+    Veja `tribunals` em ação dentro de um fluxo completo.
+  </Card>
+  <Card title="GET /tribunals (Referência)" icon="code" href="/api-reference/endpoint/miner/tribunals-list">
+    Spec interativa do endpoint que retorna esta lista em runtime.
+  </Card>
+  <Card title="Cobertura geral Judit" icon="globe" href="/resource/courtCoverage">
+    Cobertura de tribunais nos demais produtos Judit (Tracking, Lawsuits, Requests).
+  </Card>
+</CardGroup>
