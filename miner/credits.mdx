@@ -6,8 +6,12 @@ keywords: ["créditos", "cost", "billing", "preço", "MISSING_CREDITS", "INSUFFI
 icon: "coins"
 ---
 
+<Warning>
+**Os preços de uso da API Miner não estão inclusos na licença da Plataforma JUDIT Miner.** O consumo da API é cobrado **separadamente em créditos**, com tabela própria configurada por contrato. **Confirme antes** com o time comercial as faixas vigentes para sua conta — os valores absolutos abaixo são ilustrativos.
+</Warning>
+
 <Note>
-**Beta público.** A tabela de preços por faixa é configurada por contrato — os valores absolutos abaixo são ilustrativos. Confirme as faixas vigentes para sua conta com o comercial Judit.
+**Beta público.** O modelo de cobrança documentado aqui é estável, mas pequenos ajustes nas faixas podem ocorrer durante a fase beta. Sempre cheque o `cost` retornado em `/requests/create` antes de planejar volume.
 </Note>
 
 O Miner é cobrado em **créditos**, debitados na criação de cada busca real (`POST /requests/create`). O `POST /requests/count` é **gratuito** — use sempre antes de criar para estimar o volume e evitar surpresas.

@@ -65,7 +65,6 @@
                 "group": "Consultas Síncronas",
                 "pages": [
                   "cache-judit/hotstorage",
-                  "cache-judit/has-lawsuits",
                   "cache-judit/count",
                   "cache-judit/cache-grouped"
                 ]
@@ -155,7 +154,6 @@
               {
                 "group": "Lawsuits · Consultas Síncronas (Cache JUDIT)",
                 "pages": [
-                  "api-reference/endpoint/crawler/req-async",
                   "api-reference/endpoint/crawler/req-count",
                   "api-reference/endpoint/crawler/req-hotStorage",
                   "api-reference/endpoint/crawler/req-grouped"
@@ -258,7 +256,6 @@
                 "group": "Synchronous Requests",
                 "pages": [
                   "en/cache-judit/hotstorage",
-                  "en/cache-judit/has-lawsuits",
                   "en/cache-judit/count",
                   "en/cache-judit/cache-grouped"
                 ]
@@ -348,7 +345,6 @@
               {
                 "group": "Lawsuits · Synchronous Queries (JUDIT Cache)",
                 "pages": [
-                  "en/api-reference/endpoint/crawler/req-async",
                   "en/api-reference/endpoint/crawler/req-count",
                   "en/api-reference/endpoint/crawler/req-hotStorage",
                   "en/api-reference/endpoint/crawler/req-grouped"

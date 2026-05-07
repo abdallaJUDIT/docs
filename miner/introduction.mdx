@@ -10,6 +10,10 @@ icon: "pickaxe"
 **Beta público.** O Miner é um produto novo da Judit, em beta aberto. Os endpoints e o modelo de cobrança documentados aqui são estáveis, mas pequenos ajustes podem acontecer durante esta fase. Recomendamos travar a versão do contrato (via `If-Match` ou changelog) e nos seguir em [docs.judit.io/resource/changelog](/resource/changelog).
 </Note>
 
+<Warning>
+**Os preços de uso da API Miner não estão inclusos na licença da Plataforma JUDIT Miner.** O acesso à API é cobrado **separadamente em créditos**, conforme a tabela de [Créditos & cobrança](/miner/credits). Confirme com o time comercial as faixas vigentes para sua conta antes de disparar buscas em produção.
+</Warning>
+
 O **Judit Miner** é um produto dedicado a **garimpar ativos judiciais em escala**: precatórios pagos ou em fase de pagamento (`judgement-bond`) e execuções de sentença com potencial de recuperação (`sentence-execution`). Em vez de ir processo por processo, você define um conjunto de filtros (tribunais, faixa de valor, naturezas, tags) e a Judit identifica para você todos os processos que se encaixam — descontando os que sua empresa já consultou anteriormente.
 
 > 🤖 Host base: `https://miner.production.judit.io`. Autenticação por header `api-key` (mesma chave usada nos demais produtos Judit, com a permissão `miner_enabled` habilitada). O modelo de cobrança é por **créditos** — cada `find` é precificado por faixa antes de ser processado.
