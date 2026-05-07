@@ -1,0 +1,144 @@
+---
+title: "Credits & billing on Miner"
+sidebarTitle: "Credits & Billing"
+description: "How Miner computes the cost of every query: per-tier pricing, credit debit on /requests/create, and handling of billing errors (MISSING_CREDITS, INSUFFICIENT_CREDITS, MISSING_CONFIGURATIONS)."
+keywords: ["credits", "cost", "billing", "pricing", "MISSING_CREDITS", "INSUFFICIENT_CREDITS", "amount_tier"]
+icon: "coins"
+---
+
+<Note>
+**Public beta.** The per-tier price table is configured by contract — the absolute values below are illustrative. Confirm the tiers in effect for your account with the Judit commercial team.
+</Note>
+
+Miner is billed in **credits**, debited when each real query is created (`POST /requests/create`). `POST /requests/count` is **free** — always use it before creating to estimate volume and avoid surprises.
+
+## How `cost` is computed
+
+Each lawsuit materialized in a query has a unit price defined by **amount tier** (`amount_tier`). Final `cost` is the sum of per-tier price multiplied by the number of lawsuits returned in each tier.
+
+```
+cost = Σ (price_for_tier_i × lawsuits_in_tier_i)
+```
+
+Example: you trigger a `find` for `judgement-bond` on TJSP/TJRJ without `amount_tier` (open query) and Miner returns:
+
+| Tier | Lawsuits returned | Price per lawsuit (credits) | Subtotal |
+| --- | --- | --- | --- |
+| `0-100k` | 320 | 5 | 1,600 |
+| `100k-250k` | 180 | 10 | 1,800 |
+| `250k-500k` | 95 | 20 | 1,900 |
+| `500k-750k` | 40 | 30 | 1,200 |
+| `750k-1.5M` | 25 | 50 | 1,250 |
+| `1.5M+` | 12 | 100 | 1,200 |
+| **Total** | **672** | | **8,950** |
+
+The `/requests/create` response would carry:
+
+```json
+{
+  "request_id": 47,
+  "status": "pending",
+  "cost": 8950
+}
+```
+
+Those 8,950 credits have already been **debited** from the company's balance at this moment. If the query later fails (`status: failed`) due to a server-side issue, we'll proactively contact your team to refund.
+
+## Strategies to control cost
+
+### 1. Always use `/requests/count` first
+
+Knowing `total_lawsuits` before purchasing avoids 90% of the surprises. Count is free and synchronous.
+
+### 2. Narrow with `amount_tier` or `amount_min`/`amount_max`
+
+If you only want assets above R$ 250k, filtering upfront avoids paying for lawsuits you'd discard later.
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18],
+  "amount_tier": "500k-750k"
+}
+```
+
+### 3. Cap volume with `responses_limit`
+
+For experimentation or sampling, set a ceiling:
+
+```json
+{
+  "kind": "sentence-execution",
+  "tags": ["possible_precatory"],
+  "responses_limit": 100
+}
+```
+
+Billing is proportional — you only pay for the 100 lawsuits actually returned.
+
+### 4. Don't re-run identical queries
+
+`count` **already excludes** lawsuits your company has retrieved before. If you run the same query twice, the second `count` will return zero (or only what was added to the base since). This protects your balance.
+
+## Billing errors (HTTP 403)
+
+Miner uses `403` with readable codes in the error payload:
+
+| Code | Meaning | How to fix |
+| --- | --- | --- |
+| `MISSING_CONFIGURATIONS` | Your account doesn't have the Miner plan configured (no price tiers). | Request configuration from the commercial team. |
+| `MISSING_CREDITS` | The company has no credits provisioned. | Top up the balance on the dashboard. |
+| `INSUFFICIENT_CREDITS` | There's balance, but not enough for the computed `cost`. | Reduce `responses_limit`, narrow the filters, or top up. |
+
+Example response:
+
+```json
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+  "errors": [
+    "INSUFFICIENT_CREDITS"
+  ]
+}
+```
+
+<Warning>
+The free-`count` + paid-`create` combination assumes you've checked the balance beforehand. If you'd like, we expose balance-lookup on your account — talk to commercial to wire that route into your pre-flight flow.
+</Warning>
+
+## Refunds
+
+- **Server-side failure** (`status: failed` due to our issue): full refund, manual via support.
+- **Plan-side post-debit failure** (rare): full refund.
+- **Cancellation while `pending`**: no refund — the work has been queued.
+
+To request a refund, send the `request_id` to support.
+
+## How to track consumption
+
+Each `find` creation appears in your account history with:
+
+- `request_id` (Miner ID)
+- `created_at`
+- `cost` (credits debited)
+- final `status` (`completed` / `failed`)
+
+Use `GET /requests/{request_id}` to inspect individually. For a consolidated view, [Consumption](/en/resource/consumption) shows the monthly aggregate across all Judit products, including Miner.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/en/miner/quickstart">
+    See count → create → poll → paginate in action.
+  </Card>
+  <Card title="Concepts" icon="book" href="/en/miner/concepts">
+    Understand which filters to combine to narrow cost.
+  </Card>
+  <Card title="Supported courts" icon="building-columns" href="/en/miner/tribunals">
+    Full list of IDs for the `tribunals` filter.
+  </Card>
+  <Card title="Consumption" icon="chart-line" href="/en/resource/consumption">
+    Consolidated view of credit consumption per product.
+  </Card>
+</CardGroup>

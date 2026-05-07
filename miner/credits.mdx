@@ -1,0 +1,144 @@
+---
+title: "Créditos & cobrança no Miner"
+sidebarTitle: "Créditos & Cobrança"
+description: "Como o Miner calcula o cost de cada busca: faixas de preço por amount_tier, débito de créditos no /requests/create e tratamento de erros de billing (MISSING_CREDITS, INSUFFICIENT_CREDITS, MISSING_CONFIGURATIONS)."
+keywords: ["créditos", "cost", "billing", "preço", "MISSING_CREDITS", "INSUFFICIENT_CREDITS", "amount_tier"]
+icon: "coins"
+---
+
+<Note>
+**Beta público.** A tabela de preços por faixa é configurada por contrato — os valores absolutos abaixo são ilustrativos. Confirme as faixas vigentes para sua conta com o comercial Judit.
+</Note>
+
+O Miner é cobrado em **créditos**, debitados na criação de cada busca real (`POST /requests/create`). O `POST /requests/count` é **gratuito** — use sempre antes de criar para estimar o volume e evitar surpresas.
+
+## Como o `cost` é calculado
+
+Cada processo materializado em uma busca tem um preço unitário definido por **faixa de valor** (`amount_tier`). O `cost` final é a soma do preço por faixa multiplicado pelo número de processos retornados em cada uma.
+
+```
+cost = Σ (preço_da_faixa_i × quantidade_de_processos_na_faixa_i)
+```
+
+Exemplo: você dispara um `find` para `judgement-bond` em TJSP/TJRJ sem `amount_tier` (busca aberta) e o Miner retorna:
+
+| Faixa | Processos retornados | Preço por processo (créditos) | Subtotal |
+| --- | --- | --- | --- |
+| `0-100k` | 320 | 5 | 1.600 |
+| `100k-250k` | 180 | 10 | 1.800 |
+| `250k-500k` | 95 | 20 | 1.900 |
+| `500k-750k` | 40 | 30 | 1.200 |
+| `750k-1.5M` | 25 | 50 | 1.250 |
+| `1.5M+` | 12 | 100 | 1.200 |
+| **Total** | **672** | | **8.950** |
+
+A resposta do `/requests/create` traria:
+
+```json
+{
+  "request_id": 47,
+  "status": "pending",
+  "cost": 8950
+}
+```
+
+Os 8.950 créditos já foram **debitados** do saldo da empresa nesse momento. Se a busca falhar depois (`status: failed`), procuramos seu time para reembolsar caso a falha seja do nosso lado.
+
+## Estratégias para controlar custo
+
+### 1. Use `/requests/count` antes (sempre)
+
+Saber o `total_lawsuits` antes de comprar evita 90% das surpresas. O count é gratuito e síncrono.
+
+### 2. Estreite com `amount_tier` ou `amount_min`/`amount_max`
+
+Se você só quer ativos acima de R$ 250k, filtrar antes evita pagar por processos que você descartaria depois.
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18],
+  "amount_tier": "500k-750k"
+}
+```
+
+### 3. Limite o volume com `responses_limit`
+
+Para experimentação ou amostragem, defina um teto:
+
+```json
+{
+  "kind": "sentence-execution",
+  "tags": ["possible_precatory"],
+  "responses_limit": 100
+}
+```
+
+A cobrança é proporcional — você paga apenas pelos 100 processos efetivamente retornados.
+
+### 4. Evite re-rodar buscas idênticas
+
+O `count` **já desconta** processos que sua empresa consultou anteriormente. Se você rodar a mesma busca duas vezes, o segundo `count` vai retornar zero (ou só o que entrou na base nesse meio tempo). Isso protege seu saldo.
+
+## Erros de billing (HTTP 403)
+
+O Miner usa `403` com códigos legíveis na payload de erro:
+
+| Código | O que significa | Como resolver |
+| --- | --- | --- |
+| `MISSING_CONFIGURATIONS` | Sua conta não tem o plano Miner configurado (sem tabela de preços). | Solicite a configuração ao comercial. |
+| `MISSING_CREDITS` | A empresa não tem nenhum crédito provisionado. | Recarregue o saldo no dashboard. |
+| `INSUFFICIENT_CREDITS` | Há saldo, mas não o suficiente para o `cost` calculado desta busca. | Reduza `responses_limit`, estreite os filtros, ou recarregue. |
+
+Exemplo de resposta:
+
+```json
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+  "errors": [
+    "INSUFFICIENT_CREDITS"
+  ]
+}
+```
+
+<Warning>
+A combinação `count` gratuito + `create` pago pressupõe que você verificou o saldo antes. Se quiser, expomos consulta de saldo na sua conta — fale com o comercial para integrar essa rota ao seu fluxo de pré-flight.
+</Warning>
+
+## Reembolsos
+
+- **Falha do servidor** (`status: failed` por erro nosso): reembolso integral, manual via suporte.
+- **Falha pós-débito por motivo de plano** (raro): reembolso integral.
+- **Cancelamento de busca em `pending`**: não há reembolso — o trabalho já foi enfileirado.
+
+Para abrir um pedido de reembolso, mande o `request_id` para o suporte.
+
+## Como acompanhar consumo
+
+Cada criação de `find` aparece no histórico da sua conta com:
+
+- `request_id` (ID Miner)
+- `created_at`
+- `cost` (créditos debitados)
+- `status` final (`completed` / `failed`)
+
+Use `GET /requests/{request_id}` para inspecionar individualmente. Para uma visão consolidada, [Consumo](/resource/consumption) traz o agregado mensal de todos os produtos Judit, incluindo o Miner.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/miner/quickstart">
+    Veja a sequência count → create → poll → paginate em ação.
+  </Card>
+  <Card title="Conceitos" icon="book" href="/miner/concepts">
+    Entenda quais filtros combinar para estreitar custo.
+  </Card>
+  <Card title="Tribunais aceitos" icon="building-columns" href="/miner/tribunals">
+    Lista completa de IDs para o filtro `tribunals`.
+  </Card>
+  <Card title="Consumo" icon="chart-line" href="/resource/consumption">
+    Visão consolidada do consumo de créditos por produto.
+  </Card>
+</CardGroup>

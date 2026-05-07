@@ -1,0 +1,171 @@
+---
+title: "Supported courts on Miner"
+sidebarTitle: "Courts"
+description: "Full list of the 60+ courts covered by Miner: numeric IDs to use in the `tribunals` filter and their acronyms. STJ, every state TJ, federal TRFs, labor TRTs and TRE-SP."
+keywords: ["miner courts", "tribunal_id", "TJSP", "TJRJ", "TRF", "TRT", "STJ", "tribunals filter"]
+icon: "building-columns"
+---
+
+<Note>
+**Public beta.** Per-court coverage may grow during beta. To always get the current list at runtime, use `GET /tribunals` (free route).
+</Note>
+
+Every court covered by Miner has an internal numeric identifier (`tribunal_id`) — that's the value you pass in the `tribunals` field when filtering a query. **The IDs are not the acronyms** and they are not the `tribunal_acronym` returned by Judit's standard lawsuit-query products.
+
+To filter by court:
+
+```json
+{
+  "kind": "judgement-bond",
+  "tribunals": [10, 18, 1, 193]
+}
+```
+
+Or, at runtime, fetch the up-to-date list:
+
+```bash
+curl --request GET \
+  --url 'https://miner.production.judit.io/tribunals' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+## Full list (sorted by acronym)
+
+The list below mirrors what `GET /tribunals` returns. Use the **`tribunal_id`** in the `tribunals` field of your request.
+
+### Superior Court
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `927126` | **STJ** | Superior Tribunal de Justiça (Superior Court of Justice) |
+
+### State Courts (TJ)
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `538384` | **TJAC** | Court of Justice of Acre |
+| `477825` | **TJAL** | Court of Justice of Alagoas |
+| `511165` | **TJAM** | Court of Justice of Amazonas |
+| `586715` | **TJAP** | Court of Justice of Amapá |
+| `511221` | **TJBA** | Court of Justice of Bahia |
+| `5028` | **TJCE** | Court of Justice of Ceará |
+| `510788` | **TJDF** | Court of Justice of the Federal District |
+| `5468` | **TJES** | Court of Justice of Espírito Santo |
+| `581028` | **TJGO** | Court of Justice of Goiás |
+| `510756` | **TJMA** | Court of Justice of Maranhão |
+| `23480` | **TJMG** | Court of Justice of Minas Gerais |
+| `173` | **TJMS** | Court of Justice of Mato Grosso do Sul |
+| `510571` | **TJMT** | Court of Justice of Mato Grosso |
+| `512372` | **TJPA** | Court of Justice of Pará |
+| `477557` | **TJPB** | Court of Justice of Paraíba |
+| `477564` | **TJPE** | Court of Justice of Pernambuco |
+| `815112` | **TJPI** | Court of Justice of Piauí |
+| `456559` | **TJPR** | Court of Justice of Paraná |
+| `18` | **TJRJ** | Court of Justice of Rio de Janeiro |
+| `477866` | **TJRN** | Court of Justice of Rio Grande do Norte |
+| `510866` | **TJRO** | Court of Justice of Rondônia |
+| `1045760` | **TJRR** | Court of Justice of Roraima |
+| `583514` | **TJRS** | Court of Justice of Rio Grande do Sul |
+| `3768` | **TJSC** | Court of Justice of Santa Catarina |
+| `477577` | **TJSE** | Court of Justice of Sergipe |
+| `10` | **TJSP** | Court of Justice of São Paulo |
+| `581271` | **TJTO** | Court of Justice of Tocantins |
+
+### Military State Courts (TJM)
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `1330350` | **TJMMG** | Military Court of Justice of Minas Gerais |
+| `4531239` | **TJMRS** | Military Court of Justice of Rio Grande do Sul |
+| `906456` | **TJMSP** | Military Court of Justice of São Paulo |
+
+### Federal Courts (TRF)
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `193` | **TRF1** | Federal Court of the 1st Region |
+| `37524` | **TRF2** | Federal Court of the 2nd Region |
+| `1` | **TRF3** | Federal Court of the 3rd Region |
+| `482427` | **TRF4** | Federal Court of the 4th Region |
+| `64` | **TRF5** | Federal Court of the 5th Region |
+| `633695` | **TRF6** | Federal Court of the 6th Region |
+
+### Labor Courts (TRT)
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `510443` | **TRT1** | Labor Court — 1st Region (RJ) |
+| `150610` | **TRT2** | Labor Court — 2nd Region (SP capital) |
+| `510432` | **TRT3** | Labor Court — 3rd Region (MG) |
+| `510516` | **TRT4** | Labor Court — 4th Region (RS) |
+| `510783` | **TRT5** | Labor Court — 5th Region (BA) |
+| `510900` | **TRT6** | Labor Court — 6th Region (PE) |
+| `511096` | **TRT7** | Labor Court — 7th Region (CE) |
+| `511317` | **TRT8** | Labor Court — 8th Region (PA/AP) |
+| `510720` | **TRT9** | Labor Court — 9th Region (PR) |
+| `510976` | **TRT10** | Labor Court — 10th Region (DF/TO) |
+| `511188` | **TRT11** | Labor Court — 11th Region (AM/RR) |
+| `511091` | **TRT12** | Labor Court — 12th Region (SC) |
+| `511153` | **TRT13** | Labor Court — 13th Region (PB) |
+| `511228` | **TRT14** | Labor Court — 14th Region (RO/AC) |
+| `510428` | **TRT15** | Labor Court — 15th Region (SP interior) |
+| `511213` | **TRT16** | Labor Court — 16th Region (MA) |
+| `511043` | **TRT17** | Labor Court — 17th Region (ES) |
+| `510950` | **TRT18** | Labor Court — 18th Region (GO) |
+| `511269` | **TRT19** | Labor Court — 19th Region (AL) |
+| `511245` | **TRT20** | Labor Court — 20th Region (SE) |
+| `511337` | **TRT21** | Labor Court — 21st Region (RN) |
+| `527067` | **TRT22** | Labor Court — 22nd Region (PI) |
+| `511127` | **TRT23** | Labor Court — 23rd Region (MT) |
+| `511211` | **TRT24** | Labor Court — 24th Region (MS) |
+
+### Electoral Courts (TRE)
+
+| `tribunal_id` | Acronym | Court |
+| --- | --- | --- |
+| `1151652` | **TRE-SP** | Regional Electoral Court of São Paulo |
+
+## Useful patterns
+
+### Cover the entire Southeast state axis
+
+```json
+{
+  "tribunals": [10, 18, 23480, 5468]
+}
+```
+(TJSP, TJRJ, TJMG, TJES)
+
+### Cover every federal TRF
+
+```json
+{
+  "tribunals": [193, 37524, 1, 482427, 64, 633695]
+}
+```
+
+### Cover the largest labor capitals (TRT2 + TRT15)
+
+```json
+{
+  "tribunals": [150610, 510428]
+}
+```
+(TRT2 — São Paulo capital; TRT15 — São Paulo interior)
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Concepts" icon="book" href="/en/miner/concepts">
+    How to combine `tribunals` with `kind`, `natures`, `tags` and amount ranges.
+  </Card>
+  <Card title="Quickstart" icon="bolt" href="/en/miner/quickstart">
+    See `tribunals` in action inside a complete flow.
+  </Card>
+  <Card title="GET /tribunals (Reference)" icon="code" href="/en/api-reference/endpoint/miner/tribunals-list">
+    Interactive spec for the runtime endpoint that returns this list.
+  </Card>
+  <Card title="Overall Judit coverage" icon="globe" href="/en/resource/courtCoverage">
+    Court coverage on the other Judit products (Tracking, Lawsuits, Requests).
+  </Card>
+</CardGroup>

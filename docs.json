@@ -182,6 +182,36 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "Miner API",
+            "groups": [
+              {
+                "group": "Primeiros Passos",
+                "pages": [
+                  "miner/introduction",
+                  "miner/quickstart"
+                ]
+              },
+              {
+                "group": "Conceitos",
+                "pages": [
+                  "miner/concepts",
+                  "miner/credits",
+                  "miner/tribunals"
+                ]
+              },
+              {
+                "group": "Referência da API · Miner",
+                "pages": [
+                  "api-reference/endpoint/miner/requests-count",
+                  "api-reference/endpoint/miner/requests-create",
+                  "api-reference/endpoint/miner/requests-find-one",
+                  "api-reference/endpoint/miner/responses-find-many",
+                  "api-reference/endpoint/miner/tribunals-list"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -345,6 +375,36 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "Miner API",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "en/miner/introduction",
+                  "en/miner/quickstart"
+                ]
+              },
+              {
+                "group": "Concepts",
+                "pages": [
+                  "en/miner/concepts",
+                  "en/miner/credits",
+                  "en/miner/tribunals"
+                ]
+              },
+              {
+                "group": "API Reference · Miner",
+                "pages": [
+                  "en/api-reference/endpoint/miner/requests-count",
+                  "en/api-reference/endpoint/miner/requests-create",
+                  "en/api-reference/endpoint/miner/requests-find-one",
+                  "en/api-reference/endpoint/miner/responses-find-many",
+                  "en/api-reference/endpoint/miner/tribunals-list"
+                ]
+              }
+            ]
           }
         ]
       }
@@ -361,7 +421,8 @@
     "openapi": [
       "https://requests.production.judit.io/docs/spec",
       "https://tracking.production.judit.io/docs/spec",
-      "https://lawsuits.production.judit.io/docs/spec"
+      "https://lawsuits.production.judit.io/docs/spec",
+      "openapi/miner.yaml"
     ],
     "playground": {
       "display": "interactive"
@@ -370,7 +431,8 @@
       "server": [
         "https://requests.production.judit.io",
         "https://tracking.production.judit.io",
-        "https://lawsuits.production.judit.io"
+        "https://lawsuits.production.judit.io",
+        "https://miner.production.judit.io"
       ],
       "auth": {
         "method": "key",
