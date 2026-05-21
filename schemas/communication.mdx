@@ -1,21 +1,21 @@
 ---
 title: "Schema Communication (Diário Oficial de Justiça)"
 sidebarTitle: "Communication"
-description: "Estrutura do objeto Communication retornado pelo monitoramento do Diário de Justiça Eletrônico (DJE) na Judit API. Inclui dados da publicação, destinatários, advogados vinculados e texto integral."
-keywords: ["communication", "diário oficial", "DJE", "intimação", "publicação", "schema", "monitoramento"]
+description: "Estrutura do objeto Communication retornado pelo monitoramento do Diário de Justiça Eletrônico Nacional (DJEN) na Judit API. Inclui dados da publicação, destinatários, advogados vinculados e texto integral."
+keywords: ["communication", "diário oficial", "DJEN", "intimação", "publicação", "schema", "monitoramento"]
 icon: "newspaper"
 ---
 
-> 🤖 O monitoramento do Diário de Justiça Eletrônico retorna o objeto `communication`. Cada objeto representa uma publicação do DJE em que houve correspondência com o termo monitorado. A raiz contém os metadados da publicação (datas, tribunal, tipo). Os destinatários ficam no array `recipients` e os advogados vinculados a eles em `recipient_lawyers`.
+> 🤖 O monitoramento do Diário de Justiça Eletrônico Nacional (DJEN) retorna o objeto `communication`. Cada objeto representa uma publicação do DJEN em que houve correspondência com o termo monitorado. A raiz contém os metadados da publicação (datas, tribunal, tipo). Os destinatários ficam no array `recipients` e os advogados vinculados a eles em `recipient_lawyers`.
 
 ## Estrutura Geral
 
 O JSON de uma comunicação é organizado em 4 blocos principais:
 
 * **Metadados da Publicação (raiz):** Identificação, datas, status, tribunal e tipo da comunicação.
-* **Destinatários (`recipients`):** Partes do processo diretamente citadas na publicação.
+* **Destinatários (`recipients`):** Partes do processo diretamente citadas na publicação — podem ser advogados ou não-advogados.
 * **Advogados dos Destinatários (`recipient_lawyers`):** Advogados vinculados às partes, com dados de OAB.
-* **Texto Integral (`text`):** Conteúdo completo da publicação conforme extraído do DJE.
+* **Texto Integral (`text`):** Conteúdo completo da publicação conforme extraído do DJEN.
 
 ---
 
@@ -31,13 +31,13 @@ Estas propriedades vêm diretamente na raiz do objeto `response_data`.
 | :--- | :--- | :--- |
 | `communication_id` | string | Identificador único da comunicação no sistema da Judit. |
 | `active` | boolean | Indica se a comunicação está ativa (`true`) ou foi cancelada (`false`). |
-| `date_availability` | string (ISO 8601) | Data em que a publicação ficou disponível no DJE para consulta. |
+| `date_availability` | string (ISO 8601) | Data em que a publicação ficou disponível no DJEN para consulta. |
 | `date_shipping` | string (ISO 8601) | Data de expedição/envio da comunicação pelo tribunal. |
-| `hash` | string | Hash único da publicação, utilizado internamente para deduplicação. |
+| `hash` | string | Hash único da publicação, identificador do DJEN. |
 | `lawsuit_code` | string | Número do processo vinculado no formato CNJ (ex: `"0000000-00.0000.8.00.0000"`). |
 | `tribunal_acronym` | string | Sigla oficial do tribunal emissor (ex: `"TJSP"`, `"TJRJ"`, `"TRT2"`). |
-| `status` | string | Status da publicação no DJE (ex: `"P"` para publicado). |
-| `text` | string | Texto integral da publicação conforme extraído do Diário de Justiça Eletrônico. |
+| `status` | string | Status da publicação no DJEN (ex: `"P"` para publicado). |
+| `text` | string | Texto integral da publicação conforme extraído do Diário de Justiça Eletrônico Nacional. |
 | `source` | string | Sistema de origem da publicação (ex: `"pje"`, `"esaj"`). |
 
 #### Campos opcionais
@@ -49,10 +49,10 @@ Estas propriedades vêm diretamente na raiz do objeto `response_data`.
 | `date_cancellation` | string (ISO 8601) | Data de cancelamento da comunicação, quando aplicável. |
 | `reason_cancellation` | string | Motivo do cancelamento da comunicação, quando aplicável. |
 | `api_id` | number | ID interno da comunicação no sistema de origem. |
-| `middle` | string | Código abreviado do veículo de publicação (ex: `"D"` para DJE). |
+| `middle` | string | Código abreviado do veículo de publicação (ex: `"D"` para DJEN). |
 | `full_middle` | string | Nome completo do veículo de publicação (ex: `"DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL"`). |
 | `name_organ` | string | Nome do órgão responsável pela publicação (ex: `"1ª VARA CÍVEL"`). |
-| `communication_number` | number | Número sequencial da comunicação dentro da edição do DJE. |
+| `communication_number` | number | Número sequencial da comunicação dentro da edição do DJEN. |
 | `communication_type` | string | Tipo da comunicação (ex: `"INTIMAÇÃO"`, `"CITAÇÃO"`). |
 | `document_type` | string | Tipo do documento publicado (ex: `"DECISÃO"`, `"DESPACHO"`, `"SENTENÇA"`). |
 | `integrate_api` | boolean | Indica se a comunicação foi integrada via API externa. |
@@ -61,7 +61,7 @@ Estas propriedades vêm diretamente na raiz do objeto `response_data`.
 
 ### 2. Destinatários (`recipients`)
 
-Array com as partes do processo diretamente citadas na publicação. Todos os campos são obrigatórios.
+Array com as pessoas diretamente citadas na publicação — podem ser advogados ou não-advogados (partes do processo). Todos os campos são obrigatórios.
 
 | Propriedade | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -156,7 +156,7 @@ Array com os advogados vinculados aos destinatários da comunicação. Todos os 
         "lawsuit_code": "0000000-00.0000.8.00.0000",
         "tribunal_acronym": "TJXX",
         "status": "P",
-        "text": "Texto completo da publicação conforme extraído do DJE...",
+        "text": "Texto completo da publicação conforme extraído do DJEN...",
         "communication_type": "INTIMAÇÃO",
         "document_type": "DECISÃO",
         "integrate_api": false,
@@ -176,4 +176,4 @@ Array com os advogados vinculados aos destinatários da comunicação. Todos os 
 
 ## Próximos Passos
 
-* 👉 **[Monitoramento do Diário Oficial](/tracking/tracking-communication):** Veja como configurar o monitoramento do DJE e receber publicações via webhook.
+* 👉 **[Monitoramento do Diário Oficial](/tracking/tracking-communication):** Veja como configurar o monitoramento do DJEN e receber publicações via webhook.

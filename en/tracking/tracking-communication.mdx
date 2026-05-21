@@ -1,8 +1,8 @@
 ---
 title: "Official Justice Gazette Monitoring"
 sidebarTitle: "Official Gazette Monitoring"
-description: "Automatically monitor the Electronic Justice Gazette (DJE) by CPF, CNPJ, OAB or any search term. Receive via webhook every publication that contains the monitored term."
-keywords: ["official gazette", "justice gazette", "DJE", "court communication", "intimation", "publication", "monitoring", "cpf", "cnpj", "oab", "name", "communication"]
+description: "Automatically monitor the National Electronic Justice Gazette (DJEN) by CPF, CNPJ, OAB or any search term. Receive via webhook every publication that contains the monitored term."
+keywords: ["official gazette", "justice gazette", "DJEN", "court communication", "intimation", "publication", "monitoring", "cpf", "cnpj", "oab", "name", "communication"]
 icon: "newspaper"
 ---
 
@@ -10,15 +10,15 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
 <CnpjAlphaInfo />
 
-**Official Justice Gazette Monitoring** scans the Electronic Justice Gazette (DJE) daily for publications containing the registered term. The search is performed across **all text fields** of the publication — parties, lawyers, court organ, full text — regardless of the `search_type` chosen.
+**Official Justice Gazette Monitoring** scans the National Electronic Justice Gazette (DJEN) daily for publications containing the registered term. The search is performed across **all text fields** of the publication — parties, lawyers, court organ, full text — regardless of the `search_type` chosen.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. With each new DJE edition, Judit processes the publications and delivers via webhook those that match your term.
+> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. Daily, Judit processes the DJENN publications and delivers via webhook those that match your term.
 
 ## When to use
 
 <CardGroup cols={2}>
   <Card title="Intimation tracking" icon="bell">
-    Get notified immediately when a CPF, CNPJ or OAB is mentioned in an intimation or publication in the DJE.
+    Get notified immediately when a CPF, CNPJ or OAB is mentioned in an intimation or publication in the DJEN.
   </Card>
   <Card title="Name or term watch" icon="magnifying-glass-dollar">
     Monitor any word or expression — a company name, a court, a judge — and receive all matching publications.
@@ -37,10 +37,9 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
     The POST request must include a payload with the following properties:
 
-    - `recurrence`: Execution frequency in days. For DJE monitoring, we recommend `1` (daily), since the gazette is updated every day with new publications;
     - `search_type`: Defines the type of search. Accepted values are: `cpf`, `cnpj`, `oab` or `name`. **Regardless of the type chosen, the search is performed across all text fields of the publication**;
     - `search_key`: The term to search for — CPF, CNPJ, OAB number or any free name/expression;
-    - `response_type`: Must be `"communication"` to activate DJE monitoring;
+    - `response_type`: Must be `"communication"` to activate DJEN monitoring;
     - `notification_emails` (optional): Array of email addresses that will receive notifications for every tracking update.
 
     <Note>
@@ -54,7 +53,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
-        "recurrence": 1,
         "search": {
             "search_type": "name",
             "search_key": "EXAMPLE NAME",
@@ -68,7 +66,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
-        "recurrence": 1,
         "search": {
             "search_type": "cpf",
             "search_key": "999.999.999-99",
@@ -82,7 +79,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
-        "recurrence": 1,
         "search": {
             "search_type": "cnpj",
             "search_key": "00.000.000/0001-00",
@@ -96,7 +92,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
     --data '{
-        "recurrence": 1,
         "search": {
             "search_type": "oab",
             "search_key": "SP123456",
@@ -118,7 +113,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
       "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
       "user_id": "00000000-0000-0000-0000-000000000000",
       "status": "created",
-      "recurrence": 1,
       "search": {
         "search_type": "name",
         "search_key": "EXAMPLE NAME",
@@ -155,7 +149,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
       "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
       "user_id": "00000000-0000-0000-0000-000000000000",
       "status": "updated",
-      "recurrence": 1,
       "search": {
         "search_type": "name",
         "search_key": "EXAMPLE NAME",
@@ -251,7 +244,7 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
             "lawsuit_code": "0000000-00.0000.8.00.0000",
             "tribunal_acronym": "TJXX",
             "status": "P",
-            "text": "Full text of the publication as extracted from the DJE...",
+            "text": "Full text of the publication as extracted from the DJEN...",
             "communication_type": "INTIMATION",
             "document_type": "DECISION",
             "integrate_api": false,
@@ -269,7 +262,7 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     The meaning of each field in the `response_data` object can be found in the **[Communication Schema](/en/schemas/communication)**.
 
     <Note>
-      DJE monitoring only generates responses when there are new publications matching the registered term. Days with no match do not produce `response_data`.
+      DJEN monitoring only generates responses when there are new publications matching the registered term. Days with no match do not produce `response_data`.
     </Note>
   </Step>
   <Step title="Retrieving the history of a tracking" stepNumber="4">
@@ -332,7 +325,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
       "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
       "user_id": "00000000-0000-0000-0000-000000000000",
       "status": "paused",
-      "recurrence": 1,
       "search": {
         "search_type": "name",
         "search_key": "EXAMPLE NAME",
@@ -361,7 +353,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
       "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
       "user_id": "00000000-0000-0000-0000-000000000000",
       "status": "updated",
-      "recurrence": 1,
       "search": {
         "search_type": "name",
         "search_key": "EXAMPLE NAME",

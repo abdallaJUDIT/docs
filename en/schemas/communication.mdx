@@ -1,21 +1,21 @@
 ---
 title: "Schema Communication (Official Justice Gazette)"
 sidebarTitle: "Communication"
-description: "Structure of the Communication object returned by the Electronic Justice Gazette (DJE) monitoring in the Judit API. Includes publication metadata, recipients, linked lawyers and full publication text."
-keywords: ["communication", "official gazette", "DJE", "intimation", "publication", "schema", "monitoring"]
+description: "Structure of the Communication object returned by the National Electronic Justice Gazette (DJEN) monitoring in the Judit API. Includes publication metadata, recipients, linked lawyers and full publication text."
+keywords: ["communication", "official gazette", "DJEN", "intimation", "publication", "schema", "monitoring"]
 icon: "newspaper"
 ---
 
-> 🤖 The Electronic Justice Gazette monitoring returns the `communication` object. Each object represents a DJE publication that matched the monitored term. The root contains publication metadata (dates, court, type). Recipients are in the `recipients` array and their linked lawyers in `recipient_lawyers`.
+> 🤖 The National Electronic Justice Gazette (DJEN) monitoring returns the `communication` object. Each object represents a DJEN publication that matched the monitored term. The root contains publication metadata (dates, court, type). Recipients are in the `recipients` array and their linked lawyers in `recipient_lawyers`.
 
 ## General Structure
 
 A communication JSON is organized into 4 main blocks:
 
 * **Publication Metadata (root):** Identification, dates, status, court and communication type.
-* **Recipients (`recipients`):** Parties in the lawsuit directly mentioned in the publication.
+* **Recipients (`recipients`):** People directly mentioned in the publication — can be lawyers or non-lawyers (parties in the lawsuit).
 * **Recipient Lawyers (`recipient_lawyers`):** Lawyers linked to the parties, with OAB registration data.
-* **Full Text (`text`):** Complete content of the publication as extracted from the DJE.
+* **Full Text (`text`):** Complete content of the publication as extracted from the DJEN.
 
 ---
 
@@ -31,13 +31,13 @@ These properties appear directly at the root of the `response_data` object.
 | :--- | :--- | :--- |
 | `communication_id` | string | Unique identifier of the communication in the Judit system. |
 | `active` | boolean | Indicates whether the communication is active (`true`) or has been canceled (`false`). |
-| `date_availability` | string (ISO 8601) | Date when the publication became available in the DJE. |
+| `date_availability` | string (ISO 8601) | Date when the publication became available in the DJEN. |
 | `date_shipping` | string (ISO 8601) | Dispatch/sending date of the communication by the court. |
-| `hash` | string | Unique publication hash used internally for deduplication. |
+| `hash` | string | Unique publication hash, identifier from the DJEN. |
 | `lawsuit_code` | string | Linked lawsuit number in CNJ format (e.g., `"0000000-00.0000.8.00.0000"`). |
 | `tribunal_acronym` | string | Official court acronym (e.g., `"TJSP"`, `"TJRJ"`, `"TRT2"`). |
-| `status` | string | Publication status in the DJE (e.g., `"P"` for published). |
-| `text` | string | Full text of the publication as extracted from the Electronic Justice Gazette. |
+| `status` | string | Publication status in the DJEN (e.g., `"P"` for published). |
+| `text` | string | Full text of the publication as extracted from the National Electronic Justice Gazette. |
 | `source` | string | Source system of the publication (e.g., `"pje"`, `"esaj"`). |
 
 #### Optional fields
@@ -49,10 +49,10 @@ These properties appear directly at the root of the `response_data` object.
 | `date_cancellation` | string (ISO 8601) | Cancellation date of the communication, when applicable. |
 | `reason_cancellation` | string | Reason for the cancellation of the communication, when applicable. |
 | `api_id` | number | Internal ID of the communication in the source system. |
-| `middle` | string | Abbreviated code of the publication vehicle (e.g., `"D"` for DJE). |
+| `middle` | string | Abbreviated code of the publication vehicle (e.g., `"D"` for DJEN). |
 | `full_middle` | string | Full name of the publication vehicle (e.g., `"NATIONAL ELECTRONIC JUSTICE GAZETTE"`). |
 | `name_organ` | string | Name of the court organ responsible for the publication (e.g., `"1st CIVIL COURT"`). |
-| `communication_number` | number | Sequential number of the communication within the DJE edition. |
+| `communication_number` | number | Sequential number of the communication within the DJEN edition. |
 | `communication_type` | string | Communication type (e.g., `"INTIMATION"`, `"SUMMONS"`). |
 | `document_type` | string | Type of published document (e.g., `"DECISION"`, `"ORDER"`, `"JUDGMENT"`). |
 | `integrate_api` | boolean | Indicates whether the communication was integrated via an external API. |
@@ -61,7 +61,7 @@ These properties appear directly at the root of the `response_data` object.
 
 ### 2. Recipients (`recipients`)
 
-Array with the parties in the lawsuit directly mentioned in the publication. All fields are required.
+Array with the people directly mentioned in the publication — can be lawyers or non-lawyers (parties in the lawsuit). All fields are required.
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
@@ -156,7 +156,7 @@ Array with the lawyers linked to the communication recipients. All fields are re
         "lawsuit_code": "0000000-00.0000.8.00.0000",
         "tribunal_acronym": "TJXX",
         "status": "P",
-        "text": "Full text of the publication as extracted from the DJE...",
+        "text": "Full text of the publication as extracted from the DJEN...",
         "communication_type": "INTIMATION",
         "document_type": "DECISION",
         "integrate_api": false,
@@ -176,4 +176,4 @@ Array with the lawyers linked to the communication recipients. All fields are re
 
 ## Next Steps
 
-* 👉 **[Official Gazette Monitoring](/en/tracking/tracking-communication):** See how to set up DJE monitoring and receive publications via webhook.
+* 👉 **[Official Gazette Monitoring](/en/tracking/tracking-communication):** See how to set up DJEN monitoring and receive publications via webhook.
