@@ -50,7 +50,8 @@
                   "schemas/lawsuit-enums",
                   "schemas/warrant",
                   "schemas/penal-execution",
-                  "schemas/entity"
+                  "schemas/entity",
+                  "schemas/communication"
                 ]
               },
               {
@@ -242,7 +243,8 @@
                   "en/schemas/lawsuit-enums",
                   "en/schemas/warrant",
                   "en/schemas/penal-execution",
-                  "en/schemas/entity"
+                  "en/schemas/entity",
+                  "en/schemas/communication"
                 ]
               },
               {

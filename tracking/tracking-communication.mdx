@@ -6,6 +6,10 @@ keywords: ["diário oficial", "diário de justiça", "DJE", "comunicação proce
 icon: "newspaper"
 ---
 
+import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
+
+<CnpjAlphaInfo />
+
 O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário de Justiça Eletrônico (DJE) em busca de publicações que contenham o termo cadastrado. A busca é feita em **todos os campos de texto** da publicação — partes, advogados, órgão, texto completo — independentemente do tipo de `search_type` escolhido.
 
 > 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` com `response_type: "communication"`. A cada nova edição do DJE, a Judit processa as publicações e envia via webhook aquelas em que houver correspondência com o seu termo.
@@ -43,9 +47,9 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
       Este monitoramento **não aceita filtros** adicionais (`filter`, `side`, `tribunals` etc.). A correspondência é feita por busca textual em toda a publicação.
     </Note>
 
-    Exemplo de payload por nome (qualquer termo):
+    <CodeGroup>
 
-    ```bash
+    ```bash cURL (Nome / Qualquer Termo)
     curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
@@ -59,9 +63,7 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
     }'
     ```
 
-    Exemplo de payload por CPF:
-
-    ```bash
+    ```bash cURL (CPF)
     curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
@@ -75,9 +77,21 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
     }'
     ```
 
-    Exemplo de payload por OAB:
+    ```bash cURL (CNPJ)
+    curl --location 'https://tracking.production.judit.io/tracking' \
+    --header 'api-key: <API-KEY>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "recurrence": 1,
+        "search": {
+            "search_type": "cnpj",
+            "search_key": "00.000.000/0001-00",
+            "response_type": "communication"
+        }
+    }'
+    ```
 
-    ```bash
+    ```bash cURL (OAB)
     curl --location 'https://tracking.production.judit.io/tracking' \
     --header 'api-key: <API-KEY>' \
     --header 'Content-Type: application/json' \
@@ -90,6 +104,8 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
         }
     }'
     ```
+
+    </CodeGroup>
 
     <Note>
       O monitoramento será executado pela primeira vez dentro das próximas 24 horas após a criação, na melhor janela de processamento disponível. A partir daí, ocorrerá diariamente de acordo com o campo `recurrence`.
@@ -250,96 +266,7 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
     ```
     </Accordion>
 
-    ## Schema do objeto `response_data` (Communication)
-
-    <Accordion title="Campos obrigatórios" defaultOpen>
-      <ParamField body="communication_id" type="string" required>
-        Identificador único da comunicação no sistema.
-      </ParamField>
-      <ParamField body="active" type="boolean" required>
-        Indica se a comunicação está ativa (`true`) ou foi cancelada (`false`).
-      </ParamField>
-      <ParamField body="date_availability" type="string (ISO 8601)" required>
-        Data em que a publicação ficou disponível no DJE.
-      </ParamField>
-      <ParamField body="date_shipping" type="string (ISO 8601)" required>
-        Data de expedição da comunicação.
-      </ParamField>
-      <ParamField body="recipients" type="array" required>
-        Lista de destinatários da comunicação. Cada item contém:
-        - `communication_id` (number): ID interno da comunicação;
-        - `name` (string): Nome do destinatário;
-        - `side` (string): Polo da parte — `"Active"` (polo ativo) ou `"Passive"` (polo passivo).
-      </ParamField>
-      <ParamField body="recipient_lawyers" type="array" required>
-        Lista de advogados vinculados aos destinatários. Cada item contém:
-        - `lawyer.id` (number): ID do advogado;
-        - `lawyer.name` (string): Nome do advogado;
-        - `lawyer.license_code` (string): Número da OAB;
-        - `lawyer.license_state` (string): UF da OAB;
-        - `lawyer_id` (number): ID do advogado (referência);
-        - `communication_id` (number): ID interno da comunicação;
-        - `id` (number): ID do vínculo;
-        - `created_at` / `updated_at` (string): Datas de criação e atualização do vínculo.
-      </ParamField>
-      <ParamField body="hash" type="string" required>
-        Hash de identificação única da publicação (utilizado para deduplicação).
-      </ParamField>
-      <ParamField body="lawsuit_code" type="string" required>
-        Número do processo no formato CNJ ao qual a comunicação está vinculada.
-      </ParamField>
-      <ParamField body="tribunal_acronym" type="string" required>
-        Sigla do tribunal (ex.: `"TJSP"`, `"TJRJ"`, `"TRT2"`).
-      </ParamField>
-      <ParamField body="status" type="string" required>
-        Status da publicação no DJE (ex.: `"P"` — publicado).
-      </ParamField>
-      <ParamField body="text" type="string" required>
-        Texto integral da publicação conforme extraído do Diário de Justiça Eletrônico.
-      </ParamField>
-      <ParamField body="source" type="string" required>
-        Sistema de origem da publicação (ex.: `"pje"`, `"esaj"`).
-      </ParamField>
-    </Accordion>
-
-    <Accordion title="Campos opcionais">
-      <ParamField body="classification_code" type="string">
-        Código da classe processual associada à comunicação.
-      </ParamField>
-      <ParamField body="classification_name" type="string">
-        Nome da classe processual (ex.: `"EXECUÇÃO DE TÍTULO EXTRAJUDICIAL"`).
-      </ParamField>
-      <ParamField body="date_cancellation" type="string (ISO 8601)">
-        Data de cancelamento da comunicação, quando aplicável.
-      </ParamField>
-      <ParamField body="reason_cancellation" type="string">
-        Motivo do cancelamento da comunicação, quando aplicável.
-      </ParamField>
-      <ParamField body="api_id" type="number">
-        ID interno da comunicação no sistema de origem.
-      </ParamField>
-      <ParamField body="middle" type="string">
-        Código abreviado do veículo de publicação (ex.: `"D"` para DJE).
-      </ParamField>
-      <ParamField body="full_middle" type="string">
-        Nome completo do veículo de publicação (ex.: `"DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL"`).
-      </ParamField>
-      <ParamField body="name_organ" type="string">
-        Nome do órgão responsável pela publicação (ex.: `"1ª VARA CÍVEL"`).
-      </ParamField>
-      <ParamField body="communication_number" type="number">
-        Número sequencial da comunicação dentro da edição do DJE.
-      </ParamField>
-      <ParamField body="communication_type" type="string">
-        Tipo da comunicação (ex.: `"INTIMAÇÃO"`, `"CITAÇÃO"`).
-      </ParamField>
-      <ParamField body="document_type" type="string">
-        Tipo do documento publicado (ex.: `"DECISÃO"`, `"DESPACHO"`, `"SENTENÇA"`).
-      </ParamField>
-      <ParamField body="integrate_api" type="boolean">
-        Indica se a comunicação foi integrada via API externa.
-      </ParamField>
-    </Accordion>
+    O significado de cada campo do objeto `response_data` pode ser encontrado no **[Schema Communication](/schemas/communication)**.
 
     <Note>
       O monitoramento do DJE só gera respostas quando há publicações novas que correspondam ao termo cadastrado. Dias sem correspondência não geram `response_data`.
