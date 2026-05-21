@@ -103,7 +103,7 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
     </CodeGroup>
 
     <Note>
-      O monitoramento será executado pela primeira vez dentro das próximas 24 horas após a criação, na melhor janela de processamento disponível. A partir daí, ocorrerá diariamente de acordo com o campo `recurrence`.
+      A partir da criação do monitoramento, a Judit passará a processar as novas edições do DJEN diariamente. Apenas publicações emitidas **após a data de criação** serão monitoradas — não há retroatividade.
     </Note>
 
     Retorno da criação:
@@ -118,7 +118,6 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
         "search_key": "NOME EXEMPLO",
         "response_type": "communication"
       },
-      "hour_range": 4,
       "tracked_items_count": 0,
       "tracked_items_steps_count": 0,
       "tags": {},
@@ -126,10 +125,6 @@ O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário d
       "updated_at": "2026-05-20T04:52:50.223Z"
     }
     ```
-
-    <Note>
-      O campo `hour_range` indica o horário em que o processamento será realizado pela primeira vez. No exemplo acima, está programado para as 4h da manhã.
-    </Note>
 
   </Step>
   <Step title="Consultar o status do monitoramento" stepNumber="2">

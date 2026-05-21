@@ -103,7 +103,7 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
     </CodeGroup>
 
     <Note>
-      The tracking will run for the first time within the next 24 hours after creation, in the best available processing window. From then on, it will run daily according to the `recurrence` field.
+      From the moment the monitoring is created, Judit will process new DJEN editions daily. Only publications issued **after the creation date** will be tracked — there is no retroactive processing.
     </Note>
 
     Creation response:
@@ -118,7 +118,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
         "search_key": "EXAMPLE NAME",
         "response_type": "communication"
       },
-      "hour_range": 4,
       "tracked_items_count": 0,
       "tracked_items_steps_count": 0,
       "tags": {},
@@ -126,10 +125,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
       "updated_at": "2026-05-20T04:52:50.223Z"
     }
     ```
-
-    <Note>
-      The `hour_range` field indicates the time at which processing will occur for the first time. In the example above, it is scheduled for 4 AM.
-    </Note>
 
   </Step>
   <Step title="Checking the tracking status" stepNumber="2">
