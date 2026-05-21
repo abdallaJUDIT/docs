@@ -50,7 +50,8 @@
                   "schemas/lawsuit-enums",
                   "schemas/warrant",
                   "schemas/penal-execution",
-                  "schemas/entity"
+                  "schemas/entity",
+                  "schemas/communication"
                 ]
               },
               {
@@ -74,7 +75,8 @@
                 "pages": [
                   "tracking/tracking",
                   "tracking/tracking-document",
-                  "tracking/tracking-custom"
+                  "tracking/tracking-custom",
+                  "tracking/tracking-communication"
                 ]
               },
               {
@@ -241,7 +243,8 @@
                   "en/schemas/lawsuit-enums",
                   "en/schemas/warrant",
                   "en/schemas/penal-execution",
-                  "en/schemas/entity"
+                  "en/schemas/entity",
+                  "en/schemas/communication"
                 ]
               },
               {
@@ -265,7 +268,8 @@
                 "pages": [
                   "en/tracking/tracking",
                   "en/tracking/tracking-document",
-                  "en/tracking/tracking-custom"
+                  "en/tracking/tracking-custom",
+                  "en/tracking/tracking-communication"
                 ]
               },
               {

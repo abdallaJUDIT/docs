@@ -1,0 +1,179 @@
+---
+title: "Schema Communication (Diário Oficial de Justiça)"
+sidebarTitle: "Communication"
+description: "Estrutura do objeto Communication retornado pelo monitoramento do Diário de Justiça Eletrônico Nacional (DJEN) na Judit API. Inclui dados da publicação, destinatários, advogados vinculados e texto integral."
+keywords: ["communication", "diário oficial", "DJEN", "intimação", "publicação", "schema", "monitoramento"]
+icon: "newspaper"
+---
+
+> 🤖 O monitoramento do Diário de Justiça Eletrônico Nacional (DJEN) retorna o objeto `communication`. Cada objeto representa uma publicação do DJEN em que houve correspondência com o termo monitorado. A raiz contém os metadados da publicação (datas, tribunal, tipo). Os destinatários ficam no array `recipients` e os advogados vinculados a eles em `recipient_lawyers`.
+
+## Estrutura Geral
+
+O JSON de uma comunicação é organizado em 4 blocos principais:
+
+* **Metadados da Publicação (raiz):** Identificação, datas, status, tribunal e tipo da comunicação.
+* **Destinatários (`recipients`):** Partes do processo diretamente citadas na publicação — podem ser advogados ou não-advogados.
+* **Destinatários Advogados (`recipient_lawyers`):** Advogados vinculados às partes, com dados de OAB.
+* **Texto Integral (`text`):** Conteúdo completo da publicação conforme extraído do DJEN.
+
+---
+
+## Dicionário de Dados
+
+### 1. Metadados da Publicação (Raiz do Objeto)
+
+Estas propriedades vêm diretamente na raiz do objeto `response_data`.
+
+#### Campos obrigatórios
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `communication_id` | string | Identificador único da comunicação no sistema da Judit. |
+| `active` | boolean | Indica se a comunicação está ativa (`true`) ou foi cancelada (`false`). |
+| `date_availability` | string (ISO 8601) | Data em que a publicação ficou disponível no DJEN para consulta. |
+| `date_shipping` | string (ISO 8601) | Data de expedição/envio da comunicação pelo tribunal. |
+| `hash` | string | Hash único da publicação, identificador do DJEN. |
+| `lawsuit_code` | string | Número do processo vinculado no formato CNJ (ex: `"0000000-00.0000.8.00.0000"`). |
+| `tribunal_acronym` | string | Sigla oficial do tribunal emissor (ex: `"TJSP"`, `"TJRJ"`, `"TRT2"`). |
+| `status` | string | Status da publicação no DJEN (ex: `"P"` para publicado). |
+| `text` | string | Texto integral da publicação conforme extraído do Diário de Justiça Eletrônico Nacional. |
+| `source` | string | Sistema de origem da publicação (ex: `"pje"`, `"esaj"`). |
+
+#### Campos opcionais
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `classification_code` | string | Código da classe processual associada à comunicação. |
+| `classification_name` | string | Nome da classe processual (ex: `"EXECUÇÃO DE TÍTULO EXTRAJUDICIAL"`). |
+| `date_cancellation` | string (ISO 8601) | Data de cancelamento da comunicação, quando aplicável. |
+| `reason_cancellation` | string | Motivo do cancelamento da comunicação, quando aplicável. |
+| `api_id` | number | ID interno da comunicação no sistema de origem. |
+| `middle` | string | Código abreviado do veículo de publicação (ex: `"D"` para DJEN). |
+| `full_middle` | string | Nome completo do veículo de publicação (ex: `"DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL"`). |
+| `name_organ` | string | Nome do órgão responsável pela publicação (ex: `"1ª VARA CÍVEL"`). |
+| `communication_number` | number | Número sequencial da comunicação dentro da edição do DJEN. |
+| `communication_type` | string | Tipo da comunicação (ex: `"INTIMAÇÃO"`, `"CITAÇÃO"`). |
+| `document_type` | string | Tipo do documento publicado (ex: `"DECISÃO"`, `"DESPACHO"`, `"SENTENÇA"`). |
+| `integrate_api` | boolean | Indica se a comunicação foi integrada via API externa. |
+
+---
+
+### 2. Destinatários (`recipients`)
+
+Array com as pessoas diretamente citadas na publicação — podem ser advogados ou não-advogados (partes do processo). Todos os campos são obrigatórios.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `communication_id` | number | ID interno da comunicação à qual o destinatário está vinculado. |
+| `name` | string | Nome completo do destinatário conforme consta na publicação. |
+| `side` | string | Polo da parte no processo: `"Active"` (polo ativo) ou `"Passive"` (polo passivo). |
+
+---
+
+### 3. Advogados dos Destinatários (`recipient_lawyers`)
+
+Array com os advogados vinculados aos destinatários da comunicação. Todos os campos são obrigatórios.
+
+#### Objeto raiz do vínculo
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | number | Identificador único do vínculo advogado-comunicação. |
+| `lawyer_id` | number | ID do advogado (referência ao objeto `lawyer`). |
+| `communication_id` | number | ID interno da comunicação à qual o advogado está vinculado. |
+| `created_at` | string | Data de criação do registro do vínculo. |
+| `updated_at` | string | Data da última atualização do registro do vínculo. |
+
+#### Objeto `lawyer` (aninhado)
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | number | Identificador único do advogado no sistema. |
+| `name` | string | Nome completo do advogado. |
+| `license_code` | string | Número de registro na OAB. |
+| `license_state` | string | UF da seccional da OAB (ex: `"SP"`, `"RJ"`). |
+
+---
+
+## Exemplo de Payload (Communication)
+
+<CodeGroup>
+
+```json Resposta
+{
+  "page": 1,
+  "page_count": 1,
+  "all_count": 1,
+  "all_pages_count": 1,
+  "page_data": [
+    {
+      "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
+      "response_id": "dd47b9fc-8f66-46b8-a31a-50a4718c9774",
+      "origin": "tracking",
+      "origin_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+      "response_type": "communication",
+      "response_data": {
+        "communication_id": "0E6hgZvG",
+        "active": true,
+        "classification_code": "12154",
+        "classification_name": "EXECUÇÃO DE TÍTULO EXTRAJUDICIAL",
+        "date_availability": "2026-05-20T00:00:00.000Z",
+        "date_shipping": "2026-05-19T03:00:00.000Z",
+        "recipient_lawyers": [
+          {
+            "lawyer": {
+              "id": 10001,
+              "name": "ADVOGADO EXEMPLO 1",
+              "license_code": "0001",
+              "license_state": "SP"
+            },
+            "lawyer_id": 10001,
+            "communication_id": 600000001,
+            "id": 1100000001,
+            "created_at": "2026-05-19 11:44:08",
+            "updated_at": "2026-05-19 11:44:08"
+          }
+        ],
+        "recipients": [
+          {
+            "communication_id": 600000001,
+            "name": "PARTE ATIVA EXEMPLO",
+            "side": "Active"
+          },
+          {
+            "communication_id": 600000001,
+            "name": "PARTE PASSIVA EXEMPLO 1",
+            "side": "Passive"
+          }
+        ],
+        "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "api_id": 600000001,
+        "middle": "D",
+        "full_middle": "DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL",
+        "name_organ": "COMARCA - 1ª VARA CÍVEL",
+        "communication_number": 2674,
+        "lawsuit_code": "0000000-00.0000.8.00.0000",
+        "tribunal_acronym": "TJXX",
+        "status": "P",
+        "text": "Texto completo da publicação conforme extraído do DJEN...",
+        "communication_type": "INTIMAÇÃO",
+        "document_type": "DECISÃO",
+        "integrate_api": false,
+        "source": "pje"
+      },
+      "user_id": "00000000-0000-0000-0000-000000000000",
+      "created_at": "2026-05-20T20:12:47.839Z",
+      "updated_at": "2026-05-20T20:12:47.839Z"
+    }
+  ]
+}
+```
+
+</CodeGroup>
+
+---
+
+## Próximos Passos
+
+* 👉 **[Monitoramento do Diário Oficial](/tracking/tracking-communication):** Veja como configurar o monitoramento do DJEN e receber publicações via webhook.
