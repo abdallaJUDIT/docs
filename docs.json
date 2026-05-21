@@ -74,7 +74,8 @@
                 "pages": [
                   "tracking/tracking",
                   "tracking/tracking-document",
-                  "tracking/tracking-custom"
+                  "tracking/tracking-custom",
+                  "tracking/tracking-communication"
                 ]
               },
               {
@@ -265,7 +266,8 @@
                 "pages": [
                   "en/tracking/tracking",
                   "en/tracking/tracking-document",
-                  "en/tracking/tracking-custom"
+                  "en/tracking/tracking-custom",
+                  "en/tracking/tracking-communication"
                 ]
               },
               {
