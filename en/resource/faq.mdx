@@ -73,7 +73,20 @@ It depends. To access them, you must provide the lawyer's credentials via the [c
 
 ### Can a lawsuit have two instances?
 
-Yes. Two objects will be returned, one for each instance, within the same array. The first object, at position zero, will represent the most recent instance.
+Yes. The same lawsuit can proceed in more than one instance and, depending on the court, this can occur in two ways:
+
+- Keeping the same case number, when the lawsuit moves to another instance without changing the original number.
+- Generating a new case number, when the court creates a new number to represent the proceedings in another instance or some procedural development.
+
+For this reason, Judit structures the response by separating each instance individually.
+
+When a lawsuit query identifies that the same case number exists in more than one instance, the API returns one object per instance within the results array. Each object represents the data for that lawsuit in that specific instance.
+
+The first object in the array, at position zero, represents the most recently identified instance.
+
+Additionally, when there is a new case number linked to the queried lawsuit and this relationship is available at the court as a related lawsuit, this information will be returned in the `related_lawsuits` field.
+
+This way, it is possible to differentiate the data for each instance and, when available, also identify new case numbers related to the same lawsuit.
 
 ---
 

@@ -73,7 +73,20 @@ Depende. Para acessar, é necessário fornecer credenciais do advogado via [cofr
 
 ### Um processo pode ter duas instâncias?
 
-Sim. Serão retornados dois objetos, um para cada instância, dentro do mesmo array. O primeiro objeto, na posição zero, representará a instância mais recente.
+Sim. Um mesmo processo pode tramitar em mais de uma instância e, dependendo do tribunal, isso pode ocorrer de duas formas:
+
+- Mantendo o mesmo número de processo, quando o processo segue para outra instância sem alteração da numeração original.
+- Gerando um novo número de processo, quando o tribunal cria uma nova numeração para representar a tramitação em outra instância ou algum desdobramento processual.
+
+Por esse motivo, a Judit estrutura a resposta separando cada instância de forma individual.
+
+Quando uma consulta processual identifica que o mesmo número de processo existe em mais de uma instância, a API retorna um objeto para cada instância dentro do array de resultados. Cada objeto representa os dados daquele processo naquela instância específica.
+
+O primeiro objeto do array, na posição zero, representa a instância mais recente identificada.
+
+Além disso, quando houver uma nova numeração vinculada ao processo consultado e essa relação estiver disponível no tribunal como processo relacionado, essa informação será retornada no campo `related_lawsuits`.
+
+Dessa forma, é possível diferenciar os dados de cada instância e, quando disponível, também identificar novas numerações relacionadas ao mesmo processo.
 
 ---
 
