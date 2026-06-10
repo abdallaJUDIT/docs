@@ -52,7 +52,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `search_params`: Um objeto que contém alguns parâmetros da busca como: 
   - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; 
     
-    `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente a instância mais recente do processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca considerará a segunda instância, por ser a mais atualizada.
+    `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente todas as instância encontradas para aquela mesma numeração de processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca cretornará as duas instâncias.
 
 - `credential` (opcional): Objeto para o uso do cofre de credenciais.
   - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais,caso não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.

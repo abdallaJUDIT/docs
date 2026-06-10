@@ -52,8 +52,6 @@ The POST request must include a payload with the following properties:
 - `search_params`: An object containing some search parameters such as: 
   - `lawsuit_instance` (optional): This parameter allows you to define the instance in which you want to search the lawsuit; 
     
-    `*Note`: If the lawsuit_instance parameter is not specified, the search will automatically return the most recent instance of the lawsuit. For example, if the lawsuit is being processed in both the first and second instances, the search will consider the second instance, as it is the most up to date.
-
 - `credential` (optional): Object for using the credentials vault.
   - `customer_key` (optional): Allows you to pass the user key you registered in the credentials vault. If not provided, the API will try to find a credential registered for an empty `customer_key`.
 
