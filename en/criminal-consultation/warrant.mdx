@@ -8,9 +8,52 @@ icon: 'handcuffs'
 
 import { EndpointBadges } from '/snippets/badges.mdx';
 
+export const WarrantAnimation = () => (
+  <iframe sandbox="allow-scripts" scrolling="no" style={{width:'100%',height:'540px',border:'none',borderRadius:'12px',display:'block',margin:'20px 0'}} srcDoc={`<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#090c0d}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="c"></canvas><script>(function(){
+var A='#4FD1C5',J='#1FC16B',B='#EF4444',M='#7A8599';
+var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
+var TOTAL=12.0;
+var XP={app:0.13,judit:0.50,bnmp:0.87};
+var NW=88,NH=42;
+var NODES=[{id:'app',label:'Your App',col:A},{id:'judit',label:'Judit API',col:J},{id:'bnmp',label:'BNMP',col:B}];
+var STEPS=[
+  {fr:'app',to:'judit',label:'POST /requests',note:'{response_type:"warrant"}',col:A,ts:1.0,te:1.8,yp:0.29},
+  {fr:'judit',to:'app',label:'202 {request_id}',note:'status: pending',col:J,ts:2.3,te:3.1,yp:0.39},
+  {sep:true,label:'↻  Judit queries the BNMP asynchronously',yp:0.49},
+  {fr:'judit',to:'bnmp',label:'query BNMP',note:'by CPF / name / RJI',col:B,ts:4.5,te:5.3,yp:0.58},
+  {fr:'bnmp',to:'judit',label:'warrant found',note:'',col:J,ts:5.8,te:6.6,yp:0.68},
+  {fr:'app',to:'judit',label:'GET /responses',note:'polling · request_id=...',col:A,ts:7.1,te:7.9,yp:0.78},
+  {fr:'judit',to:'app',label:'200 {warrant_data}',note:'',col:J,ts:8.4,te:9.2,yp:0.88}
+];
+var cv=document.getElementById('c');
+function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}
+function ease(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function gx(n,w){return n==='app'?w*XP.app:n==='judit'?w*XP.judit:w*XP.bnmp;}
+function eg(fr,to,w){var fx=gx(fr,w),tx=gx(to,w),d=tx>fx?1:-1;return{x1:fx+d*NW/2,x2:tx-d*NW/2,d:d};}
+function dPkt(ctx,x,y,lbl,col){var pw=Math.max(36,lbl.length*6+14),ph=20;ctx.save();ctx.shadowColor=col;ctx.shadowBlur=18;rr(ctx,x-pw/2,y-ph/2,pw,ph,5);ctx.fillStyle=col;ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=PT;ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,x,y+0.5);ctx.restore();}
+function draw(ctx,w,h,t){
+  var ct=t%TOTAL,bx1=w*0.02,bx2=w*0.98;
+  ctx.fillStyle=BG;ctx.fillRect(0,0,w,h);
+  var nodeY=h*0.21;
+  ctx.fillStyle=B;ctx.font='bold 12px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Arrest Warrant Query',w/2,h*0.04);
+  ctx.fillStyle=M;ctx.font='10px Inter,system-ui,sans-serif';ctx.fillText('Judit queries the BNMP and returns warrants by CPF, name or RJI',w/2,h*0.09);
+  for(var i=0;i<NODES.length;i++){var n=NODES[i],lx=gx(n.id,w);ctx.save();ctx.strokeStyle=n.col;ctx.globalAlpha=0.35;ctx.lineWidth=1;ctx.setLineDash([4,7]);ctx.beginPath();ctx.moveTo(lx,nodeY+NH/2);ctx.lineTo(lx,h*0.94);ctx.stroke();ctx.restore();}
+  for(var si=0;si<STEPS.length;si++){var s=STEPS[si],sy=h*s.yp;if(s.sep){ctx.save();ctx.strokeStyle='rgba(255,255,255,0.28)';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(bx1,sy);ctx.lineTo(bx2,sy);ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.05)';rr(ctx,bx1,sy-8,s.label.length*6.2+14,16,3);ctx.fill();ctx.fillStyle=M;ctx.font='10px monospace';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(s.label,bx1+5,sy);ctx.restore();continue;}var e=eg(s.fr,s.to,w),x1=e.x1,x2=e.x2,d=e.d,clx=(x1+x2)/2;var state=ct<s.ts?'pre':ct>s.te?'done':'live',alpha=state==='pre'?0.10:state==='done'?0.55:1.0;ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,sy);ctx.lineTo(x2,sy);ctx.stroke();ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(x2,sy);ctx.lineTo(x2-d*7,sy-4);ctx.lineTo(x2-d*7,sy+4);ctx.closePath();ctx.fill();ctx.fillStyle=TXT;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(s.label,clx,sy-4);if(s.note){ctx.fillStyle=M;ctx.font='9px monospace';ctx.fillText(s.note,clx,sy-16);}ctx.restore();if(state==='live'){var p=ease((ct-s.ts)/(s.te-s.ts));dPkt(ctx,x1+(x2-x1)*p,sy+14,s.label,s.col);}}
+  for(var i=0;i<NODES.length;i++){var nd=NODES[i],px=gx(nd.id,w);ctx.save();ctx.shadowColor=nd.col;ctx.shadowBlur=14;rr(ctx,px-NW/2,nodeY-NH/2,NW,NH,8);ctx.fillStyle=NF;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle=nd.col;ctx.lineWidth=1.8;ctx.stroke();ctx.fillStyle=nd.col;ctx.font='bold 11px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(nd.label,px,nodeY);ctx.restore();}
+}
+var dim,t0;
+function loop(){var t=(performance.now()-t0)/1000;draw(dim.ctx,dim.w,dim.h,t);requestAnimationFrame(loop);}
+window.addEventListener('load',function(){dim=setup();t0=performance.now();loop();});
+window.addEventListener('resize',function(){dim=setup();});
+})()\x3c/script></body></html>`} />
+);
+
 The **Arrest Warrant Query** integrates with the Brazilian National Arrest Warrant Database (BNMP 2.0) by CPF, Name or RJI and returns, in Judit's standard JSON, the judicial order, calculated sentence, infringed laws and full data of the wanted individual. It covers preventive, temporary, definitive and recapture warrants.
 
 > 🤖 **Asynchronous flow.** Same route as the lawsuit query: `POST https://requests.production.judit.io/requests` with `response_type: "warrant"`. To download the warrant PDF, set `with_attachments: true`.
+
+<WarrantAnimation />
 
 <EndpointBadges auth billing="billable" flow="async" attachments />
 
