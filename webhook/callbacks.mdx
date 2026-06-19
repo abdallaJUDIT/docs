@@ -8,6 +8,69 @@ icon: 'book'
 
 import CachedResponseInfo from '/snippets/cached-response-pt.mdx';
 
+export const WebhookAnimation = () => (
+  <iframe sandbox="allow-scripts" scrolling="no" style={{width:'100%',height:'540px',border:'none',borderRadius:'12px',display:'block',margin:'20px 0'}} srcDoc={`<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#090c0d}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="c"></canvas><script>(function(){
+var A='#4FD1C5',J='#1FC16B',T='#E0A82E',AM='#F6AD55',M='#7A8599';
+var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
+var TOTAL=53.0;
+var XP={app:0.13,judit:0.50,court:0.87};
+var NW=88,NH=42;
+var FLOWS=[
+  {id:'cache',title:'① Com histórico em cache',sub:'datalake entregue imediato, tribunal atualiza na sequência — mínimo 3 webhooks',col:AM,ts:1,te:12,act:['app','judit','court'],steps:[
+    {fr:'app',to:'judit',label:'POST /requests',note:'{callback_url, search...}',col:A,ts:1.2,te:2.0,yp:0.30},
+    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:2.5,te:3.3,yp:0.41},
+    {fr:'judit',to:'app',label:'webhook #1',note:'cached_response: true',col:AM,ts:3.8,te:4.6,yp:0.52},
+    {fr:'judit',to:'court',label:'extração tribunal',note:'aguardando dado fresco',col:T,ts:5.1,te:5.9,yp:0.62},
+    {fr:'court',to:'judit',label:'dados atualizados',note:'',col:J,ts:6.4,te:7.2,yp:0.72},
+    {fr:'judit',to:'app',label:'webhook #2',note:'cached_response: false',col:J,ts:7.7,te:8.5,yp:0.82},
+    {fr:'judit',to:'app',label:'webhook #3',note:'event_type: request_completed',col:J,ts:9.0,te:9.8,yp:0.92}]},
+  {id:'nocache',title:'② Sem cache — on-demand',sub:'dado não indexado ou on_demand:true — sem evento de cache — 2 webhooks',col:A,ts:15,te:25,act:['app','judit','court'],steps:[
+    {fr:'app',to:'judit',label:'POST /requests',note:'{callback_url, on_demand:true}',col:A,ts:15.2,te:16.0,yp:0.32},
+    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:16.5,te:17.3,yp:0.45},
+    {fr:'judit',to:'court',label:'extração tribunal',note:'busca em tempo real',col:T,ts:17.8,te:18.6,yp:0.58},
+    {fr:'court',to:'judit',label:'dados frescos',note:'',col:J,ts:19.1,te:19.9,yp:0.70},
+    {fr:'judit',to:'app',label:'webhook #1',note:'cached_response: false',col:J,ts:20.4,te:21.2,yp:0.82},
+    {fr:'judit',to:'app',label:'webhook #2',note:'event_type: request_completed',col:J,ts:21.7,te:22.5,yp:0.92}]},
+  {id:'monitor',title:'③ Monitoramento — Novas Ações',sub:'2 processos detectados → 1 webhook por processo + request_completed',col:J,ts:28,te:39,act:['app','judit','court'],steps:[
+    {fr:'judit',to:'court',label:'verifica novas ações',note:'polling automático',col:T,ts:28.5,te:29.3,yp:0.30},
+    {fr:'court',to:'judit',label:'2 processos com ação nova',note:'novas movimentações detectadas',col:J,ts:29.8,te:30.6,yp:0.43},
+    {fr:'judit',to:'app',label:'webhook #1',note:'processo A — nova ação',col:J,ts:31.1,te:31.9,yp:0.56},
+    {fr:'judit',to:'app',label:'webhook #2',note:'processo B — nova ação',col:J,ts:32.4,te:33.2,yp:0.69},
+    {fr:'judit',to:'app',label:'webhook #3',note:'event_type: request_completed',col:J,ts:33.7,te:34.5,yp:0.82}]},
+  {id:'procmon',title:'④ Monitoramento Processual',sub:'monitora CNJ específico — mínimo 2 webhooks por movimentação detectada',col:T,ts:42,te:52,act:['app','judit','court'],steps:[
+    {fr:'judit',to:'court',label:'verifica processo',note:'monitorando CNJ específico',col:T,ts:42.5,te:43.3,yp:0.38},
+    {fr:'court',to:'judit',label:'nova movimentação',note:'andamento atualizado',col:J,ts:43.8,te:44.6,yp:0.52},
+    {fr:'judit',to:'app',label:'webhook #1',note:'capa + movimentações completas',col:J,ts:45.1,te:45.9,yp:0.66},
+    {fr:'judit',to:'app',label:'webhook #2',note:'event_type: request_completed',col:J,ts:46.4,te:47.2,yp:0.80}]}
+];
+var NODES=[{id:'app',label:'Sua App',col:A},{id:'judit',label:'Judit API',col:J},{id:'court',label:'Tribunal',col:T}];
+var cv=document.getElementById('c');
+function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}
+function ease(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function gx(n,w){return n==='app'?w*XP.app:n==='judit'?w*XP.judit:w*XP.court;}
+function eg(fr,to,w){var fx=gx(fr,w),tx=gx(to,w),d=tx>fx?1:-1;return{x1:fx+d*NW/2,x2:tx-d*NW/2,d:d};}
+function dPkt(ctx,x,y,lbl,col){var pw=Math.max(36,lbl.length*6+14),ph=20;ctx.save();ctx.shadowColor=col;ctx.shadowBlur=18;rr(ctx,x-pw/2,y-ph/2,pw,ph,5);ctx.fillStyle=col;ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=PT;ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,x,y+0.5);ctx.restore();}
+function draw(ctx,w,h,t){
+  var ct=t%TOTAL;
+  ctx.fillStyle=BG;ctx.fillRect(0,0,w,h);
+  var fl=null;for(var i=0;i<FLOWS.length;i++){if(ct>=FLOWS[i].ts&&ct<FLOWS[i].te){fl=FLOWS[i];break;}}
+  var nodeY=h*0.19;
+  for(var i=0;i<NODES.length;i++){var n=NODES[i],lx=gx(n.id,w);ctx.save();ctx.strokeStyle=n.col;ctx.globalAlpha=0.35;ctx.lineWidth=1;ctx.setLineDash([4,7]);ctx.beginPath();ctx.moveTo(lx,nodeY+NH/2);ctx.lineTo(lx,h*0.96);ctx.stroke();ctx.restore();}
+  if(fl){ctx.save();ctx.fillStyle=fl.col;ctx.font='bold 13px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fl.title,w/2,h*0.055);ctx.fillStyle=M;ctx.font='10px Inter,system-ui,sans-serif';ctx.fillText(fl.sub,w/2,h*0.118);ctx.restore();}
+  if(fl){for(var si=0;si<fl.steps.length;si++){var s=fl.steps[si],sy=h*s.yp,e=eg(s.fr,s.to,w),x1=e.x1,x2=e.x2,d=e.d,clx=(x1+x2)/2;var state=ct<s.ts?'pre':ct>s.te?'done':'live',alpha=state==='pre'?0.10:state==='done'?0.55:1.0;ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,sy);ctx.lineTo(x2,sy);ctx.stroke();ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(x2,sy);ctx.lineTo(x2-d*7,sy-4);ctx.lineTo(x2-d*7,sy+4);ctx.closePath();ctx.fill();ctx.fillStyle=TXT;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(s.label,clx,sy-4);if(s.note){ctx.fillStyle=M;ctx.font='9px monospace';ctx.fillText(s.note,clx,sy-16);}ctx.restore();if(state==='live'){var p=ease((ct-s.ts)/(s.te-s.ts));dPkt(ctx,x1+(x2-x1)*p,sy+14,s.label,s.col);}}}
+  for(var i=0;i<NODES.length;i++){var nd=NODES[i],px=gx(nd.id,w);ctx.save();ctx.shadowColor=nd.col;ctx.shadowBlur=14;rr(ctx,px-NW/2,nodeY-NH/2,NW,NH,8);ctx.fillStyle=NF;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle=nd.col;ctx.lineWidth=1.8;ctx.stroke();ctx.fillStyle=nd.col;ctx.font='bold 11px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(nd.label,px,nodeY);ctx.restore();}
+  for(var f=0;f<FLOWS.length;f++){var ia=fl&&fl.id===FLOWS[f].id;ctx.save();ctx.beginPath();ctx.arc(w/2+(f-1.5)*24,h*0.962,ia?5:3,0,Math.PI*2);ctx.fillStyle=ia?FLOWS[f].col:'rgba(255,255,255,0.18)';ctx.fill();ctx.restore();}
+}
+var dim,t0;
+function loop(){var t=(performance.now()-t0)/1000;draw(dim.ctx,dim.w,dim.h,t);requestAnimationFrame(loop);}
+window.addEventListener('load',function(){dim=setup();t0=performance.now();loop();});
+window.addEventListener('resize',function(){dim=setup();});
+cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top;for(var f=0;f<FLOWS.length;f++){var dx=cx-(dim.w/2+(f-(FLOWS.length-1)/2)*24),dy=cy-dim.h*0.962;if(dx*dx+dy*dy<=144){t0=performance.now()-FLOWS[f].ts*1000;break;}}});
+cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top,over=false;for(var f=0;f<FLOWS.length;f++){var dx=cx-(dim.w/2+(f-(FLOWS.length-1)/2)*24),dy=cy-dim.h*0.962;if(dx*dx+dy*dy<=144){over=true;break;}}cv.style.cursor=over?'pointer':'default';});
+})()</script></body></html>`} />
+);
+
 <CachedResponseInfo />
 
 Os **Webhooks** entregam push em tempo real os resultados das suas consultas e monitoramentos: você não precisa fazer polling. Assim que a Judit termina de processar a requisição, fazemos um `POST` para a URL configurada com o objeto resposta no corpo. É a forma mais eficiente e barata de integração para fluxos assíncronos.
@@ -33,23 +96,7 @@ Os **Webhooks** entregam push em tempo real os resultados das suas consultas e m
 
 ## Como funciona
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App as Sua aplicação
-    participant Judit as Judit API
-    participant Court as Tribunal
-    App->>Judit: POST /requests {callback_url, search...}
-    Judit-->>App: 200 OK {request_id, status: "pending"}
-    Judit->>Judit: Verifica datalake (cache)
-    alt cache encontrado
-        Judit-->>App: POST callback_url (cached_response: true)
-    end
-    Judit->>Court: Coleta direta no tribunal
-    Court-->>Judit: dados atualizados
-    Judit-->>App: POST callback_url (cached_response: false)
-    Judit-->>App: POST callback_url (event_type: "request_completed")
-```
+<WebhookAnimation />
 
 A cada evento, fazemos um `POST` HTTPS para sua URL com o payload em `application/json`. **A entrega é incremental** — você pode receber várias respostas para o mesmo `request_id` antes de chegar o evento `request_completed` que sinaliza fim do fluxo.
 
