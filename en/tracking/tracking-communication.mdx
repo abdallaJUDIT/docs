@@ -8,11 +8,60 @@ icon: "newspaper"
 
 import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
+export const DjenAnimation = () => (
+<iframe sandbox="allow-scripts" scrolling="no" style={{width:'100%',height:'540px',border:'none',borderRadius:'12px',display:'block',margin:'20px 0'}} srcDoc={`<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#090c0d}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="c"></canvas><script>(function(){
+var A='#4FD1C5',J='#1FC16B',OR='#F97316',M='#7A8599';
+var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
+var TOTAL=12.0;
+var XP={app:0.13,judit:0.50,djen:0.87};
+var NW=88,NH=42;
+var NODES=[{id:'app',label:'Your App',col:A},{id:'judit',label:'Judit API',col:J},{id:'djen',label:'DJEN',col:OR}];
+var STEPS=[
+  {fr:'app',to:'judit',label:'POST /tracking',note:'{response_type: communication}',col:A,ts:1.0,te:1.8,yp:0.30},
+  {fr:'judit',to:'app',label:'201 {tracking_id}',note:'status: created',col:J,ts:2.3,te:3.1,yp:0.42},
+  {sep:true,label:'↻  daily — Judit scans DJEN publications',yp:0.52},
+  {fr:'judit',to:'djen',label:'scans publications',note:'all text fields',col:OR,ts:4.8,te:5.6,yp:0.60},
+  {fr:'djen',to:'judit',label:'publication found',note:'match with the term',col:J,ts:6.1,te:6.9,yp:0.72},
+  {fr:'judit',to:'app',label:'webhook',note:'event: tracking_response',col:J,ts:7.4,te:8.2,yp:0.84}
+];
+var cv=document.getElementById('c');
+function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}
+function ease(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function gx(n,w){return n==='app'?w*XP.app:n==='judit'?w*XP.judit:w*XP.djen;}
+function eg(fr,to,w){var fx=gx(fr,w),tx=gx(to,w),d=tx>fx?1:-1;return{x1:fx+d*NW/2,x2:tx-d*NW/2,d:d};}
+function dPkt(ctx,x,y,lbl,col){var pw=Math.max(36,lbl.length*6+14),ph=20;ctx.save();ctx.shadowColor=col;ctx.shadowBlur=18;rr(ctx,x-pw/2,y-ph/2,pw,ph,5);ctx.fillStyle=col;ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=PT;ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,x,y+0.5);ctx.restore();}
+function draw(ctx,w,h,t){
+  var ct=t%TOTAL,bx1=w*0.02,bx2=w*0.98;
+  ctx.fillStyle=BG;ctx.fillRect(0,0,w,h);
+  var nodeY=h*0.21;
+  ctx.fillStyle=OR;ctx.font='bold 12px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Official Justice Gazette Monitoring (DJEN)',w/2,h*0.04);
+  ctx.fillStyle=M;ctx.font='10px Inter,system-ui,sans-serif';ctx.fillText('Judit scans the DJEN daily and notifies via webhook every matching publication found',w/2,h*0.09);
+  for(var i=0;i<NODES.length;i++){var n=NODES[i],lx=gx(n.id,w);ctx.save();ctx.strokeStyle=n.col;ctx.globalAlpha=0.35;ctx.lineWidth=1;ctx.setLineDash([4,7]);ctx.beginPath();ctx.moveTo(lx,nodeY+NH/2);ctx.lineTo(lx,h*0.94);ctx.stroke();ctx.restore();}
+  for(var si=0;si<STEPS.length;si++){
+    var s=STEPS[si],sy=h*s.yp;
+    if(s.sep){ctx.save();ctx.strokeStyle='rgba(255,255,255,0.28)';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(bx1,sy);ctx.lineTo(bx2,sy);ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.05)';rr(ctx,bx1,sy-8,s.label.length*6.2+14,16,3);ctx.fill();ctx.fillStyle=M;ctx.font='10px monospace';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(s.label,bx1+5,sy);ctx.restore();continue;}
+    var e=eg(s.fr,s.to,w),x1=e.x1,x2=e.x2,d=e.d,clx=(x1+x2)/2;
+    var state=ct<s.ts?'pre':ct>s.te?'done':'live',alpha=state==='pre'?0.10:state==='done'?0.55:1.0;
+    ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,sy);ctx.lineTo(x2,sy);ctx.stroke();ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(x2,sy);ctx.lineTo(x2-d*7,sy-4);ctx.lineTo(x2-d*7,sy+4);ctx.closePath();ctx.fill();ctx.fillStyle=TXT;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(s.label,clx,sy-4);if(s.note){ctx.fillStyle=M;ctx.font='9px monospace';ctx.fillText(s.note,clx,sy-16);}ctx.restore();
+    if(state==='live'){var p=ease((ct-s.ts)/(s.te-s.ts));dPkt(ctx,x1+(x2-x1)*p,sy+14,s.label,s.col);}
+  }
+  for(var i=0;i<NODES.length;i++){var nd=NODES[i],px=gx(nd.id,w);ctx.save();ctx.shadowColor=nd.col;ctx.shadowBlur=14;rr(ctx,px-NW/2,nodeY-NH/2,NW,NH,8);ctx.fillStyle=NF;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle=nd.col;ctx.lineWidth=1.8;ctx.stroke();ctx.fillStyle=nd.col;ctx.font='bold 11px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(nd.label,px,nodeY);ctx.restore();}
+}
+var dim,t0;
+function loop(){var t=(performance.now()-t0)/1000;draw(dim.ctx,dim.w,dim.h,t);requestAnimationFrame(loop);}
+window.addEventListener('load',function(){dim=setup();t0=performance.now();loop();});
+window.addEventListener('resize',function(){dim=setup();});
+})()\x3c/script></body></html>`} />
+);
+
 <CnpjAlphaInfo />
 
 **Official Justice Gazette Monitoring** scans the National Electronic Justice Gazette (DJEN) daily for publications containing the registered term. The search is performed across **all text fields** of the publication — parties, lawyers, court organ, full text — regardless of the `search_type` chosen.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. Daily, Judit processes the DJENN publications and delivers via webhook those that match your term.
+> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. Daily, Judit processes DJEN publications and delivers via webhook those that match your term.
+
+<DjenAnimation />
 
 ## When to use
 
@@ -31,334 +80,435 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
   </Card>
 </CardGroup>
 
-<Steps>
-  <Step title="Creating the tracking" stepNumber="1">
-    ## Request payload
+## Creating a Tracking
 
-    The POST request must include a payload with the following properties:
+### Request Payload
 
-    - `search_type`: Defines the type of search. Accepted values are: `cpf`, `cnpj`, `oab` or `name`. **Regardless of the type chosen, the search is performed across all text fields of the publication**;
-    - `search_key`: The term to search for — CPF, CNPJ, OAB number or any free name/expression;
-    - `response_type`: Must be `"communication"` to activate DJEN monitoring;
-    - `notification_emails` (optional): Array of email addresses that will receive notifications for every tracking update.
+The POST request must include a payload with the following properties:
 
-    <Note>
-      This tracking type **does not accept additional filters** (`filter`, `side`, `tribunals`, etc.). Matching is done by full-text search across the entire publication.
-    </Note>
+- `search_type`: Defines the type of search. Accepted values are: `cpf`, `cnpj`, `oab` or `name`. **Regardless of the type chosen, the search is performed across all text fields of the publication**;
+- `search_key`: The term to search for — CPF, CNPJ, OAB number or any free name/expression;
+- `response_type`: Must be `"communication"` to activate DJEN monitoring;
+- `notification_emails` (optional): Array of email addresses that will receive notifications for every tracking update.
 
-    <CodeGroup>
+<Note>
+  This tracking type **does not accept additional filters** (`filter`, `side`, `tribunals`, etc.). Matching is done by full-text search across the entire publication.
+</Note>
 
-    ```bash cURL (Name / Any Term)
-    curl --location 'https://tracking.production.judit.io/tracking' \
-    --header 'api-key: <API-KEY>' \
-    --header 'Content-Type: application/json' \
-    --data '{
-        "search": {
-            "search_type": "name",
-            "search_key": "EXAMPLE NAME",
-            "response_type": "communication"
-        }
-    }'
-    ```
+<CodeGroup>
 
-    ```bash cURL (CPF)
-    curl --location 'https://tracking.production.judit.io/tracking' \
-    --header 'api-key: <API-KEY>' \
-    --header 'Content-Type: application/json' \
-    --data '{
-        "search": {
-            "search_type": "cpf",
-            "search_key": "999.999.999-99",
-            "response_type": "communication"
-        }
-    }'
-    ```
-
-    ```bash cURL (CNPJ)
-    curl --location 'https://tracking.production.judit.io/tracking' \
-    --header 'api-key: <API-KEY>' \
-    --header 'Content-Type: application/json' \
-    --data '{
-        "search": {
-            "search_type": "cnpj",
-            "search_key": "00.000.000/0001-00",
-            "response_type": "communication"
-        }
-    }'
-    ```
-
-    ```bash cURL (OAB)
-    curl --location 'https://tracking.production.judit.io/tracking' \
-    --header 'api-key: <API-KEY>' \
-    --header 'Content-Type: application/json' \
-    --data '{
-        "search": {
-            "search_type": "oab",
-            "search_key": "SP123456",
-            "response_type": "communication"
-        }
-    }'
-    ```
-
-    </CodeGroup>
-
-    <Note>
-      DJEN monitoring runs daily.
-    </Note>
-
-    Creation response:
-
-    ```json
-    {
-      "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-      "user_id": "00000000-0000-0000-0000-000000000000",
-      "status": "created",
-      "search": {
+```bash cURL (Name / Any Term)
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "search": {
         "search_type": "name",
         "search_key": "EXAMPLE NAME",
         "response_type": "communication"
-      },
-      "tracked_items_count": 0,
-      "tracked_items_steps_count": 0,
-      "tags": {},
-      "created_at": "2026-05-20T04:52:50.223Z",
-      "updated_at": "2026-05-20T04:52:50.223Z"
     }
-    ```
+}'
+```
 
-  </Step>
-  <Step title="Checking the tracking status" stepNumber="2">
-    The URL takes the **tracking_id** returned in the first request:
-
-    ```bash
-    curl --request GET \
-    --url "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74" \
-    --header "api-key: YOUR-API-KEY" \
-    --header "Content-Type: application/json"
-    ```
-
-    Response:
-
-    ```json
-    {
-      "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-      "user_id": "00000000-0000-0000-0000-000000000000",
-      "status": "updated",
-      "search": {
-        "search_type": "name",
-        "search_key": "EXAMPLE NAME",
+```bash cURL (CPF)
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
         "response_type": "communication"
-      },
-      "tracked_items_count": 3,
-      "tracked_items_steps_count": 0,
-      "tags": {
-        "dashboard_id": null
-      },
+    }
+}'
+```
+
+```bash cURL (CNPJ)
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "search": {
+        "search_type": "cnpj",
+        "search_key": "00.000.000/0001-00",
+        "response_type": "communication"
+    }
+}'
+```
+
+```bash cURL (OAB)
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "search": {
+        "search_type": "oab",
+        "search_key": "SP123456",
+        "response_type": "communication"
+    }
+}'
+```
+
+</CodeGroup>
+
+<Note>
+  Once created, the tracking runs automatically every night, capturing publications from the previous day.
+</Note>
+
+Creation response:
+
+```json
+{
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "status": "created",
+  "search": {
+    "search_type": "name",
+    "search_key": "EXAMPLE NAME",
+    "response_type": "communication"
+  },
+  "tracked_items_count": 0,
+  "tracked_items_steps_count": 0,
+  "tags": {},
+  "created_at": "2026-05-20T04:52:50.223Z",
+  "updated_at": "2026-05-20T04:52:50.223Z"
+}
+```
+
+## Checking the Tracking Status
+
+The URL takes the **tracking_id** returned on creation:
+
+```bash
+curl --request GET \
+--url "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74" \
+--header "api-key: YOUR-API-KEY" \
+--header "Content-Type: application/json"
+```
+
+Response:
+
+```json
+{
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "status": "updated",
+  "search": {
+    "search_type": "name",
+    "search_key": "EXAMPLE NAME",
+    "response_type": "communication"
+  },
+  "tracked_items_count": 3,
+  "tracked_items_steps_count": 0,
+  "tags": {
+    "dashboard_id": null
+  },
+  "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
+  "created_at": "2026-05-20T04:52:50.223Z",
+  "updated_at": "2026-05-20T20:12:47.839Z"
+}
+```
+
+The `status` property indicates the current state of the tracking, which can be:
+
+<ol type="a">
+  <li><strong>created</strong>: Tracking created, but never executed.</li>
+  <li><strong>updating</strong>: Has a request currently being processed.</li>
+  <li><strong>updated</strong>: Tracking updated with at least one response available. The <u>updated_at</u> field shows the last update date and <u>request_id</u> the ID of the last execution.</li>
+  <li><strong>paused</strong>: Tracking paused, but can still be resumed.</li>
+  <li><strong>deleted</strong>: Tracking canceled and can no longer be resumed.</li>
+</ol>
+
+The **request_id** property is only populated after the tracking has executed at least once (status `updated`).
+
+## Pausing a Tracking
+
+To pause a tracking, make a POST request to the `/tracking/{tracking_id}/pause` route:
+
+```bash
+curl -X POST "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74/pause" \
+-H "api-key: YOUR-API-KEY"
+```
+
+Response:
+
+```json
+{
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "status": "paused",
+  "search": {
+    "search_type": "name",
+    "search_key": "EXAMPLE NAME",
+    "response_type": "communication"
+  },
+  "tracked_items_count": 3,
+  "tracked_items_steps_count": 0,
+  "tags": {},
+  "created_at": "2026-05-20T04:52:50.223Z",
+  "updated_at": "2026-05-20T20:12:47.839Z"
+}
+```
+
+## Resuming a Tracking
+
+To resume a paused tracking, make a POST request to the `/tracking/{tracking_id}/resume` route:
+
+```bash
+curl -X POST "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74/resume" \
+-H "api-key: YOUR-API-KEY"
+```
+
+Response:
+
+```json
+{
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "status": "updated",
+  "search": {
+    "search_type": "name",
+    "search_key": "EXAMPLE NAME",
+    "response_type": "communication"
+  },
+  "tracked_items_count": 3,
+  "tracked_items_steps_count": 0,
+  "tags": {},
+  "created_at": "2026-05-20T04:52:50.223Z",
+  "updated_at": "2026-05-20T20:12:47.839Z"
+}
+```
+
+## Deleting a Tracking
+
+To permanently cancel a tracking, make a DELETE request to the `/tracking/{tracking_id}` route:
+
+```bash
+curl -X DELETE "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74" \
+-H "api-key: YOUR-API-KEY"
+```
+
+Response:
+
+```json
+{
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "status": "deleted",
+  "search": {
+    "search_type": "name",
+    "search_key": "EXAMPLE NAME",
+    "response_type": "communication"
+  },
+  "tracked_items_count": 3,
+  "tracked_items_steps_count": 0,
+  "tags": {},
+  "created_at": "2026-05-20T04:52:50.223Z",
+  "updated_at": "2026-05-21T10:00:00.000Z"
+}
+```
+
+<Warning>
+  A deleted tracking cannot be resumed. To stop temporarily, use **Pause** instead.
+</Warning>
+
+## Retrieving the Tracking Response via Polling
+
+After the tracking executes (status `updated`), use the **request_id** from the status query to fetch the publications found:
+
+```bash
+curl --request GET \
+--url "https://requests.production.judit.io/responses/?request_id=186e0ed5-4656-4fd8-8e07-76f755c44a9d" \
+--header "api-key: YOUR-API-KEY" \
+--header "Content-Type: application/json"
+```
+
+<Accordion title="Example request response">
+```json
+{
+  "page": 1,
+  "page_count": 1,
+  "all_count": 1,
+  "all_pages_count": 1,
+  "page_data": [
+    {
       "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
-      "created_at": "2026-05-20T04:52:50.223Z",
-      "updated_at": "2026-05-20T20:12:47.839Z"
-    }
-    ```
-
-    The `status` property indicates the current state of the tracking, which can be:
-
-    <ol type="a">
-      <li><strong>created</strong>: Tracking created, but never executed.</li>
-      <li><strong>updating</strong>: Has a request currently being processed.</li>
-      <li><strong>updated</strong>: Tracking updated with at least one response available. The <u>updated_at</u> field shows the last update date and <u>request_id</u> the ID of the last execution.</li>
-      <li><strong>paused</strong>: Tracking paused, but can still be resumed.</li>
-      <li><strong>deleted</strong>: Tracking canceled and can no longer be resumed.</li>
-    </ol>
-
-    The **request_id** property is only populated after the tracking has executed at least once (status `updated`).
-  </Step>
-  <Step title="Retrieving the response content (publication found)" stepNumber="3">
-    The URL takes the **request_id** returned in the status query:
-
-    ```bash
-    curl --request GET \
-    --url "https://requests.production.judit.io/responses/?request_id=186e0ed5-4656-4fd8-8e07-76f755c44a9d" \
-    --header "api-key: YOUR-API-KEY" \
-    --header "Content-Type: application/json"
-    ```
-
-    <Accordion title="Example request response">
-    ```json
-    {
-      "page": 1,
-      "page_count": 1,
-      "all_count": 1,
-      "all_pages_count": 1,
-      "page_data": [
-        {
-          "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
-          "response_id": "dd47b9fc-8f66-46b8-a31a-50a4718c9774",
-          "origin": "tracking",
-          "origin_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-          "response_type": "communication",
-          "response_data": {
-            "communication_id": "0E6hgZvG",
-            "active": true,
-            "classification_code": "12154",
-            "classification_name": "ENFORCEMENT OF EXTRAJUDICIAL TITLE",
-            "date_availability": "2026-05-20T00:00:00.000Z",
-            "date_shipping": "2026-05-19T03:00:00.000Z",
-            "recipient_lawyers": [
-              {
-                "lawyer": {
-                  "id": 10001,
-                  "name": "EXAMPLE LAWYER 1",
-                  "license_code": "0001",
-                  "license_state": "SP"
-                },
-                "lawyer_id": 10001,
-                "communication_id": 600000001,
-                "id": 1100000001,
-                "created_at": "2026-05-19 11:44:08",
-                "updated_at": "2026-05-19 11:44:08"
-              }
-            ],
-            "recipients": [
-              {
-                "communication_id": 600000001,
-                "name": "ACTIVE PARTY EXAMPLE",
-                "side": "Active"
-              },
-              {
-                "communication_id": 600000001,
-                "name": "PASSIVE PARTY EXAMPLE 1",
-                "side": "Passive"
-              }
-            ],
-            "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            "api_id": 600000001,
-            "middle": "D",
-            "full_middle": "NATIONAL ELECTRONIC JUSTICE GAZETTE",
-            "name_organ": "DISTRICT COURT - 1st CIVIL COURT",
-            "communication_number": 2674,
-            "lawsuit_code": "0000000-00.0000.8.00.0000",
-            "tribunal_acronym": "TJXX",
-            "status": "P",
-            "text": "Full text of the publication as extracted from the DJEN...",
-            "communication_type": "INTIMATION",
-            "document_type": "DECISION",
-            "integrate_api": false,
-            "source": "pje"
+      "response_id": "dd47b9fc-8f66-46b8-a31a-50a4718c9774",
+      "origin": "tracking",
+      "origin_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+      "response_type": "communication",
+      "response_data": {
+        "communication_id": "0E6hgZvG",
+        "active": true,
+        "classification_code": "12154",
+        "classification_name": "ENFORCEMENT OF EXTRAJUDICIAL TITLE",
+        "date_availability": "2026-05-20T00:00:00.000Z",
+        "date_shipping": "2026-05-19T03:00:00.000Z",
+        "recipient_lawyers": [
+          {
+            "lawyer": {
+              "id": 10001,
+              "name": "EXAMPLE LAWYER 1",
+              "license_code": "0001",
+              "license_state": "SP"
+            },
+            "lawyer_id": 10001,
+            "communication_id": 600000001,
+            "id": 1100000001,
+            "created_at": "2026-05-19 11:44:08",
+            "updated_at": "2026-05-19 11:44:08"
+          }
+        ],
+        "recipients": [
+          {
+            "communication_id": 600000001,
+            "name": "ACTIVE PARTY EXAMPLE",
+            "side": "Active"
           },
-          "user_id": "00000000-0000-0000-0000-000000000000",
-          "created_at": "2026-05-20T20:12:47.839Z",
-          "updated_at": "2026-05-20T20:12:47.839Z"
-        }
-      ]
-    }
-    ```
-    </Accordion>
-
-    The meaning of each field in the `response_data` object can be found in the **[Communication Schema](/en/schemas/communication)**.
-
-    <Note>
-      DJEN monitoring only generates responses when there are new publications matching the registered term. Days with no match do not produce `response_data`.
-    </Note>
-  </Step>
-  <Step title="Retrieving the history of a tracking" stepNumber="4">
-    To retrieve the history of publications found by a specific tracking, make a GET request to the `/responses/tracking/{tracking_id}` route:
-
-    You can filter the results using the `created_at_gte` and `created_at_lte` parameters:
-
-    - `created_at_gte`: defines the start date of the query;
-    - `created_at_lte`: defines the end date of the query.
-
-    ```bash
-    curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2026-01-01T00%3A00%3A00&created_at_lte=2026-05-21T00%3A00%3A00' \
-    --header 'api-key: <API-KEY>'
-    ```
-
-    Expected response:
-
-    ```json
-    {
-      "request_status": "completed",
-      "page": 1,
-      "page_count": 2,
-      "all_pages_count": 1,
-      "all_count": 2,
-      "page_data": [
-        {
-          "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
-          "response_id": "dd47b9fc-8f66-46b8-a31a-50a4718c9774",
-          "origin": "tracking",
-          "origin_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-          "response_type": "communication",
-          "response_data": {
-            "communication_id": "0E6hgZvG",
-            "active": true,
-            "lawsuit_code": "0000000-00.0000.8.00.0000",
-            "tribunal_acronym": "TJXX",
-            "communication_type": "INTIMATION",
-            "document_type": "DECISION",
-            "date_availability": "2026-05-20T00:00:00.000Z",
-            "text": "Full text of the publication..."
-          },
-          "created_at": "2026-05-20T20:12:47.839Z"
-        }
-      ]
-    }
-    ```
-  </Step>
-  <Step title="Pausing a tracking" stepNumber="5">
-    To pause a tracking, make a POST request to the `/tracking/{tracking_id}/pause` route:
-
-    ```bash
-    curl -X POST "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74/pause" \
-    -H "api-key: YOUR-API-KEY"
-    ```
-
-    Response:
-
-    ```json
-    {
-      "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-      "user_id": "00000000-0000-0000-0000-000000000000",
-      "status": "paused",
-      "search": {
-        "search_type": "name",
-        "search_key": "EXAMPLE NAME",
-        "response_type": "communication"
+          {
+            "communication_id": 600000001,
+            "name": "PASSIVE PARTY EXAMPLE 1",
+            "side": "Passive"
+          }
+        ],
+        "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "api_id": 600000001,
+        "middle": "D",
+        "full_middle": "NATIONAL ELECTRONIC JUSTICE GAZETTE",
+        "name_organ": "DISTRICT COURT - 1st CIVIL COURT",
+        "communication_number": 2674,
+        "lawsuit_code": "0000000-00.0000.8.00.0000",
+        "tribunal_acronym": "TJXX",
+        "status": "P",
+        "text": "Full text of the publication as extracted from the DJEN...",
+        "communication_type": "INTIMATION",
+        "document_type": "DECISION",
+        "integrate_api": false,
+        "source": "pje"
       },
-      "tracked_items_count": 3,
-      "tracked_items_steps_count": 0,
-      "tags": {},
-      "created_at": "2026-05-20T04:52:50.223Z",
+      "user_id": "00000000-0000-0000-0000-000000000000",
+      "created_at": "2026-05-20T20:12:47.839Z",
       "updated_at": "2026-05-20T20:12:47.839Z"
     }
-    ```
-  </Step>
-  <Step title="Resuming a tracking" stepNumber="6">
-    To resume a paused tracking, make a POST request to the `/tracking/{tracking_id}/resume` route:
+  ]
+}
+```
+</Accordion>
 
-    ```bash
-    curl -X POST "https://tracking.production.judit.io/tracking/a94db796-9e35-4d0c-8e05-2a6b60f32a74/resume" \
-    -H "api-key: YOUR-API-KEY"
-    ```
+The meaning of each field in the `response_data` object can be found in the **[Communication Schema](/en/schemas/communication)**.
 
-    Response:
+<Note>
+  DJEN monitoring only generates responses when there are new publications matching the registered term. Days with no match do not produce `response_data`.
+</Note>
 
-    ```json
-    {
-      "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-      "user_id": "00000000-0000-0000-0000-000000000000",
-      "status": "updated",
-      "search": {
-        "search_type": "name",
-        "search_key": "EXAMPLE NAME",
-        "response_type": "communication"
+## Receiving the Response via Webhook
+
+When the tracking finds a publication, Judit automatically sends a POST to the webhook URL configured in your account. The payload contains the event and the data of the publication found:
+
+```json
+{
+  "event": "tracking_response",
+  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
+  "response_type": "communication",
+  "response_data": {
+    "communication_id": "0E6hgZvG",
+    "active": true,
+    "classification_code": "12154",
+    "classification_name": "ENFORCEMENT OF EXTRAJUDICIAL TITLE",
+    "date_availability": "2026-05-20T00:00:00.000Z",
+    "date_shipping": "2026-05-19T03:00:00.000Z",
+    "recipient_lawyers": [
+      {
+        "lawyer": {
+          "id": 10001,
+          "name": "EXAMPLE LAWYER 1",
+          "license_code": "0001",
+          "license_state": "SP"
+        },
+        "lawyer_id": 10001,
+        "communication_id": 600000001,
+        "id": 1100000001,
+        "created_at": "2026-05-19 11:44:08",
+        "updated_at": "2026-05-19 11:44:08"
+      }
+    ],
+    "recipients": [
+      {
+        "communication_id": 600000001,
+        "name": "ACTIVE PARTY EXAMPLE",
+        "side": "Active"
       },
-      "tracked_items_count": 3,
-      "tracked_items_steps_count": 0,
-      "tags": {},
-      "created_at": "2026-05-20T04:52:50.223Z",
-      "updated_at": "2026-05-20T20:12:47.839Z"
+      {
+        "communication_id": 600000001,
+        "name": "PASSIVE PARTY EXAMPLE 1",
+        "side": "Passive"
+      }
+    ],
+    "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_id": 600000001,
+    "middle": "D",
+    "full_middle": "NATIONAL ELECTRONIC JUSTICE GAZETTE",
+    "name_organ": "DISTRICT COURT - 1st CIVIL COURT",
+    "communication_number": 2674,
+    "lawsuit_code": "0000000-00.0000.8.00.0000",
+    "tribunal_acronym": "TJXX",
+    "status": "P",
+    "text": "Full text of the publication as extracted from the DJEN...",
+    "communication_type": "INTIMATION",
+    "document_type": "DECISION",
+    "integrate_api": false,
+    "source": "pje"
+  }
+}
+```
+
+<Note>
+  A separate webhook is sent for each publication found. If the tracking finds 5 publications in a day, you will receive 5 webhook calls.
+</Note>
+
+## Retrieving the History of a Tracking
+
+To retrieve the history of publications found by a specific tracking, make a GET request to the `/responses/tracking/{tracking_id}` route:
+
+You can filter results using the `created_at_gte` and `created_at_lte` parameters:
+
+- `created_at_gte`: defines the start date of the query;
+- `created_at_lte`: defines the end date of the query.
+
+```bash
+curl --location 'https://requests.production.judit.io/responses/tracking/<TRACKING_ID>?order=asc&page=1&page_size=50&created_at_gte=2026-01-01T00%3A00%3A00&created_at_lte=2026-05-21T00%3A00%3A00' \
+--header 'api-key: <API-KEY>'
+```
+
+Expected response:
+
+```json
+{
+  "request_status": "completed",
+  "page": 1,
+  "page_count": 2,
+  "all_pages_count": 1,
+  "all_count": 2,
+  "page_data": [
+    {
+      "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
+      "response_id": "dd47b9fc-8f66-46b8-a31a-50a4718c9774",
+      "origin": "tracking",
+      "origin_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+      "response_type": "communication",
+      "response_data": {
+        "communication_id": "0E6hgZvG",
+        "active": true,
+        "lawsuit_code": "0000000-00.0000.8.00.0000",
+        "tribunal_acronym": "TJXX",
+        "communication_type": "INTIMATION",
+        "document_type": "DECISION",
+        "date_availability": "2026-05-20T00:00:00.000Z",
+        "text": "Full text of the publication..."
+      },
+      "created_at": "2026-05-20T20:12:47.839Z"
     }
-    ```
-  </Step>
-</Steps>
+  ]
+}
+```
