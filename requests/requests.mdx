@@ -7,8 +7,67 @@ icon: "magnifying-glass"
 ---
 
 import { EndpointBadges } from '/snippets/badges.mdx';
-
 import CachedResponseInfo from '/snippets/cached-response-pt.mdx';
+
+export const AsyncFlowAnimation = () => (
+  <iframe sandbox="allow-scripts" scrolling="no" style={{width:'100%',height:'560px',border:'none',borderRadius:'12px',display:'block',margin:'20px 0'}} srcDoc={`<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#090c0d}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="c"></canvas><script>(function(){
+var A='#4FD1C5',J='#1FC16B',T='#E0A82E',M='#7A8599';
+var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
+var STEPS=[
+  {from:'app',to:'jud',label:'POST /requests',sub:'{search_type, search_key}',col:A,ts:0.5,te:1.2},
+  {from:'jud',to:'app',label:'200 {request_id}',sub:'status: pending',col:'#F6AD55',ts:1.7,te:2.4},
+  {from:'jud',to:'crt',label:'extracao no tribunal',sub:'',col:A,ts:2.9,te:3.6},
+  {from:'crt',to:'jud',label:'dados do processo',sub:'',col:J,ts:4.1,te:4.8},
+  {sep:'alt',label:'alt  webhook configurado'},
+  {from:'jud',to:'app',label:'POST callback_url',sub:'cached_response',col:J,ts:5.5,te:6.2},
+  {sep:'else',label:'else  polling'},
+  {from:'app',to:'jud',label:'GET /requests/{id}',sub:'',col:A,ts:7.2,te:7.9},
+  {from:'jud',to:'app',label:'status: completed',sub:'',col:J,ts:8.4,te:9.1},
+  {from:'app',to:'jud',label:'GET /responses?...',sub:'request_id=...',col:A,ts:9.6,te:10.3},
+  {from:'jud',to:'app',label:'response_data',sub:'com lawsuit',col:J,ts:10.8,te:11.5},
+  {sep:'end'}
+];
+var YPS=[0.19,0.28,0.37,0.46,0.516,0.572,0.624,0.678,0.754,0.830,0.906,0.950];
+for(var i=0;i<STEPS.length;i++){STEPS[i].yp=YPS[i];}
+var TOTAL=14.0,cv=document.getElementById('c');
+function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}
+function ease(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function nx(n,w){return n==='app'?w*0.13:n==='jud'?w*0.5:w*0.87;}
+function nc(n){return n==='app'?A:n==='jud'?J:T;}
+function eg(fr,to,w,nw){var fx=nx(fr,w),tx=nx(to,w),d=tx>fx?1:-1;return{x1:fx+d*nw/2,x2:tx-d*nw/2,d:d};}
+function dNode(ctx,x,y,lbl,col,nw,nh){ctx.save();ctx.shadowColor=col;ctx.shadowBlur=18;rr(ctx,x-nw/2,y-nh/2,nw,nh,8);ctx.fillStyle=NF;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.stroke();ctx.fillStyle=col;ctx.font='bold 12px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,x,y);ctx.restore();}
+function dPkt(ctx,x,y,lbl,col){ctx.save();var pw=Math.max(38,lbl.length*7+16),ph=20;ctx.shadowColor=col;ctx.shadowBlur=22;rr(ctx,x-pw/2,y-ph/2,pw,ph,5);ctx.fillStyle=col;ctx.fill();ctx.shadowBlur=0;ctx.fillStyle=PT;ctx.font='bold 9.5px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,x,y+0.5);ctx.restore();}
+function draw(ctx,w,h,t){
+  var ct=t%TOTAL,nw=Math.min(94,w*0.16),nh=42,nodeY=h*0.068,ll=nodeY+nh/2,bx1=w*0.02,bx2=w*0.98,altS=null,endS=null;
+  ctx.fillStyle=BG;ctx.fillRect(0,0,w,h);
+  for(var i=0;i<STEPS.length;i++){if(STEPS[i].sep==='alt')altS=STEPS[i];if(STEPS[i].sep==='end')endS=STEPS[i];}
+  if(altS&&endS){ctx.save();ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.setLineDash([4,6]);rr(ctx,bx1,h*altS.yp-11,bx2-bx1,(h*endS.yp+5)-(h*altS.yp-11),5);ctx.stroke();ctx.restore();}
+  var ns=['app','jud','crt'];
+  for(var i=0;i<ns.length;i++){var lx=nx(ns[i],w),lc=nc(ns[i]);ctx.save();ctx.strokeStyle=lc;ctx.globalAlpha=0.45;ctx.lineWidth=1;ctx.setLineDash([5,8]);ctx.beginPath();ctx.moveTo(lx,ll);ctx.lineTo(lx,h*0.955);ctx.stroke();ctx.restore();}
+  for(var i=0;i<STEPS.length;i++){
+    var s=STEPS[i],sy=h*s.yp;
+    if(s.sep==='alt'||s.sep==='else'){ctx.save();ctx.strokeStyle='rgba(255,255,255,0.30)';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(bx1,sy);ctx.lineTo(bx2,sy);ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.06)';rr(ctx,bx1,sy-8,s.label.length*6+14,16,3);ctx.fill();ctx.fillStyle=M;ctx.font='10px monospace';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(s.label,bx1+5,sy);ctx.restore();continue;}
+    if(s.sep==='end'){ctx.save();ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(bx1,sy);ctx.lineTo(bx2,sy);ctx.stroke();ctx.restore();continue;}
+    var e=eg(s.from,s.to,w,nw),x1=e.x1,x2=e.x2,d=e.d,clx=(x1+x2)/2;
+    var state=ct<s.ts?'pre':ct>s.te?'done':'live',alpha=state==='pre'?0.15:state==='done'?0.6:1.0;
+    ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=s.col;ctx.lineWidth=1.4;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,sy);ctx.lineTo(x2,sy);ctx.stroke();
+    ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(x2,sy);ctx.lineTo(x2-d*7,sy-4);ctx.lineTo(x2-d*7,sy+4);ctx.closePath();ctx.fill();
+    ctx.fillStyle=TXT;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(s.label,clx,sy-4);
+    if(s.sub){ctx.fillStyle=M;ctx.font='9px monospace';ctx.fillText(s.sub,clx,sy-15);}
+    ctx.restore();
+    if(state==='live'){var p=ease((ct-s.ts)/(s.te-s.ts));dPkt(ctx,x1+(x2-x1)*p,sy+14,s.label,s.col);}
+  }
+  dNode(ctx,nx('app',w),nodeY,'Sua App',A,nw,nh);
+  dNode(ctx,nx('jud',w),nodeY,'Judit API',J,nw,nh);
+  dNode(ctx,nx('crt',w),nodeY,'Tribunal',T,nw,nh);
+}
+var dim,t0;
+function loop(){var t=(performance.now()-t0)/1000;dim.ctx.clearRect(0,0,dim.w,dim.h);draw(dim.ctx,dim.w,dim.h,t);requestAnimationFrame(loop);}
+window.addEventListener('load',function(){dim=setup();t0=performance.now();loop();});
+window.addEventListener('resize',function(){dim=setup();});
+})()\x3c/script></body></html>`} />
+);
 
 <CachedResponseInfo />
 
@@ -39,25 +98,8 @@ A **Busca Processual Assíncrona** é a forma mais completa e atualizada de cons
 
 ## Fluxo assíncrono (visão geral)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App as Sua aplicação
-    participant Judit as Judit API
-    participant Court as Tribunal
-    App->>Judit: POST /requests {search_type, search_key}
-    Judit-->>App: 200 {request_id, status: "pending"}
-    Judit->>Court: extração no tribunal
-    Court-->>Judit: dados do processo
-    alt webhook configurado
-        Judit-->>App: POST callback_url (response com cached_response)
-    else polling
-        App->>Judit: GET /requests/{id}
-        Judit-->>App: status: "completed"
-        App->>Judit: GET /responses?request_id=...
-        Judit-->>App: response_data com lawsuit
-    end
-```
+<AsyncFlowAnimation />
+
 
 ## Entendendo o Fluxo Assíncrono
 
