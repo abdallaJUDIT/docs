@@ -79,6 +79,14 @@ window.addEventListener('resize',function(){dim=setup();});
 
 <CachedResponseInfo />
 
+<Warning>
+**Uma extração por dia, por processo**
+
+Em consultas processuais (`search_type: "lawsuit_cnj"`), a ida ao tribunal para buscar dados atualizados de um processo específico acontece, por padrão, **no máximo uma vez por dia**. Se você disparar mais de uma consulta para o mesmo processo no mesmo dia, as chamadas seguintes retornam o dado já em cache (`cached_response: true`), sem nova extração no tribunal.
+
+Isso é uma otimização de performance, **não uma isenção de cobrança**: cada requisição enviada é contabilizada e cobrada normalmente, conforme estabelecido em contrato, independentemente de o retorno ter vindo do cache ou de uma extração nova no tribunal.
+</Warning>
+
 A **Busca Processual Assíncrona** é a forma mais completa e atualizada de consultar um processo: a Judit vai até o tribunal em tempo real, baixa toda a árvore de dados (capa, partes, advogados, andamentos, classes, anexos) e devolve para você por webhook ou polling.
 
 > 🤖 A rota de busca processual opera de forma **assíncrona**. A aplicação cliente deve fazer um `POST /requests` para iniciar a busca, aguardar o processamento (via Webhook ou consultando via `GET /requests/{id}`) e, quando o status for `completed`, capturar os dados via `GET /responses`.
@@ -92,7 +100,7 @@ A **Busca Processual Assíncrona** é a forma mais completa e atualizada de cons
     O processo precisa estar com a fotografia mais recente do tribunal — não vale o cache do datalake.
   </Card>
   <Card title="Capa + andamentos completos" icon="list-tree">
-    Você quer todos os campos da capa, todas as movimentações, anexos e relacionamentos.
+    Você quer todos os campos da capa, todas as movimentações, anexos (até o limite de 1.000 por consulta) e relacionamentos.
   </Card>
   <Card title="Resumo com IA" icon="sparkles">
     Acionar `judit_ia: ["summary"]` para receber um resumo humanizado pronto para sua UI.
@@ -133,13 +141,16 @@ Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar 
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Sim** | Define a entidade buscada. Para processos, use sempre `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Sim** | O número do processo no padrão CNJ (ex: `"0009999-99.9999.8.26.9999"`). |
-| `cache_ttl_in_days` | integer | Não | Otimiza a busca retornando dados cacheados caso o processo já tenha sido consultado nos últimos X dias. |
 | `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo. |
 | `judit_ia` | array | Não | Lista de *features* de IA aplicadas ao resultado. Envie `["summary"]` para receber um resumo humanizado da capa e andamentos. |
 | `search_params.lawsuit_instance` | integer | Não | Força a busca em uma instância específica (ex: `1` ou `2`). |
 
 <Warning>
 **Judit IA (Beta):** A funcionalidade de inteligência artificial (`judit_ia`) está em versão Beta. O tempo de resposta pode variar e a estrutura do resumo está sujeita a melhorias.
+</Warning>
+
+<Warning>
+**Limite de 1.000 anexos por requisição:** Quando `with_attachments: true`, a Judit retorna **até 1.000 anexos por consulta**. Se o processo tiver mais anexos do que isso, os excedentes não vêm nessa resposta — para capturá-los, faça uma **nova consulta processual** para o mesmo CNJ, que trará o próximo lote de até 1.000 anexos. Repita o processo (nova consulta a cada lote de 1.000) até obter todos os anexos do processo.
 </Warning>
 
 ### Exemplo de Requisição (POST)

@@ -72,6 +72,14 @@ window.addEventListener('resize',function(){dim=setup();});
 
 <CachedResponseInfo />
 
+<Warning>
+**One court fetch per day, per lawsuit**
+
+For lawsuit queries (`search_type: "lawsuit_cnj"`), fetching updated data from the court for a specific lawsuit happens, by default, **at most once per day**. If you trigger more than one query for the same lawsuit on the same day, the following calls return the data already in cache (`cached_response: true`), with no new court fetch.
+
+This is a performance optimization, **not a billing exemption**: every request you send is counted and billed normally, as established in your contract, regardless of whether the result came from cache or from a fresh court extraction.
+</Warning>
+
 The **Asynchronous Lawsuit Query** is the most complete and freshest way to fetch a lawsuit: Judit reaches the court in real time, downloads the full tree (cover, parties, lawyers, steps, classes, attachments) and returns it via webhook or polling.
 
 > 🤖 The lawsuit search route operates **asynchronously**. The client application must make a `POST /requests` to start the search, wait for processing (via Webhook or by polling `GET /requests/{id}`), and, when the status is `completed`, capture the data via `GET /responses`.
@@ -85,7 +93,7 @@ The **Asynchronous Lawsuit Query** is the most complete and freshest way to fetc
     The lawsuit must reflect the latest court state — the datalake cache isn't enough.
   </Card>
   <Card title="Full cover + steps" icon="list-tree">
-    You need every cover field, all steps, attachments and relationships.
+    You need every cover field, all steps, attachments (up to 1,000 per query) and relationships.
   </Card>
   <Card title="AI summary" icon="sparkles">
     Trigger `judit_ia: ["summary"]` to get a human-friendly summary ready for your UI.
@@ -145,13 +153,16 @@ Refer to the table below to configure your search, enable attachments, or trigge
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Yes** | Defines the entity being searched. For lawsuits, always use `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Yes** | The lawsuit number in the CNJ standard (e.g., `"0009999-99.9999.8.26.9999"`). |
-| `cache_ttl_in_days` | integer | No | Optimizes the search by returning cached data if the lawsuit has already been queried within the last X days. |
 | `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files. |
 | `judit_ia` | array | No | List of AI *features* applied to the result. Send `["summary"]` to receive a humanized summary of the header and case updates. |
 | `search_params.lawsuit_instance` | integer | No | Forces the search at a specific instance (e.g., `1` or `2`). |
 
 <Warning>
 **Judit AI (Beta):** The artificial intelligence feature (`judit_ia`) is in Beta. Response time may vary and the summary structure is subject to improvements.
+</Warning>
+
+<Warning>
+**Limit of 1,000 attachments per request:** When `with_attachments: true`, Judit returns **up to 1,000 attachments per query**. If the lawsuit has more attachments than that, the remaining ones are not included in that response — to capture them, make a **new lawsuit query** for the same CNJ, which will return the next batch of up to 1,000 attachments. Repeat this (one new query per batch of 1,000) until you have retrieved all of the lawsuit's attachments.
 </Warning>
 
 ### Request Example (POST)
