@@ -1,0 +1,169 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "JUDIT - Credentials Vault API",
+    "description": "OpenAPI description for the credentials vault routes, used to register and inspect per-tribunal system credentials. Mirrored locally so this page's playground exposes exactly one base URL (no other Judit service host). Transcribed from the fields already documented on the vault/vault and vault/vaultcreate pages.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://crawler.prod.judit.io",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Credentials",
+      "description": "Register and inspect tribunal system credentials stored in the vault"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/credentials": {
+      "get": {
+        "tags": ["Credentials"],
+        "summary": "List credential status by system",
+        "description": "Returns the registration status (`credential_status`) of each tribunal system's credential for the authenticated company.",
+        "operationId": "getCredentials",
+        "responses": {
+          "200": {
+            "description": "List of systems with their credential status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "systems": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Tribunal system name, or `*` for the wildcard credential"
+                          },
+                          "customer_key": {
+                            "type": "string"
+                          },
+                          "credential_status": {
+                            "type": "string",
+                            "enum": ["not exists", "active", "inactive"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "systems": [
+                    {
+                      "name": "*",
+                      "customer_key": "",
+                      "credential_status": "not exists"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Credentials"],
+        "summary": "Register or update credentials",
+        "description": "Registers a credential for a tribunal system, or updates it if it already exists. Send empty `username`/`password` to remove a credential for a given system.",
+        "operationId": "postCredentials",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credentials": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "credential": {
+                          "type": "object",
+                          "required": ["system_name", "customer_key", "username", "password"],
+                          "properties": {
+                            "system_name": {
+                              "type": "string",
+                              "description": "e.g. \"PJE TJBA - 1º grau\" or `*` (wildcard)"
+                            },
+                            "customer_key": {
+                              "type": "string",
+                              "description": "Client-defined identifier for the credential owner"
+                            },
+                            "username": {
+                              "type": "string",
+                              "description": "e.g. CPF"
+                            },
+                            "password": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "credentials": [
+                  {
+                    "credential": {
+                      "system_name": "PJE TJBA - 1º grau",
+                      "customer_key": "00000001",
+                      "username": "999.999.999-99",
+                      "password": "Senha123"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credential(s) created or updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "system_name": { "type": "string" },
+                      "customer_key": { "type": "string" },
+                      "message": {
+                        "type": "string",
+                        "enum": ["CREDENTIAL_CREATED", "CREDENTIAL_UPDATED"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api-key",
+        "description": "API key for authentication"
+      }
+    }
+  }
+}

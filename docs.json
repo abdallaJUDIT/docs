@@ -419,9 +419,10 @@
   },
   "api": {
     "openapi": [
-      "https://requests.production.judit.io/docs/spec",
-      "https://tracking.production.judit.io/docs/spec",
-      "https://lawsuits.production.judit.io/docs/spec",
+      "openapi/requests.json",
+      "openapi/tracking.json",
+      "openapi/lawsuits.json",
+      "openapi/vault.json",
       "openapi/miner.yaml"
     ],
     "playground": {
