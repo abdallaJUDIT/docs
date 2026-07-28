@@ -61,10 +61,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       },
@@ -530,10 +530,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       }
@@ -599,10 +599,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       },
@@ -666,10 +666,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       }
@@ -952,10 +952,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       }
@@ -1021,10 +1021,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       }
@@ -1132,10 +1132,10 @@
         },
         "security": [
           {
-            "jwtAuth": []
+            "apiKeyAuth": []
           },
           {
-            "apiKeyAuth": []
+            "jwtAuth": []
           }
         ]
       }
