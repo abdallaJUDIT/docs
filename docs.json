@@ -66,6 +66,7 @@
                 "group": "Consultas Síncronas",
                 "pages": [
                   "cache-judit/hotstorage",
+                  "cache-judit/on-demand",
                   "cache-judit/count",
                   "cache-judit/cache-grouped"
                 ]
@@ -259,6 +260,7 @@
                 "group": "Synchronous Requests",
                 "pages": [
                   "en/cache-judit/hotstorage",
+                  "en/cache-judit/on-demand",
                   "en/cache-judit/count",
                   "en/cache-judit/cache-grouped"
                 ]

@@ -4924,6 +4924,9 @@
           "search": {
             "type": "object",
             "properties": {
+              "on_demand": {
+                "type": "boolean"
+              },
               "search_type": {
                 "type": "string",
                 "enum": [
@@ -5005,6 +5008,9 @@
                     ]
                   }
                 ]
+              },
+              "cache_ttl_in_days": {
+                "type": "number"
               },
               "search_params": {
                 "type": "object",

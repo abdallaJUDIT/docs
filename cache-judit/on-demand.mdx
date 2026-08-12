@@ -1,0 +1,339 @@
+---
+title: "Consulta Processual Síncrona"
+sidebarTitle: "Consulta processual síncrona"
+description: "Consulte um processo específico pelo número CNJ com garantia de atualização no tribunal, sem sair do fluxo síncrono. Controle o gatilho e a janela de desatualização com search.on_demand e search.cache_ttl_in_days."
+keywords: ["on-demand", "consulta processual", "lawsuit_cnj", "síncrona", "cache_ttl_in_days", "tribunal em tempo real"]
+icon: "bolt"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+<Warning>
+**Por que essa rota existe**
+
+A [Consulta Síncrona ao Datalake](/cache-judit/hotstorage) é recomendada para buscas por **CPF, CNPJ, OAB ou Nome** — ou seja, para descobrir quais processos existem vinculados a uma pessoa ou empresa. Para consultas por **número de processo (CNJ)**, o dado no datalake pode estar desatualizado (ou o processo pode nem existir ainda em nossa base), então essa busca por si só **não é recomendada** quando você precisa de garantia de atualidade sobre um processo específico.
+
+A **Consulta On-Demand** resolve exatamente esse caso: no mesmo `POST` síncrono, ela pode engatilhar uma extração em tempo real no tribunal quando o processo estiver ausente ou desatualizado na nossa base, de acordo com as regras que você configurar.
+</Warning>
+
+A Consulta On-Demand usa o **mesmo endpoint** da [Consulta Síncrona ao Datalake](/cache-judit/hotstorage) — `POST /lawsuits` — buscando por `search_type: "lawsuit_cnj"`. A diferença é o uso de dois parâmetros novos, `search.on_demand` e `search.cache_ttl_in_days`, que decidem se vale a pena ir ao tribunal antes de responder.
+
+> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits`. Continua sendo uma resposta síncrona (HTTP 200 com o JSON pronto) — porém, quando a extração no tribunal é engatilhada, o **timeout sobe para até 3 minutos**. Nos testes realizados, o tempo médio de atualização foi de **13 segundos**, mas em horários de pico ou instabilidade do tribunal esse tempo pode se prolongar.
+
+<EndpointBadges auth billing="billable" flow="sync" />
+
+## Como funciona
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `search.search_type` | string | **Sim** | Use `"lawsuit_cnj"` para identificar o processo pelo número CNJ. |
+| `search.search_key` | string | **Sim** | Número do processo no padrão CNJ (ex.: `"9999999-99.9999.9.99.9999"`). |
+| `search.on_demand` | boolean | Não | Se `true`, pode engatilhar uma consulta no tribunal conforme o tempo de desatualização do processo em nossa base (ou sua inexistência). |
+| `search.cache_ttl_in_days` | integer (> 0) | Não | Taxa de desatualização aceitável, em dias. Só tem efeito se `on_demand: true`. Veja as regras abaixo. |
+
+<Warning>
+**`cache_ttl_in_days` só funciona com `on_demand: true`**
+
+Sem esse parâmetro, o gatilho para o tribunal depende apenas de o processo existir ou não em nossa base — não do quão antigo ele está.
+</Warning>
+
+### Regras de gatilho para o tribunal
+
+<CardGroup cols={2}>
+  <Card title="on_demand: true, sem cache_ttl_in_days" icon="magnifying-glass">
+    A ida ao tribunal só acontece se o número do processo **não for encontrado** em nossa base de dados.
+  </Card>
+  <Card title="on_demand: true, com cache_ttl_in_days" icon="clock-rotate-left">
+    Se a última atualização do processo tiver **menos dias** que o valor informado, respondemos direto do datalake (sem ir ao tribunal). Se tiver **mais dias** — ou o processo não existir na base — disparamos a extração em tempo real.
+  </Card>
+</CardGroup>
+
+### Exemplo de requisição
+
+```json Consulta on-demand por CNJ
+{
+    "search": {
+        "search_key": "9999999-99.9999.9.99.9999",
+        "search_type": "lawsuit_cnj",
+        "on_demand": true,
+        "cache_ttl_in_days": 1
+    }
+}
+```
+
+No exemplo acima: se o processo `9999999-99.9999.9.99.9999` foi atualizado em nossa base há menos de 1 dia, a resposta vem do datalake. Caso contrário, disparamos a extração no tribunal antes de responder.
+
+### Exemplo de requisição (POST)
+
+<CodeGroup>
+```bash cURL
+curl --request POST \
+  --url 'https://lawsuits.production.judit.io/lawsuits' \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: '"$JUDIT_API_KEY" \
+  --max-time 180 \
+  --data '{
+    "search": {
+      "search_key": "9999999-99.9999.9.99.9999",
+      "search_type": "lawsuit_cnj",
+      "on_demand": true,
+      "cache_ttl_in_days": 1
+    }
+  }'
+```
+
+```python Python
+import os, requests
+
+resp = requests.post(
+    "https://lawsuits.production.judit.io/lawsuits",
+    headers={
+        "api-key": os.environ["JUDIT_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    json={
+        "search": {
+            "search_key": "9999999-99.9999.9.99.9999",
+            "search_type": "lawsuit_cnj",
+            "on_demand": True,
+            "cache_ttl_in_days": 1,
+        },
+    },
+    timeout=180,  # até 3 minutos quando o tribunal é acionado
+)
+resp.raise_for_status()
+print(resp.json())
+```
+
+```javascript Node.js
+const res = await fetch("https://lawsuits.production.judit.io/lawsuits", {
+  method: "POST",
+  headers: {
+    "api-key": process.env.JUDIT_API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    search: {
+      search_key: "9999999-99.9999.9.99.9999",
+      search_type: "lawsuit_cnj",
+      on_demand: true,
+      cache_ttl_in_days: 1,
+    },
+  }),
+  signal: AbortSignal.timeout(180_000), // até 3 minutos
+});
+console.log(await res.json());
+```
+</CodeGroup>
+
+<Warning>
+**Ajuste o timeout do seu cliente HTTP**
+
+Quando a extração no tribunal é engatilhada, a resposta pode levar até **3 minutos**. Se o timeout do seu cliente for menor que isso (muitas bibliotecas usam 10-30s por padrão), a conexão será encerrada antes da resposta chegar. Configure explicitamente um timeout de pelo menos 180 segundos para essa rota.
+</Warning>
+
+## Lendo a resposta
+
+<Warning>
+**Pequena diferença em relação ao Hot Storage**
+
+A resposta usa o mesmo padrão da [Consulta Síncrona ao Datalake](/cache-judit/hotstorage) — `has_lawsuits` + `request_id` — mas a lista de processos vem no campo **`lawsuits`** (em vez de `response_data`). Não há campo indicando se o dado veio do cache ou de uma extração nova no tribunal; se isso for necessário para sua aplicação, utilize a [Consulta Assíncrona](/requests/requests), que expõe `cached_response`.
+</Warning>
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `has_lawsuits` | boolean | `true` se o processo foi encontrado (no cache ou após a extração on-demand). |
+| `request_id` | string | Identificador único da consulta — útil para auditoria. |
+| `lawsuits` | array | Processos encontrados para o CNJ pesquisado. Normalmente um item por instância — cada item segue o [Schema Lawsuit](/schemas/lawsuit-object). |
+
+<Warning>
+**Processos em segredo de justiça**
+
+Se alguma instância do processo estiver sob sigilo, o item correspondente em `lawsuits` vem com `secrecy_level` maior que `0` e a maior parte dos campos vazios ou ausentes (`parties: []`, `steps: []`, etc.), preservando apenas os dados não sigilosos (tribunal, comarca, cidade).
+</Warning>
+
+### Exemplo completo de resposta
+
+<Accordion title="Ver exemplo de resposta">
+```json
+{
+    "has_lawsuits": true,
+    "request_id": "c37cacba-41b5-4694-919f-4a937f2ea5df",
+    "lawsuits": [
+        {
+            "code": "9999999-99.9999.9.99.9999",
+            "instance": 2,
+            "name": "Usuário 1 X Usuário 2",
+            "secrecy_level": 0,
+            "tribunal_acronym": "TJSP",
+            "justice": "8",
+            "justice_description": "JUSTIÇA ESTADUAL",
+            "tribunal": "26",
+            "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
+            "state": "SP",
+            "city": "FERNANDOPOLIS",
+            "area": "DIREITO PENAL",
+            "amount": 0,
+            "distribution_date": "2019-07-19T03:00:00.000Z",
+            "classifications": [
+                { "code": "417", "name": "APELAÇÃO CRIMINAL" }
+            ],
+            "subjects": [
+                { "code": "287", "name": "DIREITO PENAL" },
+                { "code": "3400", "name": "CRIMES CONTRA A LIBERDADE PESSOAL" },
+                { "code": "3402", "name": "AMEAÇA" }
+            ],
+            "courts": [
+                { "name": "9ª Câmara de Direito Criminal" }
+            ],
+            "parties": [
+                {
+                    "main_document": "99999999999999",
+                    "name": "Usuário 1",
+                    "side": "Active",
+                    "person_type": "APELANTE",
+                    "documents": [
+                        { "document": "99999999999999", "document_type": "cnpj" }
+                    ],
+                    "lawyers": []
+                },
+                {
+                    "main_document": "99999999999",
+                    "name": "Usuário 2",
+                    "side": "Passive",
+                    "person_type": "APELADO",
+                    "documents": [
+                        { "document": "99999999999", "document_type": "cpf" }
+                    ],
+                    "lawyers": [
+                        { "name": "Usuário 3", "documents": [] },
+                        { "name": "Usuário 4", "documents": [] }
+                    ]
+                }
+            ],
+            "situation": "NÃO INFORMADO",
+            "judge": "Usuário teste",
+            "free_justice": false,
+            "system": "ESAJ",
+            "tribunal_url": "NÃO INFORMADO",
+            "last_step": {
+                "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                "lawsuit_instance": 2,
+                "step_id": "56174b2e",
+                "step_date": "2019-11-19T03:00:00.000Z",
+                "content": "EXPEDIDO CERTIDÃO DE BAIXA DE RECURSO\nCERTIDÃO DE BAIXA DE RECURSO - [DIGITAL]",
+                "private": false,
+                "steps_count": 31
+            },
+            "steps": [
+                {
+                    "lawsuit_cnj": "9999999-99.9999.9.99.9999",
+                    "lawsuit_instance": 2,
+                    "step_id": "56174b2e",
+                    "step_date": "2019-11-19T03:00:00.000Z",
+                    "content": "EXPEDIDO CERTIDÃO DE BAIXA DE RECURSO\nCERTIDÃO DE BAIXA DE RECURSO - [DIGITAL]",
+                    "private": false,
+                    "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 2 instance",
+                    "created_at": "2025-07-09T13:48:33.114Z",
+                    "updated_at": "2025-08-11T18:57:39.041Z",
+                    "tags": {}
+                }
+            ],
+            "attachments": [
+                {
+                    "attachment_id": "60153051-1-1",
+                    "attachment_name": "DENÚNCIA",
+                    "extension": "pdf",
+                    "tags": { "crawl_id": "424cd251-3d1f-407e-9d17-cb61219545aa" },
+                    "status": "pending",
+                    "attachment_date": "2019-07-19T15:19:20.000Z",
+                    "corrupted": false,
+                    "private": false
+                }
+            ],
+            "related_lawsuits": [
+                { "code": "9999999-99.9999.9.99.9999", "instance": 1, "tags": {} }
+            ],
+            "crawler": {
+                "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 2 instance",
+                "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                "updated_at": "2025-08-13T18:43:47.770Z",
+                "weight": 10
+            },
+            "status": "Ativo",
+            "phase": "SENTENÇA",
+            "phase_history": [],
+            "pipelines": [],
+            "tags": {
+                "criminal": true,
+                "dictionary_updated_at": "2025-08-13T18:43:48.143Z"
+            },
+            "created_at": "2025-08-13T18:43:51.016Z",
+            "updated_at": "2025-08-13T18:43:51.016Z"
+        },
+        {
+            "code": "9999999-99.9999.9.99.9999",
+            "instance": 1,
+            "name": "PROCESSO EM SEGREDO DE JUSTIÇA",
+            "secrecy_level": 3,
+            "tribunal_acronym": "TJSP",
+            "justice": "8",
+            "justice_description": "JUSTIÇA ESTADUAL",
+            "tribunal": "26",
+            "county": "VARA JUIZADO ESP. CIVEL CRIM. DE FERNANDOPOLIS",
+            "state": "SP",
+            "city": "FERNANDOPOLIS",
+            "classifications": [],
+            "subjects": [],
+            "courts": [],
+            "parties": [],
+            "steps": [],
+            "attachments": [],
+            "related_lawsuits": [],
+            "crawler": {
+                "source_name": "JSaj - TJ - SP - Lawsuit - Auth - 1 instance",
+                "crawl_id": "a9b6820a-6c84-4db5-b4f4-2f1909aa3805",
+                "updated_at": "2025-08-13T18:43:47.770Z",
+                "weight": 10
+            },
+            "phase_history": [],
+            "pipelines": []
+        }
+    ]
+}
+```
+</Accordion>
+
+> Estrutura completa de cada item do array `lawsuits`: veja [Schema Lawsuit](/schemas/lawsuit-object). Note que o mesmo CNJ pode retornar mais de um item (um por instância) e que instâncias em segredo de justiça vêm com a maioria dos campos vazios.
+
+## Quando usar
+
+| | Hot Storage (cache puro) | **On-Demand** (esta página) | Assíncrona (`/requests`) |
+| :--- | :--- | :--- | :--- |
+| **Busca por** | CPF, CNPJ, OAB, Nome | Número do processo (CNJ) | Número do processo (CNJ) |
+| **Latência** | Milissegundos | Milissegundos a 3 minutos | Segundos a minutos (polling/webhook) |
+| **Vai ao tribunal?** | Nunca | Condicional (`cache_ttl_in_days`) | Sempre, respeitando 1 extração/dia por processo |
+| **`with_attachments` / `judit_ia`** | Não suportado | Não documentado para esta rota | Sim |
+| **Indicado para** | Descoberta de exposição judicial por pessoa/empresa | Consulta pontual de 1 processo com garantia de atualidade, sem gerenciar polling | Extração completa, anexos, resumo por IA, monitoramento |
+
+<Warning>
+**Cobrança**
+
+Cada requisição enviada é contabilizada e cobrada normalmente, conforme estabelecido em contrato. Quando a resposta exige ida ao tribunal (nova extração), o custo é o mesmo de uma [Consulta Assíncrona](/requests/requests).
+</Warning>
+
+## Erros comuns
+
+| HTTP | Quando acontece | Como tratar |
+| :--- | :--- | :--- |
+| `400` | `search_type`, `search_key` ou `cache_ttl_in_days` inválidos (ex.: `cache_ttl_in_days` menor ou igual a zero). | Validar o payload antes de enviar. |
+| `401` | API Key ausente ou inválida. | Conferir o header `api-key`. |
+| `404` | Processo não encontrado, mesmo após a tentativa on-demand. | Tratado como `has_lawsuits: false` — não é necessariamente um erro. |
+| `429` | Rate limit excedido (500 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
+| — | Timeout no cliente antes dos 3 minutos. | Aumentar o timeout do cliente HTTP para pelo menos 180 segundos nesta rota. |
+
+## Próximos passos
+
+- Para descobrir processos vinculados a uma pessoa ou empresa (sem CNJ em mãos): [Consulta Síncrona ao Datalake](/cache-judit/hotstorage).
+- Para extração completa com anexos, IA e monitoramento contínuo: [Consulta Assíncrona](/requests/requests).
+- Estrutura completa da resposta: [Schema Lawsuit](/schemas/lawsuit-object).

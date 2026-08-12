@@ -19,6 +19,12 @@ A **Consulta Síncrona ao Hot Storage** retorna, em milissegundos, todos os proc
 
 <EndpointBadges auth billing="billable" flow="sync" />
 
+<Warning>
+**Buscando por número de processo (CNJ)?**
+
+Esta rota é recomendada para descoberta por **CPF, CNPJ, OAB ou Nome**. Para consultas por **número de processo (CNJ)**, o dado no datalake pode estar desatualizado — ou o processo pode nem existir ainda em nossa base. Use a [Consulta On-Demand](/cache-judit/on-demand) para garantir atualização em tempo real no tribunal sem sair do fluxo síncrono.
+</Warning>
+
 ## Síncrono vs. assíncrono — qual escolher?
 
 | Característica | Síncrono (Hot Storage) | Assíncrono (Requests) |
@@ -362,6 +368,7 @@ A resposta dessa requisição será um objeto JSON com os dados retornados:
 
 ## Próximos passos
 
+- Para **consultar um processo específico por CNJ** com garantia de atualização: [Consulta On-Demand](/cache-judit/on-demand).
 - Para **listar e filtrar** com mais profundidade (filtros avançados, polo, classes): [Consulta Histórica por documento](/requests/request-document).
 - Para **agregação** (contagens por tribunal/área/fase): [Consulta Agrupada](/cache-judit/cache-grouped).
 - Para forçar **leitura em tempo real** no tribunal: [Consulta Assíncrona](/requests/requests).
