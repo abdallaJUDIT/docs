@@ -19,6 +19,12 @@ The **Hot Storage Synchronous Query** returns, in milliseconds, every lawsuit in
 
 <EndpointBadges auth billing="billable" flow="sync" />
 
+<Warning>
+**Searching by lawsuit number (CNJ)?**
+
+This route is recommended for discovery by **CPF, CNPJ, OAB or Name**. For queries by **lawsuit number (CNJ)**, the datalake data may be stale — or the lawsuit may not even exist in our base yet. Use the [On-Demand Query](/en/cache-judit/on-demand) to get a real-time freshness guarantee at the court without leaving the synchronous flow.
+</Warning>
+
 ## Synchronous vs. asynchronous — which one?
 
 | Trait | Synchronous (Hot Storage) | Asynchronous (Requests) |
@@ -360,6 +366,7 @@ The response will be a JSON object with the data:
 
 ## Next steps
 
+- To **query a specific lawsuit by CNJ** with a freshness guarantee: [On-Demand Query](/en/cache-judit/on-demand).
 - For **listing and filtering** with depth (advanced filters, side, classes): [Historical Query by document](/en/requests/request-document).
 - For **aggregation** (counts by court/area/phase): [Grouped Query](/en/cache-judit/cache-grouped).
 - To force **real-time read** at the court: [Asynchronous Query](/en/requests/requests).
