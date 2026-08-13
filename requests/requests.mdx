@@ -144,6 +144,11 @@ Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar 
 | `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo. |
 | `judit_ia` | array | Não | Lista de *features* de IA aplicadas ao resultado. Envie `["summary"]` para receber um resumo humanizado da capa e andamentos. |
 | `search_params.lawsuit_instance` | integer | Não | Força a busca em uma instância específica (ex: `1` ou `2`). |
+| `search_params.should_search_superior_instances` | boolean | Não | Se `true`, a Judit também busca o processo em **instâncias superiores** (3ª instância / tribunais superiores), além da 1ª e 2ª instância já cobertas por padrão. |
+
+<Warning>
+**Instâncias superiores têm custo adicional de 30%:** Ativar `search_params.should_search_superior_instances: true` faz a Judit também buscar o processo em instâncias superiores (3ª instância / tribunais superiores). Por ser uma captura mais custosa, essa requisição é cobrada com **+30% sobre o valor padrão** de uma Busca Processual Assíncrona.
+</Warning>
 
 <Warning>
 **Judit IA (Beta):** A funcionalidade de inteligência artificial (`judit_ia`) está em versão Beta. O tempo de resposta pode variar e a estrutura do resumo está sujeita a melhorias.
@@ -194,6 +199,22 @@ curl --location 'https://requests.production.judit.io/requests/' \
     },
     "with_attachments": true,
     "judit_ia": ["summary"]
+}'
+```
+
+```bash cURL (Com Instâncias Superiores)
+curl --location 'https://requests.production.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0045869-06.2009.4.01.0000",
+        "search_params": {
+            "should_search_superior_instances": true
+        }
+    },
+    "with_attachments": true
 }'
 ```
 
@@ -1158,6 +1179,39 @@ func main() {
 
 ### O que você recebe de volta?
 
-O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judi
-esa de seus direitos perante o Usuário 2.}
+O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
+
+<Warning>
+**Disponibilidade dos Anexos:** Para garantir que um arquivo foi capturado com sucesso e está pronto para download, verifique a propriedade `status` dentro do objeto individual do anexo. O valor deve ser obrigatoriamente `"done"`.
+</Warning>
+
+---
+
+## Acessando Anexos Capturados (Documentos em PDF/HTML)
+
+Se você enviou `"with_attachments": true` no Passo 1 da requisição, a Judit fará o download dos arquivos públicos diretamente do tribunal. Assim que a requisição principal for concluída, **estes arquivos já estarão capturados e armazenados de forma segura nos *buckets* da Judit**.
+
+Os metadados desses arquivos estarão listados dentro do array `attachments` no JSON do processo.
+
+<Info>
+**Fidelidade de Formato:** A Judit API não converte os arquivos. O anexo será retornado para você no **exato mesmo formato original** em que foi capturado e disponibilizado pelo tribunal. Prepare sua aplicação para receber documentos (PDF, HTML, DOCX), imagens (JPG, PNG) e até mídias de audiências (MP3, MP4).
+</Info>
+
+```bash cURL
+curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data ''
+```
+
+### Propriedades do Anexo
+* `status`: Indica o estado do arquivo no nosso banco. `done` significa que está pronto para download.
+* `private`: Se `true`, significa que o documento está em segredo de justiça no tribunal.
+* `extension`: Formato do arquivo extraído (ex: `pdf`, `html`, `jpg`).
+
+---
+
+<Note>
+**Atenção ao Faturamento:** Não nos responsabilizamos por consultas realizadas com números de CNJ/CPF ou processos judicialmente inválidos. Cobranças poderão ser efetuadas decorrentes de requisições com chaves malformadas enviadas à API.
+</Note>
  
