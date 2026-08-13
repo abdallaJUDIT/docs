@@ -156,6 +156,11 @@ Refer to the table below to configure your search, enable attachments, or trigge
 | `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files. |
 | `judit_ia` | array | No | List of AI *features* applied to the result. Send `["summary"]` to receive a humanized summary of the header and case updates. |
 | `search_params.lawsuit_instance` | integer | No | Forces the search at a specific instance (e.g., `1` or `2`). |
+| `search_params.should_search_superior_instances` | boolean | No | If `true`, Judit also searches the lawsuit at **superior instances** (3rd instance / higher courts), in addition to the 1st and 2nd instance already covered by default. |
+
+<Warning>
+**Superior instances have a 30% additional cost:** Enabling `search_params.should_search_superior_instances: true` makes Judit also search the lawsuit at superior instances (3rd instance / higher courts). Since this capture is more resource-intensive, the request is billed at **+30% over the standard price** of an Asynchronous Lawsuit Search.
+</Warning>
 
 <Warning>
 **Judit AI (Beta):** The artificial intelligence feature (`judit_ia`) is in Beta. Response time may vary and the summary structure is subject to improvements.
@@ -206,6 +211,22 @@ curl --location 'https://requests.production.judit.io/requests/' \
     },
     "with_attachments": true,
     "judit_ia": ["summary"]
+}'
+```
+
+```bash cURL (With Superior Instances)
+curl --location 'https://requests.production.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0045869-06.2009.4.01.0000",
+        "search_params": {
+            "should_search_superior_instances": true
+        }
+    },
+    "with_attachments": true
 }'
 ```
 
