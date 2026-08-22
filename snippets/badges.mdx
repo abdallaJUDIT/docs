@@ -14,8 +14,6 @@ export const Badge = ({ children, color = "gray" }) => {
     <span style={{
       display: "inline-block",
       padding: "2px 10px",
-      marginRight: "6px",
-      marginBottom: "4px",
       borderRadius: "999px",
       background: c.bg,
       color: c.fg,
@@ -29,14 +27,14 @@ export const Badge = ({ children, color = "gray" }) => {
 };
 
 export const EndpointBadges = ({ auth = true, billing = "billable", flow = "sync", attachments = false, requiresVault = false }) => (
-  <div style={{ marginTop: "-8px", marginBottom: "16px" }}>
-    {auth && <Badge color="gray">🔒 Requer api-key</Badge>}
-    {billing === "billable" && <Badge color="yellow">💰 Cobrança por requisição</Badge>}
-    {billing === "free" && <Badge color="green">✅ Grátis</Badge>}
-    {billing === "on-demand" && <Badge color="purple">⚡ On-demand (preço diferenciado)</Badge>}
-    {flow === "async" && <Badge color="blue">⏳ Assíncrono · webhook ou polling</Badge>}
-    {flow === "sync" && <Badge color="green">⚡ Síncrono</Badge>}
-    {attachments && <Badge color="purple">📎 Suporta with_attachments</Badge>}
+  <div style={{ marginTop: "-8px", marginBottom: "16px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px" }}>
+    {auth && <Badge color="gray">🔒 Requer api-key</Badge>}{" "}
+    {billing === "billable" && <Badge color="yellow">💰 Cobrança por requisição</Badge>}{" "}
+    {billing === "free" && <Badge color="green">✅ Grátis</Badge>}{" "}
+    {billing === "on-demand" && <Badge color="purple">⚡ On-demand (preço diferenciado)</Badge>}{" "}
+    {flow === "async" && <Badge color="blue">⏳ Assíncrono · webhook ou polling</Badge>}{" "}
+    {flow === "sync" && <Badge color="green">⚡ Síncrono</Badge>}{" "}
+    {attachments && <Badge color="purple">📎 Suporta with_attachments</Badge>}{" "}
     {requiresVault && <Badge color="red">🔑 Cofre de Credenciais</Badge>}
   </div>
 );
