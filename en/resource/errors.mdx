@@ -49,7 +49,7 @@ The API uses standard HTTP conventions.
 
 | HTTP | Typical `error.message` | When it happens | How to resolve |
 | :--- | :--- | :--- | :--- |
-| `500` | `INTERNAL_SERVER_ERROR` | Unexpected Judit-side failure. | Retry with backoff. If it persists, open a ticket at `support@judit.io` referencing the `request_id`. |
+| `500` | `INTERNAL_SERVER_ERROR` | Unexpected Judit-side failure. | Retry with backoff. If it persists, open a ticket at `atendimento@judit.io` referencing the `request_id`. |
 | `502` / `504` | `BAD_GATEWAY` / `GATEWAY_TIMEOUT` | Originating court down or timeout. Common in synchronous queries. | Retry — if it persists, async flow via [`POST /requests`](/en/requests/requests) is more resilient. |
 | `503` | `SERVICE_UNAVAILABLE` | Maintenance. | Wait a few minutes. Watch status.judit.io (if enabled). |
 
@@ -233,7 +233,7 @@ async function handleJuditError(response) {
 | Symptom | Most likely hypothesis | Next step |
 | :--- | :--- | :--- |
 | HTTP 401 always | Missing `api-key` header / wrong value / space/line break. | `echo $JUDIT_API_KEY \| wc -c` — check the size. |
-| HTTP 403 on a specific route | Feature not enabled in your plan. | Talk to Judit at `support@judit.io`. |
+| HTTP 403 on a specific route | Feature not enabled in your plan. | Talk to Judit at `atendimento@judit.io`. |
 | `LAWSUIT_NOT_FOUND` for an existing CNJ | CNJ is under secrecy. | See [Credentials Vault](/en/essentials/cofre-de-credenciais). |
 | Webhook doesn't arrive | URL not public/HTTPS, or returning ≠ 2xx. | See [Webhook](/en/webhook/callbacks#endpoint-requirements). |
 | 2 webhooks with same `request_id` | Expected behavior — first comes from cache (`cached_response: true`), second from court. | See [cached_response](/en/webhook/callbacks#two-responses). |
