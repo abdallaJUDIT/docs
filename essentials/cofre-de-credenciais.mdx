@@ -73,6 +73,9 @@ O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + sen
   <Card title="Credencial coringa" icon="asterisk">
     Cadastre `"system_name": "*"` como fallback para tribunais sem credencial específica.
   </Card>
+  <Card title="Certificado digital A1" icon="certificate" href="#cadastro-de-credencial-com-certificado-digital-a1">
+    Tribunais que só aceitam login por certificado usam a rota `POST /credentials/certificate`.
+  </Card>
 </CardGroup>
 
 ## Antes de cadastrar no Cofre: cadastro no tribunal
@@ -118,6 +121,10 @@ Em geral:
 - se o tribunal exigir o segundo fator apenas no primeiro acesso ou em intervalos específicos, a credencial poderá funcionar após a validação inicial;
 - se o tribunal exigir o segundo fator a cada novo login, a consulta autenticada poderá depender de uma etapa adicional de validação;
 - se o código de autenticação expirar rapidamente ou exigir ação manual recorrente, a execução automatizada poderá ser impactada.
+
+<Note>
+Se o tribunal exigir **certificado digital**, o cadastro é feito por uma rota específica do Cofre. Veja [Cadastro de credencial com certificado digital (A1)](#cadastro-de-credencial-com-certificado-digital-a1).
+</Note>
 
 <Warning>
 Tribunais com autenticação em dois fatores podem aumentar o tempo de execução da consulta ou exigir validações adicionais. Nesses casos, o suporte da Judit deve ser acionado para avaliar a viabilidade operacional do uso da credencial.
@@ -335,6 +342,270 @@ Exemplo de resposta a solicitação:
     }
 ]
 ```
+
+## Cadastro de credencial com certificado digital (A1)
+
+Alguns tribunais não aceitam login por CPF/OAB + senha e exigem **certificado digital**. Para esses casos, o Cofre de Credenciais possui uma rota separada, exclusiva para upload de certificado: `POST /credentials/certificate`.
+
+<Warning>
+O certificado **não** pode ser enviado pela rota `POST /credentials`. Se você tentar colocar o certificado dentro de `custom_data`, a API responde com o erro `CERTIFICATE_FIELDS_NOT_ALLOWED`. Use sempre a rota `/credentials/certificate`.
+</Warning>
+
+### O que você precisa antes de começar
+
+| Item | Detalhe |
+| :--- | :--- |
+| **Certificado A1** | Arquivo `.pfx` ou `.p12` (padrão PKCS#12). Certificado **A3** (token USB ou cartão físico) **não é aceito**, porque depende de hardware conectado. |
+| **Senha do arquivo** | É a senha do próprio arquivo `.pfx`, definida quando o certificado foi emitido ou exportado. **Não é a senha do portal do tribunal.** |
+| **Tamanho** | O arquivo precisa ter no máximo **64 KB**. |
+| **Validade** | O certificado precisa estar dentro do prazo de validade. Certificado vencido é recusado no upload. |
+| **Sua `api-key`** | A mesma chave que você já usa nas demais rotas da Judit. |
+
+<Info>
+Se você tem um certificado A3 e precisa usá-lo em consultas automatizadas, será necessário emitir um certificado A1 do mesmo titular. Fale com a sua Autoridade Certificadora (Serasa, Certisign, Soluti, etc.).
+</Info>
+
+### Passo 1 — Converter o arquivo `.pfx` para Base64
+
+O JSON de uma requisição HTTP só transporta texto, e um `.pfx` é um arquivo binário. Por isso, antes de enviar, o arquivo precisa ser convertido para **Base64** — que é apenas o mesmo arquivo reescrito como texto.
+
+<Note>
+Base64 **não é criptografia nem hash**. É só uma forma de representar o arquivo em caracteres de texto. Nada é perdido e nada é embaralhado na conversão.
+</Note>
+
+Escolha o comando de acordo com o seu sistema:
+
+<CodeGroup>
+
+```bash macOS
+# Gera o Base64 em uma única linha e copia para a área de transferência
+base64 -i ./certificado.pfx | tr -d '\n' | pbcopy
+```
+
+```bash Linux
+# A flag -w 0 evita quebras de linha
+base64 -w 0 ./certificado.pfx > certificado.base64.txt
+```
+
+```powershell Windows (PowerShell)
+# Gera o Base64 em uma única linha e salva em um arquivo .txt
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\caminho\certificado.pfx")) | Set-Content certificado.base64.txt
+```
+
+```javascript Node.js
+const fs = require("fs");
+
+const fileBase64 = fs.readFileSync("./certificado.pfx").toString("base64");
+console.log(fileBase64);
+```
+
+```python Python
+import base64
+
+with open("certificado.pfx", "rb") as f:
+    file_base64 = base64.b64encode(f.read()).decode()
+
+print(file_base64)
+```
+
+</CodeGroup>
+
+<Warning>
+**A string Base64 precisa estar em uma única linha, sem quebras.** Se você usar `base64 arquivo.pfx` sem `tr -d '\n'` (macOS) ou sem `-w 0` (Linux), o resultado sai quebrado em várias linhas e a API responderá `PFX_MALFORMED`.
+</Warning>
+
+**Como saber se deu certo:** o texto gerado é enorme (milhares de caracteres — isso é normal) e normalmente começa com `MII`. Se o que você copiou for algo curto como `C:\certificados\meu.pfx` ou `./certificado.pfx`, você copiou o **caminho** do arquivo, e não o conteúdo dele.
+
+### Passo 2 — Enviar o certificado para o Cofre
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<conteudo-do-pfx-em-base64>",
+  "password": "123456"
+}'
+```
+
+<Warning>
+A autenticação é feita pelo header **`api-key`**, exatamente como nas outras rotas da Judit. **Não use `Authorization: Bearer`** — essa rota não usa token Bearer.
+</Warning>
+
+#### Campos do corpo da requisição
+
+| Campo | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `file_base64` | string | **Sim** | Conteúdo do arquivo `.pfx` / `.p12` convertido para Base64, em uma única linha (o resultado do Passo 1). |
+| `password` | string | **Sim** | Senha do arquivo `.pfx`. Repetindo: é a senha do certificado, não a do tribunal. |
+| `system_name` | string | Recomendado | Sistema e tribunal em que o certificado será usado, exatamente como aparece na [lista de sistemas do Cofre](/api-reference/endpoint/vault/vault) — por exemplo `ESAJ - TJSP - 1º grau`. Use `"*"` para cadastrar o certificado como **credencial coringa**, válida para qualquer tribunal que não tenha credencial específica. |
+| `customer_key` | string | Recomendado | Identificador que você define para essa credencial (por advogado, cliente ou escritório). É essa mesma chave que você informará na consulta. Se não for enviada, é usado o valor padrão `"*"`. |
+| `custom_data` | objeto | Não | Só é necessário quando o tribunal também exige autenticação em dois fatores. Veja o [Passo 5](#passo-5-opcional--certificado--código-2fa). |
+
+<Info>
+A `customer_key` é apenas um rótulo de referência escolhido por você. Ela não tem relação com o tribunal e não é uma senha.
+</Info>
+
+#### Passo a passo no Postman
+
+<Steps>
+  <Step title="Método e URL">
+    Selecione **POST** e informe a URL `https://crawler.prod.judit.io/credentials/certificate`.
+  </Step>
+  <Step title="Headers">
+    Na aba **Headers**, adicione duas linhas:
+
+    | Key | Value |
+    | :--- | :--- |
+    | `api-key` | sua chave da Judit |
+    | `Content-Type` | `application/json` |
+  </Step>
+  <Step title="Body">
+    Na aba **Body**, selecione **raw** e, no seletor à direita, escolha **JSON**. Cole o JSON com os quatro campos e substitua `file_base64` pelo texto gerado no Passo 1.
+
+    <Warning>
+    Não use **form-data** nem o tipo **File** do Postman para anexar o `.pfx`. Esta rota recebe apenas JSON, com o arquivo já convertido para Base64.
+    </Warning>
+  </Step>
+  <Step title="Enviar">
+    Clique em **Send**. A resposta esperada é um `200` com a mensagem `CERTIFICATE_CREATED`.
+  </Step>
+</Steps>
+
+### Passo 3 — Conferir a resposta
+
+```json
+{
+  "message": "CERTIFICATE_CREATED",
+  "customer_key": "teste",
+  "subject_cn": "NOME DO TITULAR:12345678909",
+  "not_after": "2027-01-01T00:00:00.000Z",
+  "uploaded_at": "2026-07-31T17:00:00.000Z"
+}
+```
+
+| Campo | Descrição |
+| :--- | :--- |
+| `message` | `CERTIFICATE_CREATED` no primeiro envio; `CERTIFICATE_UPDATED` quando você substitui um certificado já cadastrado do mesmo titular. |
+| `customer_key` | Chave da credencial que acabou de ser criada ou atualizada. |
+| `subject_cn` | Titular do certificado (nome e CPF/CNPJ), lido do próprio arquivo. Use para confirmar que enviou o certificado certo. |
+| `not_after` | Data de validade do certificado, em ISO 8601. Anote para renovar antes de vencer. |
+| `uploaded_at` | Data e hora do upload, em ISO 8601. |
+
+O certificado é validado no momento do upload (senha, validade e tamanho) e armazenado criptografado. A resposta **nunca** devolve o arquivo nem a senha — depois de cadastrado, o certificado não pode ser lido de volta.
+
+### Passo 4 — Usar o certificado na consulta
+
+O uso é igual ao de qualquer outra credencial do Cofre: basta informar a mesma `customer_key` em `search.search_params.credential`.
+
+```bash
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0000000-00.0000.0.00.0000",
+    "search_params": {
+      "credential": {
+        "customer_key": "teste"
+      }
+    }
+  }
+}'
+```
+
+<Note>
+Se você cadastrou o certificado com a `customer_key` padrão `"*"`, não é necessário informar `credential` na consulta — ele será usado automaticamente como credencial coringa.
+</Note>
+
+### Passo 5 (opcional) — Certificado + código 2FA
+
+Alguns tribunais exigem **duas coisas ao mesmo tempo**: o certificado digital **e** o segredo 2FA — enviado no campo `secret`, e chamado no portal do tribunal de chave secreta, chave manual ou chave de configuração do autenticador.
+
+Tudo é feito em **uma única requisição**: basta acrescentar o objeto `custom_data`, com a chave `secret` dentro, ao mesmo payload do certificado.
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<conteudo-do-pfx-em-base64>",
+  "password": "123456",
+  "custom_data": {
+    "secret": "JBSWY3DPEHPK3PXP"
+  }
+}'
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `custom_data` | objeto | Não | Objeto com dados extras da credencial. Envie apenas quando o tribunal exigir 2FA. |
+| `custom_data.secret` | string | Não | Segredo 2FA da credencial — a **chave fixa** de configuração do aplicativo autenticador. |
+
+<Warning>
+O `secret` é a **chave fixa de configuração** do autenticador (algo como `JBSWY3DPEHPK3PXP`) — **nunca** o código temporário de 6 dígitos, que muda a cada poucos segundos. Cadastrar o código de 6 dígitos faz a credencial parar de funcionar em minutos.
+</Warning>
+
+<Note>
+Não sabe onde encontrar essa chave? Ela aparece na configuração do 2FA no portal do tribunal, atrás de opções como "Não consigo ler o QR Code", "Inserir chave manualmente", "Exibir chave secreta" ou "Setup key". O passo a passo completo está em [Como obter o segredo 2FA para cadastro no Cofre](#como-obter-o-segredo-2fa-para-cadastro-no-cofre).
+</Note>
+
+<Info>
+Se a credencial já tinha um `secret` cadastrado anteriormente, o upload do certificado **não apaga** esse segredo. Você pode enviar `custom_data` de novo para atualizá-lo, ou omitir o campo para manter o que já está gravado.
+</Info>
+
+### Trocar, renovar ou remover o certificado
+
+- **Renovar ou trocar:** repita o mesmo upload com a mesma `customer_key` e o `system_name`. A credencial é atualizada, o certificado anterior é descartado e a resposta vem com `CERTIFICATE_UPDATED`.
+- **Titular diferente:** se o novo certificado pertencer a outro CPF/CNPJ, a API retorna `CERTIFICATE_HOLDER_MISMATCH` (409). Remova a credencial antes de cadastrar o certificado do novo titular.
+- **Consultar:** use `GET https://crawler.prod.judit.io/credentials?customer_key=teste` com o header `api-key`. Uma credencial cadastrada com `system_name: "*"` aparece na lista com `name: "*"`.
+- **Remover:** use `DELETE https://crawler.prod.judit.io/credentials` enviando `system_name` e `customer_key`. O certificado armazenado é apagado junto com a credencial. Se ela não existir, a resposta é `404` (`CREDENTIAL_NOT_FOUND`).
+
+### Erros e como resolver
+
+| Código | HTTP | O que aconteceu | Como resolver |
+| :--- | :--- | :--- | :--- |
+| `PFX_MALFORMED` | 400 | O Base64 está inválido ou o arquivo `.pfx` está corrompido. | Refaça o Passo 1 garantindo uma única linha, sem quebras e sem espaços. Confirme que enviou o conteúdo do arquivo, não o caminho dele. |
+| `PFX_PASSWORD_INVALID` | 400 | A senha informada não abre o arquivo. | Use a senha do arquivo `.pfx`, não a senha do portal do tribunal. Teste abrir o certificado localmente com essa senha. |
+| `PFX_NO_PRIVATE_KEY` | 400 | O arquivo não contém a chave privada. | Exporte o certificado novamente marcando a opção de exportar a chave privada. |
+| `PFX_NO_CERTIFICATE` | 400 | O arquivo não contém certificado. | Verifique se o arquivo exportado é realmente um `.pfx` / `.p12` completo. |
+| `PFX_EXPIRED` | 400 | O certificado está vencido. | Emita ou renove o certificado junto à Autoridade Certificadora. |
+| `PFX_NOT_YET_VALID` | 400 | O certificado ainda não entrou em vigor. | Aguarde a data de início da validade. |
+| `PFX_TOO_LARGE` | 400 | O arquivo tem mais de 64 KB. | Exporte apenas o certificado do titular, sem cadeias ou certificados extras desnecessários. |
+| `CERTIFICATE_HOLDER_MISMATCH` | 409 | Já existe um certificado cadastrado nessa credencial e ele pertence a outro titular. | Remova a credencial e cadastre novamente com o novo titular. |
+| `CREDENTIAL_TYPE_CONFLICT` | 409 | Já existe uma credencial de usuário/senha para essa combinação de `customer_key` e sistema. | Use outra `customer_key` para o certificado ou remova a credencial de usuário/senha antes. |
+| `CERTIFICATE_FIELDS_NOT_ALLOWED` | 400 | Você tentou enviar campos de certificado na rota `POST /credentials`. | Envie o certificado pela rota `POST /credentials/certificate`. |
+
+### Erros mais comuns na prática
+
+<AccordionGroup>
+  <Accordion title="Enviei o caminho do arquivo em vez do conteúdo">
+    `"file_base64": "C:\\certificados\\meu.pfx"` está errado. O campo espera o **texto Base64** gerado no Passo 1, com milhares de caracteres — e não o local do arquivo no seu computador.
+  </Accordion>
+  <Accordion title="O Base64 saiu quebrado em várias linhas">
+    Acontece quando o comando é executado sem `tr -d '\n'` (macOS) ou sem `-w 0` (Linux). Refaça a conversão usando exatamente os comandos do Passo 1.
+  </Accordion>
+  <Accordion title="Usei a senha do tribunal no campo password">
+    O campo `password` é a senha do arquivo `.pfx`, criada na emissão ou exportação do certificado. A senha do portal do tribunal não abre o arquivo e gera `PFX_PASSWORD_INVALID`.
+  </Accordion>
+  <Accordion title="Usei Authorization: Bearer e recebi erro de autenticação">
+    Esta rota autentica pelo header `api-key`. Remova o header `Authorization` e envie `api-key: sua-chave`.
+  </Accordion>
+  <Accordion title="Tentei anexar o .pfx como arquivo no Postman">
+    A rota aceita apenas `Content-Type: application/json` com o arquivo já convertido para Base64. Não use **form-data**, **binary** nem o seletor de arquivos do Postman.
+  </Accordion>
+  <Accordion title="Meu certificado é A3 (token ou cartão)">
+    Certificados A3 exigem o dispositivo físico conectado no momento do login e, por isso, não podem ser cadastrados no Cofre. É necessário um certificado A1 (arquivo `.pfx` / `.p12`) do mesmo titular.
+  </Accordion>
+  <Accordion title="Cadastrei o certificado mas a consulta continua sem trazer o processo sigiloso">
+    O certificado apenas autentica o titular. O acesso ao processo depende das permissões daquele titular dentro do tribunal. Se o advogado não estiver habilitado no processo, o retorno continuará limitado aos dados públicos.
+  </Accordion>
+</AccordionGroup>
 
 ## Rota de verificação de credenciais cadastradas
 

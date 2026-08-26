@@ -25,7 +25,9 @@
   "paths": {
     "/credentials": {
       "get": {
-        "tags": ["Credentials"],
+        "tags": [
+          "Credentials"
+        ],
         "summary": "List credential status by system",
         "description": "Returns the registration status (`credential_status`) of each tribunal system's credential for the authenticated company.",
         "operationId": "getCredentials",
@@ -51,7 +53,11 @@
                           },
                           "credential_status": {
                             "type": "string",
-                            "enum": ["not exists", "active", "inactive"]
+                            "enum": [
+                              "not exists",
+                              "active",
+                              "inactive"
+                            ]
                           }
                         }
                       }
@@ -73,7 +79,9 @@
         }
       },
       "post": {
-        "tags": ["Credentials"],
+        "tags": [
+          "Credentials"
+        ],
         "summary": "Register or update credentials",
         "description": "Registers a credential for a tribunal system, or updates it if it already exists. Send empty `username`/`password` to remove a credential for a given system.",
         "operationId": "postCredentials",
@@ -91,7 +99,12 @@
                       "properties": {
                         "credential": {
                           "type": "object",
-                          "required": ["system_name", "customer_key", "username", "password"],
+                          "required": [
+                            "system_name",
+                            "customer_key",
+                            "username",
+                            "password"
+                          ],
                           "properties": {
                             "system_name": {
                               "type": "string",
@@ -107,6 +120,16 @@
                             },
                             "password": {
                               "type": "string"
+                            },
+                            "custom_data": {
+                              "type": "object",
+                              "description": "Extra data required by some courts. Use `secret` for the 2FA setup key (never the temporary 6-digit code).",
+                              "properties": {
+                                "secret": {
+                                  "type": "string",
+                                  "description": "Fixed 2FA setup key of the authenticator app"
+                                }
+                              }
                             }
                           }
                         }
@@ -140,17 +163,135 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "system_name": { "type": "string" },
-                      "customer_key": { "type": "string" },
+                      "system_name": {
+                        "type": "string"
+                      },
+                      "customer_key": {
+                        "type": "string"
+                      },
                       "message": {
                         "type": "string",
-                        "enum": ["CREDENTIAL_CREATED", "CREDENTIAL_UPDATED"]
+                        "enum": [
+                          "CREDENTIAL_CREATED",
+                          "CREDENTIAL_UPDATED"
+                        ]
                       }
                     }
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/credentials/certificate": {
+      "post": {
+        "tags": [
+          "Credentials"
+        ],
+        "summary": "Register or update a digital certificate credential",
+        "description": "Uploads an A1 digital certificate (PKCS#12 `.pfx` / `.p12`, max 64 KB) as a credential in the vault. This is the only route that accepts certificate upload — sending certificate fields to `POST /credentials` returns `CERTIFICATE_FIELDS_NOT_ALLOWED`. When the court also requires two-factor authentication, send the 2FA setup key in `custom_data.secret` in this same payload.",
+        "operationId": "postCredentialsCertificate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file_base64",
+                  "password"
+                ],
+                "properties": {
+                  "file_base64": {
+                    "type": "string",
+                    "description": "PFX/P12 file content encoded as a single-line Base64 string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password of the PKCS#12 file (not the court portal password)"
+                  },
+                  "system_name": {
+                    "type": "string",
+                    "description": "e.g. \"ESAJ - TJSP - 1º grau\" or `*` (wildcard)"
+                  },
+                  "customer_key": {
+                    "type": "string",
+                    "description": "Client-defined identifier for the credential. Defaults to `*`"
+                  },
+                  "custom_data": {
+                    "type": "object",
+                    "description": "Extra credential data. Only required when the court also enforces two-factor authentication.",
+                    "properties": {
+                      "secret": {
+                        "type": "string",
+                        "description": "2FA secret — the fixed authenticator setup key, never the temporary 6-digit code"
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "customer_key": "teste",
+                "system_name": "ESAJ - TJSP - 1º grau",
+                "file_base64": "MIIK...",
+                "password": "123456",
+                "custom_data": {
+                  "secret": "JBSWY3DPEHPK3PXP"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Certificate created or updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "CERTIFICATE_CREATED",
+                        "CERTIFICATE_UPDATED"
+                      ]
+                    },
+                    "customer_key": {
+                      "type": "string"
+                    },
+                    "subject_cn": {
+                      "type": "string",
+                      "description": "Certificate holder (CN)"
+                    },
+                    "not_after": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Certificate expiration date"
+                    },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "CERTIFICATE_CREATED",
+                  "customer_key": "teste",
+                  "subject_cn": "NOME DO TITULAR:12345678909",
+                  "not_after": "2027-01-01T00:00:00.000Z",
+                  "uploaded_at": "2026-07-31T17:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid certificate file. Possible codes: `PFX_MALFORMED`, `PFX_PASSWORD_INVALID`, `PFX_NO_PRIVATE_KEY`, `PFX_NO_CERTIFICATE`, `PFX_EXPIRED`, `PFX_NOT_YET_VALID`, `PFX_TOO_LARGE`"
+          },
+          "409": {
+            "description": "Conflict. Possible codes: `CERTIFICATE_HOLDER_MISMATCH`, `CREDENTIAL_TYPE_CONFLICT`"
           }
         }
       }

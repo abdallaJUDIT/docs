@@ -100,7 +100,7 @@ A **Busca Processual Assíncrona** é a forma mais completa e atualizada de cons
     O processo precisa estar com a fotografia mais recente do tribunal — não vale o cache do datalake.
   </Card>
   <Card title="Capa + andamentos completos" icon="list-tree">
-    Você quer todos os campos da capa, todas as movimentações, anexos (até o limite de 1.000 por consulta) e relacionamentos.
+    Você quer todos os campos da capa, todas as movimentações, anexos (até 1.000 por requisição — veja [como funcionam os anexos](#como-funcionam-os-anexos-attachments)) e relacionamentos.
   </Card>
   <Card title="Resumo com IA" icon="sparkles">
     Acionar `judit_ia: ["summary"]` para receber um resumo humanizado pronto para sua UI.
@@ -141,22 +141,65 @@ Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar 
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Sim** | Define a entidade buscada. Para processos, use sempre `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Sim** | O número do processo no padrão CNJ (ex: `"0009999-99.9999.8.26.9999"`). |
-| `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo. |
+| `with_attachments` | boolean | Não | Se `true`, a Judit fará o download dos arquivos do processo, **até 1.000 anexos por requisição**. Leia [Como funcionam os anexos](#como-funcionam-os-anexos-attachments) antes de usar. |
 | `judit_ia` | array | Não | Lista de *features* de IA aplicadas ao resultado. Envie `["summary"]` para receber um resumo humanizado da capa e andamentos. |
 | `search_params.lawsuit_instance` | integer | Não | Força a busca em uma instância específica (ex: `1` ou `2`). |
-| `search_params.should_search_superior_instances` | boolean | Não | Se `true`, a Judit também busca o processo em **instâncias superiores** (3ª instância / tribunais superiores), além da 1ª e 2ª instância já cobertas por padrão. |
+| `search_params.should_search_superior_instances` | boolean | Não | Se `true`, a Judit faz uma busca complementar nos sistemas de **Instâncias Superiores** (STF, STJ, TST e CNJ). Implica **+30% sobre o valor padrão** da requisição — veja [Busca em Instâncias Superiores](#busca-em-instâncias-superiores). |
 
-<Warning>
-**Instâncias superiores têm custo adicional de 30%:** Ativar `search_params.should_search_superior_instances: true` faz a Judit também buscar o processo em instâncias superiores (3ª instância / tribunais superiores). Por ser uma captura mais custosa, essa requisição é cobrada com **+30% sobre o valor padrão** de uma Busca Processual Assíncrona.
-</Warning>
 
 <Warning>
 **Judit IA (Beta):** A funcionalidade de inteligência artificial (`judit_ia`) está em versão Beta. O tempo de resposta pode variar e a estrutura do resumo está sujeita a melhorias.
 </Warning>
 
-<Warning>
-**Limite de 1.000 anexos por requisição:** Quando `with_attachments: true`, a Judit retorna **até 1.000 anexos por consulta**. Se o processo tiver mais anexos do que isso, os excedentes não vêm nessa resposta — para capturá-los, faça uma **nova consulta processual** para o mesmo CNJ, que trará o próximo lote de até 1.000 anexos. Repita o processo (nova consulta a cada lote de 1.000) até obter todos os anexos do processo.
-</Warning>
+
+### Busca em Instâncias Superiores
+
+Por padrão, a busca processual considera o processo informado na requisição e as instâncias normalmente associadas a essa consulta.
+
+#### Quando ativar
+
+Quando o processo informado tiver origem em **1ª ou 2ª instância** e você quiser que a Judit realize também uma busca complementar nos sistemas de Instâncias Superiores — **STF**, **STJ**, **TST** e **CNJ** —, envie `should_search_superior_instances: true` dentro de `search_params`:
+
+```bash
+curl --location 'https://requests.production.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0045869-06.2009.4.01.0000",
+        "search_params": {
+            "should_search_superior_instances": true
+        }
+    }
+}'
+```
+
+#### Custo da requisição
+
+A ativação dessa opção implica **acréscimo de 30% sobre o valor padrão da requisição**, devido ao processamento adicional necessário para consulta aos sistemas das Instâncias Superiores.
+
+O adicional depende da origem do processo informado:
+
+| Cenário | Cobrança |
+| :--- | :--- |
+| CNJ de 1ª ou 2ª instância, com `should_search_superior_instances: true` | Valor padrão **+30%** |
+| CNJ que **já corresponde a um processo originário de Instância Superior** | Valor padrão do produto, **sem o adicional de 30%** |
+| Requisição sem o parâmetro (comportamento padrão) | Valor padrão |
+
+<Info>
+Ou seja: se o número informado já é de um processo originário de uma Instância Superior, a consulta é cobrada pelo valor normal, mesmo que o parâmetro seja enviado. O acréscimo existe apenas quando há, de fato, a busca complementar nos sistemas superiores.
+</Info>
+
+#### Processos relacionados em outras instâncias
+
+Quando forem identificados processos relacionados em outras instâncias, **os números desses processos poderão ser retornados no resultado** da consulta.
+
+O que volta é a **referência** — o número do processo relacionado —, e não os dados completos dele. Para obter capa, movimentações e demais informações de um processo relacionado, é necessário realizar **uma nova requisição para cada processo desejado**, usando o número retornado como `search_key`.
+
+<Note>
+Cada uma dessas consultas aos processos relacionados é uma nova busca processual e é cobrada como tal.
+</Note>
 
 ### Exemplo de Requisição (POST)
 
@@ -1181,9 +1224,92 @@ func main() {
 
 O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
 
+---
+
+## Como funcionam os anexos (`attachments`)
+
+Esta é a parte da consulta processual que mais gera dúvida, então vale entender o mecanismo antes de pedir a captura.
+
+### O array `attachments` sempre vem na resposta
+
+Toda consulta processual devolve o array `attachments` dentro do Objeto Lawsuit — **independentemente de você ter enviado `with_attachments` ou não**. Cada item do array é um objeto que representa **um anexo que existe no processo hoje**, com identificador, nome, data e extensão.
+
+Ou seja: o array é a **referência de todos os anexos do processo**, e não a lista dos arquivos que a Judit já baixou. Ver um anexo listado ali não significa que o arquivo foi capturado.
+
+### O que importa é o `status` de cada anexo
+
+Dentro de cada objeto do array existe a propriedade `status`. É ela — e somente ela — que diz se aquele arquivo específico já foi capturado e está disponível para download:
+
+| `status` | O que significa |
+| :--- | :--- |
+| `pending` | O anexo existe no processo, mas o arquivo ainda **não foi capturado** pela Judit. Não é possível baixá-lo. |
+| `done` | O arquivo **foi capturado** e está armazenado nos buckets da Judit, pronto para download. |
+
+```json
+"attachments": [
+    {
+        "attachment_id": "60153051-1-1",
+        "attachment_name": "Petição (Outras)",
+        "extension": "pdf",
+        "status": "done"
+    },
+    {
+        "attachment_id": "60153057-5-1",
+        "attachment_name": "Instrumento de Procuração",
+        "extension": "pdf",
+        "status": "pending"
+    }
+]
+```
+
+No exemplo acima, o primeiro anexo já pode ser baixado; o segundo ainda não.
+
+### Consulta sem captura de anexos
+
+Quando a requisição é feita **sem** `with_attachments` (ou com `with_attachments: false`), o array `attachments` vem normalmente, listando todos os anexos do processo — mas **todos com `status: "pending"`**. Você enxerga o que existe no processo, e nenhum arquivo é baixado.
+
+Isso é útil para dimensionar o processo antes de pedir a captura: dá para contar quantos anexos existem e calcular quantas requisições serão necessárias.
+
+### Consulta com captura de anexos e o limite de 1.000
+
+Quando você envia `with_attachments: true`, a Judit captura **até 1.000 anexos por requisição**. Na resposta, esses até 1.000 anexos passam de `pending` para `done`. Os demais continuam `pending`.
+
+Se o processo tiver mais de 1.000 anexos, é preciso **repetir a consulta processual para o mesmo CNJ**, novamente com `with_attachments: true`. A cada nova requisição, o próximo lote de até 1.000 anexos muda de `pending` para `done`.
+
+Veja como fica um processo com 2.500 anexos:
+
+| Requisição | Anexos capturados nela | Total com `done` | Ainda em `pending` |
+| :--- | :--- | :--- | :--- |
+| 1ª consulta com `with_attachments: true` | 1.000 | 1.000 | 1.500 |
+| 2ª consulta com `with_attachments: true` | 1.000 | 2.000 | 500 |
+| 3ª consulta com `with_attachments: true` | 500 | 2.500 | 0 |
+
+A captura termina quando **nenhum** anexo do array estiver com `status: "pending"`. Não existe um campo do tipo "faltam X anexos": a forma correta de saber se acabou é percorrer o array `attachments` e verificar o `status` de cada objeto.
+
+### Fluxo recomendado
+
+<Steps>
+  <Step title="Faça a consulta pedindo os anexos">
+    Envie a requisição para o CNJ desejado com `"with_attachments": true`.
+  </Step>
+  <Step title="Percorra o array attachments no resultado">
+    No Passo 3, ao capturar o resultado, itere sobre `attachments` e conte quantos objetos estão com `status: "pending"`.
+  </Step>
+  <Step title="Repita enquanto houver pending">
+    Se ainda houver anexos em `pending`, envie **uma nova consulta processual** para o mesmo CNJ, também com `"with_attachments": true`. Cada repetição captura o próximo lote de até 1.000.
+  </Step>
+  <Step title="Pare quando não houver mais pending">
+    Quando todos os objetos do array estiverem com `status: "done"`, todos os anexos do processo foram capturados.
+  </Step>
+</Steps>
+
+### Cobrança das repetições
+
 <Warning>
-**Disponibilidade dos Anexos:** Para garantir que um arquivo foi capturado com sucesso e está pronto para download, verifique a propriedade `status` dentro do objeto individual do anexo. O valor deve ser obrigatoriamente `"done"`.
+**Cada requisição é cobrada como consulta processual + captura de anexos.** Isso vale para **todas** as chamadas, inclusive as repetições feitas apenas para capturar os lotes seguintes de 1.000 anexos. Um processo com 2.500 anexos custa, portanto, **3 consultas processuais com captura de anexos** — e não uma.
 </Warning>
+
+Se o volume de anexos for uma preocupação de custo, faça primeiro uma consulta **sem** `with_attachments` para descobrir quantos anexos o processo tem e estimar o número de repetições. Essa consulta inicial é cobrada como consulta processual, sem o custo da captura de anexos.
 
 ---
 
@@ -1205,7 +1331,7 @@ curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<
 ```
 
 ### Propriedades do Anexo
-* `status`: Indica o estado do arquivo no nosso banco. `done` significa que está pronto para download.
+* `status`: Indica o estado do arquivo no nosso banco. `done` significa que está pronto para download; `pending` significa que o anexo existe no processo mas ainda não foi capturado. Veja [Como funcionam os anexos](#como-funcionam-os-anexos-attachments).
 * `private`: Se `true`, significa que o documento está em segredo de justiça no tribunal.
 * `extension`: Formato do arquivo extraído (ex: `pdf`, `html`, `jpg`).
 

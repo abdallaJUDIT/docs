@@ -73,6 +73,9 @@ The **Credentials Vault** stores, encrypted, the credentials (CPF/OAB + password
   <Card title="Wildcard credential" icon="asterisk">
     Register `"system_name": "*"` as fallback for courts without a specific credential.
   </Card>
+  <Card title="A1 digital certificate" icon="certificate" href="#registering-a-credential-with-a-digital-certificate-a1">
+    Courts that only accept certificate login use the `POST /credentials/certificate` route.
+  </Card>
 </CardGroup>
 
 <VaultAnimation />
@@ -157,6 +160,270 @@ Example response to the request:
     }
 ]
 ```
+
+## Registering a credential with a digital certificate (A1)
+
+Some courts do not accept CPF/OAB + password login and require a **digital certificate**. For those cases, the Credentials Vault has a dedicated route for certificate upload: `POST /credentials/certificate`.
+
+<Warning>
+The certificate **cannot** be sent through the `POST /credentials` route. If you try to place certificate fields inside `custom_data`, the API responds with the `CERTIFICATE_FIELDS_NOT_ALLOWED` error. Always use `/credentials/certificate`.
+</Warning>
+
+### What you need before you start
+
+| Item | Detail |
+| :--- | :--- |
+| **A1 certificate** | A `.pfx` or `.p12` file (PKCS#12 standard). **A3** certificates (USB token or smart card) are **not accepted**, because they depend on connected hardware. |
+| **File password** | The password of the `.pfx` file itself, defined when the certificate was issued or exported. **It is not the court portal password.** |
+| **Size** | The file must be at most **64 KB**. |
+| **Validity** | The certificate must be within its validity period. Expired certificates are rejected on upload. |
+| **Your `api-key`** | The same key you already use on the other Judit routes. |
+
+<Info>
+If you have an A3 certificate and need to use it in automated queries, you must issue an A1 certificate for the same holder. Contact your Certification Authority (Serasa, Certisign, Soluti, etc.).
+</Info>
+
+### Step 1 — Convert the `.pfx` file to Base64
+
+An HTTP request body in JSON only carries text, and a `.pfx` is a binary file. So, before sending it, the file must be converted to **Base64** — which is simply the same file rewritten as text.
+
+<Note>
+Base64 is **not encryption and not a hash**. It is only a way to represent the file using text characters. Nothing is lost and nothing is scrambled in the conversion.
+</Note>
+
+Pick the command for your operating system:
+
+<CodeGroup>
+
+```bash macOS
+# Produces the Base64 on a single line and copies it to the clipboard
+base64 -i ./certificate.pfx | tr -d '\n' | pbcopy
+```
+
+```bash Linux
+# The -w 0 flag prevents line breaks
+base64 -w 0 ./certificate.pfx > certificate.base64.txt
+```
+
+```powershell Windows (PowerShell)
+# Produces the Base64 on a single line and saves it to a .txt file
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\certificate.pfx")) | Set-Content certificate.base64.txt
+```
+
+```javascript Node.js
+const fs = require("fs");
+
+const fileBase64 = fs.readFileSync("./certificate.pfx").toString("base64");
+console.log(fileBase64);
+```
+
+```python Python
+import base64
+
+with open("certificate.pfx", "rb") as f:
+    file_base64 = base64.b64encode(f.read()).decode()
+
+print(file_base64)
+```
+
+</CodeGroup>
+
+<Warning>
+**The Base64 string must be a single line, with no line breaks.** If you run `base64 file.pfx` without `tr -d '\n'` (macOS) or without `-w 0` (Linux), the output is split across several lines and the API will respond with `PFX_MALFORMED`.
+</Warning>
+
+**How to tell it worked:** the generated text is huge (thousands of characters — that is normal) and usually starts with `MII`. If what you copied is something short like `C:\certificates\mine.pfx` or `./certificate.pfx`, you copied the file **path**, not its content.
+
+### Step 2 — Send the certificate to the vault
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<pfx-content-in-base64>",
+  "password": "123456"
+}'
+```
+
+<Warning>
+Authentication uses the **`api-key`** header, exactly like the other Judit routes. **Do not use `Authorization: Bearer`** — this route does not use a Bearer token.
+</Warning>
+
+#### Request body fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `file_base64` | string | **Yes** | Content of the `.pfx` / `.p12` file converted to Base64, on a single line (the result of Step 1). |
+| `password` | string | **Yes** | Password of the `.pfx` file. Again: the certificate password, not the court password. |
+| `system_name` | string | Recommended | System and court where the certificate will be used, exactly as it appears in the [vault systems list](/en/api-reference/endpoint/vault/vault) — for example `ESAJ - TJSP - 1º grau`. Use `"*"` to register the certificate as a **wildcard credential**, valid for any court without a specific credential. |
+| `customer_key` | string | Recommended | Identifier you define for this credential (per lawyer, client or firm). This is the same key you will send in the query. If omitted, the default value `"*"` is used. |
+| `custom_data` | object | No | Only needed when the court also requires two-factor authentication. See [Step 5](#step-5-optional--certificate--2fa-code). |
+
+<Info>
+The `customer_key` is just a reference label chosen by you. It has no relation to the court and it is not a password.
+</Info>
+
+#### Step by step in Postman
+
+<Steps>
+  <Step title="Method and URL">
+    Select **POST** and enter the URL `https://crawler.prod.judit.io/credentials/certificate`.
+  </Step>
+  <Step title="Headers">
+    On the **Headers** tab, add two rows:
+
+    | Key | Value |
+    | :--- | :--- |
+    | `api-key` | your Judit key |
+    | `Content-Type` | `application/json` |
+  </Step>
+  <Step title="Body">
+    On the **Body** tab, select **raw** and, in the selector on the right, choose **JSON**. Paste the JSON with the four fields and replace `file_base64` with the text generated in Step 1.
+
+    <Warning>
+    Do not use **form-data** or Postman's **File** type to attach the `.pfx`. This route only accepts JSON, with the file already converted to Base64.
+    </Warning>
+  </Step>
+  <Step title="Send">
+    Click **Send**. The expected response is a `200` with the `CERTIFICATE_CREATED` message.
+  </Step>
+</Steps>
+
+### Step 3 — Check the response
+
+```json
+{
+  "message": "CERTIFICATE_CREATED",
+  "customer_key": "teste",
+  "subject_cn": "HOLDER NAME:12345678909",
+  "not_after": "2027-01-01T00:00:00.000Z",
+  "uploaded_at": "2026-07-31T17:00:00.000Z"
+}
+```
+
+| Field | Description |
+| :--- | :--- |
+| `message` | `CERTIFICATE_CREATED` on the first upload; `CERTIFICATE_UPDATED` when you replace an already registered certificate of the same holder. |
+| `customer_key` | Key of the credential that was just created or updated. |
+| `subject_cn` | Certificate holder (name and CPF/CNPJ), read from the file itself. Use it to confirm you sent the right certificate. |
+| `not_after` | Certificate expiration date, in ISO 8601. Note it down so you can renew before it expires. |
+| `uploaded_at` | Upload date and time, in ISO 8601. |
+
+The certificate is validated at upload time (password, validity and size) and stored encrypted. The response **never** returns the file or the password — once registered, the certificate cannot be read back.
+
+### Step 4 — Use the certificate in a query
+
+Usage is the same as any other vault credential: just send the same `customer_key` in `search.search_params.credential`.
+
+```bash
+curl --location 'https://requests.prod.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+  "search": {
+    "search_type": "lawsuit_cnj",
+    "search_key": "0000000-00.0000.0.00.0000",
+    "search_params": {
+      "credential": {
+        "customer_key": "teste"
+      }
+    }
+  }
+}'
+```
+
+<Note>
+If you registered the certificate with the default `customer_key` `"*"`, you do not need to send `credential` in the query — it will be used automatically as the wildcard credential.
+</Note>
+
+### Step 5 (optional) — Certificate + 2FA code
+
+Some courts require **two things at once**: the digital certificate **and** the 2FA secret — sent in the `secret` field, and called secret key, manual key or authenticator setup key on the court portal.
+
+It is all done in a **single request**: just add the `custom_data` object, with the `secret` key inside it, to the same certificate payload.
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<pfx-content-in-base64>",
+  "password": "123456",
+  "custom_data": {
+    "secret": "JBSWY3DPEHPK3PXP"
+  }
+}'
+```
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `custom_data` | object | No | Object with extra credential data. Only send it when the court requires 2FA. |
+| `custom_data.secret` | string | No | The credential's 2FA secret — the **fixed setup key** of the authenticator app. |
+
+<Warning>
+The `secret` is the authenticator's **fixed setup key** (something like `JBSWY3DPEHPK3PXP`) — **never** the temporary 6-digit code, which changes every few seconds. Registering the 6-digit code makes the credential stop working within minutes.
+</Warning>
+
+<Note>
+Not sure where to find that key? It appears during the 2FA setup on the court portal, behind options such as "I can't scan the QR Code", "Enter key manually", "Show secret key" or "Setup key".
+</Note>
+
+<Info>
+If the credential already had a `secret` registered before, uploading the certificate **does not erase** it. You can send `custom_data` again to update it, or omit the field to keep what is already stored.
+</Info>
+
+### Replacing, renewing or removing the certificate
+
+- **Renew or replace:** repeat the same upload with the same `customer_key` and `system_name`. The credential is updated, the previous certificate is discarded and the response comes back with `CERTIFICATE_UPDATED`.
+- **Different holder:** if the new certificate belongs to another CPF/CNPJ, the API returns `CERTIFICATE_HOLDER_MISMATCH` (409). Remove the credential before registering the new holder's certificate.
+- **List:** use `GET https://crawler.prod.judit.io/credentials?customer_key=teste` with the `api-key` header. A credential registered with `system_name: "*"` appears in the list with `name: "*"`.
+- **Remove:** use `DELETE https://crawler.prod.judit.io/credentials` sending `system_name` and `customer_key`. The stored certificate is deleted along with the credential. If it does not exist, the response is `404` (`CREDENTIAL_NOT_FOUND`).
+
+### Errors and how to fix them
+
+| Code | HTTP | What happened | How to fix |
+| :--- | :--- | :--- | :--- |
+| `PFX_MALFORMED` | 400 | The Base64 is invalid or the `.pfx` file is corrupted. | Redo Step 1 making sure it is a single line, with no breaks and no spaces. Confirm you sent the file content, not its path. |
+| `PFX_PASSWORD_INVALID` | 400 | The password provided does not open the file. | Use the `.pfx` file password, not the court portal password. Try opening the certificate locally with that password. |
+| `PFX_NO_PRIVATE_KEY` | 400 | The file has no private key. | Export the certificate again, selecting the option to export the private key. |
+| `PFX_NO_CERTIFICATE` | 400 | The file has no certificate. | Check that the exported file is really a complete `.pfx` / `.p12`. |
+| `PFX_EXPIRED` | 400 | The certificate has expired. | Issue or renew the certificate with your Certification Authority. |
+| `PFX_NOT_YET_VALID` | 400 | The certificate is not valid yet. | Wait for the start of the validity period. |
+| `PFX_TOO_LARGE` | 400 | The file is larger than 64 KB. | Export only the holder's certificate, without unnecessary chains or extra certificates. |
+| `CERTIFICATE_HOLDER_MISMATCH` | 409 | A certificate is already registered in this credential and it belongs to another holder. | Remove the credential and register it again with the new holder. |
+| `CREDENTIAL_TYPE_CONFLICT` | 409 | A username/password credential already exists for this combination of `customer_key` and system. | Use a different `customer_key` for the certificate, or remove the username/password credential first. |
+| `CERTIFICATE_FIELDS_NOT_ALLOWED` | 400 | You tried to send certificate fields to the `POST /credentials` route. | Send the certificate through `POST /credentials/certificate`. |
+
+### Most common mistakes in practice
+
+<AccordionGroup>
+  <Accordion title="I sent the file path instead of its content">
+    `"file_base64": "C:\\certificates\\mine.pfx"` is wrong. The field expects the **Base64 text** generated in Step 1, with thousands of characters — not the file location on your computer.
+  </Accordion>
+  <Accordion title="The Base64 came out split across several lines">
+    This happens when the command runs without `tr -d '\n'` (macOS) or without `-w 0` (Linux). Redo the conversion using exactly the commands from Step 1.
+  </Accordion>
+  <Accordion title="I used the court password in the password field">
+    The `password` field is the `.pfx` file password, created when the certificate was issued or exported. The court portal password does not open the file and results in `PFX_PASSWORD_INVALID`.
+  </Accordion>
+  <Accordion title="I used Authorization: Bearer and got an authentication error">
+    This route authenticates through the `api-key` header. Remove the `Authorization` header and send `api-key: your-key`.
+  </Accordion>
+  <Accordion title="I tried to attach the .pfx as a file in Postman">
+    The route only accepts `Content-Type: application/json` with the file already converted to Base64. Do not use **form-data**, **binary** or Postman's file picker.
+  </Accordion>
+  <Accordion title="My certificate is A3 (token or smart card)">
+    A3 certificates require the physical device connected at login time and therefore cannot be registered in the vault. You need an A1 certificate (`.pfx` / `.p12` file) for the same holder.
+  </Accordion>
+  <Accordion title="I registered the certificate but the query still does not return the secret lawsuit">
+    The certificate only authenticates the holder. Access to the lawsuit depends on that holder's permissions inside the court. If the lawyer is not enabled in the lawsuit, the response will remain limited to public data.
+  </Accordion>
+</AccordionGroup>
 
 ## Endpoint to verify registered credentials
 

@@ -1,0 +1,95 @@
+---
+title: "Cadastro de Certificado Digital"
+openapi: "openapi/vault.json POST /credentials/certificate"
+api: "POST https://crawler.prod.judit.io/credentials/certificate"
+description: "Cadastre um certificado digital A1 (.pfx / .p12) como credencial no Cofre. Esta é a única rota que aceita upload de certificado."
+icon: "certificate"
+---
+
+<Warning>
+O certificado **não** pode ser enviado pela rota `POST /credentials`. Campos de certificado dentro de `custom_data` são recusados com o erro `CERTIFICATE_FIELDS_NOT_ALLOWED`.
+</Warning>
+
+<ParamField body="file_base64" type="string" required>
+Conteúdo do arquivo `.pfx` / `.p12` (PKCS#12) convertido para Base64, em **uma única linha**, sem quebras. Arquivo com no máximo 64 KB.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+Senha do arquivo `.pfx`. Não é a senha do portal do tribunal.
+</ParamField>
+
+<ParamField body="system_name" type="string">
+Sistema e tribunal em que o certificado será usado, por exemplo `ESAJ - TJSP - 1º grau`. Use `*` para cadastrar como credencial coringa.
+</ParamField>
+
+<ParamField body="customer_key" type="string">
+Identificador da credencial definido por você. Se omitido, é usado o valor padrão `*`.
+</ParamField>
+
+<ParamField body="custom_data" type="object">
+Dados extras da credencial. Envie apenas quando o tribunal também exigir autenticação em dois fatores.
+    <Expandable title="properties">
+        <ParamField body="secret" type="string">
+        Segredo 2FA (`secret`) — a chave **fixa** de configuração do aplicativo autenticador, nunca o código temporário de 6 dígitos.
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<conteudo-do-pfx-em-base64>",
+  "password": "123456"
+}'
+```
+
+```bash cURL com 2FA
+curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "customer_key": "teste",
+  "system_name": "ESAJ - TJSP - 1º grau",
+  "file_base64": "<conteudo-do-pfx-em-base64>",
+  "password": "123456",
+  "custom_data": {
+    "secret": "JBSWY3DPEHPK3PXP"
+  }
+}'
+```
+</RequestExample>
+
+<ResponseExample>
+```json
+{
+	"message": "CERTIFICATE_CREATED",
+	"customer_key": "teste",
+	"subject_cn": "NOME DO TITULAR:12345678909",
+	"not_after": "2027-01-01T00:00:00.000Z",
+	"uploaded_at": "2026-07-31T17:00:00.000Z"
+}
+```
+</ResponseExample>
+
+**Se já existir um certificado do mesmo titular nessa credencial, a mensagem será `CERTIFICATE_UPDATED` e o certificado anterior é descartado.**
+
+<Accordion title="Erros possíveis">
+| Código | HTTP | Quando acontece |
+| :--- | :--- | :--- |
+| `PFX_MALFORMED` | 400 | Base64 inválido ou arquivo PFX corrompido |
+| `PFX_PASSWORD_INVALID` | 400 | Senha do arquivo incorreta |
+| `PFX_NO_PRIVATE_KEY` | 400 | Arquivo sem chave privada |
+| `PFX_NO_CERTIFICATE` | 400 | Arquivo sem certificado |
+| `PFX_EXPIRED` | 400 | Certificado vencido |
+| `PFX_NOT_YET_VALID` | 400 | Certificado ainda não vigente |
+| `PFX_TOO_LARGE` | 400 | Arquivo maior que 64 KB |
+| `CERTIFICATE_HOLDER_MISMATCH` | 409 | Novo certificado pertence a outro titular (CPF/CN) |
+| `CREDENTIAL_TYPE_CONFLICT` | 409 | Já existe credencial de usuário/senha para a mesma combinação de credencial e `customer_key` |
+</Accordion>
+
+Guia completo, com conversão do arquivo para Base64 e passo a passo no Postman: [Cofre de Credenciais — certificado digital](/essentials/cofre-de-credenciais#cadastro-de-credencial-com-certificado-digital-a1).
