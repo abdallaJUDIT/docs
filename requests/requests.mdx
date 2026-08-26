@@ -152,6 +152,55 @@ Consulte a tabela abaixo para configurar sua busca, habilitar anexos ou acionar 
 </Warning>
 
 
+### Busca em Instâncias Superiores
+
+Por padrão, a busca processual considera o processo informado na requisição e as instâncias normalmente associadas a essa consulta.
+
+#### Quando ativar
+
+Quando o processo informado tiver origem em **1ª ou 2ª instância** e você quiser que a Judit realize também uma busca complementar nos sistemas de Instâncias Superiores — **STF**, **STJ**, **TST** e **CNJ** —, envie `should_search_superior_instances: true` dentro de `search_params`:
+
+```bash
+curl --location 'https://requests.production.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0045869-06.2009.4.01.0000",
+        "search_params": {
+            "should_search_superior_instances": true
+        }
+    }
+}'
+```
+
+#### Custo da requisição
+
+A ativação dessa opção implica **acréscimo de 30% sobre o valor padrão da requisição**, devido ao processamento adicional necessário para consulta aos sistemas das Instâncias Superiores.
+
+O adicional depende da origem do processo informado:
+
+| Cenário | Cobrança |
+| :--- | :--- |
+| CNJ de 1ª ou 2ª instância, com `should_search_superior_instances: true` | Valor padrão **+30%** |
+| CNJ que **já corresponde a um processo originário de Instância Superior** | Valor padrão do produto, **sem o adicional de 30%** |
+| Requisição sem o parâmetro (comportamento padrão) | Valor padrão |
+
+<Info>
+Ou seja: se o número informado já é de um processo originário de uma Instância Superior, a consulta é cobrada pelo valor normal, mesmo que o parâmetro seja enviado. O acréscimo existe apenas quando há, de fato, a busca complementar nos sistemas superiores.
+</Info>
+
+#### Processos relacionados em outras instâncias
+
+Quando forem identificados processos relacionados em outras instâncias, **os números desses processos poderão ser retornados no resultado** da consulta.
+
+O que volta é a **referência** — o número do processo relacionado —, e não os dados completos dele. Para obter capa, movimentações e demais informações de um processo relacionado, é necessário realizar **uma nova requisição para cada processo desejado**, usando o número retornado como `search_key`.
+
+<Note>
+Cada uma dessas consultas aos processos relacionados é uma nova busca processual e é cobrada como tal.
+</Note>
+
 ### Exemplo de Requisição (POST)
 
 <CodeGroup>
@@ -1174,57 +1223,6 @@ func main() {
 ### O que você recebe de volta?
 
 O retorno é paginado e contém o [Objeto Lawsuit](/schemas/lawsuit-object) dentro do array `page_data`. Se você solicitou a **Judit IA**, o resumo virá como um objeto adicional dentro dessa mesma lista.
-
----
-
-## Busca em Instâncias Superiores
-
-Por padrão, a busca processual considera o processo informado na requisição e as instâncias normalmente associadas a essa consulta.
-
-### Quando ativar
-
-Quando o processo informado tiver origem em **1ª ou 2ª instância** e você quiser que a Judit realize também uma busca complementar nos sistemas de Instâncias Superiores — **STF**, **STJ**, **TST** e **CNJ** —, envie `should_search_superior_instances: true` dentro de `search_params`:
-
-```bash
-curl --location 'https://requests.production.judit.io/requests/' \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-    "search": {
-        "search_type": "lawsuit_cnj",
-        "search_key": "0045869-06.2009.4.01.0000",
-        "search_params": {
-            "should_search_superior_instances": true
-        }
-    }
-}'
-```
-
-### Custo da requisição
-
-A ativação dessa opção implica **acréscimo de 30% sobre o valor padrão da requisição**, devido ao processamento adicional necessário para consulta aos sistemas das Instâncias Superiores.
-
-O adicional depende da origem do processo informado:
-
-| Cenário | Cobrança |
-| :--- | :--- |
-| CNJ de 1ª ou 2ª instância, com `should_search_superior_instances: true` | Valor padrão **+30%** |
-| CNJ que **já corresponde a um processo originário de Instância Superior** | Valor padrão do produto, **sem o adicional de 30%** |
-| Requisição sem o parâmetro (comportamento padrão) | Valor padrão |
-
-<Info>
-Ou seja: se o número informado já é de um processo originário de uma Instância Superior, a consulta é cobrada pelo valor normal, mesmo que o parâmetro seja enviado. O acréscimo existe apenas quando há, de fato, a busca complementar nos sistemas superiores.
-</Info>
-
-### Processos relacionados em outras instâncias
-
-Quando forem identificados processos relacionados em outras instâncias, **os números desses processos poderão ser retornados no resultado** da consulta.
-
-O que volta é a **referência** — o número do processo relacionado —, e não os dados completos dele. Para obter capa, movimentações e demais informações de um processo relacionado, é necessário realizar **uma nova requisição para cada processo desejado**, usando o número retornado como `search_key`.
-
-<Note>
-Cada uma dessas consultas aos processos relacionados é uma nova busca processual e é cobrada como tal.
-</Note>
 
 ---
 
