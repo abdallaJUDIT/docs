@@ -523,7 +523,7 @@ Se você cadastrou o certificado com a `customer_key` padrão `"*"`, não é nec
 
 ### Passo 5 (opcional) — Certificado + código 2FA
 
-Alguns tribunais exigem **duas coisas ao mesmo tempo**: o certificado digital **e** o segredo 2FA (também chamado de `secret`, `secrecy`, chave secreta, chave manual ou chave de configuração do autenticador).
+Alguns tribunais exigem **duas coisas ao mesmo tempo**: o certificado digital **e** o segredo 2FA — enviado no campo `secret`, e chamado no portal do tribunal de chave secreta, chave manual ou chave de configuração do autenticador.
 
 Tudo é feito em **uma única requisição**: basta acrescentar o objeto `custom_data`, com a chave `secret` dentro, ao mesmo payload do certificado.
 

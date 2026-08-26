@@ -10,8 +10,6 @@ icon: "certificate"
 The certificate **cannot** be sent through the `POST /credentials` route. Certificate fields inside `custom_data` are rejected with the `CERTIFICATE_FIELDS_NOT_ALLOWED` error.
 </Warning>
 
-Authentication uses the **`api-key`** header, like the other Judit routes. This route does **not** use `Authorization: Bearer`.
-
 <ParamField body="file_base64" type="string" required>
 Content of the `.pfx` / `.p12` (PKCS#12) file converted to Base64, on a **single line**, with no breaks. File must be at most 64 KB.
 </ParamField>
@@ -32,7 +30,7 @@ Credential identifier defined by you. If omitted, the default value `*` is used.
 Extra credential data. Only send it when the court also requires two-factor authentication.
     <Expandable title="properties">
         <ParamField body="secret" type="string">
-        2FA secret (`secret` / `secrecy`) — the **fixed** setup key of the authenticator app, never the temporary 6-digit code.
+        2FA secret (`secret`) — the **fixed** setup key of the authenticator app, never the temporary 6-digit code.
         </ParamField>
     </Expandable>
 </ParamField>

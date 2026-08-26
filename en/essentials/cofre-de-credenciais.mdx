@@ -341,7 +341,7 @@ If you registered the certificate with the default `customer_key` `"*"`, you do 
 
 ### Step 5 (optional) — Certificate + 2FA code
 
-Some courts require **two things at once**: the digital certificate **and** the 2FA secret (also called `secret`, `secrecy`, secret key, manual key or authenticator setup key).
+Some courts require **two things at once**: the digital certificate **and** the 2FA secret — sent in the `secret` field, and called secret key, manual key or authenticator setup key on the court portal.
 
 It is all done in a **single request**: just add the `custom_data` object, with the `secret` key inside it, to the same certificate payload.
 

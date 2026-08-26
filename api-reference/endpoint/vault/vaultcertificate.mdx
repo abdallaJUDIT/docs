@@ -10,8 +10,6 @@ icon: "certificate"
 O certificado **não** pode ser enviado pela rota `POST /credentials`. Campos de certificado dentro de `custom_data` são recusados com o erro `CERTIFICATE_FIELDS_NOT_ALLOWED`.
 </Warning>
 
-A autenticação é feita pelo header **`api-key`**, como nas demais rotas da Judit. Esta rota **não** usa `Authorization: Bearer`.
-
 <ParamField body="file_base64" type="string" required>
 Conteúdo do arquivo `.pfx` / `.p12` (PKCS#12) convertido para Base64, em **uma única linha**, sem quebras. Arquivo com no máximo 64 KB.
 </ParamField>
@@ -32,7 +30,7 @@ Identificador da credencial definido por você. Se omitido, é usado o valor pad
 Dados extras da credencial. Envie apenas quando o tribunal também exigir autenticação em dois fatores.
     <Expandable title="properties">
         <ParamField body="secret" type="string">
-        Segredo 2FA (`secret` / `secrecy`) — a chave **fixa** de configuração do aplicativo autenticador, nunca o código temporário de 6 dígitos.
+        Segredo 2FA (`secret`) — a chave **fixa** de configuração do aplicativo autenticador, nunca o código temporário de 6 dígitos.
         </ParamField>
     </Expandable>
 </ParamField>
