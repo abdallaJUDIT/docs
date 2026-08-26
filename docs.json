@@ -179,7 +179,8 @@
                 "group": "Cofre de Credenciais",
                 "pages": [
                   "api-reference/endpoint/vault/vault",
-                  "api-reference/endpoint/vault/vaultcreate"
+                  "api-reference/endpoint/vault/vaultcreate",
+                  "api-reference/endpoint/vault/vaultcertificate"
                 ]
               }
             ]
@@ -373,7 +374,8 @@
                 "group": "Credentials Vault",
                 "pages": [
                   "en/api-reference/endpoint/vault/vault",
-                  "en/api-reference/endpoint/vault/vaultcreate"
+                  "en/api-reference/endpoint/vault/vaultcreate",
+                  "en/api-reference/endpoint/vault/vaultcertificate"
                 ]
               }
             ]
