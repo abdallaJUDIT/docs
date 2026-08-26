@@ -153,7 +153,7 @@ Refer to the table below to configure your search, enable attachments, or trigge
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Yes** | Defines the entity being searched. For lawsuits, always use `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Yes** | The lawsuit number in the CNJ standard (e.g., `"0009999-99.9999.8.26.9999"`). |
-| `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files. |
+| `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files, **up to 1,000 attachments per request**. Read [How attachments work](#how-attachments-work-attachments) before using it. |
 | `judit_ia` | array | No | List of AI *features* applied to the result. Send `["summary"]` to receive a humanized summary of the header and case updates. |
 | `search_params.lawsuit_instance` | integer | No | Forces the search at a specific instance (e.g., `1` or `2`). |
 | `search_params.should_search_superior_instances` | boolean | No | If `true`, Judit also searches the lawsuit at **superior instances** (3rd instance / higher courts), in addition to the 1st and 2nd instance already covered by default. |
@@ -166,9 +166,6 @@ Refer to the table below to configure your search, enable attachments, or trigge
 **Judit AI (Beta):** The artificial intelligence feature (`judit_ia`) is in Beta. Response time may vary and the summary structure is subject to improvements.
 </Warning>
 
-<Warning>
-**Limit of 1,000 attachments per request:** When `with_attachments: true`, Judit returns **up to 1,000 attachments per query**. If the lawsuit has more attachments than that, the remaining ones are not included in that response — to capture them, make a **new lawsuit query** for the same CNJ, which will return the next batch of up to 1,000 attachments. Repeat this (one new query per batch of 1,000) until you have retrieved all of the lawsuit's attachments.
-</Warning>
 
 ### Request Example (POST)
 
@@ -1183,6 +1180,93 @@ The return is paginated and contains the [Lawsuit Object](/en/schemas/lawsuit-ob
 | `page_data[].response_type` | string | `lawsuit`, `lawsuits`, `application_error`, etc. |
 | `page_data[].response_data` | object | Main content — follows the [Lawsuit Schema](/en/schemas/lawsuit-object). |
 | `page_data[].cached_response` | boolean | `true` if it came from datalake; `false` if it came fresh from court. |
+
+## How attachments work (`attachments`)
+
+This is the part of the lawsuit query that raises the most questions, so it is worth understanding the mechanism before requesting the capture.
+
+### The `attachments` array always comes in the response
+
+Every lawsuit query returns the `attachments` array inside the Lawsuit Object — **whether or not you sent `with_attachments`**. Each item in the array is an object representing **one attachment that exists in the lawsuit today**, with its identifier, name, date and extension.
+
+In other words: the array is the **reference of every attachment in the lawsuit**, not the list of files Judit has already downloaded. Seeing an attachment listed there does not mean the file was captured.
+
+### What matters is each attachment's `status`
+
+Inside each object in the array there is a `status` property. It — and only it — tells you whether that specific file has been captured and is available for download:
+
+| `status` | What it means |
+| :--- | :--- |
+| `pending` | The attachment exists in the lawsuit, but the file has **not been captured** by Judit yet. It cannot be downloaded. |
+| `done` | The file **has been captured** and is stored in Judit's buckets, ready for download. |
+
+```json
+"attachments": [
+    {
+        "attachment_id": "60153051-1-1",
+        "attachment_name": "Petição (Outras)",
+        "extension": "pdf",
+        "status": "done"
+    },
+    {
+        "attachment_id": "60153057-5-1",
+        "attachment_name": "Instrumento de Procuração",
+        "extension": "pdf",
+        "status": "pending"
+    }
+]
+```
+
+In the example above, the first attachment can already be downloaded; the second cannot.
+
+### Query without attachment capture
+
+When the request is made **without** `with_attachments` (or with `with_attachments: false`), the `attachments` array still comes back listing every attachment in the lawsuit — but **all of them with `status: "pending"`**. You see what exists in the lawsuit, and no file is downloaded.
+
+This is useful to size up the lawsuit before requesting the capture: you can count how many attachments exist and work out how many requests will be needed.
+
+### Query with attachment capture and the 1,000 limit
+
+When you send `with_attachments: true`, Judit captures **up to 1,000 attachments per request**. In the response, those up to 1,000 attachments move from `pending` to `done`. The rest stay `pending`.
+
+If the lawsuit has more than 1,000 attachments, you must **repeat the lawsuit query for the same CNJ**, again with `with_attachments: true`. With each new request, the next batch of up to 1,000 attachments moves from `pending` to `done`.
+
+Here is how it looks for a lawsuit with 2,500 attachments:
+
+| Request | Attachments captured in it | Total marked `done` | Still `pending` |
+| :--- | :--- | :--- | :--- |
+| 1st query with `with_attachments: true` | 1,000 | 1,000 | 1,500 |
+| 2nd query with `with_attachments: true` | 1,000 | 2,000 | 500 |
+| 3rd query with `with_attachments: true` | 500 | 2,500 | 0 |
+
+The capture is finished when **no** attachment in the array has `status: "pending"`. There is no field such as "X attachments remaining": the correct way to know you are done is to iterate over the `attachments` array and check each object's `status`.
+
+### Recommended flow
+
+<Steps>
+  <Step title="Run the query requesting attachments">
+    Send the request for the desired CNJ with `"with_attachments": true`.
+  </Step>
+  <Step title="Iterate over the attachments array in the result">
+    In Step 3, when capturing the result, iterate over `attachments` and count how many objects have `status: "pending"`.
+  </Step>
+  <Step title="Repeat while there are pending ones">
+    If there are still attachments in `pending`, send **a new lawsuit query** for the same CNJ, also with `"with_attachments": true`. Each repetition captures the next batch of up to 1,000.
+  </Step>
+  <Step title="Stop when there are no pending ones left">
+    When every object in the array has `status: "done"`, all of the lawsuit's attachments have been captured.
+  </Step>
+</Steps>
+
+### Billing for the repetitions
+
+<Warning>
+**Every request is billed as a lawsuit query + attachment capture.** This applies to **all** calls, including the repetitions made only to capture the following batches of 1,000 attachments. A lawsuit with 2,500 attachments therefore costs **3 lawsuit queries with attachment capture** — not one.
+</Warning>
+
+If the attachment volume is a cost concern, first run a query **without** `with_attachments` to find out how many attachments the lawsuit has and estimate the number of repetitions. That initial query is billed as a lawsuit query, without the attachment capture cost.
+
+---
 
 ## Next steps
 
