@@ -156,11 +156,8 @@ Refer to the table below to configure your search, enable attachments, or trigge
 | `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files, **up to 1,000 attachments per request**. Read [How attachments work](#how-attachments-work-attachments) before using it. |
 | `judit_ia` | array | No | List of AI *features* applied to the result. Send `["summary"]` to receive a humanized summary of the header and case updates. |
 | `search_params.lawsuit_instance` | integer | No | Forces the search at a specific instance (e.g., `1` or `2`). |
-| `search_params.should_search_superior_instances` | boolean | No | If `true`, Judit also searches the lawsuit at **superior instances** (3rd instance / higher courts), in addition to the 1st and 2nd instance already covered by default. |
+| `search_params.should_search_superior_instances` | boolean | No | If `true`, Judit runs a complementary search on the **Superior Instance** systems (STF, STJ, TST and CNJ). Adds **+30% over the standard price** of the request — see [Searching Superior Instances](#searching-superior-instances). |
 
-<Warning>
-**Superior instances have a 30% additional cost:** Enabling `search_params.should_search_superior_instances: true` makes Judit also search the lawsuit at superior instances (3rd instance / higher courts). Since this capture is more resource-intensive, the request is billed at **+30% over the standard price** of an Asynchronous Lawsuit Search.
-</Warning>
 
 <Warning>
 **Judit AI (Beta):** The artificial intelligence feature (`judit_ia`) is in Beta. Response time may vary and the summary structure is subject to improvements.
@@ -1180,6 +1177,57 @@ The return is paginated and contains the [Lawsuit Object](/en/schemas/lawsuit-ob
 | `page_data[].response_type` | string | `lawsuit`, `lawsuits`, `application_error`, etc. |
 | `page_data[].response_data` | object | Main content — follows the [Lawsuit Schema](/en/schemas/lawsuit-object). |
 | `page_data[].cached_response` | boolean | `true` if it came from datalake; `false` if it came fresh from court. |
+
+## Searching Superior Instances
+
+By default, the lawsuit search considers the lawsuit sent in the request and the instances normally associated with that query.
+
+### When to enable it
+
+When the lawsuit you send originates in the **1st or 2nd instance** and you want Judit to also run a complementary search on the Superior Instance systems — **STF**, **STJ**, **TST** and **CNJ** — send `should_search_superior_instances: true` inside `search_params`:
+
+```bash
+curl --location 'https://requests.production.judit.io/requests/' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data '{
+    "search": {
+        "search_type": "lawsuit_cnj",
+        "search_key": "0045869-06.2009.4.01.0000",
+        "search_params": {
+            "should_search_superior_instances": true
+        }
+    }
+}'
+```
+
+### Request cost
+
+Enabling this option adds **30% over the standard price of the request**, due to the extra processing required to query the Superior Instance systems.
+
+Whether the surcharge applies depends on the origin of the lawsuit you send:
+
+| Scenario | Billing |
+| :--- | :--- |
+| CNJ from the 1st or 2nd instance, with `should_search_superior_instances: true` | Standard price **+30%** |
+| CNJ that **already corresponds to a lawsuit originating in a Superior Instance** | Standard product price, **without the 30% surcharge** |
+| Request without the parameter (default behavior) | Standard price |
+
+<Info>
+In other words: if the number you send already belongs to a lawsuit originating in a Superior Instance, the query is billed at the normal price even when the parameter is sent. The surcharge only applies when the complementary search on the superior systems actually happens.
+</Info>
+
+### Related lawsuits in other instances
+
+When related lawsuits in other instances are identified, **their numbers may be returned in the query result**.
+
+What comes back is the **reference** — the related lawsuit's number — not its full data. To obtain the header, case updates and remaining information of a related lawsuit, you must make **a new request for each lawsuit you want**, using the returned number as the `search_key`.
+
+<Note>
+Each of those queries for related lawsuits is a new lawsuit search and is billed as such.
+</Note>
+
+---
 
 ## How attachments work (`attachments`)
 
