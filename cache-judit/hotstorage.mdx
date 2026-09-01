@@ -114,6 +114,31 @@ Para iniciar a consulta síncrona, faça uma requisição `POST` enviando o docu
 | `search.search_type` | string | **Sim** | Tipo da entidade buscada: `"cpf"`, `"cnpj"`, `"oab"` ou `"name"`. |
 | `search.search_key` | string | **Sim** | O valor a ser buscado (ex.: `"999.999.999-99"`, `"João Silva"`). |
 | `search.search_params.filter` | object | Não | Filtros estruturais (tribunal, valor, classes, partes, datas). Mesma estrutura da [consulta histórica](/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
+| `search.search_params.with_inferred_parties` | boolean | Não | Se `true`, inclui na busca os processos em que o vínculo com o documento pesquisado foi inferido pela Judit. Padrão: `false`. |
+
+### Inferência de Partes (`search_params.with_inferred_parties`)
+
+Boa parte dos tribunais não publica o CPF/CNPJ das partes — apenas o nome. Com `with_inferred_parties: true`, a consulta passa a considerar também os processos em que o vínculo com o documento pesquisado foi **inferido** por validações internas da Judit, e não lido diretamente do tribunal. O parâmetro é opt-in: quando omitido, vale `false`.
+
+```json Consulta com inferência de partes
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}
+```
+
+Cada parte na resposta traz o campo `was_inferred`: `false` quando o documento foi publicado pelo próprio tribunal e `true` quando foi inferido pela Judit (nesse caso o array `documents` normalmente vem vazio e o `main_document` é o resultado da inferência). Trate a ausência do campo como `false` — a [consulta histórica](/requests/request-document) traz um exemplo de resposta com parte inferida.
+
+<Warning>
+**Risco de homônimos.** Como a inferência parte do **nome** da parte, existe a possibilidade de vincular ao documento pesquisado um processo que pertence, na verdade, a outra pessoa ou empresa de nome igual ou muito semelhante. As validações internas reduzem esse risco, mas não o eliminam. Em buscas com `search_type: "name"`, esse risco se soma ao dos homônimos do próprio termo pesquisado.
+
+Use o `was_inferred` para decidir como tratar cada processo: um vínculo inferido não tem a mesma confiabilidade de um documento publicado pelo tribunal.
+</Warning>
 
 ### Filtros mais comuns (`search_params.filter`)
 
@@ -316,7 +341,8 @@ A resposta dessa requisição será um objeto JSON com os dados retornados:
                     "document_type": "CPF",
                     "lawyers": [
                         { "name": "Advogada do Autor", "side": "Active", "person_type": "Advogado" }
-                    ]
+                    ],
+                    "was_inferred": false
                 },
                 {
                     "name": "Usuário teste",
@@ -326,7 +352,8 @@ A resposta dessa requisição será um objeto JSON com os dados retornados:
                     "document_type": "CPF",
                     "lawyers": [
                         { "name": "Advogado do Réu", "side": "Passive", "person_type": "Advogado" }
-                    ]
+                    ],
+                    "was_inferred": true
                 }
             ],
             "steps": [],

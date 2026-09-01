@@ -62,6 +62,7 @@ Array of objects representing the parties.
 | `person_type` | string | Procedural role (e.g., "AUTOR", "RÉU", "TESTEMUNHA", "TERCEIRO"). |
 | `documents` | array | List of objects with `document_type` (e.g., "CPF", "CNPJ") and `document` (the number). |
 | `lawyers` | array | List of lawyers associated with the party (contains `name` and `oab`). |
+| `was_inferred` | boolean | Indicates whether the party's document was inferred by Judit (`true`) instead of published by the court (`false`). See [party inference](/en/requests/request-document). |
 
 <Note>
 **Notice about Lawyers:** If the court does not clearly specify which party the lawyer belongs to, the lawyer object will be listed directly in the main `parties` array, with a generic role/side.
@@ -129,7 +130,8 @@ Below is the typical structural representation returned by the Judit API when qu
       ],
       "lawyers": [
         { "name": "Maria Advogada", "oab": "OAB/SP 123456" }
-      ]
+      ],
+      "was_inferred": false
     }
   ],
   "steps": [

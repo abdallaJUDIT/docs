@@ -170,6 +170,7 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 | `search.search_type` | string | **Sim** | tipo de entidade que será buscada: `"cpf"`, `"cnpj"`, `"oab"` ou `"name"`. |
 | `search.search_key` | string | **Sim** | O valor a ser buscado (ex: `"999.999.999-99"`, `João Silva`). |
 | `search.on_demand` | boolean | Não | Se `true`, força a busca em tempo real nos tribunais em vez do Datalake. |
+| `search.search_params.with_inferred_parties` | boolean | Não | Se `true`, inclui na busca os processos em que o vínculo com o documento pesquisado foi inferido pela Judit. Padrão: `false`. |
 | `cache_ttl_in_days` | integer | Não | Considera o cache válido se a última extração ocorreu nos últimos X dias. |
 | `customer_key` | string | Não | Chave do usuário no Cofre de Credenciais (usado para acessar os tribunais com credenciais cadastrada no [cofre de credenciais](/essentials/cofre-de-credenciais)). |
 
@@ -209,6 +210,106 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 }
 ```
 </CodeGroup>
+
+### Inferência de Partes (`search_params.with_inferred_parties`)
+
+Boa parte dos tribunais não publica o CPF/CNPJ das partes na capa do processo — apenas o nome. Nesses casos, uma busca por documento não encontra o processo, mesmo que a pessoa ou empresa realmente esteja nele.
+
+Ao enviar `with_inferred_parties: true` dentro de `search_params`, a Judit passa a considerar também os processos em que o vínculo com o documento pesquisado foi **inferido** por validações internas (cruzamento do nome da parte com outros dados já conhecidos da base), e não lido diretamente do tribunal. O efeito prático é uma cobertura maior de processos vinculados ao documento.
+
+O parâmetro é opt-in: quando omitido, vale `false` e a busca retorna apenas os vínculos publicados explicitamente pelo tribunal.
+
+<CodeGroup>
+```json Consulta com inferência de partes
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}
+```
+
+```json Combinando com filtros
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true,
+            "filter": {
+                "side": "Passive"
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+#### Como identificar o que foi inferido (`was_inferred`)
+
+Nas respostas, cada objeto do array `parties` traz o campo `was_inferred`, indicando a origem da identificação daquela parte:
+
+| Valor | Significado |
+| :--- | :--- |
+| `false` | O documento da parte foi publicado pelo próprio tribunal. Identificação confirmada na fonte. |
+| `true` | O documento da parte foi inferido pela Judit. Nesses casos, o array `documents` normalmente vem vazio e o `main_document` é o resultado da inferência. |
+
+<Note>
+Nem toda parte traz o campo `was_inferred`. Trate a ausência dele como `false` (identificação não inferida).
+</Note>
+
+<Accordion title="Ver exemplo de resposta com parte inferida">
+```json
+{
+    "request_status": "completed",
+    "page": 1,
+    "page_data": [
+        {
+            "response_type": "lawsuit",
+            "response_data": {
+                "code": "0000000-00.0000.0.00.0000",
+                "tribunal_acronym": "TRF2",
+                "instance": 1,
+                "parties": [
+                    {
+                        "main_document": "99999999999",
+                        "name": "NOME DA PARTE PESQUISADA",
+                        "side": "Active",
+                        "person_type": "REQUERENTE",
+                        "documents": [
+                            {
+                                "document": "99999999999",
+                                "document_type": "cpf"
+                            }
+                        ],
+                        "lawyers": [],
+                        "was_inferred": false
+                    },
+                    {
+                        "main_document": "29979036000140",
+                        "name": "INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS",
+                        "side": "Passive",
+                        "person_type": "REQUERIDO",
+                        "documents": [],
+                        "lawyers": [],
+                        "was_inferred": true
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+</Accordion>
+
+<Warning>
+**Risco de homônimos.** Como a inferência parte do **nome** da parte, existe a possibilidade de vincular ao documento pesquisado um processo que pertence, na verdade, a outra pessoa ou empresa de nome igual ou muito semelhante. As validações internas reduzem esse risco, mas não o eliminam. Em buscas com `search_type: "name"`, esse risco se soma ao dos homônimos do próprio termo pesquisado.
+
+Use o `was_inferred` para decidir como tratar cada processo: um vínculo inferido não tem a mesma confiabilidade de um documento publicado pelo tribunal.
+</Warning>
 
 ### Filtros Prévios da Requisição (`search_params.filter`)
 
@@ -739,7 +840,7 @@ Array de objetos. Cada objeto contém a chave `response_data` que abriga a [Capa
         "tribunal_acronym": "TJSP",
         "instance": 1,
         "parties": [
-          { "name": "Usuário teste", "side": "Active", "person_type": "Autor" }
+          { "name": "Usuário teste", "side": "Active", "person_type": "Autor", "was_inferred": false }
         ]
       }
     }
