@@ -87,6 +87,7 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `cache_ttl_in_days` (opcional): Número inteiro que define até quantos dias o resultado da busca pode considerar um cache válido;
 - `search_params`: Um objeto que contém alguns parâmetros da busca como:
   - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
+  - `with_inferred_parties` (opcional): Se `true`, o monitoramento também considera os processos em que o vínculo com o documento monitorado foi inferido pela Judit, e não publicado pelo tribunal. Padrão: `false`. Veja [Inferência de Partes](#inferência-de-partes-search_params-with_inferred_parties);
   - `masked_response`: Define se a resposta virá minificada. Este parâmetro é aplicável apenas a consultas (simples ou completas) por documento no contexto de busca processual.
     - `masked_response = true`: retornará uma consulta completa
     - `masked_response = false`: retornará uma consulta simples
@@ -212,6 +213,34 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 <Note>
   Na resposta da criação do monitoramento, é retornado o campo `hour_range`, que indica o horário em que a consulta aos tribunais serão realizada pela primeira vez. No exemplo acima, a primeira consulta está programada para ocorrer às 21 horas.
 </Note>
+
+## Inferência de Partes (`search_params.with_inferred_parties`)
+
+Boa parte dos tribunais não publica o CPF/CNPJ das partes — apenas o nome. Com `with_inferred_parties: true`, o monitoramento passa a acompanhar também os processos em que o vínculo com o documento monitorado foi **inferido** por validações internas da Judit, e não lido diretamente do tribunal. O parâmetro é opt-in: quando omitido, vale `false`.
+
+```bash
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "recurrence": 1,
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}'
+```
+
+Nas respostas do monitoramento, cada parte traz o campo `was_inferred`: `false` quando o documento foi publicado pelo próprio tribunal e `true` quando foi inferido pela Judit (nesse caso o array `documents` normalmente vem vazio e o `main_document` é o resultado da inferência). Trate a ausência do campo como `false`.
+
+<Warning>
+**Risco de homônimos.** Como a inferência parte do **nome** da parte, existe a possibilidade de vincular ao documento monitorado um processo que pertence, na verdade, a outra pessoa ou empresa de nome igual ou muito semelhante. As validações internas reduzem esse risco, mas não o eliminam. Em buscas com `search_type: "name"`, esse risco se soma ao dos homônimos do próprio termo pesquisado.
+
+Em monitoramento o efeito é contínuo: um processo de homônimo que entre por inferência passa a gerar notificações a cada nova movimentação. Use o `was_inferred` para decidir como tratar cada processo — um vínculo inferido não tem a mesma confiabilidade de um documento publicado pelo tribunal.
+</Warning>
 
 ## Consultando Seus Monitoramentos
 
@@ -558,7 +587,8 @@ func main() {
                                 "document_type": "CNPJ"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     },
                     {
                         "side": "Passive",
@@ -572,7 +602,8 @@ func main() {
                                 "document_type": "CPF"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -642,7 +673,8 @@ func main() {
                                 "document_type": "CNPJ"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     },
                     {
                         "side": "Passive",
@@ -656,7 +688,8 @@ func main() {
                                 "document_type": "CPF"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -739,7 +772,8 @@ func main() {
               "document_type": "CNPJ"
             }
           ],
-          "lawyers": []
+          "lawyers": [],
+          "was_inferred": false
         },
         {
           "side": "Passive",
@@ -752,7 +786,8 @@ func main() {
               "document_type": "CPF"
             }
           ],
-          "lawyers": []
+          "lawyers": [],
+          "was_inferred": false
         }
       ],
       "attachments": [],
@@ -943,7 +978,8 @@ Aqui está o retorno esperado:
                         "tags": {
                             "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b"
                         },
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -1070,7 +1106,8 @@ Aqui está o retorno esperado:
                         "tags": {
                             "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1"
                         },
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],

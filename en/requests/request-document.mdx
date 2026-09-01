@@ -170,6 +170,7 @@ To initiate the asynchronous flow, make a `POST` request providing the desired d
 | `search.search_type` | string | **Yes** | type of entity to be searched: `"cpf"`, `"cnpj"`, `"oab"`, or `"name"`. |
 | `search.search_key` | string | **Yes** | The value to be searched (e.g., `"999.999.999-99"`, `João Silva`). |
 | `search.on_demand` | boolean | No | If `true`, forces the search in real time at the courts instead of the Datalake. |
+| `search.search_params.with_inferred_parties` | boolean | No | If `true`, also includes lawsuits in which the link to the searched document was inferred by Judit. Default: `false`. |
 | `cache_ttl_in_days` | integer | No | Considers the cache valid if the last extraction occurred within the last X days. |
 | `customer_key` | string | No | User key in the Credentials Vault (used to access the courts with credentials registered in the [credentials vault](/en/essentials/cofre-de-credenciais)). |
 
@@ -209,6 +210,106 @@ To initiate the asynchronous flow, make a `POST` request providing the desired d
 }
 ```
 </CodeGroup>
+
+### Party Inference (`search_params.with_inferred_parties`)
+
+Many courts do not publish the parties' CPF/CNPJ on the lawsuit cover page — only their names. In those cases a document search does not find the lawsuit, even when the person or company is in fact part of it.
+
+By sending `with_inferred_parties: true` inside `search_params`, Judit also considers lawsuits in which the link to the searched document was **inferred** through internal validations (cross-checking the party name against other data already known in the base), instead of being read directly from the court. The practical effect is broader coverage of lawsuits linked to the document.
+
+The parameter is opt-in: when omitted it defaults to `false`, and the search returns only the links explicitly published by the court.
+
+<CodeGroup>
+```json Query with party inference
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}
+```
+
+```json Combined with filters
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true,
+            "filter": {
+                "side": "Passive"
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+#### How to identify what was inferred (`was_inferred`)
+
+In the responses, each object of the `parties` array carries the `was_inferred` field, indicating where that party's identification came from:
+
+| Value | Meaning |
+| :--- | :--- |
+| `false` | The party's document was published by the court itself. Identification confirmed at the source. |
+| `true` | The party's document was inferred by Judit. In these cases the `documents` array usually comes empty and `main_document` is the result of the inference. |
+
+<Note>
+Not every party carries the `was_inferred` field. Treat its absence as `false` (identification not inferred).
+</Note>
+
+<Accordion title="See response example with an inferred party">
+```json
+{
+    "request_status": "completed",
+    "page": 1,
+    "page_data": [
+        {
+            "response_type": "lawsuit",
+            "response_data": {
+                "code": "0000000-00.0000.0.00.0000",
+                "tribunal_acronym": "TRF2",
+                "instance": 1,
+                "parties": [
+                    {
+                        "main_document": "99999999999",
+                        "name": "SEARCHED PARTY NAME",
+                        "side": "Active",
+                        "person_type": "REQUERENTE",
+                        "documents": [
+                            {
+                                "document": "99999999999",
+                                "document_type": "cpf"
+                            }
+                        ],
+                        "lawyers": [],
+                        "was_inferred": false
+                    },
+                    {
+                        "main_document": "29979036000140",
+                        "name": "INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS",
+                        "side": "Passive",
+                        "person_type": "REQUERIDO",
+                        "documents": [],
+                        "lawyers": [],
+                        "was_inferred": true
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+</Accordion>
+
+<Warning>
+**Risk of homonyms.** Because the inference starts from the party's **name**, there is a chance of linking to the searched document a lawsuit that actually belongs to another person or company with an identical or very similar name. The internal validations reduce this risk, but do not eliminate it. In searches with `search_type: "name"`, this risk adds up to the homonyms of the searched term itself.
+
+Use `was_inferred` to decide how to treat each lawsuit: an inferred link does not carry the same reliability as a document published by the court.
+</Warning>
 
 ### Prior Request Filters (`search_params.filter`)
 
@@ -739,7 +840,7 @@ Array of objects. Each object contains the `response_data` key that holds the [L
         "tribunal_acronym": "TJSP",
         "instance": 1,
         "parties": [
-          { "name": "Usuário teste", "side": "Active", "person_type": "Autor" }
+          { "name": "Usuário teste", "side": "Active", "person_type": "Autor", "was_inferred": false }
         ]
       }
     }

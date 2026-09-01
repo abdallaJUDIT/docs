@@ -87,6 +87,7 @@ The POST request must include a payload with the following properties:
 - `cache_ttl_in_days` (optional): Integer that defines how many days the search result can be considered a valid cache;
 - `search_params`: An object containing some search parameters such as:
   - `lawsuit_instance` (optional): This parameter allows you to define the instance in which you want to search the lawsuit;
+  - `with_inferred_parties` (optional): If `true`, the tracking also considers lawsuits in which the link to the tracked document was inferred by Judit, instead of published by the court. Default: `false`. See [Party inference](#party-inference-search_params-with_inferred_parties);
   - `masked_response`: Defines whether the response will be returned minified. This parameter is only applicable to queries (simple or complete) by document in the lawsuit search context.
     - `masked_response = true`: will return a complete query
     - `masked_response = false`: will return a simple query
@@ -211,6 +212,34 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 <Note>
   In the tracking creation response, the `hour_range` field is returned, indicating the time at which the court queries will be performed for the first time. In the example above, the first query is scheduled to occur at 9 PM.
 </Note>
+
+## Party inference (`search_params.with_inferred_parties`)
+
+Many courts do not publish the parties' CPF/CNPJ — only their names. With `with_inferred_parties: true`, the tracking also follows lawsuits in which the link to the tracked document was **inferred** through Judit's internal validations, instead of being read directly from the court. The parameter is opt-in: when omitted it defaults to `false`.
+
+```bash
+curl --location 'https://tracking.production.judit.io/tracking' \
+--header 'api-key: <API-KEY>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "recurrence": 1,
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}'
+```
+
+In the tracking responses, every party carries the `was_inferred` field: `false` when the document was published by the court itself and `true` when it was inferred by Judit (in that case the `documents` array usually comes empty and `main_document` is the result of the inference). Treat the absence of the field as `false`.
+
+<Warning>
+**Risk of homonyms.** Because the inference starts from the party's **name**, there is a chance of linking to the tracked document a lawsuit that actually belongs to another person or company with an identical or very similar name. The internal validations reduce this risk, but do not eliminate it. In searches with `search_type: "name"`, this risk adds up to the homonyms of the searched term itself.
+
+In tracking the effect is continuous: a homonym's lawsuit that gets in through inference will keep generating notifications on every new case update. Use `was_inferred` to decide how to treat each lawsuit — an inferred link does not carry the same reliability as a document published by the court.
+</Warning>
 
 ## Listing Your Trackings
 
@@ -556,7 +585,8 @@ func main() {
                                 "document_type": "CNPJ"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     },
                     {
                         "side": "Passive",
@@ -570,7 +600,8 @@ func main() {
                                 "document_type": "CPF"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -640,7 +671,8 @@ func main() {
                                 "document_type": "CNPJ"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     },
                     {
                         "side": "Passive",
@@ -654,7 +686,8 @@ func main() {
                                 "document_type": "CPF"
                             }
                         ],
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -737,7 +770,8 @@ func main() {
               "document_type": "CNPJ"
             }
           ],
-          "lawyers": []
+          "lawyers": [],
+          "was_inferred": false
         },
         {
           "side": "Passive",
@@ -750,7 +784,8 @@ func main() {
               "document_type": "CPF"
             }
           ],
-          "lawyers": []
+          "lawyers": [],
+          "was_inferred": false
         }
       ],
       "attachments": [],
@@ -941,7 +976,8 @@ Here is the expected response:
                         "tags": {
                             "crawl_id": "8b485368-4315-4247-8314-a6169aa46e0b"
                         },
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],
@@ -1068,7 +1104,8 @@ Here is the expected response:
                         "tags": {
                             "crawl_id": "f9efa845-8501-4804-9595-f01c25fd7ba1"
                         },
-                        "lawyers": []
+                        "lawyers": [],
+                        "was_inferred": false
                     }
                 ],
                 "related_lawsuits": [],

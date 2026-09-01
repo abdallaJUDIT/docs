@@ -114,6 +114,31 @@ To start the synchronous query, make a `POST` request with the desired document.
 | `search.search_type` | string | **Yes** | Entity type: `"cpf"`, `"cnpj"`, `"oab"` or `"name"`. |
 | `search.search_key` | string | **Yes** | Value to search (e.g. `"999.999.999-99"`, `"John Smith"`). |
 | `search.search_params.filter` | object | No | Structural filters (court, amount, classes, parties, dates). Same shape as the [historical query](/en/requests/request-document#filtros-prévios-da-requisição-search_params-filter). |
+| `search.search_params.with_inferred_parties` | boolean | No | If `true`, also includes lawsuits in which the link to the searched document was inferred by Judit. Default: `false`. |
+
+### Party inference (`search_params.with_inferred_parties`)
+
+Many courts do not publish the parties' CPF/CNPJ — only their names. With `with_inferred_parties: true`, the query also considers lawsuits in which the link to the searched document was **inferred** through Judit's internal validations, instead of being read directly from the court. The parameter is opt-in: when omitted it defaults to `false`.
+
+```json Query with party inference
+{
+    "search": {
+        "search_type": "cpf",
+        "search_key": "999.999.999-99",
+        "search_params": {
+            "with_inferred_parties": true
+        }
+    }
+}
+```
+
+Every party in the response carries the `was_inferred` field: `false` when the document was published by the court itself and `true` when it was inferred by Judit (in that case the `documents` array usually comes empty and `main_document` is the result of the inference). Treat the absence of the field as `false` — the [historical query](/en/requests/request-document) has a response example with an inferred party.
+
+<Warning>
+**Risk of homonyms.** Because the inference starts from the party's **name**, there is a chance of linking to the searched document a lawsuit that actually belongs to another person or company with an identical or very similar name. The internal validations reduce this risk, but do not eliminate it. In searches with `search_type: "name"`, this risk adds up to the homonyms of the searched term itself.
+
+Use `was_inferred` to decide how to treat each lawsuit: an inferred link does not carry the same reliability as a document published by the court.
+</Warning>
 
 ### Most common filters (`search_params.filter`)
 
@@ -314,7 +339,8 @@ The response will be a JSON object with the data:
                     "document_type": "CPF",
                     "lawyers": [
                         { "name": "Plaintiff's lawyer", "side": "Active", "person_type": "Lawyer" }
-                    ]
+                    ],
+                    "was_inferred": false
                 },
                 {
                     "name": "Test User",
@@ -324,7 +350,8 @@ The response will be a JSON object with the data:
                     "document_type": "CPF",
                     "lawyers": [
                         { "name": "Defendant's lawyer", "side": "Passive", "person_type": "Lawyer" }
-                    ]
+                    ],
+                    "was_inferred": true
                 }
             ],
             "steps": [],

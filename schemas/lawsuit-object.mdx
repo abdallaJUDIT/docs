@@ -62,6 +62,7 @@ Array de objetos representando as partes.
 | `person_type` | string | Papel processual (ex: "AUTOR", "RÉU", "TESTEMUNHA", "TERCEIRO"). |
 | `documents` | array | Lista de objetos com `document_type` (ex: "CPF", "CNPJ") e `document` (o número). |
 | `lawyers` | array | Lista de advogados associados à parte (contém `name` e `oab`). |
+| `was_inferred` | boolean | Indica se o documento da parte foi inferido pela Judit (`true`) em vez de publicado pelo tribunal (`false`). Ver [inferência de partes](/requests/request-document). |
 
 <Note>
 **Atenção aos Advogados:** Se o tribunal não especificar claramente a qual parte o advogado pertence, o objeto do advogado será listado diretamente no array principal de `parties`, com um papel/side genérico.
@@ -129,7 +130,8 @@ Abaixo está a representação estrutural típica retornada pela Judit API ao co
       ],
       "lawyers": [
         { "name": "Maria Advogada", "oab": "OAB/SP 123456" }
-      ]
+      ],
+      "was_inferred": false
     }
   ],
   "steps": [
