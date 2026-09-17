@@ -1,0 +1,83 @@
+---
+title: "Available Credits (Pre-paid)"
+sidebarTitle: "Available Credits"
+description: "Use GET /credits/balance to check the credit balance still available on Judit pre-paid accounts, before firing new queries."
+keywords: ["credits", "balance", "prepaid", "pre-paid", "billing", "consumption"]
+icon: "coins"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+Accounts on the **pre-paid** model work with a credit balance loaded upfront. `GET /credits/balance` returns **how much of that balance is still available**, so you can check it before firing new queries.
+
+> 🤖 Endpoint: `GET https://users.production.judit.io/credits/balance`. The response is synchronous (HTTP 200) and carries the remaining credit balance of the account authenticated by the `api-key`.
+
+<EndpointBadges auth billing={null} flow="sync" />
+
+<Note>
+This route serves the **pre-paid** model. If your account runs on a cycle cap (post-paid), the number you are looking for is `remaining` in [Cycle Consumption](/en/resource/consumption/current).
+</Note>
+
+## When to use it
+
+<CardGroup cols={2}>
+  <Card title="Check before consuming" icon="list-check">
+    Confirm there is balance before queueing a batch of queries, avoiding failures mid-processing.
+  </Card>
+  <Card title="Top-up alert" icon="bell">
+    Notify your team when the balance drops below your integration's operational floor.
+  </Card>
+</CardGroup>
+
+## Check the Balance (GET)
+
+`GET https://users.production.judit.io/credits/balance`
+
+### Authentication
+
+Required `api-key` header, with the key of the account whose balance will be checked. The route takes no parameters — the balance returned is always the one of the authenticated account.
+
+### Request Examples
+
+<CodeGroup>
+```bash cURL
+curl --request GET \
+  --url 'https://users.production.judit.io/credits/balance' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+```js JavaScript
+const response = await fetch('https://users.production.judit.io/credits/balance', {
+  method: 'GET',
+  headers: { 'api-key': process.env.JUDIT_API_KEY }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import os
+import requests
+
+response = requests.get(
+    "https://users.production.judit.io/credits/balance",
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+)
+
+print(response.json())
+```
+</CodeGroup>
+
+{/* TODO: add the payload example and field table for GET /credits/balance once the response is confirmed. */}
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Cycle Consumption" icon="gauge" href="/en/resource/consumption/current">
+    Consolidated consumption and effective cap for the current billing cycle.
+  </Card>
+  <Card title="Consumption History" icon="clock-rotate-left" href="/en/resource/consumption/history">
+    List the period's requests and infer the cost of each operation.
+  </Card>
+</CardGroup>

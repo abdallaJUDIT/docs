@@ -1,0 +1,83 @@
+---
+title: "Créditos Disponíveis (Pré-pago)"
+sidebarTitle: "Créditos Disponíveis"
+description: "Consulte com GET /credits/balance o saldo de créditos que ainda resta em contas pré-pago da Judit, para checar disponibilidade antes de disparar novas consultas."
+keywords: ["créditos", "saldo", "balance", "pré-pago", "prepaid", "billing", "consumo"]
+icon: "coins"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+Contas no modelo **pré-pago** trabalham com um saldo de créditos carregado antecipadamente. O `GET /credits/balance` devolve **quanto desse saldo ainda existe**, para você conferir a disponibilidade antes de disparar novas consultas.
+
+> 🤖 Endpoint: `GET https://users.production.judit.io/credits/balance`. A resposta é síncrona (HTTP 200) e traz o saldo de créditos remanescente da conta autenticada pela `api-key`.
+
+<EndpointBadges auth billing={null} flow="sync" />
+
+<Note>
+Esta rota atende ao modelo **pré-pago**. Se a sua conta opera por teto de ciclo (pós-pago), o número que você procura é o `remaining` do [Consumo do Ciclo](/resource/consumption/current).
+</Note>
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Checagem antes de consumir" icon="list-check">
+    Confirme que há saldo antes de enfileirar um lote de consultas e evitar falhas no meio do processamento.
+  </Card>
+  <Card title="Alerta de recarga" icon="bell">
+    Avise o time quando o saldo cair abaixo do piso operacional da sua integração.
+  </Card>
+</CardGroup>
+
+## Consultar o Saldo (GET)
+
+`GET https://users.production.judit.io/credits/balance`
+
+### Autenticação
+
+Header obrigatório `api-key`, com a chave da conta cujo saldo será consultado. A rota não recebe parâmetros — o saldo retornado é sempre o da conta autenticada.
+
+### Exemplos de Requisição
+
+<CodeGroup>
+```bash cURL
+curl --request GET \
+  --url 'https://users.production.judit.io/credits/balance' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+```js JavaScript
+const response = await fetch('https://users.production.judit.io/credits/balance', {
+  method: 'GET',
+  headers: { 'api-key': process.env.JUDIT_API_KEY }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import os
+import requests
+
+response = requests.get(
+    "https://users.production.judit.io/credits/balance",
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+)
+
+print(response.json())
+```
+</CodeGroup>
+
+{/* TODO: incluir o exemplo de payload e a tabela de campos do GET /credits/balance assim que o retorno for confirmado. */}
+
+## Próximos Passos
+
+<CardGroup cols={2}>
+  <Card title="Consumo do Ciclo" icon="gauge" href="/resource/consumption/current">
+    Consumo consolidado e teto efetivo do ciclo de faturamento vigente.
+  </Card>
+  <Card title="Histórico de Consumo" icon="clock-rotate-left" href="/resource/consumption/history">
+    Liste as requisições do período e infira o custo de cada operação.
+  </Card>
+</CardGroup>

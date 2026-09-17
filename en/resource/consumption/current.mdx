@@ -1,0 +1,143 @@
+---
+title: "Current Cycle Consumption"
+sidebarTitle: "Cycle Consumption"
+description: "Use GET /billing/consumption to check how much your company has consumed in the current billing cycle, the effective cap (max_consumption, already including extra post-paid credits) and how much is left."
+keywords: ["consumption", "billing", "max_consumption", "remaining", "cycle", "cap", "quota"]
+icon: "gauge"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+While [Consumption History](/en/resource/consumption/history) lists **request by request**, `GET /billing/consumption` returns the **consolidated figure for the current cycle**: how much the company has already consumed, what the effective cap is and how much is left.
+
+> 🤖 Endpoint: `GET https://requests.production.judit.io/billing/consumption`. The response is synchronous (HTTP 200) and carries `consumption`, `max_consumption`, `remaining` and the cycle's opening and closing dates.
+
+<EndpointBadges auth billing={null} flow="sync" />
+
+## When to use it
+
+<CardGroup cols={2}>
+  <Card title="Internal dashboards" icon="gauge">
+    Show cycle consumption and remaining balance on your own panel, without depending on the Judit dashboard.
+  </Card>
+  <Card title="Usage alerts" icon="bell">
+    Notify your team when consumption crosses 70%, 80% or 90% of the contracted cap.
+  </Card>
+  <Card title="Batch pre-flight" icon="list-check">
+    Before firing a large volume of queries, check whether `remaining` covers the planned operation.
+  </Card>
+  <Card title="Cycle-based reporting" icon="calendar">
+    Use `cycle_started_at` and `cycle_ended_at` to align your reports with the real billing window.
+  </Card>
+</CardGroup>
+
+## Step 1: Make the Request (GET)
+
+`GET https://requests.production.judit.io/billing/consumption`
+
+### Authentication
+
+Required `api-key` header, filled with an **admin key** for the company. The route takes **no parameters** — the company is identified from the `api-key` itself, and `company_id` comes back in the response.
+
+<Warning>
+Regular integration keys are not allowed to read billing data. Use the account's administrative API Key — the same one used by the billing owner.
+</Warning>
+
+### Plan availability
+
+Available to accounts on the **HOMOLOG**, **PAID** and **JUDIT** plans.
+
+### Request Examples
+
+<CodeGroup>
+```bash cURL
+curl --location 'https://requests.production.judit.io/billing/consumption' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+```js JavaScript
+const response = await fetch('https://requests.production.judit.io/billing/consumption', {
+  method: 'GET',
+  headers: { 'api-key': process.env.JUDIT_API_KEY }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import os
+import requests
+
+response = requests.get(
+    "https://requests.production.judit.io/billing/consumption",
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+)
+
+print(response.json())
+```
+</CodeGroup>
+
+## Step 2: Read the Response
+
+```json
+{
+  "company_id": "3f6c1d2e-8a4b-4c90-9f1e-27b5ad08c631",
+  "consumption": 1200,
+  "max_consumption": 12500,
+  "remaining": 11300,
+  "cycle_started_at": "2026-09-01T03:00:00.000Z",
+  "cycle_ended_at": "2026-10-01T02:59:59.999Z"
+}
+```
+
+### Response Fields
+
+| Field | Type | Meaning |
+|---|---|---|
+| `company_id` | `uuid` | Company identified by the `api-key`, which the consumption belongs to. |
+| `consumption` | `number` | Total already consumed within the current cycle. |
+| `max_consumption` | `number` | **Effective cap** for the cycle — it already includes extra post-paid credits, not just the base plan value. |
+| `remaining` | `number` | Balance still available in the cycle (`max_consumption - consumption`). |
+| `cycle_started_at` | `date-time` | Start of the current billing cycle (ISO 8601, UTC). |
+| `cycle_ended_at` | `date-time` | End of the current cycle (ISO 8601, UTC). |
+
+<Note>
+`max_consumption` is the **effective** cap, not the contractual one. If the company has extra post-paid credits released, they are already added into this number — which is why it can change during the cycle even without a plan change.
+</Note>
+
+## Usage Examples
+
+### Alert on threshold
+
+```js
+const { consumption, max_consumption, remaining } = await getConsumption();
+const usage = consumption / max_consumption;
+
+if (usage >= 0.8) {
+  notifyTeam(`Consumption at ${(usage * 100).toFixed(1)}% of the cap — ${remaining} left.`);
+}
+```
+
+### Pre-flight before a batch
+
+Before queueing a large volume of requests, check whether `remaining` covers the planned operation. This avoids interrupting a job halfway through because the cap was exceeded.
+
+```js
+const { remaining } = await getConsumption();
+
+if (remaining < documents.length) {
+  throw new Error(`Insufficient cycle balance: ${remaining} left for ${documents.length} queries.`);
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Consumption History" icon="clock-rotate-left" href="/en/resource/consumption/history">
+    List the period's requests and infer the cost of each operation.
+  </Card>
+  <Card title="Available Credits" icon="coins" href="/en/resource/consumption/credits">
+    Check the remaining balance on pre-paid accounts.
+  </Card>
+</CardGroup>
