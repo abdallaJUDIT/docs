@@ -114,7 +114,15 @@
               {
                 "group": "Recursos",
                 "pages": [
-                  "resource/consumption",
+                  {
+                    "group": "Consumo",
+                    "icon": "chart-pie",
+                    "pages": [
+                      "resource/consumption/history",
+                      "resource/consumption/current",
+                      "resource/consumption/credits"
+                    ]
+                  },
                   "resource/faq",
                   "resource/glossary",
                   "resource/postman-collection",
@@ -309,7 +317,15 @@
               {
                 "group": "Resources",
                 "pages": [
-                  "en/resource/consumption",
+                  {
+                    "group": "Consumption",
+                    "icon": "chart-pie",
+                    "pages": [
+                      "en/resource/consumption/history",
+                      "en/resource/consumption/current",
+                      "en/resource/consumption/credits"
+                    ]
+                  },
                   "en/resource/faq",
                   "en/resource/glossary",
                   "en/resource/postman-collection",
@@ -444,5 +460,15 @@
         "name": "api-key"
       }
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/resource/consumption",
+      "destination": "/resource/consumption/history"
+    },
+    {
+      "source": "/en/resource/consumption",
+      "destination": "/en/resource/consumption/history"
+    }
+  ]
 }

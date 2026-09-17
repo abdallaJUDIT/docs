@@ -1,0 +1,143 @@
+---
+title: "Consumo do Ciclo Atual"
+sidebarTitle: "Consumo do Ciclo"
+description: "Consulte com GET /billing/consumption quanto a sua company já consumiu no ciclo de faturamento vigente, qual é o teto efetivo (max_consumption, já com créditos extras de pós-pago) e quanto ainda resta."
+keywords: ["consumo", "billing", "consumption", "max_consumption", "remaining", "ciclo", "teto", "quota"]
+icon: "gauge"
+---
+
+import { EndpointBadges } from '/snippets/badges.mdx';
+
+Enquanto o [Histórico de Consumo](/resource/consumption/history) lista **requisição por requisição**, o `GET /billing/consumption` devolve o **número consolidado do ciclo vigente**: quanto a company já consumiu, qual é o teto efetivo e quanto ainda resta.
+
+> 🤖 Endpoint: `GET https://requests.production.judit.io/billing/consumption`. A resposta é síncrona (HTTP 200) e traz `consumption`, `max_consumption`, `remaining` e as datas de abertura e fechamento do ciclo.
+
+<EndpointBadges auth billing={null} flow="sync" />
+
+## Quando usar
+
+<CardGroup cols={2}>
+  <Card title="Dashboards internos" icon="gauge">
+    Exiba o consumo do ciclo e o saldo restante no seu próprio painel, sem depender do painel da Judit.
+  </Card>
+  <Card title="Alertas de uso" icon="bell">
+    Dispare um aviso para o time quando o consumo cruzar 70%, 80% ou 90% do teto contratado.
+  </Card>
+  <Card title="Pré-flight de lotes" icon="list-check">
+    Antes de disparar um volume grande de consultas, confira se `remaining` comporta a operação.
+  </Card>
+  <Card title="Fechamento por ciclo" icon="calendar">
+    Use `cycle_started_at` e `cycle_ended_at` para alinhar seus relatórios à janela real de faturamento.
+  </Card>
+</CardGroup>
+
+## Passo 1: Fazer a Consulta (GET)
+
+`GET https://requests.production.judit.io/billing/consumption`
+
+### Autenticação
+
+Header obrigatório `api-key`, preenchido com uma **chave administrativa** da company. A rota **não recebe parâmetros** — a company é identificada a partir da própria `api-key`, e o `company_id` vem de volta na resposta.
+
+<Warning>
+Chaves de integração comuns não têm permissão para ler dados de faturamento. Use a API Key administrativa da conta — a mesma utilizada pelo responsável de billing.
+</Warning>
+
+### Disponibilidade por plano
+
+Disponível para contas nos planos **HOMOLOG**, **PAID** e **JUDIT**.
+
+### Exemplos de Requisição
+
+<CodeGroup>
+```bash cURL
+curl --location 'https://requests.production.judit.io/billing/consumption' \
+  --header 'api-key: '"$JUDIT_API_KEY"
+```
+
+```js JavaScript
+const response = await fetch('https://requests.production.judit.io/billing/consumption', {
+  method: 'GET',
+  headers: { 'api-key': process.env.JUDIT_API_KEY }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import os
+import requests
+
+response = requests.get(
+    "https://requests.production.judit.io/billing/consumption",
+    headers={"api-key": os.environ["JUDIT_API_KEY"]},
+)
+
+print(response.json())
+```
+</CodeGroup>
+
+## Passo 2: Ler a Resposta
+
+```json
+{
+  "company_id": "3f6c1d2e-8a4b-4c90-9f1e-27b5ad08c631",
+  "consumption": 1200,
+  "max_consumption": 12500,
+  "remaining": 11300,
+  "cycle_started_at": "2026-09-01T03:00:00.000Z",
+  "cycle_ended_at": "2026-10-01T02:59:59.999Z"
+}
+```
+
+### Campos da Resposta
+
+| Campo | Tipo | Significado |
+|---|---|---|
+| `company_id` | `uuid` | Company identificada pela `api-key`, à qual o consumo pertence. |
+| `consumption` | `number` | Total já consumido dentro do ciclo vigente. |
+| `max_consumption` | `number` | **Teto efetivo** do ciclo — já inclui os créditos extras de pós-pago, não é apenas o valor do plano base. |
+| `remaining` | `number` | Saldo ainda disponível no ciclo (`max_consumption - consumption`). |
+| `cycle_started_at` | `date-time` | Abertura do ciclo de faturamento atual (ISO 8601, UTC). |
+| `cycle_ended_at` | `date-time` | Fechamento do ciclo atual (ISO 8601, UTC). |
+
+<Note>
+`max_consumption` é o teto **efetivo**, e não o teto contratual. Se a company tiver créditos adicionais de pós-pago liberados, eles já estão somados nesse número — por isso o valor pode mudar ao longo do ciclo mesmo sem alteração de plano.
+</Note>
+
+## Exemplos de Uso
+
+### Alerta ao cruzar um limiar
+
+```js
+const { consumption, max_consumption, remaining } = await getConsumption();
+const usage = consumption / max_consumption;
+
+if (usage >= 0.8) {
+  notificarTime(`Consumo em ${(usage * 100).toFixed(1)}% do teto — restam ${remaining}.`);
+}
+```
+
+### Pré-flight antes de um lote
+
+Antes de enfileirar um volume grande de requisições, verifique se `remaining` comporta a operação planejada. Isso evita interromper um processamento no meio por estouro de teto.
+
+```js
+const { remaining } = await getConsumption();
+
+if (remaining < documentos.length) {
+  throw new Error(`Saldo insuficiente no ciclo: restam ${remaining} para ${documentos.length} consultas.`);
+}
+```
+
+## Próximos Passos
+
+<CardGroup cols={2}>
+  <Card title="Histórico de Consumo" icon="clock-rotate-left" href="/resource/consumption/history">
+    Liste as requisições do período e infira o custo de cada operação.
+  </Card>
+  <Card title="Créditos Disponíveis" icon="coins" href="/resource/consumption/credits">
+    Consulte o saldo restante em contas pré-pago.
+  </Card>
+</CardGroup>
