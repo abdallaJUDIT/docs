@@ -6,7 +6,7 @@
 
 - Todas as chamadas exigem o header HTTP `api-key: <SUA_API_KEY>`.
 - Não usa `Authorization: Bearer <token>`.
-- Solicite chave em https://api.whatsapp.com/send/?phone=5521985284143
+- Solicite chave em https://api.whatsapp.com/send/?phone=5511936186732
 
 ## Serviços e bases
 
