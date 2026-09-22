@@ -41,7 +41,6 @@ A API utiliza as convenções padrão do protocolo HTTP.
 | `401` | `UNAUTHORIZED` | `api-key` ausente ou inválida. | Confira o header `api-key` (sem espaço, sem `Bearer`). Ver [Autenticação](/introduction/authentication). |
 | `403` | `FORBIDDEN` | A `api-key` é válida, mas não tem permissão para o recurso (ex.: feature não contratada, sigilo sem credencial). | Verifique se a feature está habilitada no seu plano e se há credencial do tribunal no [Cofre](/essentials/cofre-de-credenciais). |
 | `404` | `NOT_FOUND` | Recurso inexistente — `request_id`/`tracking_id` inválido, CNJ não está no datalake. | Confirme o ID. Para CNJs novos, dispare antes uma consulta assíncrona via [`POST /requests`](/requests/requests). |
-| `409` | `CONFLICT` | Tracking já existente para o mesmo CNJ + chave; tentativa de criar recurso duplicado. | Liste os trackings existentes via `GET /tracking`. Atualize o existente em vez de recriar. |
 | `422` | `UNPROCESSABLE_ENTITY` | Estrutura válida mas semanticamente inválida (ex.: `search_type` incompatível com `response_type`). | Veja a tabela em [Tipos de Busca](/requests/requests#tipos-de-busca-suportados). |
 | `429` | `TOO_MANY_REQUESTS` | Rate limit do plano excedido. | Implemente backoff exponencial. Cheque os headers `X-RateLimit-*` no response. |
 
