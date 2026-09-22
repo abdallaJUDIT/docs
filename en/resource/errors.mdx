@@ -41,7 +41,6 @@ The API uses standard HTTP conventions.
 | `401` | `UNAUTHORIZED` | `api-key` missing or invalid. | Check the `api-key` header (no space, no `Bearer`). See [Authentication](/en/introduction/authentication). |
 | `403` | `FORBIDDEN` | `api-key` is valid but lacks permission (e.g. unbought feature, secrecy without credential). | Verify the feature is enabled in your plan and that there's a court credential in the [Vault](/en/essentials/cofre-de-credenciais). |
 | `404` | `NOT_FOUND` | Resource doesn't exist — invalid `request_id`/`tracking_id`, CNJ not in datalake. | Confirm the ID. For new CNJs, fire a previous async query via [`POST /requests`](/en/requests/requests). |
-| `409` | `CONFLICT` | Tracking already exists for the same CNJ + key; attempt to create duplicated resource. | List existing trackers via `GET /tracking`. Update the existing one instead of recreating. |
 | `422` | `UNPROCESSABLE_ENTITY` | Valid structure but semantically invalid (e.g. `search_type` incompatible with `response_type`). | See the table at [Search Types](/en/requests/requests#supported-search-types). |
 | `429` | `TOO_MANY_REQUESTS` | Plan rate limit exceeded. | Implement exponential backoff. Check `X-RateLimit-*` headers in response. |
 
