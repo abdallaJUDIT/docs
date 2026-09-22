@@ -707,7 +707,7 @@ You must perform *polling* (periodic queries) on this route until the `"status"`
 Since the On-Demand search queries dozens of systems simultaneously, you can track the individual status of each accessed court using the *Crawls* route:
 
 ```bash cURL
-curl --location 'https://crawler.production.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
+curl --location 'https://crawler.prod.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
     --header 'api-key: <api-key>'
 ```
 

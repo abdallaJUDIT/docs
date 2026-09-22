@@ -707,7 +707,7 @@ Você deve realizar *polling* (consultas periódicas) nesta rota até que a prop
 Como a busca On-Demand consulta dezenas de sistemas simultaneamente, você pode acompanhar o status individual de cada tribunal acessado usando a rota de *Crawls*:
 
 ```bash cURL
-curl --location 'https://crawler.production.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
+curl --location 'https://crawler.prod.judit.io/crawls/request/<request_id>?page=1&page_size=10' \
     --header 'api-key: <api-key>'
 ```
 

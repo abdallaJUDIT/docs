@@ -13,7 +13,7 @@
 - **Requests** (`https://requests.production.judit.io`) — consulta assíncrona aos tribunais; resultado por webhook ou polling.
 - **Tracking** (`https://tracking.production.judit.io`) — monitoramento contínuo com recorrência configurável.
 - **Lawsuits** (`https://lawsuits.production.judit.io`) — leitura síncrona do datalake JUDIT, dados cadastrais, anexos, contagens, agregações.
-- **Crawler** (`https://crawler.production.judit.io`) — Cofre de Credenciais (login em tribunais).
+- **Crawler** (`https://crawler.prod.judit.io`) — Cofre de Credenciais (login em tribunais).
 
 ## Endpoints principais
 

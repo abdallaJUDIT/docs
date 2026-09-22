@@ -17,7 +17,7 @@
     { "key": "requests_url", "value": "https://requests.production.judit.io" },
     { "key": "tracking_url", "value": "https://tracking.production.judit.io" },
     { "key": "lawsuits_url", "value": "https://lawsuits.production.judit.io" },
-    { "key": "crawler_url", "value": "https://crawler.production.judit.io" }
+    { "key": "crawler_url", "value": "https://crawler.prod.judit.io" }
   ],
   "item": [
     {
