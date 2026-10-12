@@ -195,9 +195,9 @@ Glossary organized in three layers: **Brazilian legal concepts**, **payload prop
   <Accordion title="Webhook events">
     | Event | When it fires |
     | :--- | :--- |
-    | `response_created` | Each new response generated (cache or court). |
-    | `request_completed` | End of a request flow. |
-    | `tracking_response` | Each new movement detected by a tracker. |
+    | `response_created` | The only `event_type` sent: each new response generated (cache, court or tracker). |
+
+    The end of a request flow arrives as `response_created` with `response_type: "application_info"` and `response_data.code: 600` (`REQUEST_COMPLETED`). Trackers use `reference_type: "tracking"`.
 
     Details at [Webhooks](/en/webhook/callbacks).
   </Accordion>

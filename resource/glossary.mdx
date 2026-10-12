@@ -195,9 +195,9 @@ Glossário organizado em três camadas: **conceitos jurídicos** (sistema brasil
   <Accordion title="Eventos do webhook">
     | Evento | Quando dispara |
     | :--- | :--- |
-    | `response_created` | Cada nova resposta gerada (cache ou tribunal). |
-    | `request_completed` | Fim do fluxo de uma requisição. |
-    | `tracking_response` | Cada nova movimentação detectada por tracking. |
+    | `response_created` | Único `event_type` enviado: cada nova resposta gerada (cache, tribunal ou monitoramento). |
+
+    O fim do fluxo de uma requisição chega como `response_created` com `response_type: "application_info"` e `response_data.code: 600` (`REQUEST_COMPLETED`). Monitoramentos usam `reference_type: "tracking"`.
 
     Ver detalhes em [Webhooks](/webhook/callbacks).
   </Accordion>
