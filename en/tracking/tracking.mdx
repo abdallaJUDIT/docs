@@ -86,8 +86,6 @@ To start tracking a lawsuit, you must make a POST request to the `/tracking` rou
 
 The POST request must include a payload with the following properties:
 
-- `fixed_time` (**required**): boolean. Whether the tracker runs at the same hour every day. When `true`, combine with `hour_range` (0-23) to fix the hour. When `false`, Judit picks the best concurrency window.
-
 - `recurrence`: The recurrence, in days, for updating the lawsuits.
 
 - `search` (**required**): Object used for the search.
