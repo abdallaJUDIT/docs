@@ -144,7 +144,7 @@ $headers = [
 $payload = [
     'search' => [
         'search_type' => 'cpf',
-        'search_key' => '999.999.999-99'
+        'search_key' => '999.999.999-99',
         'cache_ttl_in_days' => 7
     ]
 ];
@@ -175,13 +175,14 @@ import (
     "io"
     "net/http"
     "os"
+    "time"
 )
 
 type SearchRequest struct {
     Search struct {
         SearchType      string `json:"search_type"`
         SearchKey       string `json:"search_key"`
-        ResponseType    string `json:"response_type"`
+        ResponseType    string `json:"response_type,omitempty"`
         CacheTTLInDays  int    `json:"cache_ttl_in_days"`
     } `json:"search"`
 }
@@ -241,7 +242,7 @@ status_data = status_response.json()
 print(f"Status: {status_data['status']}")
 
 # Aguardar conclusão
-while status_data['status'] in ['pending', 'processing']:
+while status_data['status'] in ['pending', 'started']:
     time.sleep(5)  # Aguardar 5 segundos
     status_response = requests.get(f"{base_url}/requests/{request_id}", 
                                   headers=headers)
@@ -259,7 +260,7 @@ let statusData = await statusResponse.json();
 console.log(`Status: ${statusData.status}`);
 
 // Aguardar conclusão
-while (['pending', 'processing'].includes(statusData.status)) {
+while (['pending', 'started'].includes(statusData.status)) {
     await new Promise(resolve => setTimeout(resolve, 5000)); // 5 segundos
     
     statusResponse = await fetch(`${baseUrl}/requests/${requestId}`, {
@@ -286,7 +287,7 @@ $statusData = json_decode($statusResponse, true);
 echo "Status: " . $statusData['status'] . "\n";
 
 // Aguardar conclusão
-while (in_array($statusData['status'], ['pending', 'processing'])) {
+while (in_array($statusData['status'], ['pending', 'started'])) {
     sleep(5); // Aguardar 5 segundos
     
     $statusResponse = curl_exec($ch);
@@ -317,7 +318,7 @@ json.Unmarshal(statusBody, &statusData)
 fmt.Printf("Status: %s\n", statusData["status"])
 
 // Aguardar conclusão
-for statusData["status"] == "pending" || statusData["status"] == "processing" {
+for statusData["status"] == "pending" || statusData["status"] == "started" {
     time.Sleep(5 * time.Second) // Aguardar 5 segundos
     
     statusResp, _ := client.Do(statusReq)
@@ -331,6 +332,10 @@ for statusData["status"] == "pending" || statusData["status"] == "processing" {
 
 </CodeGroup>
 
+<Info>
+  O `status` da requisição segue o ciclo `pending` → `started` → `completed`. Se ela for cancelada, passa por `cancelling` → `cancelled`. Continue consultando enquanto o status for `pending` ou `started`, ou use o [Webhook](/webhook/callbacks) para ser avisado.
+</Info>
+
 ### 4. Obter Resultados
 
 Quando o status for `completed`, consulte os resultados:
@@ -338,7 +343,7 @@ Quando o status for `completed`, consulte os resultados:
 <CodeGroup>
 
 ```bash cURL
-curl -X GET "$JUDIT_BASE_URL/responses?page=1" \
+curl -X GET "$JUDIT_BASE_URL/responses?request_id=$REQUEST_ID&page=1" \
   -H "api-key: $JUDIT_API_KEY"
 ```
 
@@ -347,7 +352,7 @@ curl -X GET "$JUDIT_BASE_URL/responses?page=1" \
 if status_data['status'] == 'completed':
     results_response = requests.get(f"{base_url}/responses", 
                                    headers=headers,
-                                   params={'page': 1})
+                                   params={'request_id': request_id, 'page': 1})
     results = results_response.json()
     
     print("Processos encontrados:")
@@ -358,7 +363,7 @@ if status_data['status'] == 'completed':
 ```javascript JavaScript
 // Obter resultados
 if (statusData.status === 'completed') {
-    const resultsResponse = await fetch(`${baseUrl}/responses?page=1`, {
+    const resultsResponse = await fetch(`${baseUrl}/responses?request_id=${requestId}&page=1`, {
         headers: headers
     });
     const results = await resultsResponse.json();
@@ -374,7 +379,7 @@ if (statusData.status === 'completed') {
 <?php
 // Obter resultados
 if ($statusData['status'] === 'completed') {
-    $resultsUrl = $baseUrl . '/responses?page=1';
+    $resultsUrl = $baseUrl . '/responses?request_id=' . $requestId . '&page=1';
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $resultsUrl);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -398,7 +403,7 @@ if ($statusData['status'] === 'completed') {
 ```go Go
 // Obter resultados
 if statusData["status"] == "completed" {
-    resultsURL := baseURL + "/responses?page=1"
+    resultsURL := baseURL + "/responses?request_id=" + requestData.RequestID + "&page=1"
     resultsReq, _ := http.NewRequest("GET", resultsURL, nil)
     resultsReq.Header.Set("api-key", apiKey)
     
@@ -450,7 +455,7 @@ if statusData["status"] == "completed" {
 {
   "search": {
     "search_type": "oab",
-    "search_key": "999999SP
+    "search_key": "999999SP"
   }
 }
 ```
@@ -514,7 +519,11 @@ Para consultas mais específicas por <strong>documento</strong>, é possivel uti
 Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar buscas redundantes nos tribunais. Esse campo define por exatos quantos dias um resultado já armazenado na base da Judit será considerado válido antes de forçar uma nova extração.
 ```json
 {
-  "cache_ttl_in_days": 7  // Usar cache por até 7 dias
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99",
+    "cache_ttl_in_days": 7  // Usar cache por até 7 dias
+  }
 }
 ```
 
@@ -546,4 +555,8 @@ Configure o parâmetro `cache_ttl_in_days` no corpo do seu *request* para evitar
 
 ## Próximos Passos
 
-- **[Autenticação](/introduction/authentication)**: Configure a autenticação 
+- **[Consulta processual por CNJ](/requests/requests)**: todos os parâmetros, exemplos de resposta e como funcionam os anexos.
+- **[Consulta por documento](/requests/request-document)**: CPF, CNPJ, OAB e nome, com filtros.
+- **[Webhook](/webhook/callbacks)**: receba o resultado automaticamente em vez de consultar o status.
+- **[Erros](/resource/errors)**: códigos HTTP, `application_error` e como tratar cada um.
+- **[Limites de requisição](/essentialConcepts/rate-limits)**: limites por endpoint e retry com backoff.

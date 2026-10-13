@@ -1,0 +1,102 @@
+---
+title: "Support — How to open a ticket"
+sidebarTitle: "Support"
+description: "Judit API support and sales channels, what to check before opening a ticket and which information to send to speed up the response."
+keywords: ["support", "help", "ticket", "incident", "contact", "whatsapp", "email"]
+icon: "headset"
+---
+
+> 🤖 Support: `atendimento@judit.io` or WhatsApp +55 11 92050-1949. Sales (new key, plans, feature enablement): `comercial@judit.io` or WhatsApp +55 11 93618-6732. Status: https://status.judit.io. When opening a ticket, include endpoint, HTTP status, date and time with time zone, `request_id`/`tracking_id`/`response_id` and the request body (no headers). Never send the `api-key`, not even masked.
+
+## Channels
+
+<CardGroup cols={2}>
+  <Card title="Support by email" icon="envelope" href="mailto:atendimento@judit.io">
+    `atendimento@judit.io` — errors, unexpected behavior and integration questions.
+  </Card>
+  <Card title="Support by WhatsApp" icon="whatsapp" href="https://api.whatsapp.com/send/?phone=5511920501949">
+    +55 11 92050-1949 — quick integration questions and ticket follow-up.
+  </Card>
+  <Card title="Sales" icon="briefcase" href="https://api.whatsapp.com/send/?phone=5511936186732">
+    +55 11 93618-6732 or `comercial@judit.io` — new API Key, plans, feature enablement and limits.
+  </Card>
+  <Card title="API status" icon="signal" href="https://status.judit.io">
+    Check for an ongoing incident before opening a ticket.
+  </Card>
+</CardGroup>
+
+## Before opening a ticket
+
+<Steps>
+  <Step title="Check the status">
+    See [status.judit.io](https://status.judit.io). If there is an ongoing incident, follow it there.
+  </Step>
+  <Step title="Identify the error">
+    Look up the HTTP code and `error.name` in [Error Codes](/en/resource/errors). If the response came with `response_type: application_error`, check the code in `response_data` on the same page.
+  </Step>
+  <Step title="Review the most common causes">
+    - `api-key` header present and without `Bearer` ([Authentication](/en/introduction/authentication)).
+    - Right host for the route (`requests`, `tracking` or `lawsuits`).
+    - `page_size` between 5 and 100 on list routes, and both `created_at_gte` and `created_at_lte` sent on `GET /requests` (both are required).
+    - Volume within the [rate limit](/en/essentialConcepts/rate-limits). On a `429`, wait the time given in the `Retry-After` header.
+  </Step>
+</Steps>
+
+## What to send in the ticket
+
+Copy the template below and fill it in. The more complete it is, the faster the diagnosis. In the request body, keep the `search_key` of the failing case, but anonymize personal data that is not needed for the diagnosis.
+
+```text
+Subject: [Judit API] <problem summary>
+
+Endpoint: POST https://requests.production.judit.io/requests
+HTTP status received: 500
+Date and time (with time zone): 2026-10-13 14:32 (UTC-3)
+IDs: request_id=..., response_id=..., tracking_id=...
+Frequency: always / intermittent (x of y calls)
+Since when: ...
+
+Request body sent (no headers):
+{ "search": { "search_type": "lawsuit_cnj", "search_key": "..." } }
+
+Response received:
+{ "error": { "name": "...", "message": "...", "data": "..." } }
+
+What I already tried: ...
+```
+
+<Warning>
+  Do not send your `api-key` through any channel, not even partially or masked. Judit identifies your account by the `request_id`, `tracking_id` or `response_id` and will never ask for your key.
+</Warning>
+
+### Information by type of problem
+
+<AccordionGroup>
+  <Accordion title="Search (requests)" icon="paper-plane">
+    - `request_id` returned by `POST /requests`.
+    - Current request `status` (`GET /requests/{request_id}`) and how long it has been in it.
+    - For divergent data: the `search_key` (CNJ, CPF, CNPJ, OAB or name), what came in the response and what the court shows, ideally with a screenshot or link to the public search.
+  </Accordion>
+  <Accordion title="Tracking" icon="bell">
+    - `tracking_id` and the tracking `status` (`GET /tracking/{tracking_id}`).
+    - Date of the last update received and what was expected (e.g. a step published by the court on DD/MM that did not arrive).
+  </Accordion>
+  <Accordion title="Webhook" icon="webhook">
+    - Registered `callback_url` and whether it is the account URL or was sent in the request.
+    - Affected `request_id` or `tracking_id` and, if any, the `callback_id` received.
+    - What your server answered (HTTP status and response time) at the time of the problem.
+  </Accordion>
+  <Accordion title="Attachments" icon="paperclip">
+    - Lawsuit CNJ, instance and `attachment_id`.
+    - HTTP status and message received on download.
+  </Accordion>
+</AccordionGroup>
+
+## Scope
+
+| Support (`atendimento@judit.io`) | Sales (`comercial@judit.io`) |
+| :--- | :--- |
+| HTTP errors, API failures and slowness | New API Key and plan changes |
+| Questions about routes, fields, filters and webhooks | Feature enablement in your plan |
+| Divergence between returned data and the court | Billing and consumption |
+| Issues with the Credential Vault | Custom rate limits |

@@ -87,7 +87,7 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 - Webhook: https://docs.judit.io/webhook/callbacks
 - Schemas (Lawsuit, Warrant, Penal Execution, Entity, Enums): https://docs.judit.io/schemas/lawsuit-object
 - Rate Limits: https://docs.judit.io/essentialConcepts/rate-limits
-- Erros: https://docs.judit.io/essentialConcepts/errors
+- Erros: https://docs.judit.io/resource/errors
 - Postman Collection: https://docs.judit.io/resource/postman-collection
 - MCP (Model Context Protocol): https://docs.judit.io/resource/mcp
 
@@ -99,9 +99,8 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 
 ## Rate limits
 
-- Padrão: 500 req/min por API Key.
-- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.
-- HTTP 429 quando excedido. Implementar backoff exponencial.
+- Padrão: 180 req/min por API Key.
+- HTTP 429 quando excedido. Aguarde os segundos indicados no header `Retry-After` antes de tentar de novo e implemente backoff exponencial.
 
 ## Webhooks
 

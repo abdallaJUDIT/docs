@@ -16,7 +16,7 @@ var A='#4FD1C5',J='#1FC16B',T='#E0A82E',M='#7A8599';
 var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
 var STEPS=[
   {from:'app',to:'jud',label:'POST /requests',sub:'{search_type, search_key}',col:A,ts:0.5,te:1.2},
-  {from:'jud',to:'app',label:'200 {request_id}',sub:'status: pending',col:'#F6AD55',ts:1.7,te:2.4},
+  {from:'jud',to:'app',label:'201 {request_id}',sub:'status: pending',col:'#F6AD55',ts:1.7,te:2.4},
   {from:'jud',to:'crt',label:'extraction at court',sub:'',col:A,ts:2.9,te:3.6},
   {from:'crt',to:'jud',label:'lawsuit data',sub:'',col:J,ts:4.1,te:4.8},
   {sep:'alt',label:'alt  webhook configured'},
@@ -312,10 +312,8 @@ This step is crucial if you are not using **Webhooks**. Responses are inserted i
 To find out whether the extraction has finished, query the request history endpoint passing the ID generated in Step 1:
 <CodeGroup>
 ```bash cURL
-curl --location 'https://requests.production.judit.io/requests/<request_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://requests.production.judit.io/requests/<request_id>' \
+--header 'api-key: <api-key>'
 ```
 
 ```json Response example (200 OK)

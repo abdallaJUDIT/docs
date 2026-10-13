@@ -22,14 +22,16 @@ This step-by-step guide will show you how to query the history of requests made 
 
 To make the request:
 
-Copy the following `cURL` command and paste it into **Postman** (*Raw* mode in the Body and `POST` type):
+Copy the following `cURL` command and import it into **Postman** (*Import › Raw text*). It is a `GET` request with no body:
 
 ```bash
-curl --location 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=<START DATE>&created_at_lte=<END DATE>' \
---header 'api-key: INSERT_YOUR_API_KEY_HERE' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://requests.production.judit.io/requests?page=1&page_size=100&created_at_gte=<START DATE>&created_at_lte=<END DATE>' \
+--header 'api-key: INSERT_YOUR_API_KEY_HERE'
 ```
+
+<Note>
+  Each page returns at most **100** requests (`page_size` accepts 5 to 100; above that the API returns `400`). For longer periods, move on with `page=2`, `page=3`... up to `all_pages_count`, returned in the response.
+</Note>
 
 Replace `<START DATE>` and `<END DATE>` with the format `YYYY-MM-DD`, for example:
 
@@ -44,7 +46,7 @@ created_at_gte=2024-09-12&created_at_lte=2050-09-12
 Code example:
 
 ```js
-const url = 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const baseUrl = 'https://requests.production.judit.io/requests?page_size=100&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
 const options = {
   method: 'GET',
   headers: {
@@ -52,10 +54,21 @@ const options = {
   }
 };
 
+// Walk through every page of the period
+const requests = [];
+let page = 1;
+let totalPages = 1;
+
 try {
-  const response = await fetch(url, options);
-  const data = await response.json();
-  console.log(data);
+  do {
+    const response = await fetch(`${baseUrl}&page=${page}`, options);
+    const data = await response.json();
+    requests.push(...data.page_data);
+    totalPages = data.all_pages_count;
+    page++;
+  } while (page <= totalPages);
+
+  console.log(`Total requests: ${requests.length}`);
 } catch (error) {
   console.error(error);
 }

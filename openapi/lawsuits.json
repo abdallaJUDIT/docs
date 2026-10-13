@@ -8145,9 +8145,6 @@
               "search_params": {
                 "type": "object",
                 "properties": {
-                  "full_lawsuit": {
-                    "type": "boolean"
-                  },
                   "should_search_branches": {
                     "type": "boolean"
                   },

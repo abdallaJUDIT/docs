@@ -1,204 +1,760 @@
 {
   "info": {
     "name": "Judit API",
-    "description": "Coleção oficial da Judit API. Configure a variável `api_key` em Variables ou no ambiente. Cobre Requests (assíncrono), Tracking, Lawsuits (síncrono), Crawler/Vault, Entities, Warrants e Penal Execution.\n\nDocs: https://docs.judit.io",
+    "description": "Coleção oficial da Judit API, com os bodies comentados campo a campo.\n\n**Antes de começar:** clique no nome da coleção › aba **Variables** › cole sua chave em `api_key` (coluna *Current value*) › **Save**. A chave vai no header `api-key` de todas as requisições.\n\n**Comentários `//` nos bodies:** o Postman remove os comentários antes de enviar. Se você copiar um body para outra ferramenta (Insomnia, cURL, código), apague os comentários antes.\n\n**IDs automáticos:** ao criar uma consulta ou um monitoramento, o `request_id` / `tracking_id` é salvo nas variáveis da coleção, então os passos seguintes funcionam sem copiar e colar.\n\nDocumentação: https://docs.judit.io · Suporte: https://docs.judit.io/resource/support",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
     "type": "apikey",
     "apikey": [
-      { "key": "key", "value": "api-key", "type": "string" },
-      { "key": "value", "value": "{{api_key}}", "type": "string" },
-      { "key": "in", "value": "header", "type": "string" }
+      {
+        "key": "key",
+        "value": "api-key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
     ]
   },
   "variable": [
-    { "key": "api_key", "value": "REPLACE_WITH_YOUR_KEY" },
-    { "key": "requests_url", "value": "https://requests.production.judit.io" },
-    { "key": "tracking_url", "value": "https://tracking.production.judit.io" },
-    { "key": "lawsuits_url", "value": "https://lawsuits.production.judit.io" },
-    { "key": "crawler_url", "value": "https://crawler.prod.judit.io" }
+    {
+      "key": "api_key",
+      "value": "COLE_SUA_API_KEY_AQUI",
+      "description": "Sua chave da Judit API (header api-key)."
+    },
+    {
+      "key": "requests_url",
+      "value": "https://requests.production.judit.io"
+    },
+    {
+      "key": "tracking_url",
+      "value": "https://tracking.production.judit.io"
+    },
+    {
+      "key": "lawsuits_url",
+      "value": "https://lawsuits.production.judit.io"
+    },
+    {
+      "key": "crawler_url",
+      "value": "https://crawler.prod.judit.io"
+    },
+    {
+      "key": "cnj_code",
+      "value": "0000000-00.0000.0.00.0000",
+      "description": "Número CNJ usado nos exemplos. Troque por um processo real."
+    },
+    {
+      "key": "cpf",
+      "value": "999.999.999-99",
+      "description": "CPF usado nos exemplos. Troque por um documento real."
+    },
+    {
+      "key": "request_id",
+      "value": "",
+      "description": "Preenchido automaticamente por 1 - Criar requisição por CNJ."
+    },
+    {
+      "key": "tracking_id",
+      "value": "",
+      "description": "Preenchido automaticamente por 1 - Criar monitoramento."
+    },
+    {
+      "key": "created_at_gte",
+      "value": "2026-01-01",
+      "description": "Data inicial (YYYY-MM-DD) do relatório de consumo."
+    },
+    {
+      "key": "created_at_lte",
+      "value": "2026-12-31",
+      "description": "Data final (YYYY-MM-DD) do relatório de consumo."
+    }
   ],
   "item": [
     {
-      "name": "Requests (assíncrono)",
+      "name": "Consulta processual e por documento",
+      "description": "Consultas assíncronas: crie a requisição, acompanhe o status e busque as respostas.",
       "item": [
         {
-          "name": "POST /requests — criar consulta",
+          "name": "1 - Criar requisição por CNJ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o ID retornado para as próximas requisições da pasta",
+                  "const body = pm.response.json();",
+                  "if (body.request_id) {",
+                  "  pm.collectionVariables.set(\"request_id\", body.request_id);",
+                  "  console.log(\"request_id =\", body.request_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{requests_url}}/requests",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests"
+              ]
+            },
+            "description": "Cria uma consulta assíncrona de um processo pelo número CNJ. A resposta traz o `request_id`, que fica salvo na variável `request_id`.\n\nDocumentação: https://docs.judit.io/requests/requests",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"with_attachments\": false\n}"
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"lawsuit_cnj\",     // consulta de um processo específico\n    \"search_key\": \"{{cnj_code}}\"      // número CNJ: NNNNNNN-DD.AAAA.J.TR.OOOO\n  },\n  \"with_attachments\": false           // true = baixa também os anexos (autos); altera o custo\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "GET /responses?request_id={id}",
+          "name": "2 - Consultar status da requisição",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{requests_url}}/responses?request_id=REPLACE_REQUEST_ID",
-              "host": ["{{requests_url}}"],
-              "path": ["responses"],
-              "query": [{ "key": "request_id", "value": "REPLACE_REQUEST_ID" }]
-            }
-          }
+              "raw": "{{requests_url}}/requests/{{request_id}}",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests",
+                "{{request_id}}"
+              ]
+            },
+            "description": "Mostra o `status` da requisição: `pending` → `started` → `completed` (ou `cancelling` → `cancelled`). Repita enquanto for `pending` ou `started`, ou use webhook (`callback_url`).\n\nDocumentação: https://docs.judit.io/requests/requests"
+          },
+          "response": []
         },
         {
-          "name": "POST /requests — busca custom (filtros)",
+          "name": "3 - Listar respostas da requisição",
           "request": {
-            "method": "POST",
-            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\",\n    \"search_params\": {\n      \"filter\": {\n        \"side\": \"Passive\",\n        \"tribunals\": { \"keys\": [\"TRT01\",\"TRT02\"], \"not_equal\": false }\n      }\n    }\n  }\n}"
-            }
-          }
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{requests_url}}/responses?request_id={{request_id}}&page=1&page_size=10",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "responses"
+              ],
+              "query": [
+                {
+                  "key": "request_id",
+                  "value": "{{request_id}}"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Busca o resultado da requisição. Sempre filtre por `request_id`; sem ele, a rota lista as respostas da conta inteira. `page_size` aceita de 5 a 100.\n\nDocumentação: https://docs.judit.io/requests/requests"
+          },
+          "response": []
         },
         {
-          "name": "POST /requests — Mandado (warrant)",
+          "name": "4 - Criar requisição por documento (CPF) com filtros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o ID retornado para as próximas requisições da pasta",
+                  "const body = pm.response.json();",
+                  "if (body.request_id) {",
+                  "  pm.collectionVariables.set(\"request_id\", body.request_id);",
+                  "  console.log(\"request_id =\", body.request_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "url": { "raw": "{{requests_url}}/requests", "host": ["{{requests_url}}"], "path": ["requests"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{requests_url}}/requests",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests"
+              ]
+            },
+            "description": "Consulta histórica dos processos ligados a um CPF, com filtros opcionais. Para CNPJ, OAB ou nome, troque `search_type` e `search_key`.\n\nDocumentação: https://docs.judit.io/requests/request-document",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"warrant\"\n  },\n  \"with_attachments\": true\n}"
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // cpf | cnpj | oab | name\n    \"search_key\": \"{{cpf}}\",          // CPF/CNPJ com ou sem máscara; OAB no formato 999999SP\n    \"response_type\": \"lawsuits\",      // lista de processos\n    \"search_params\": {\n      \"filter\": {\n        \"side\": \"Passive\",            // polo da parte: Active (autor) | Passive (réu)\n        \"tribunals\": {\n          \"keys\": [\"TJSP\", \"TJRJ\"],   // siglas dos tribunais (veja Cobertura de tribunais)\n          \"not_equal\": false          // true = exclui esses tribunais em vez de filtrar por eles\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Tracking",
+      "name": "Monitoramento",
+      "description": "Monitoramento recorrente de processos. O resultado chega por webhook (`callback_url`) ou pela listagem de respostas.",
       "item": [
         {
-          "name": "POST /tracking — criar tracker",
+          "name": "1 - Criar monitoramento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o ID retornado para as próximas requisições da pasta",
+                  "const body = pm.response.json();",
+                  "if (body.tracking_id) {",
+                  "  pm.collectionVariables.set(\"tracking_id\", body.tracking_id);",
+                  "  console.log(\"tracking_id =\", body.tracking_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "url": { "raw": "{{tracking_url}}/tracking", "host": ["{{tracking_url}}"], "path": ["tracking"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tracking_url}}/tracking",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking"
+              ]
+            },
+            "description": "Monitora um processo pelo CNJ. A primeira execução acontece nas 24 horas seguintes; as próximas seguem `recurrence`. O `tracking_id` fica salvo na variável `tracking_id`.\n\nDocumentação: https://docs.judit.io/tracking/tracking",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"recurrence\": 7,\n  \"notification_filters\": { \"step_terms\": [\"sentença\",\"execução\"] },\n  \"callback_url\": \"https://your-app.com/webhooks/judit\"\n}"
+              "raw": "{\n  \"recurrence\": 1,                    // a cada quantos dias o processo é atualizado\n  \"search\": {\n    \"search_type\": \"lawsuit_cnj\",     // monitoramento processual é sempre por CNJ\n    \"search_key\": \"{{cnj_code}}\"      // número CNJ do processo\n  },\n  \"callback_url\": \"https://sua-app.com/webhooks/judit\"  // opcional: URL que recebe as atualizações\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "GET /tracking — listar trackers",
-          "request": { "method": "GET", "url": { "raw": "{{tracking_url}}/tracking", "host": ["{{tracking_url}}"], "path": ["tracking"] } }
-        },
-        {
-          "name": "PATCH /tracking/{id} — pausar",
+          "name": "2 - Listar monitoramentos",
           "request": {
-            "method": "PATCH",
-            "url": { "raw": "{{tracking_url}}/tracking/REPLACE_ID", "host": ["{{tracking_url}}"], "path": ["tracking", "REPLACE_ID"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"paused\": true\n}" }
-          }
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_url}}/tracking?page=1&page_size=10",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista os monitoramentos da conta. `page_size` aceita de 5 a 100.\n\nDocumentação: https://docs.judit.io/tracking/tracking"
+          },
+          "response": []
         },
         {
-          "name": "DELETE /tracking/{id}",
-          "request": { "method": "DELETE", "url": { "raw": "{{tracking_url}}/tracking/REPLACE_ID", "host": ["{{tracking_url}}"], "path": ["tracking", "REPLACE_ID"] } }
+          "name": "3 - Consultar monitoramento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_url}}/tracking/{{tracking_id}}",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_id}}"
+              ]
+            },
+            "description": "Detalhes e `status` do monitoramento salvo em `tracking_id`.\n\nDocumentação: https://docs.judit.io/tracking/tracking"
+          },
+          "response": []
+        },
+        {
+          "name": "4 - Pausar monitoramento",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_url}}/tracking/{{tracking_id}}/pause",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_id}}",
+                "pause"
+              ]
+            },
+            "description": "Pausa as atualizações do monitoramento. Use 5 - Retomar para voltar.\n\nDocumentação: https://docs.judit.io/tracking/tracking"
+          },
+          "response": []
+        },
+        {
+          "name": "5 - Retomar monitoramento",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_url}}/tracking/{{tracking_id}}/resume",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_id}}",
+                "resume"
+              ]
+            },
+            "description": "Retoma um monitoramento pausado.\n\nDocumentação: https://docs.judit.io/tracking/tracking"
+          },
+          "response": []
+        },
+        {
+          "name": "6 - Deletar monitoramento",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_url}}/tracking/{{tracking_id}}",
+              "host": [
+                "{{tracking_url}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_id}}"
+              ]
+            },
+            "description": "Encerra o monitoramento de forma definitiva.\n\nDocumentação: https://docs.judit.io/tracking/tracking"
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Lawsuits (síncrono)",
+      "name": "Mandados de prisão",
+      "description": "Consulta assíncrona de mandados de prisão. O resultado sai em Consulta processual › 3 - Listar respostas.",
       "item": [
         {
-          "name": "POST /lawsuits — Hot Storage (lista)",
+          "name": "Consultar mandados por CPF",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o ID retornado para as próximas requisições da pasta",
+                  "const body = pm.response.json();",
+                  "if (body.request_id) {",
+                  "  pm.collectionVariables.set(\"request_id\", body.request_id);",
+                  "  console.log(\"request_id =\", body.request_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/lawsuits", "host": ["{{lawsuits_url}}"], "path": ["lawsuits"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{requests_url}}/requests",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests"
+              ]
+            },
+            "description": "Busca mandados de prisão ligados ao CPF. O `request_id` fica salvo para usar em 3 - Listar respostas.\n\nDocumentação: https://docs.judit.io/criminal-consultation/warrant",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"search_params\": { \"pagination\": { \"page\": 1, \"page_size\": 50 } }\n}"
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // documento da pessoa\n    \"search_key\": \"{{cpf}}\",\n    \"response_type\": \"warrant\"        // mandados de prisão\n  },\n  \"with_attachments\": false           // true = inclui o documento do mandado; altera o custo\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
-        },
-        {
-          "name": "POST /lawsuits — Tem Processo? (page_size=1)",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/lawsuits", "host": ["{{lawsuits_url}}"], "path": ["lawsuits"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  },\n  \"search_params\": { \"pagination\": { \"page\": 1, \"page_size\": 1 } }\n}"
-            }
-          }
-        },
-        {
-          "name": "POST /lawsuits/count — Quantidade",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/lawsuits/count", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "count"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"lawsuits\"\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "POST /lawsuits/synthetic — Agregações",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/lawsuits/synthetic", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "synthetic"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cnpj\",\n    \"search_key\": \"99.999.999/9999-99\",\n    \"response_type\": \"synthetic_lawsuits\"\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "GET /lawsuits/{cnj}",
-          "request": { "method": "GET", "url": { "raw": "{{lawsuits_url}}/lawsuits/REPLACE_CNJ", "host": ["{{lawsuits_url}}"], "path": ["lawsuits", "REPLACE_CNJ"] } }
-        },
-        {
-          "name": "POST /entities — Dados cadastrais",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/entities", "host": ["{{lawsuits_url}}"], "path": ["entities"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",\n    \"search_key\": \"999.999.999-99\",\n    \"response_type\": \"entity\"\n  }\n}"
-            }
-          }
-        },
-        {
-          "name": "POST /steps/count — Andamentos por CNJ",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{lawsuits_url}}/steps/count", "host": ["{{lawsuits_url}}"], "path": ["steps", "count"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"lawsuit_cnj\": [\"0000000-00.0000.0.00.0000\"]\n}" }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Crawler / Cofre",
+      "name": "Execução penal",
+      "description": "Consulta assíncrona de execução penal. O resultado sai em Consulta processual › 3 - Listar respostas.",
       "item": [
         {
-          "name": "POST /credentials — cadastrar credencial",
+          "name": "Consultar execução penal por CPF",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda o ID retornado para as próximas requisições da pasta",
+                  "const body = pm.response.json();",
+                  "if (body.request_id) {",
+                  "  pm.collectionVariables.set(\"request_id\", body.request_id);",
+                  "  console.log(\"request_id =\", body.request_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "url": { "raw": "{{crawler_url}}/credentials", "host": ["{{crawler_url}}"], "path": ["credentials"] },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{requests_url}}/requests",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests"
+              ]
+            },
+            "description": "Busca processos de execução penal ligados ao CPF. O `request_id` fica salvo para usar em 3 - Listar respostas.\n\nDocumentação: https://docs.judit.io/criminal-consultation/criminal-execution",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customer_key\": \"my-oab-sp\",\n  \"tribunal\": \"TJSP\",\n  \"username\": \"...\",\n  \"password\": \"...\"\n}"
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // documento da pessoa\n    \"search_key\": \"{{cpf}}\",\n    \"response_type\": \"execution\"      // execução penal\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Consultas Datalake (síncronas)",
+      "description": "Leitura direta do datalake da Judit: a resposta vem na hora, sem ir ao tribunal.",
+      "item": [
+        {
+          "name": "Hot Storage - processos do documento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{lawsuits_url}}/lawsuits",
+              "host": [
+                "{{lawsuits_url}}"
+              ],
+              "path": [
+                "lawsuits"
+              ]
+            },
+            "description": "Lista completa dos processos do documento que já estão no datalake.\n\nDocumentação: https://docs.judit.io/cache-judit/hotstorage",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // cpf | cnpj\n    \"search_key\": \"{{cpf}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Contagem de processos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{lawsuits_url}}/lawsuits/count",
+              "host": [
+                "{{lawsuits_url}}"
+              ],
+              "path": [
+                "lawsuits",
+                "count"
+              ]
+            },
+            "description": "Retorna só o total de processos do documento no datalake.\n\nDocumentação: https://docs.judit.io/cache-judit/count",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // cpf | cnpj\n    \"search_key\": \"{{cpf}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Histórica agrupada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{lawsuits_url}}/lawsuits/synthetic",
+              "host": [
+                "{{lawsuits_url}}"
+              ],
+              "path": [
+                "lawsuits",
+                "synthetic"
+              ]
+            },
+            "description": "Contagens agregadas (por tribunal, assunto, classe etc.) dos processos do documento.\n\nDocumentação: https://docs.judit.io/cache-judit/cache-grouped",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // cpf | cnpj\n    \"search_key\": \"{{cpf}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Processo por CNJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{lawsuits_url}}/lawsuits/{{cnj_code}}",
+              "host": [
+                "{{lawsuits_url}}"
+              ],
+              "path": [
+                "lawsuits",
+                "{{cnj_code}}"
+              ]
+            },
+            "description": "Lê um processo do datalake pelo número CNJ (não consulta o tribunal em tempo real).\n\nDocumentação: https://docs.judit.io/schemas/lawsuit-object"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dados cadastrais",
+      "description": "Dados cadastrais de pessoa física ou jurídica (síncrono).",
+      "item": [
+        {
+          "name": "Consultar dados cadastrais por CPF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{lawsuits_url}}/entities",
+              "host": [
+                "{{lawsuits_url}}"
+              ],
+              "path": [
+                "entities"
+              ]
+            },
+            "description": "Retorna o objeto `entity` do documento.\n\nDocumentação: https://docs.judit.io/registration-data/registration-data",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"cpf\",             // cpf | cnpj | name\n    \"search_key\": \"{{cpf}}\",\n    \"response_type\": \"entity\"         // sempre \"entity\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Relatório de consumo",
+      "description": "Requisições feitas pela conta em um período.",
+      "item": [
+        {
+          "name": "Listar requisições do período",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{requests_url}}/requests?page=1&page_size=100&created_at_gte={{created_at_gte}}&created_at_lte={{created_at_lte}}",
+              "host": [
+                "{{requests_url}}"
+              ],
+              "path": [
+                "requests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "100"
+                },
+                {
+                  "key": "created_at_gte",
+                  "value": "{{created_at_gte}}"
+                },
+                {
+                  "key": "created_at_lte",
+                  "value": "{{created_at_lte}}"
+                }
+              ]
+            },
+            "description": "Lista as requisições criadas entre `created_at_gte` e `created_at_lte`. Cada página traz no máximo 100; avance com `page` até `all_pages_count`.\n\nDocumentação: https://docs.judit.io/resource/consumption/history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cofre de credenciais",
+      "description": "Credenciais para tribunais que exigem login.",
+      "item": [
+        {
+          "name": "Cadastrar credenciais",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{crawler_url}}/credentials",
+              "host": [
+                "{{crawler_url}}"
+              ],
+              "path": [
+                "credentials"
+              ]
+            },
+            "description": "Cadastra uma ou mais credenciais de acesso a sistemas dos tribunais.\n\nDocumentação: https://docs.judit.io/essentials/cofre-de-credenciais",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"credentials\": [\n    {\n      \"system_name\": \"PJE TJBA - 1º grau\",  // nome do sistema, como na lista de sistemas suportados\n      \"customer_key\": \"00000001\",           // identificador seu para esta credencial\n      \"username\": \"999.999.999-99\",         // login no sistema do tribunal\n      \"password\": \"Senha123\"                // senha no sistema do tribunal\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar credenciais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{crawler_url}}/credentials",
+              "host": [
+                "{{crawler_url}}"
+              ],
+              "path": [
+                "credentials"
+              ]
+            },
+            "description": "Lista as credenciais cadastradas (sem exibir as senhas).\n\nDocumentação: https://docs.judit.io/essentials/cofre-de-credenciais"
+          },
+          "response": []
         }
       ]
     }

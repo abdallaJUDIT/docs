@@ -277,14 +277,6 @@
             }
           },
           {
-            "name": "full_lawsuit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
             "name": "should_search_branches",
             "in": "query",
             "required": false,
@@ -3614,9 +3606,6 @@
               "search_params": {
                 "type": "object",
                 "properties": {
-                  "full_lawsuit": {
-                    "type": "boolean"
-                  },
                   "should_search_branches": {
                     "type": "boolean"
                   },
@@ -4046,9 +4035,6 @@
               "search_params": {
                 "type": "object",
                 "properties": {
-                  "full_lawsuit": {
-                    "type": "boolean"
-                  },
                   "should_search_branches": {
                     "type": "boolean"
                   },
@@ -4383,9 +4369,6 @@
           "on_demand": {
             "type": "boolean"
           },
-          "full_lawsuit": {
-            "type": "boolean"
-          },
           "should_search_branches": {
             "type": "boolean"
           },
@@ -4587,9 +4570,6 @@
                     "search_params": {
                       "type": "object",
                       "properties": {
-                        "full_lawsuit": {
-                          "type": "boolean"
-                        },
                         "should_search_branches": {
                           "type": "boolean"
                         },
@@ -5079,9 +5059,6 @@
               "search_params": {
                 "type": "object",
                 "properties": {
-                  "full_lawsuit": {
-                    "type": "boolean"
-                  },
                   "should_search_branches": {
                     "type": "boolean"
                   },

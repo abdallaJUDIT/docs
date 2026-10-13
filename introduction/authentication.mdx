@@ -27,7 +27,7 @@ Em todas as requisições feitas para a Judit API, independentemente do serviço
 ### Exemplo de Requisição HTTP Básica
 
 ```http
-GET /requests HTTP/1.1
+GET /requests?page=1&page_size=5&created_at_gte=2026-01-01&created_at_lte=2026-01-31 HTTP/1.1
 Host: requests.production.judit.io
 api-key: sua_api_key_aqui
 Content-Type: application/json
@@ -165,7 +165,8 @@ api_key = os.getenv('JUDIT_API_KEY')
 - API Key não fornecida
 - API Key inválida ou expirada
 - Header `api-key` mal formatado
-- Limite de uso excedido
+
+Se você exceder o limite de requisições, a resposta é `429 Too Many Requests`, não `401`. Veja [Rate Limits](/essentialConcepts/rate-limits).
 
 ### Erro 403 - Forbidden
 
@@ -196,7 +197,7 @@ def test_api_key(api_key):
         response = requests.get(
             'https://requests.production.judit.io/requests',
             headers=headers,
-            params={'page': 1, 'page_size': 1}
+            params={'page': 1, 'page_size': 5, 'created_at_gte': '2026-01-01', 'created_at_lte': '2026-01-31'}
         )
         
         if response.status_code == 200:

@@ -18,7 +18,7 @@ var NW=88,NH=42;
 var FLOWS=[
   {id:'cache',title:'① With cached history',sub:'datalake delivered immediately, court updates next — minimum 3 webhooks',col:AM,ts:1,te:12,act:['app','judit','court'],steps:[
     {fr:'app',to:'judit',label:'POST /requests',note:'{callback_url, search...}',col:A,ts:1.2,te:2.0,yp:0.30},
-    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:2.5,te:3.3,yp:0.41},
+    {fr:'judit',to:'app',label:'201 {request_id}',note:'status: pending',col:AM,ts:2.5,te:3.3,yp:0.41},
     {fr:'judit',to:'app',label:'webhook #1',note:'cached_response: true',col:AM,ts:3.8,te:4.6,yp:0.52},
     {fr:'judit',to:'court',label:'court extraction',note:'waiting for fresh data',col:T,ts:5.1,te:5.9,yp:0.62},
     {fr:'court',to:'judit',label:'updated data',note:'',col:J,ts:6.4,te:7.2,yp:0.72},
@@ -26,7 +26,7 @@ var FLOWS=[
     {fr:'judit',to:'app',label:'webhook #3',note:'application_info · code 600',col:J,ts:9.0,te:9.8,yp:0.92}]},
   {id:'nocache',title:'② No cache — on-demand',sub:'data not indexed or on_demand:true — no cache event — 2 webhooks',col:A,ts:15,te:25,act:['app','judit','court'],steps:[
     {fr:'app',to:'judit',label:'POST /requests',note:'{callback_url, on_demand:true}',col:A,ts:15.2,te:16.0,yp:0.32},
-    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:16.5,te:17.3,yp:0.45},
+    {fr:'judit',to:'app',label:'201 {request_id}',note:'status: pending',col:AM,ts:16.5,te:17.3,yp:0.45},
     {fr:'judit',to:'court',label:'court extraction',note:'real-time fetch',col:T,ts:17.8,te:18.6,yp:0.58},
     {fr:'court',to:'judit',label:'fresh data',note:'',col:J,ts:19.1,te:19.9,yp:0.70},
     {fr:'judit',to:'app',label:'webhook #1',note:'cached_response: false',col:J,ts:20.4,te:21.2,yp:0.82},

@@ -15,6 +15,9 @@
     "light": "#0CAE56",
     "dark": "#15BE62"
   },
+  "appearance": {
+    "default": "light"
+  },
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -128,7 +131,8 @@
                   "resource/postman-collection",
                   "resource/mcp",
                   "resource/courtCoverage",
-                  "resource/errors"
+                  "resource/errors",
+                  "resource/support"
                 ]
               }
             ]
@@ -331,7 +335,8 @@
                   "en/resource/postman-collection",
                   "en/resource/mcp",
                   "en/resource/courtCoverage",
-                  "en/resource/errors"
+                  "en/resource/errors",
+                  "en/resource/support"
                 ]
               }
             ]
@@ -431,6 +436,18 @@
     ]
   },
   "navbar": {
+    "links": [
+      {
+        "label": "Status da API",
+        "href": "https://status.judit.io",
+        "icon": "signal"
+      },
+      {
+        "label": "Collection Postman",
+        "href": "/resource/judit-api.postman_collection.json",
+        "icon": "download"
+      }
+    ],
     "primary": {
       "type": "button",
       "label": "Dashboard",

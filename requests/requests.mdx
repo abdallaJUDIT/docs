@@ -15,7 +15,7 @@ var A='#4FD1C5',J='#1FC16B',T='#E0A82E',D='#8B5CF6',M='#7A8599';
 var BG='#090c0d',TXT='#e5e7eb',NF='#111827',PT='#0a1020';
 var STEPS=[
   {from:'app',to:'jud',label:'POST /requests',sub:'{search_type, search_key}',col:A,ts:0.5,te:1.2},
-  {from:'jud',to:'app',label:'200 {request_id}',sub:'status: pending',col:'#F6AD55',ts:1.7,te:2.4},
+  {from:'jud',to:'app',label:'201 {request_id}',sub:'status: pending',col:'#F6AD55',ts:1.7,te:2.4},
   {from:'jud',to:'dl',label:'consulta cache',sub:'',col:D,ts:2.7,te:3.4},
   {from:'dl',to:'jud',label:'dados em cache',sub:'',col:D,ts:3.7,te:4.4},
   {from:'jud',to:'crt',label:'extracao no tribunal',sub:'',col:A,ts:4.7,te:5.4},
@@ -317,10 +317,8 @@ Esta etapa é crucial caso você não esteja utilizando **Webhooks**. As respost
 Para saber se a extração finalizou, consulte o endpoint de histórico de requisições passando o ID gerado no Passo 1:
 <CodeGroup>
 ```bash cURL
-curl --location 'https://requests.production.judit.io/requests/<request_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://requests.production.judit.io/requests/<request_id>' \
+--header 'api-key: <api-key>'
 ```
 
 ```json Exemplo de resposta (200 OK)
@@ -1324,10 +1322,8 @@ Os metadados desses arquivos estarão listados dentro do array `attachments` no 
 </Info>
 
 ```bash cURL
-curl --location 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>'
 ```
 
 ### Propriedades do Anexo
