@@ -22,7 +22,7 @@ var STEPS=[
   {sep:true,label:'↻  automatic execution every N days',yp:0.52},
   {fr:'judit',to:'court',label:'checks at court',note:'no action from your app',col:T,ts:4.8,te:5.6,yp:0.60},
   {fr:'court',to:'judit',label:'new step',note:'',col:J,ts:6.1,te:6.9,yp:0.72},
-  {fr:'judit',to:'app',label:'webhook',note:'event: tracking_response',col:J,ts:7.4,te:8.2,yp:0.84}
+  {fr:'judit',to:'app',label:'webhook',note:'event_type: response_created',col:J,ts:7.4,te:8.2,yp:0.84}
 ];
 var cv=document.getElementById('c');
 function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}

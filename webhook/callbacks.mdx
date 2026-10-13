@@ -23,25 +23,25 @@ var FLOWS=[
     {fr:'judit',to:'court',label:'extração tribunal',note:'aguardando dado fresco',col:T,ts:5.1,te:5.9,yp:0.62},
     {fr:'court',to:'judit',label:'dados atualizados',note:'',col:J,ts:6.4,te:7.2,yp:0.72},
     {fr:'judit',to:'app',label:'webhook #2',note:'cached_response: false',col:J,ts:7.7,te:8.5,yp:0.82},
-    {fr:'judit',to:'app',label:'webhook #3',note:'event_type: request_completed',col:J,ts:9.0,te:9.8,yp:0.92}]},
+    {fr:'judit',to:'app',label:'webhook #3',note:'application_info · code 600',col:J,ts:9.0,te:9.8,yp:0.92}]},
   {id:'nocache',title:'② Sem cache — on-demand',sub:'dado não indexado ou on_demand:true — sem evento de cache — 2 webhooks',col:A,ts:15,te:25,act:['app','judit','court'],steps:[
     {fr:'app',to:'judit',label:'POST /requests',note:'{callback_url, on_demand:true}',col:A,ts:15.2,te:16.0,yp:0.32},
     {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:16.5,te:17.3,yp:0.45},
     {fr:'judit',to:'court',label:'extração tribunal',note:'busca em tempo real',col:T,ts:17.8,te:18.6,yp:0.58},
     {fr:'court',to:'judit',label:'dados frescos',note:'',col:J,ts:19.1,te:19.9,yp:0.70},
     {fr:'judit',to:'app',label:'webhook #1',note:'cached_response: false',col:J,ts:20.4,te:21.2,yp:0.82},
-    {fr:'judit',to:'app',label:'webhook #2',note:'event_type: request_completed',col:J,ts:21.7,te:22.5,yp:0.92}]},
-  {id:'monitor',title:'③ Monitoramento — Novas Ações',sub:'2 processos detectados → 1 webhook por processo + request_completed',col:J,ts:28,te:39,act:['app','judit','court'],steps:[
+    {fr:'judit',to:'app',label:'webhook #2',note:'application_info · code 600',col:J,ts:21.7,te:22.5,yp:0.92}]},
+  {id:'monitor',title:'③ Monitoramento — Novas Ações',sub:'2 processos detectados → 1 webhook por processo + aviso de finalização (600)',col:J,ts:28,te:39,act:['app','judit','court'],steps:[
     {fr:'judit',to:'court',label:'verifica novas ações',note:'polling automático',col:T,ts:28.5,te:29.3,yp:0.30},
     {fr:'court',to:'judit',label:'2 processos com ação nova',note:'novas movimentações detectadas',col:J,ts:29.8,te:30.6,yp:0.43},
     {fr:'judit',to:'app',label:'webhook #1',note:'processo A — nova ação',col:J,ts:31.1,te:31.9,yp:0.56},
     {fr:'judit',to:'app',label:'webhook #2',note:'processo B — nova ação',col:J,ts:32.4,te:33.2,yp:0.69},
-    {fr:'judit',to:'app',label:'webhook #3',note:'event_type: request_completed',col:J,ts:33.7,te:34.5,yp:0.82}]},
+    {fr:'judit',to:'app',label:'webhook #3',note:'application_info · code 600',col:J,ts:33.7,te:34.5,yp:0.82}]},
   {id:'procmon',title:'④ Monitoramento Processual',sub:'monitora CNJ específico — mínimo 2 webhooks por movimentação detectada',col:T,ts:42,te:52,act:['app','judit','court'],steps:[
     {fr:'judit',to:'court',label:'verifica processo',note:'monitorando CNJ específico',col:T,ts:42.5,te:43.3,yp:0.38},
     {fr:'court',to:'judit',label:'nova movimentação',note:'andamento atualizado',col:J,ts:43.8,te:44.6,yp:0.52},
     {fr:'judit',to:'app',label:'webhook #1',note:'capa + movimentações completas',col:J,ts:45.1,te:45.9,yp:0.66},
-    {fr:'judit',to:'app',label:'webhook #2',note:'event_type: request_completed',col:J,ts:46.4,te:47.2,yp:0.80}]}
+    {fr:'judit',to:'app',label:'webhook #2',note:'application_info · code 600',col:J,ts:46.4,te:47.2,yp:0.80}]}
 ];
 var NODES=[{id:'app',label:'Sua App',col:A},{id:'judit',label:'Judit API',col:J},{id:'court',label:'Tribunal',col:T}];
 var cv=document.getElementById('c');
@@ -98,7 +98,7 @@ Os **Webhooks** entregam push em tempo real os resultados das suas consultas e m
 
 <WebhookAnimation />
 
-A cada evento, fazemos um `POST` HTTPS para sua URL com o payload em `application/json`. **A entrega é incremental** — você pode receber várias respostas para o mesmo `request_id` antes de chegar o evento `request_completed` que sinaliza fim do fluxo.
+A cada evento, fazemos um `POST` HTTPS para sua URL com o payload em `application/json`. **A entrega é incremental** — você pode receber várias respostas para o mesmo `request_id`. O fim do fluxo é sinalizado por uma resposta com `response_type: "application_info"` e `response_data.code: 600` (`REQUEST_COMPLETED`).
 
 ## Configurando seu webhook
 
@@ -158,11 +158,38 @@ O parâmetro `with_attachments` aplica-se **apenas a consultas processuais** (`s
 
 ## Eventos enviados
 
-| `event_type` | Quando dispara | Payload |
+Todo webhook é enviado com `event_type: "response_created"` — tanto em consultas quanto em monitoramentos. O que diferencia cada entrega é o campo `response_type` dentro de `payload`:
+
+| `response_type` | Quando chega | `response_data` |
 | --- | --- | --- |
-| `response_created` | Cada vez que um novo `response_data` é gerado para a requisição (cache ou tribunal) | Objeto `lawsuit`, `entity`, `warrant` ou `execution` |
-| `request_completed` | Fim do fluxo da requisição (todos os tribunais responderam) | Objeto `request` final com `status: "completed"` |
-| `tracking_response` | Disparado por monitoramentos (cada nova movimentação detectada) | Mesmo formato de `response_created` mas via `tracking_id` |
+| `application_info` | **Fim do fluxo** da requisição | `{ "code": 600, "message": "REQUEST_COMPLETED" }` |
+| `application_error` | Falha na consulta ou requisição expirada | `{ "code", "message", "details" }` |
+
+Exemplo do aviso de finalização:
+
+```json
+{
+  "user_id": "ab829a35-894b-4fbd-9168-2398fd69cecc",
+  "callback_id": "b2f7c86c-0bdc-4f26-a42f-7f4760dba80f",
+  "event_type": "response_created",
+  "reference_type": "request",
+  "reference_id": "ec545a1e-c0ac-47cf-a3df-3668f1bdde11",
+  "payload": {
+    "response_id": "057b671c-0cb5-4ed1-af61-fc54fa3391ee",
+    "request_id": "ec545a1e-c0ac-47cf-a3df-3668f1bdde11",
+    "origin": "api",
+    "response_type": "application_info",
+    "response_data": {
+      "code": 600,
+      "message": "REQUEST_COMPLETED",
+      "savedResponseId": "057b671c-0cb5-4ed1-af61-fc54fa3391ee"
+    },
+    "request_created_at": "2026-10-12T19:49:05.725Z",
+    "tags": { "callback_url": "https://api.seudominio.com/webhooks/judit" },
+    "search": { "on_demand": true, "search_type": "lawsuit_cnj", "search_key": "9999999-99.9999.9.99.9999" }
+  }
+}
+```
 
 Todo payload tem um envelope padrão:
 
@@ -185,11 +212,11 @@ Todo payload tem um envelope padrão:
 
 A maior parte das requisições gera **duas entregas** em sequência: a primeira do cache e a segunda atualizada. Use `cached_response` para identificar.
 
-| Sequência | `event_type` | `cached_response` | Significado |
-| --- | --- | --- | --- |
-| 1 | `response_created` | `true` | Veio do datalake JUDIT (resposta inicial rápida). |
-| 2 | `response_created` | `false` | Coleta atual no tribunal. **Sempre que existir, é a versão definitiva.** |
-| 3 | `request_completed` | — | Todos os tribunais responderam. Sua aplicação pode encerrar o ciclo. |
+| Sequência | `event_type` | `response_type` | `cached_response` | Significado |
+| --- | --- | --- | --- | --- |
+| 1 | `response_created` | `lawsuit` | `true` | Veio do datalake JUDIT (resposta inicial rápida). |
+| 2 | `response_created` | `lawsuit` | `false` | Coleta atual no tribunal. **Sempre que existir, é a versão definitiva.** |
+| 3 | `response_created` | `application_info` (`code: 600`) | — | Requisição finalizada. Sua aplicação pode encerrar o ciclo. |
 
 > ⚠️ Em consultas processuais recentemente refrescadas (dentro do `cache_ttl_in_days`), você pode receber **apenas** a entrega com `cached_response: true` — não há nova coleta no tribunal porque o cache ainda é válido.
 
@@ -227,7 +254,8 @@ const seen = new Set();
 const lastByRequest = new Map();
 
 app.post("/webhooks/judit", async (req, res) => {
-  const { callback_id, event_type, reference_id, payload } = req.body;
+  const { callback_id, reference_id, payload } = req.body;
+  const { response_type, response_data } = payload ?? {};
 
   // 1. Idempotência
   if (seen.has(callback_id)) return res.sendStatus(200);
@@ -236,17 +264,21 @@ app.post("/webhooks/judit", async (req, res) => {
   // 2. Responde rápido — processa assíncrono
   res.sendStatus(200);
 
-  // 3. Lógica
-  if (event_type === "response_created") {
-    const cached = !!payload?.tags?.cached_response || payload?.cached_response;
-    // Sempre prefira a versão mais recente (cached_response: false)
-    if (!cached || !lastByRequest.has(reference_id)) {
-      lastByRequest.set(reference_id, payload);
-      await persistResponse(payload);
-    }
+  // 3. Fim do fluxo (REQUEST_COMPLETED)
+  if (response_type === "application_info" && response_data?.code === 600) {
+    return markRequestDone(reference_id);
   }
-  if (event_type === "request_completed") {
-    await markRequestDone(reference_id);
+
+  // 4. Erro na requisição (ex.: 504 REQUEST_TIMED_OUT)
+  if (response_type === "application_error") {
+    return handleRequestError(reference_id, response_data);
+  }
+
+  // 5. Resultado — sempre prefira a versão mais recente (cached_response: false)
+  const cached = !!payload?.tags?.cached_response || payload?.cached_response;
+  if (!cached || !lastByRequest.has(reference_id)) {
+    lastByRequest.set(reference_id, payload);
+    await persistResponse(payload);
   }
 });
 
@@ -266,8 +298,18 @@ async def judit(req: Request):
         return {"ok": True}
     seen.add(cb_id)
 
-    if body["event_type"] == "response_created":
-        # Persistir prefereindo cached_response: false
+    payload = body.get("payload") or {}
+    response_type = payload.get("response_type")
+    data = payload.get("response_data") or {}
+
+    if response_type == "application_info" and data.get("code") == 600:
+        # Fim do fluxo (REQUEST_COMPLETED)
+        mark_request_done(body["reference_id"])
+    elif response_type == "application_error":
+        # Erro na requisição (ex.: 504 REQUEST_TIMED_OUT)
+        handle_request_error(body["reference_id"], data)
+    else:
+        # Persistir preferindo cached_response: false
         ...
     return {"ok": True}
 ```

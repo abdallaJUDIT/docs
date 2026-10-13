@@ -296,7 +296,7 @@ Save the value of `request_id`, as you will need it for the next steps.
 **🚀 Shortcut: Automate with Webhooks (Recommended)**
 
 If you have a Webhook URL configured, **Steps 2 and 3 below are entirely optional**. 
-Instead of programming your application to keep polling the request status, the Judit API will send the found lawsuits **incrementally** directly to your server as soon as they are captured, finishing the flow with a `request_completed` event.
+Instead of programming your application to keep polling the request status, the Judit API will send the found lawsuits **incrementally** directly to your server as soon as they are captured, finishing the flow with an `application_info` response with code `600` (`REQUEST_COMPLETED`).
 
 👉 *[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
 </Info>

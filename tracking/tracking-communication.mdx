@@ -22,7 +22,7 @@ var STEPS=[
   {sep:true,label:'↻  diariamente — Judit varre as publicações do DJEN',yp:0.52},
   {fr:'judit',to:'djen',label:'varre publicações',note:'todos os campos de texto',col:OR,ts:4.8,te:5.6,yp:0.60},
   {fr:'djen',to:'judit',label:'publicação encontrada',note:'correspondência com o termo',col:J,ts:6.1,te:6.9,yp:0.72},
-  {fr:'judit',to:'app',label:'webhook',note:'event: tracking_response',col:J,ts:7.4,te:8.2,yp:0.84}
+  {fr:'judit',to:'app',label:'webhook',note:'event_type: response_created',col:J,ts:7.4,te:8.2,yp:0.84}
 ];
 var cv=document.getElementById('c');
 function setup(){var dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),W=r.width||window.innerWidth,H=r.height||window.innerHeight;cv.width=Math.max(1,W*dpr);cv.height=Math.max(1,H*dpr);var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx:ctx,w:W,h:H};}
@@ -407,58 +407,63 @@ Quando o monitoramento encontra uma publicação, a Judit envia automaticamente 
 
 ```json
 {
-  "event": "tracking_response",
-  "tracking_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
-  "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
-  "response_type": "communication",
-  "response_data": {
-    "communication_id": "0E6hgZvG",
-    "active": true,
-    "classification_code": "12154",
-    "classification_name": "EXECUÇÃO DE TÍTULO EXTRAJUDICIAL",
-    "date_availability": "2026-05-20T00:00:00.000Z",
-    "date_shipping": "2026-05-19T03:00:00.000Z",
-    "recipient_lawyers": [
-      {
-        "lawyer": {
-          "id": 10001,
-          "name": "ADVOGADO EXEMPLO 1",
-          "license_code": "0001",
-          "license_state": "SP"
+  "user_id": "ab829a35-894b-4fbd-9168-2398fd69cecc",
+  "callback_id": "d5dcbbd6-a9cc-4eef-b1d1-d58a59c4631b",
+  "event_type": "response_created",
+  "reference_type": "tracking",
+  "reference_id": "a94db796-9e35-4d0c-8e05-2a6b60f32a74",
+  "payload": {
+    "request_id": "186e0ed5-4656-4fd8-8e07-76f755c44a9d",
+    "response_type": "communication",
+    "response_data": {
+      "communication_id": "0E6hgZvG",
+      "active": true,
+      "classification_code": "12154",
+      "classification_name": "EXECUÇÃO DE TÍTULO EXTRAJUDICIAL",
+      "date_availability": "2026-05-20T00:00:00.000Z",
+      "date_shipping": "2026-05-19T03:00:00.000Z",
+      "recipient_lawyers": [
+        {
+          "lawyer": {
+            "id": 10001,
+            "name": "ADVOGADO EXEMPLO 1",
+            "license_code": "0001",
+            "license_state": "SP"
+          },
+          "lawyer_id": 10001,
+          "communication_id": 600000001,
+          "id": 1100000001,
+          "created_at": "2026-05-19 11:44:08",
+          "updated_at": "2026-05-19 11:44:08"
+        }
+      ],
+      "recipients": [
+        {
+          "communication_id": 600000001,
+          "name": "PARTE ATIVA EXEMPLO",
+          "side": "Active"
         },
-        "lawyer_id": 10001,
-        "communication_id": 600000001,
-        "id": 1100000001,
-        "created_at": "2026-05-19 11:44:08",
-        "updated_at": "2026-05-19 11:44:08"
-      }
-    ],
-    "recipients": [
-      {
-        "communication_id": 600000001,
-        "name": "PARTE ATIVA EXEMPLO",
-        "side": "Active"
-      },
-      {
-        "communication_id": 600000001,
-        "name": "PARTE PASSIVA EXEMPLO 1",
-        "side": "Passive"
-      }
-    ],
-    "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "api_id": 600000001,
-    "middle": "D",
-    "full_middle": "DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL",
-    "name_organ": "COMARCA - 1ª VARA CÍVEL",
-    "communication_number": 2674,
-    "lawsuit_code": "0000000-00.0000.8.00.0000",
-    "tribunal_acronym": "TJXX",
-    "status": "P",
-    "text": "Texto completo da publicação conforme extraído do DJEN...",
-    "communication_type": "INTIMAÇÃO",
-    "document_type": "DECISÃO",
-    "integrate_api": false,
-    "source": "pje"
+        {
+          "communication_id": 600000001,
+          "name": "PARTE PASSIVA EXEMPLO 1",
+          "side": "Passive"
+        }
+      ],
+      "hash": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "api_id": 600000001,
+      "middle": "D",
+      "full_middle": "DIÁRIO DE JUSTIÇA ELETRÔNICO NACIONAL",
+      "name_organ": "COMARCA - 1ª VARA CÍVEL",
+      "communication_number": 2674,
+      "lawsuit_code": "0000000-00.0000.8.00.0000",
+      "tribunal_acronym": "TJXX",
+      "status": "P",
+      "text": "Texto completo da publicação conforme extraído do DJEN...",
+      "communication_type": "INTIMAÇÃO",
+      "document_type": "DECISÃO",
+      "integrate_api": false,
+      "source": "pje"
+    }
   }
 }
 ```

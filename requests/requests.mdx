@@ -301,7 +301,7 @@ Guarde o valor de `request_id`, pois você precisará dele para os próximos pas
 **🚀 Atalho: Automatize com Webhooks (Recomendado)**
 
 Se você possui uma URL de Webhook configurada, **os Passos 2 e 3 abaixo são totalmente opcionais**. 
-Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com um evento de `request_completed`.
+Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com uma resposta `application_info` de código `600` (`REQUEST_COMPLETED`).
 
 👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
 </Info>
