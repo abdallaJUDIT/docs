@@ -50,7 +50,10 @@ li.navbar-link > a[href$=".postman_collection.json"] {
   background-color: #ff6c37;
 }
 
+/* O ícone do Mintlify é um SVG pintado pelo background (bg-gray-800 / dark:bg-gray-100),
+   igual ao fundo do botão Status — ficava invisível e parecia espaço sobrando.
+   Pintamos com a cor do texto do botão. */
 li.navbar-link > a[href*="status.judit.io"] svg,
 li.navbar-link > a[href$=".postman_collection.json"] svg {
-  color: currentColor !important;
+  background-color: currentColor !important;
 }
