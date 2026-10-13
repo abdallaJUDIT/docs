@@ -1590,21 +1590,6 @@
               "count"
             ]
           },
-          "simple_lawsuit_tracking_fixed_time": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
           "complete_lawsuit_tracking": {
             "type": "object",
             "properties": {
@@ -1620,37 +1605,7 @@
               "count"
             ]
           },
-          "complete_lawsuit_tracking_fixed_time": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
           "full_lawsuit_tracking": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
-          "full_lawsuit_tracking_fixed_time": {
             "type": "object",
             "properties": {
               "amount": {
@@ -1875,37 +1830,7 @@
               "count"
             ]
           },
-          "document_tracking_fixed_time": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
           "public_document_tracking": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
-          "public_document_tracking_fixed_time": {
             "type": "object",
             "properties": {
               "amount": {
@@ -1936,21 +1861,6 @@
             ]
           },
           "custom_tracking": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "amount",
-              "count"
-            ]
-          },
-          "custom_tracking_fixed_time": {
             "type": "object",
             "properties": {
               "amount": {
@@ -2443,11 +2353,8 @@
           "full_lawsuit_search",
           "full_lawsuit_search_with_summary",
           "simple_lawsuit_tracking",
-          "simple_lawsuit_tracking_fixed_time",
           "complete_lawsuit_tracking",
-          "complete_lawsuit_tracking_fixed_time",
           "full_lawsuit_tracking",
-          "full_lawsuit_tracking_fixed_time",
           "simple_warrant_search",
           "complete_warrant_search",
           "simple_execution_search",
@@ -2462,12 +2369,9 @@
           "complete_document_search_on_demand",
           "complete_document_search_on_demand_with_summary",
           "document_tracking",
-          "document_tracking_fixed_time",
           "public_document_tracking",
-          "public_document_tracking_fixed_time",
           "custom_search",
           "custom_tracking",
-          "custom_tracking_fixed_time",
           "communication_tracking",
           "entity_person_search",
           "entity_person_search_on_demand",
@@ -2739,21 +2643,6 @@
                         "count"
                       ]
                     },
-                    "simple_lawsuit_tracking_fixed_time": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
                     "complete_lawsuit_tracking": {
                       "type": "object",
                       "properties": {
@@ -2769,37 +2658,7 @@
                         "count"
                       ]
                     },
-                    "complete_lawsuit_tracking_fixed_time": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
                     "full_lawsuit_tracking": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
-                    "full_lawsuit_tracking_fixed_time": {
                       "type": "object",
                       "properties": {
                         "amount": {
@@ -3024,37 +2883,7 @@
                         "count"
                       ]
                     },
-                    "document_tracking_fixed_time": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
                     "public_document_tracking": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
-                    "public_document_tracking_fixed_time": {
                       "type": "object",
                       "properties": {
                         "amount": {
@@ -3085,21 +2914,6 @@
                       ]
                     },
                     "custom_tracking": {
-                      "type": "object",
-                      "properties": {
-                        "amount": {
-                          "type": "number"
-                        },
-                        "count": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "amount",
-                        "count"
-                      ]
-                    },
-                    "custom_tracking_fixed_time": {
                       "type": "object",
                       "properties": {
                         "amount": {
@@ -3592,11 +3406,8 @@
                     "full_lawsuit_search",
                     "full_lawsuit_search_with_summary",
                     "simple_lawsuit_tracking",
-                    "simple_lawsuit_tracking_fixed_time",
                     "complete_lawsuit_tracking",
-                    "complete_lawsuit_tracking_fixed_time",
                     "full_lawsuit_tracking",
-                    "full_lawsuit_tracking_fixed_time",
                     "simple_warrant_search",
                     "complete_warrant_search",
                     "simple_execution_search",
@@ -3611,12 +3422,9 @@
                     "complete_document_search_on_demand",
                     "complete_document_search_on_demand_with_summary",
                     "document_tracking",
-                    "document_tracking_fixed_time",
                     "public_document_tracking",
-                    "public_document_tracking_fixed_time",
                     "custom_search",
                     "custom_tracking",
-                    "custom_tracking_fixed_time",
                     "communication_tracking",
                     "entity_person_search",
                     "entity_person_search_on_demand",
@@ -4088,11 +3896,8 @@
               "full_lawsuit_search",
               "full_lawsuit_search_with_summary",
               "simple_lawsuit_tracking",
-              "simple_lawsuit_tracking_fixed_time",
               "complete_lawsuit_tracking",
-              "complete_lawsuit_tracking_fixed_time",
               "full_lawsuit_tracking",
-              "full_lawsuit_tracking_fixed_time",
               "simple_warrant_search",
               "complete_warrant_search",
               "simple_execution_search",
@@ -4107,12 +3912,9 @@
               "complete_document_search_on_demand",
               "complete_document_search_on_demand_with_summary",
               "document_tracking",
-              "document_tracking_fixed_time",
               "public_document_tracking",
-              "public_document_tracking_fixed_time",
               "custom_search",
               "custom_tracking",
-              "custom_tracking_fixed_time",
               "communication_tracking",
               "entity_person_search",
               "entity_person_search_on_demand",
@@ -5067,11 +4869,8 @@
                     "full_lawsuit_search",
                     "full_lawsuit_search_with_summary",
                     "simple_lawsuit_tracking",
-                    "simple_lawsuit_tracking_fixed_time",
                     "complete_lawsuit_tracking",
-                    "complete_lawsuit_tracking_fixed_time",
                     "full_lawsuit_tracking",
-                    "full_lawsuit_tracking_fixed_time",
                     "simple_warrant_search",
                     "complete_warrant_search",
                     "simple_execution_search",
@@ -5086,12 +4885,9 @@
                     "complete_document_search_on_demand",
                     "complete_document_search_on_demand_with_summary",
                     "document_tracking",
-                    "document_tracking_fixed_time",
                     "public_document_tracking",
-                    "public_document_tracking_fixed_time",
                     "custom_search",
                     "custom_tracking",
-                    "custom_tracking_fixed_time",
                     "communication_tracking",
                     "entity_person_search",
                     "entity_person_search_on_demand",
@@ -5565,11 +5361,8 @@
               "full_lawsuit_search",
               "full_lawsuit_search_with_summary",
               "simple_lawsuit_tracking",
-              "simple_lawsuit_tracking_fixed_time",
               "complete_lawsuit_tracking",
-              "complete_lawsuit_tracking_fixed_time",
               "full_lawsuit_tracking",
-              "full_lawsuit_tracking_fixed_time",
               "simple_warrant_search",
               "complete_warrant_search",
               "simple_execution_search",
@@ -5584,12 +5377,9 @@
               "complete_document_search_on_demand",
               "complete_document_search_on_demand_with_summary",
               "document_tracking",
-              "document_tracking_fixed_time",
               "public_document_tracking",
-              "public_document_tracking_fixed_time",
               "custom_search",
               "custom_tracking",
-              "custom_tracking_fixed_time",
               "communication_tracking",
               "entity_person_search",
               "entity_person_search_on_demand",
