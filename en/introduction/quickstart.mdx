@@ -175,13 +175,14 @@ import (
     "io"
     "net/http"
     "os"
+    "time"
 )
 
 type SearchRequest struct {
     Search struct {
         SearchType      string `json:"search_type"`
         SearchKey       string `json:"search_key"`
-        ResponseType    string `json:"response_type"`
+        ResponseType    string `json:"response_type,omitempty"`
         CacheTTLInDays  int    `json:"cache_ttl_in_days"`
     } `json:"search"`
 }
@@ -241,7 +242,7 @@ status_data = status_response.json()
 print(f"Status: {status_data['status']}")
 
 # Wait for completion
-while status_data['status'] in ['pending', 'processing']:
+while status_data['status'] in ['pending', 'started']:
     time.sleep(5)  # Wait 5 seconds
     status_response = requests.get(f"{base_url}/requests/{request_id}", 
                                   headers=headers)
@@ -259,7 +260,7 @@ let statusData = await statusResponse.json();
 console.log(`Status: ${statusData.status}`);
 
 // Wait for completion
-while (['pending', 'processing'].includes(statusData.status)) {
+while (['pending', 'started'].includes(statusData.status)) {
     await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds
     
     statusResponse = await fetch(`${baseUrl}/requests/${requestId}`, {
@@ -286,7 +287,7 @@ $statusData = json_decode($statusResponse, true);
 echo "Status: " . $statusData['status'] . "\n";
 
 // Wait for completion
-while (in_array($statusData['status'], ['pending', 'processing'])) {
+while (in_array($statusData['status'], ['pending', 'started'])) {
     sleep(5); // Wait 5 seconds
     
     $statusResponse = curl_exec($ch);
@@ -317,7 +318,7 @@ json.Unmarshal(statusBody, &statusData)
 fmt.Printf("Status: %s\n", statusData["status"])
 
 // Wait for completion
-for statusData["status"] == "pending" || statusData["status"] == "processing" {
+for statusData["status"] == "pending" || statusData["status"] == "started" {
     time.Sleep(5 * time.Second) // Wait 5 seconds
     
     statusResp, _ := client.Do(statusReq)
@@ -331,6 +332,10 @@ for statusData["status"] == "pending" || statusData["status"] == "processing" {
 
 </CodeGroup>
 
+<Info>
+  The request `status` follows the cycle `pending` → `started` → `completed`. If it is cancelled, it goes through `cancelling` → `cancelled`. Keep polling while the status is `pending` or `started`, or use the [Webhook](/en/webhook/callbacks) to be notified.
+</Info>
+
 ### 4. Fetch the Results
 
 When the status is `completed`, fetch the results:
@@ -338,7 +343,7 @@ When the status is `completed`, fetch the results:
 <CodeGroup>
 
 ```bash cURL
-curl -X GET "$JUDIT_BASE_URL/responses?page=1" \
+curl -X GET "$JUDIT_BASE_URL/responses?request_id=$REQUEST_ID&page=1" \
   -H "api-key: $JUDIT_API_KEY"
 ```
 
@@ -347,7 +352,7 @@ curl -X GET "$JUDIT_BASE_URL/responses?page=1" \
 if status_data['status'] == 'completed':
     results_response = requests.get(f"{base_url}/responses", 
                                    headers=headers,
-                                   params={'page': 1})
+                                   params={'request_id': request_id, 'page': 1})
     results = results_response.json()
     
     print("Lawsuits found:")
@@ -358,7 +363,7 @@ if status_data['status'] == 'completed':
 ```javascript JavaScript
 // Fetch results
 if (statusData.status === 'completed') {
-    const resultsResponse = await fetch(`${baseUrl}/responses?page=1`, {
+    const resultsResponse = await fetch(`${baseUrl}/responses?request_id=${requestId}&page=1`, {
         headers: headers
     });
     const results = await resultsResponse.json();
@@ -374,7 +379,7 @@ if (statusData.status === 'completed') {
 <?php
 // Fetch results
 if ($statusData['status'] === 'completed') {
-    $resultsUrl = $baseUrl . '/responses?page=1';
+    $resultsUrl = $baseUrl . '/responses?request_id=' . $requestId . '&page=1';
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $resultsUrl);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -398,7 +403,7 @@ if ($statusData['status'] === 'completed') {
 ```go Go
 // Fetch results
 if statusData["status"] == "completed" {
-    resultsURL := baseURL + "/responses?page=1"
+    resultsURL := baseURL + "/responses?request_id=" + requestData.RequestID + "&page=1"
     resultsReq, _ := http.NewRequest("GET", resultsURL, nil)
     resultsReq.Header.Set("api-key", apiKey)
     
@@ -514,7 +519,11 @@ For more specific queries by <strong>document</strong>, you can use [filters](/e
 Set the `cache_ttl_in_days` parameter in your *request* body to avoid redundant lookups at the courts. This field defines for exactly how many days a result already stored in Judit's base will be considered valid before forcing a new extraction.
 ```json
 {
-  "cache_ttl_in_days": 7  // Use cache for up to 7 days
+  "search": {
+    "search_type": "cpf",
+    "search_key": "999.999.999-99",
+    "cache_ttl_in_days": 7  // Use cache for up to 7 days
+  }
 }
 ```
 
@@ -546,4 +555,8 @@ Set the `cache_ttl_in_days` parameter in your *request* body to avoid redundant 
 
 ## Next Steps
 
-- **[Authentication](/en/introduction/authentication)**: Configure au
+- **[Lawsuit search by CNJ](/en/requests/requests)**: all parameters, response examples and how attachments work.
+- **[Search by document](/en/requests/request-document)**: CPF, CNPJ, OAB and name, with filters.
+- **[Webhook](/en/webhook/callbacks)**: receive the result automatically instead of polling the status.
+- **[Errors](/en/resource/errors)**: HTTP codes, `application_error` and how to handle each one.
+- **[Rate limits](/en/essentialConcepts/rate-limits)**: per-endpoint limits and retry with backoff.

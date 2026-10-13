@@ -166,7 +166,8 @@ api_key = os.getenv('JUDIT_API_KEY')
 - API Key not provided
 - Invalid or expired API Key
 - Badly formatted `api-key` header
-- Usage limit exceeded
+
+If you exceed the request limit, the response is `429 Too Many Requests`, not `401`. See [Rate Limits](/en/essentialConcepts/rate-limits).
 
 ### 403 Error - Forbidden
 
@@ -197,7 +198,7 @@ def test_api_key(api_key):
         response = requests.get(
             'https://requests.production.judit.io/requests',
             headers=headers,
-            params={'page': 1, 'page_size': 1}
+            params={'page': 1, 'page_size': 5}
         )
         
         if response.status_code == 200:

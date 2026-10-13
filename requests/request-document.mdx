@@ -22,7 +22,7 @@ var NW=80,NH=42;
 var FLOWS=[
   {id:'dl',title:'① Assíncrono — Datalake + Fontes Externas',sub:'Datalake + fontes externas indexadas — sem acesso direto aos tribunais',col:D,ts:1,te:11,act:['app','judit','dl','ext'],steps:[
     {fr:'app',to:'judit',label:'POST /requests',note:'{search_type, search_key}',col:A,ts:1.2,te:2.0,yp:0.28},
-    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:2.5,te:3.3,yp:0.37},
+    {fr:'judit',to:'app',label:'201 {request_id}',note:'status: pending',col:AM,ts:2.5,te:3.3,yp:0.37},
     {fr:'judit',to:'dl',label:'busca datalake',note:'histórico indexado',col:D,ts:3.8,te:4.6,yp:0.47},
     {fr:'judit',to:'ext',label:'busca fontes ext.',note:'bases externas',col:FE,ts:3.8,te:4.6,yp:0.57},
     {fr:'dl',to:'judit',label:'capa + partes',note:'histórico datalake',col:D,ts:5.2,te:6.0,yp:0.67},
@@ -30,7 +30,7 @@ var FLOWS=[
     {fr:'judit',to:'app',label:'webhook / polling',note:'response_data consolidado',col:J,ts:6.5,te:7.3,yp:0.87}]},
   {id:'od',title:'② On-Demand — Máxima Completude',sub:'Datalake + fontes externas + tribunais em tempo real',col:T,ts:14,te:28,act:['app','judit','dl','ext','court'],steps:[
     {fr:'app',to:'judit',label:'POST /requests',note:'{on_demand: true}',col:A,ts:14.2,te:15.0,yp:0.28},
-    {fr:'judit',to:'app',label:'200 {request_id}',note:'status: pending',col:AM,ts:15.5,te:16.3,yp:0.36},
+    {fr:'judit',to:'app',label:'201 {request_id}',note:'status: pending',col:AM,ts:15.5,te:16.3,yp:0.36},
     {fr:'judit',to:'dl',label:'busca datalake',note:'histórico indexado',col:D,ts:16.8,te:17.6,yp:0.44},
     {fr:'judit',to:'ext',label:'busca fontes ext.',note:'bases externas',col:FE,ts:16.8,te:17.6,yp:0.52},
     {fr:'dl',to:'judit',label:'capa + partes',note:'histórico datalake',col:D,ts:18.2,te:19.0,yp:0.60},
@@ -694,10 +694,8 @@ Como um documento pode estar atrelado a centenas de processos no Brasil, a colet
 `GET https://requests.production.judit.io/requests/<REQUEST_ID>`
 
 ```bash cURL (Passo 2)
-curl --location 'https://requests.production.judit.io/requests/<request_id>' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://requests.production.judit.io/requests/<request_id>' \
+--header 'api-key: <api-key>'
 ```
 
 Você deve realizar *polling* (consultas periódicas) nesta rota até que a propriedade `"status"` mude de `"pending"` para **`"completed"`**. 

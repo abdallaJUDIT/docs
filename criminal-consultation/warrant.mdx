@@ -18,7 +18,7 @@ var NW=88,NH=42;
 var NODES=[{id:'app',label:'Sua App',col:A},{id:'judit',label:'Judit API',col:J},{id:'bnmp',label:'BNMP',col:B}];
 var STEPS=[
   {fr:'app',to:'judit',label:'POST /requests',note:'{response_type:"warrant"}',col:A,ts:1.0,te:1.8,yp:0.29},
-  {fr:'judit',to:'app',label:'202 {request_id}',note:'status: pending',col:J,ts:2.3,te:3.1,yp:0.39},
+  {fr:'judit',to:'app',label:'201 {request_id}',note:'status: pending',col:J,ts:2.3,te:3.1,yp:0.39},
   {sep:true,label:'↻  Judit consulta o BNMP assincronamente',yp:0.49},
   {fr:'judit',to:'bnmp',label:'consulta BNMP',note:'por CPF / nome / RJI',col:B,ts:4.5,te:5.3,yp:0.58},
   {fr:'bnmp',to:'judit',label:'mandado encontrado',note:'',col:J,ts:5.8,te:6.6,yp:0.68},

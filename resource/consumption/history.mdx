@@ -22,14 +22,16 @@ Este passo a passo irá te mostrar como consultar o histórico de requisições 
 
 Para realizar a requisição:
 
-Copie o seguinte comando `cURL` e cole no **Postman** (modo *Raw* no Body e tipo `POST`):
+Copie o seguinte comando `cURL` e importe no **Postman** (*Import › Raw text*). A requisição é do tipo `GET` e não tem body:
 
 ```bash
-curl --location 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=<DATA INICIAL>&created_at_lte=<DATA FINAL>' \
---header 'api-key: INSIRA_SUA_API_KEY_AQUI' \
---header 'Content-Type: application/json' \
---data ''
+curl --location --request GET 'https://requests.production.judit.io/requests?page=1&page_size=100&created_at_gte=<DATA INICIAL>&created_at_lte=<DATA FINAL>' \
+--header 'api-key: INSIRA_SUA_API_KEY_AQUI'
 ```
+
+<Note>
+  Cada página traz no máximo **100** requisições (`page_size` aceita de 5 a 100; acima disso a API responde `400`). Para períodos maiores, avance com `page=2`, `page=3`... até `all_pages_count`, que vem na resposta.
+</Note>
 
 Substitua `<DATA INICIAL>` e `<DATA FINAL>` no formato `YYYY-MM-DD`, por exemplo:
 
@@ -44,7 +46,7 @@ created_at_gte=2024-09-12&created_at_lte=2050-09-12
 Exemplo de código:
 
 ```js
-const url = 'https://requests.production.judit.io/requests?page_size=1000&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
+const baseUrl = 'https://requests.production.judit.io/requests?page_size=100&created_at_gte=2024-09-12&created_at_lte=2050-09-12';
 const options = {
   method: 'GET',
   headers: {
@@ -52,10 +54,21 @@ const options = {
   }
 };
 
+// Percorre todas as páginas do período
+const requests = [];
+let page = 1;
+let totalPages = 1;
+
 try {
-  const response = await fetch(url, options);
-  const data = await response.json();
-  console.log(data);
+  do {
+    const response = await fetch(`${baseUrl}&page=${page}`, options);
+    const data = await response.json();
+    requests.push(...data.page_data);
+    totalPages = data.all_pages_count;
+    page++;
+  } while (page <= totalPages);
+
+  console.log(`Total de requisições: ${requests.length}`);
 } catch (error) {
   console.error(error);
 }

@@ -63,13 +63,17 @@ A coleção completa da Judit API está no nosso workspace público no Postman. 
 </AccordionGroup>
 
 <Note>
-  A coleção usa variáveis do Postman para as URLs base e sua chave de API, então você só configura uma vez. Se precisar de uma chave de sandbox, fale com a gente em [contato@judit.io](mailto:contato@judit.io).
+  A coleção usa variáveis do Postman para as URLs base e sua chave de API, então você só configura uma vez. Se precisar de uma chave de sandbox, fale com a gente em [comercial@judit.io](mailto:comercial@judit.io).
 </Note>
 
-## Download offline (Postman v2.1 / Insomnia)
+## Download offline (Postman)
 
-Prefere importar localmente em vez de usar o workspace público? Baixe o arquivo JSON e importe no Postman ou Insomnia:
+Prefere importar localmente em vez de usar o workspace público? Baixe o arquivo JSON e importe no Postman (**Import** › arraste o arquivo). Cada body vem comentado campo a campo e cada requisição tem descrição e link para a página da doc.
 
 <Card title="Baixar judit-api.postman_collection.json" icon="download" href="/resource/judit-api.postman_collection.json">
-  Compatível com Postman e Insomnia. Após importar, edite a coleção em **Variables** e cole sua `api_key`.
+  Formato Postman v2.1. Após importar, abra a coleção › **Variables** e cole sua `api_key`. Os `request_id` e `tracking_id` são salvos automaticamente.
 </Card>
+
+<Warning>
+  Os comentários `//` dos bodies são removidos pelo Postman antes do envio. Se copiar um body para o Insomnia, cURL ou o seu código, apague os comentários: a API recusa JSON com comentários.
+</Warning>
