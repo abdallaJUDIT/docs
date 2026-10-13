@@ -37,7 +37,7 @@ icon: "headset"
   <Step title="Review the most common causes">
     - `api-key` header present and without `Bearer` ([Authentication](/en/introduction/authentication)).
     - Right host for the route (`requests`, `tracking` or `lawsuits`).
-    - `page_size` between 5 and 100 on list routes, and `created_at_gte` sent on `GET /requests`.
+    - `page_size` between 5 and 100 on list routes, and both `created_at_gte` and `created_at_lte` sent on `GET /requests` (both are required).
     - Volume within the [rate limit](/en/essentialConcepts/rate-limits). On a `429`, wait the time given in the `Retry-After` header.
   </Step>
 </Steps>

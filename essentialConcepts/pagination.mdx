@@ -48,11 +48,11 @@ Abaixo, demonstramos como buscar a primeira página de requisições e iterar so
 
 ```bash cURL
 # 1. Buscando a primeira página (10 itens)
-curl -X GET "[https://requests.production.judit.io/requests?page=1&page_size=10](https://requests.production.judit.io/requests?page=1&page_size=10)" \
+curl -X GET "https://requests.production.judit.io/requests?page=1&page_size=10&created_at_gte=2026-01-01&created_at_lte=2026-01-31" \
   -H "api-key: $JUDIT_API_KEY"
 
 # 2. Buscando uma página específica (ex: página 3, 25 itens)
-curl -X GET "[https://requests.production.judit.io/requests?page=3&page_size=25](https://requests.production.judit.io/requests?page=3&page_size=25)" \
+curl -X GET "https://requests.production.judit.io/requests?page=3&page_size=25&created_at_gte=2026-01-01&created_at_lte=2026-01-31" \
   -H "api-key: $JUDIT_API_KEY"
 ```
 
@@ -61,7 +61,7 @@ import requests
 import os
 
 api_key = os.getenv('JUDIT_API_KEY')
-base_url = "[https://requests.production.judit.io](https://requests.production.judit.io)"
+base_url = "https://requests.production.judit.io"
 
 def get_requests_page(page=1, page_size=20):
     """Busca uma página específica do histórico de requisições"""
@@ -71,7 +71,9 @@ def get_requests_page(page=1, page_size=20):
     }
     params = {
         'page': page,
-        'page_size': page_size
+        'page_size': page_size,
+        'created_at_gte': '2026-01-01',  # obrigatório
+        'created_at_lte': '2026-01-31'   # obrigatório
     }
     
     response = requests.get(f"{base_url}/requests", headers=headers, params=params)
@@ -91,12 +93,14 @@ if data:
 
 ```javascript JavaScript
 const apiKey = process.env.JUDIT_API_KEY;
-const baseUrl = "[https://requests.production.judit.io](https://requests.production.judit.io)";
+const baseUrl = "https://requests.production.judit.io";
 
 async function getRequestsPage(page = 1, pageSize = 20) {
     const params = new URLSearchParams({
         page: page.toString(),
-        page_size: pageSize.toString()
+        page_size: pageSize.toString(),
+        created_at_gte: '2026-01-01', // obrigatório
+        created_at_lte: '2026-01-31'  // obrigatório
     });
     
     try {

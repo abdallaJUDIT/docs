@@ -37,7 +37,7 @@ icon: "headset"
   <Step title="Revise os pontos mais comuns">
     - Header `api-key` presente e sem `Bearer` ([Autenticação](/introduction/authentication)).
     - Host certo para a rota (`requests`, `tracking` ou `lawsuits`).
-    - `page_size` entre 5 e 100 nas listagens, e `created_at_gte` informado em `GET /requests`.
+    - `page_size` entre 5 e 100 nas listagens, e `created_at_gte` e `created_at_lte` informados em `GET /requests` (os dois são obrigatórios).
     - Volume dentro do [limite de requisições](/essentialConcepts/rate-limits). Ao receber `429`, aguarde o tempo do header `Retry-After`.
   </Step>
 </Steps>
