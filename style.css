@@ -57,3 +57,12 @@ li.navbar-link > a[href*="status.judit.io"] svg,
 li.navbar-link > a[href$=".postman_collection.json"] svg {
   background-color: currentColor !important;
 }
+
+/* Código dentro de tabela (ex.: TRACKING_PAUSED_BY_INSUFFICIENT_CREDITS) quebrava no meio
+   da palavra. Agora só quebra em espaço; constantes longas alargam a coluna
+   e a tabela ganha rolagem horizontal. */
+table td code,
+table th code {
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+}

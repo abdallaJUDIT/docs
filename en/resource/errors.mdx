@@ -124,7 +124,7 @@ Messages returned by the API:
 | Route | `error.data` | Cause |
 | :--- | :--- | :--- |
 | `POST /requests`, `POST /tracking` | `search invalid input: expected object, received undefined` | The body has no `search` object. |
-| `POST /requests` | `search.search_type invalid option: expected one of 'cpf'\|'cnpj'\|'oab'\|'name'\|'rji'\|'lawsuit_cnj'\|'lawsuit_attachment'\|'execution_attachment'\|'custom'` | `search_type` is not in the accepted list. |
+| `POST /requests` | `search.search_type invalid option: expected one of ...` | `search_type` is not in the accepted list. The message lists the accepted values: `cpf`, `cnpj`, `oab`, `name`, `rji`, `lawsuit_cnj`, `lawsuit_attachment`, `execution_attachment`, `custom`. |
 | `POST /requests` | `search invalid CPF for search_key` | `search_key` is not a valid CPF. |
 | `POST /tracking` | `search.search_type search type not allowed` | `search_type` not accepted for trackings. |
 | `POST /tracking` | `search.search_key search key not allowed` | `search_key` is invalid for the given `search_type`. |

@@ -124,7 +124,7 @@ Mensagens retornadas pela API:
 | Rota | `error.data` | Causa |
 | :--- | :--- | :--- |
 | `POST /requests`, `POST /tracking` | `search invalid input: expected object, received undefined` | O corpo não tem o objeto `search`. |
-| `POST /requests` | `search.search_type invalid option: expected one of 'cpf'\|'cnpj'\|'oab'\|'name'\|'rji'\|'lawsuit_cnj'\|'lawsuit_attachment'\|'execution_attachment'\|'custom'` | `search_type` fora da lista aceita. |
+| `POST /requests` | `search.search_type invalid option: expected one of ...` | `search_type` fora da lista aceita. A mensagem traz os valores aceitos: `cpf`, `cnpj`, `oab`, `name`, `rji`, `lawsuit_cnj`, `lawsuit_attachment`, `execution_attachment`, `custom`. |
 | `POST /requests` | `search invalid CPF for search_key` | `search_key` não é um CPF válido. |
 | `POST /tracking` | `search.search_type search type not allowed` | `search_type` não aceito para monitoramento. |
 | `POST /tracking` | `search.search_key search key not allowed` | `search_key` inválido para o `search_type` informado. |
