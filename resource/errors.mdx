@@ -1,136 +1,172 @@
 ---
 title: "Códigos de Erro — Judit API"
 sidebarTitle: "Códigos de Erro"
-description: "Lista consolidada dos códigos HTTP, application_error, exceções internas e troubleshooting da Judit API. Erros de autenticação, validação, sigilo, falhas de tribunal, rate limit e como resolver cada um."
-keywords: ["erros", "codes", "http", "application_error", "401", "403", "404", "429", "500", "lawsuit_not_found", "user_not_found", "troubleshooting"]
+description: "Erros retornados pela Judit API: formato do erro HTTP, códigos em error.data (401, 403, 404, 400 de validação) e o application_error das consultas, com exemplos reais."
+keywords: ["erros", "codes", "http", "application_error", "400", "401", "403", "404", "lawsuit_not_found", "user_not_found", "missing_authorization", "troubleshooting"]
 icon: "triangle-exclamation"
 ---
 
-> 🤖 Esta página é a referência única de erros da Judit API: HTTP 2xx/4xx/5xx, exceções internas (`name`), `application_error` retornados no payload (mesmo quando o HTTP é 200), e troubleshooting prático.
+> 🤖 Esta página lista os erros que a Judit API retorna nas chamadas: o erro HTTP (`4xx`), com o código específico em `error.data`, e o `application_error` que chega como resultado de uma consulta. Todos os exemplos são respostas reais da API.
 
 ## Anatomia de um erro
 
 A Judit API distingue dois tipos de erro:
 
 <CardGroup cols={2}>
-  <Card title="Erros de transporte (HTTP 4xx/5xx)" icon="plug-circle-xmark">
-    A requisição falhou em validação básica, autenticação, autorização ou no servidor. O payload tem o formato `{ error: { name, message, data } }`.
+  <Card title="Erro HTTP (4xx)" icon="plug-circle-xmark">
+    A chamada foi recusada: autenticação, permissão, recurso inexistente ou validação. O corpo tem o formato `{ "error": { "name", "message", "data" } }`, e o código específico vem em `error.data`.
   </Card>
-  <Card title="Erros de aplicação (response_type: application_error)" icon="circle-exclamation">
-    O HTTP é `200`, mas a consulta não trouxe o objeto esperado. Pode ser "processo não encontrado", "homônimo", sigilo, etc. Vem dentro de `responses[].response_type = application_error`.
+  <Card title="Erro de aplicação (application_error)" icon="circle-exclamation">
+    A chamada foi aceita, mas a consulta não trouxe o objeto esperado (por exemplo, processo não encontrado). Chega como um item com `response_type: "application_error"` em `GET /responses` e no webhook.
   </Card>
 </CardGroup>
 
-## Códigos HTTP de Status
+## Formato do erro HTTP
 
-A API utiliza as convenções padrão do protocolo HTTP.
-
-### Sucesso (2xx)
-
-| HTTP | Significado | Quando ocorre |
-| :--- | :--- | :--- |
-| `200` | **OK** | Requisição processada e dados retornados com sucesso. |
-| `201` | **Created** | Recurso (ex.: novo monitoramento, nova request) criado com sucesso. |
-
-### Erros do Cliente (4xx)
-
-| HTTP | `error.message` típico | Quando ocorre | Como resolver |
-| :--- | :--- | :--- | :--- |
-| `400` | `BAD_REQUEST` | Payload mal formado, campos obrigatórios ausentes, enum inválido. | Veja `error.data` — traz a lista de validações falhas. Confira o [Schema do Lawsuit](/schemas/lawsuit-object). |
-| `401` | `UNAUTHORIZED` | `api-key` ausente ou inválida. | Confira o header `api-key` (sem espaço, sem `Bearer`). Ver [Autenticação](/introduction/authentication). |
-| `403` | `FORBIDDEN` | A `api-key` é válida, mas não tem permissão para o recurso (ex.: feature não contratada, sigilo sem credencial). | Verifique se a feature está habilitada no seu plano e se há credencial do tribunal no [Cofre](/essentials/cofre-de-credenciais). |
-| `404` | `NOT_FOUND` | Recurso inexistente — `request_id`/`tracking_id` inválido, CNJ não está no datalake. | Confirme o ID. Para CNJs novos, dispare antes uma consulta assíncrona via [`POST /requests`](/requests/requests). |
-| `422` | `UNPROCESSABLE_ENTITY` | Estrutura válida mas semanticamente inválida (ex.: `search_type` incompatível com `response_type`). | Veja a tabela em [Tipos de Busca](/requests/requests#tipos-de-busca-suportados). |
-| `429` | `TOO_MANY_REQUESTS` | Rate limit do plano excedido. | Implemente backoff exponencial. Cheque os headers `X-RateLimit-*` no response. |
-
-### Erros do Servidor (5xx)
-
-| HTTP | `error.message` típico | Quando ocorre | Como resolver |
-| :--- | :--- | :--- | :--- |
-| `500` | `INTERNAL_SERVER_ERROR` | Falha inesperada do lado da Judit. | Tente novamente com backoff. Se persistir, abra um chamado em `atendimento@judit.io` referenciando o `request_id`. |
-| `502` / `504` | `BAD_GATEWAY` / `GATEWAY_TIMEOUT` | Tribunal de origem fora do ar ou timeout. Comum em consultas síncronas. | Tente novamente — se a falha persistir, fluxo assíncrono via [`POST /requests`](/requests/requests) é mais resiliente. |
-| `503` | `SERVICE_UNAVAILABLE` | Manutenção. | Aguarde alguns minutos. Acompanhe em status.judit.io (se habilitado). |
-
-## Estrutura do payload de erro HTTP
-
-Independentemente do status (400 ou 500), o corpo da resposta sempre seguirá este contrato:
+Todo erro HTTP tem o mesmo envelope:
 
 ```json
 {
-    "error": {
-        "name": "HttpBadRequestError",
-        "message": "BAD_REQUEST",
-        "data": [
-            {
-                "field": "search.search_key",
-                "rule": "required",
-                "message": "search_key is required"
-            }
-        ]
-    }
+  "error": {
+    "name": "HttpUnauthorizedError",
+    "message": "UNAUTHORIZED",
+    "data": "USER_NOT_FOUND"
+  }
 }
 ```
 
 | Campo | Descrição |
 | :--- | :--- |
-| `error.name` | Código interno da exceção (ex.: `HttpBadRequestError`, `HttpNotFoundError`, `HttpUnauthorizedError`, `USER_NOT_FOUND`). Use no seu `switch`/`case` para automação. |
-| `error.message` | Categoria amigável (`BAD_REQUEST`, `UNAUTHORIZED`, etc.). |
-| `error.data` | Detalhes — array de validações ou string com mensagem específica. Útil para exibir validações de formulário ao usuário final. |
+| `error.name` | Classe do erro HTTP: `HttpBadRequestError`, `HttpUnauthorizedError`, `HttpForbiddenError` ou `HttpNotFoundError`. |
+| `error.message` | Categoria: `BAD_REQUEST`, `UNAUTHORIZED`, `FORBIDDEN` ou `NOT_FOUND`. |
+| `error.data` | O código específico. Em `401`, `403` e `404` é uma string (ex.: `USER_NOT_FOUND`, `TRACKING_NOT_FOUND`). Em `400` é uma **lista de strings**, uma por regra violada (ex.: `["request_id invalid UUID"]`). |
 
-## Códigos internos (`error.name`)
+<Tip>
+Para automação, use `error.data` no seu `switch`/`case`. O `error.name` e o `error.message` só dizem a categoria.
+</Tip>
 
-Use estes valores para automação programática:
+## Códigos HTTP
 
-### Autenticação e permissões
-
-| Código (`name`) | HTTP | Causa comum |
-| :--- | :--- | :--- |
-| `USER_NOT_FOUND` | 401 | API key não enviada no header ou chave revogada. |
-| `INSUFFICIENT_PERMISSIONS` | 403 | Tentativa de uso de módulo bloqueado no plano. |
-| `HttpUnauthorizedError` | 401 | Genérico — chave inválida. |
-
-### Validação e processamento
-
-| Código (`name`) | HTTP | Causa comum |
-| :--- | :--- | :--- |
-| `HttpBadRequestError` | 400 | JSON malformado ou campos faltando. |
-| `RESOURCE_NOT_FOUND` | 404 | CNJ ainda não capturado. |
-| `REQUEST_NOT_FOUND` | 404 | `request_id` consultado não existe. |
-| `PROCESSING_ERROR` | 422 | Robô falhou ao ler dados no tribunal. |
-
-## Erros de aplicação (`application_error`)
-
-Quando você recebe `response_type: application_error` em vez do payload esperado, a consulta foi processada com sucesso mas o resultado é uma exceção lógica.
-
-| `response_data.code` | Significado | Quando ocorre | Como resolver |
+| HTTP | `error.name` | `error.message` | Quando ocorre |
 | :--- | :--- | :--- | :--- |
-| `LAWSUIT_NOT_FOUND` | Processo não encontrado. | CNJ inexistente ou não acessível. | Verifique o número e tribunal. Pode ser sigiloso — adicione `customer_key` (Cofre). |
-| `ENTITY_NOT_FOUND` | Pessoa/empresa não localizada. | CPF/CNPJ não consta no datalake nem no tribunal. | Tente `on_demand: true` para forçar coleta no tribunal. |
-| `WARRANT_NOT_FOUND` | Mandado não encontrado no BNMP. | Sem mandados para o documento informado. | Tente busca por `name` ou `rji` se aplicável. |
-| `EXECUTION_NOT_FOUND` | Execução penal não encontrada. | Sem registros para o documento. | Confira o tribunal de origem (Justiça da Execução Penal). |
-| `INVALID_CREDENTIAL` | Credencial do Cofre inválida ou expirada. | Token/login do tribunal expirou. | Atualize a credencial no [Cofre](/essentials/cofre-de-credenciais). |
-| `CRAWLER_ERROR` | Falha na coleta do tribunal. | Tribunal fora do ar, captcha mal resolvido, mudança de layout. | Tente novamente. Se persistir, fluxo de fallback automático é acionado. |
-| `RATE_LIMIT_TRIBUNAL` | Tribunal limitou a coleta. | Limite imposto pelo próprio tribunal. | A Judit retoma automaticamente no próximo ciclo. Use `cache_ttl_in_days` maior. |
-| `SECRECY_RESTRICTED` | Processo em sigilo sem credencial associada. | `secrecy_level > 0` e a `api-key` não tem credencial do tribunal. | Cadastre uma credencial no [Cofre](/essentials/cofre-de-credenciais) e referencie via `customer_key`. |
-| `HOMONYM_AMBIGUOUS` | Busca por nome resultou em homônimos. | Nome muito comum, sem critério adicional. | Refine via CPF/CNPJ ou aplique filtros (`tribunals`, `state`). |
+| `400` | `HttpBadRequestError` | `BAD_REQUEST` | Corpo ou parâmetros inválidos: campo obrigatório ausente, UUID malformado, valor fora do permitido, paginação fora do limite. |
+| `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | Header `api-key` ausente ou com chave inválida. |
+| `403` | `HttpForbiddenError` | `FORBIDDEN` | A chave é válida, mas não tem acesso ao recurso pedido. |
+| `404` | `HttpNotFoundError` | `NOT_FOUND` | O recurso pedido pelo ID não existe. |
 
-### Exemplo de application_error
+<Note>
+Uma rota que não existe (URL digitada errada) retorna `404` com corpo em texto puro (`Content-Type: text/plain`): `Not Found`. Não é JSON, então trate o caso antes de fazer o parse do corpo.
+</Note>
+
+## Códigos em `error.data`
+
+### Autenticação (`401`)
+
+| `error.data` | Quando ocorre | Como resolver |
+| :--- | :--- | :--- |
+| `MISSING_AUTHORIZATION` | O header `api-key` não foi enviado. | Envie o header `api-key` em toda chamada. Ver [Autenticação](/introduction/authentication). |
+| `USER_NOT_FOUND` | O header `api-key` foi enviado, mas a chave não existe. | Confira o valor da chave (sem espaço, sem quebra de linha, sem o prefixo `Bearer`). |
 
 ```json
 {
-    "request_id": "87d9f7bf-0071-41ee-a721-e6e1b4082bc9",
-    "responses": [
-        {
-            "response_id": "b6c1a4f0-1234-5678-9abc-def012345678",
-            "response_type": "application_error",
-            "response_data": {
-                "code": "LAWSUIT_NOT_FOUND",
-                "message": "Lawsuit 0000000-00.0000.0.00.0000 not found in datalake or court."
-            }
-        }
-    ]
+  "error": {
+    "name": "HttpUnauthorizedError",
+    "message": "UNAUTHORIZED",
+    "data": "MISSING_AUTHORIZATION"
+  }
 }
 ```
+
+### Permissão (`403`)
+
+| `error.data` | Quando ocorre | Como resolver |
+| :--- | :--- | :--- |
+| `UNAUTHORIZED_TO_ACCESS_THIS_TRACKED_ITEM` | `GET /tracked-item` chamado sem o filtro `tracking_id`. | Informe o `tracking_id` do monitoramento. |
+
+### Recurso não encontrado (`404`)
+
+| `error.data` | Rota | Quando ocorre |
+| :--- | :--- | :--- |
+| `REQUEST_NOT_FOUND` | `GET /requests/{request_id}` | O `request_id` não foi encontrado. |
+| `RESPONSE_NOT_FOUND` | `GET /responses/{response_id}` | O `response_id` não foi encontrado. |
+| `TRACKING_NOT_FOUND` | `GET /tracking/{tracking_id}` | O `tracking_id` não foi encontrado. |
+| `TRACKED_ITEM_NOT_FOUND` | `GET /tracked-item/{tracked_item_id}` | O item monitorado não foi encontrado. |
+| `TRANSFER_FILE_NOT_FOUND` | `GET /transfer-file/{transfer_file_id}` | A transferência de arquivo não foi encontrada. |
+
+```json
+{
+  "error": {
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "TRACKING_NOT_FOUND"
+  }
+}
+```
+
+### Validação (`400`)
+
+No `400`, `error.data` é uma lista. Cada item segue o padrão `"<campo> <mensagem>"`, e a lista traz **todas** as regras violadas na mesma chamada.
+
+```json
+{
+  "error": {
+    "name": "HttpBadRequestError",
+    "message": "BAD_REQUEST",
+    "data": [
+      "page_size too small: expected number to be >=5"
+    ]
+  }
+}
+```
+
+Mensagens retornadas pela API:
+
+| Rota | `error.data` | Causa |
+| :--- | :--- | :--- |
+| `POST /requests`, `POST /tracking` | `search invalid input: expected object, received undefined` | O corpo não tem o objeto `search`. |
+| `POST /requests` | `search.search_type invalid option: expected one of 'cpf'\|'cnpj'\|'oab'\|'name'\|'rji'\|'lawsuit_cnj'\|'lawsuit_attachment'\|'execution_attachment'\|'custom'` | `search_type` fora da lista aceita. |
+| `POST /requests` | `search invalid CPF for search_key` | `search_key` não é um CPF válido. |
+| `POST /tracking` | `search.search_type search type not allowed` | `search_type` não aceito para monitoramento. |
+| `POST /tracking` | `search.search_key search key not allowed` | `search_key` inválido para o `search_type` informado. |
+| `POST /tracking/bulk` | `trackings too small: expected array to have >=1 items` | A lista `trackings` está vazia. |
+| `POST /lawsuits/count` | `search.search_type search type not allowed` | `search_type` não aceito na contagem. |
+| `POST /entities` | `search.search_key cPF inválido. Verifique o documento informado.` | `search_key` não é um CPF válido. |
+| `GET /requests/{request_id}`, `GET /responses/{response_id}`, `GET /responses/tracking/{origin_id}`, `GET /tracking/{tracking_id}`, `GET /tracked-item/{tracked_item_id}`, `GET /transfer-file/{transfer_file_id}` | `<campo> invalid UUID` (ex.: `request_id invalid UUID`, `origin_id invalid UUID`) | O ID na URL não é um UUID. |
+| `GET /requests`, `GET /responses/tracking/{origin_id}` | `created_at_gte invalid input: expected date, received Date` e `created_at_lte invalid input: expected date, received Date` | Os filtros de data `created_at_gte` e `created_at_lte` são **obrigatórios** nessas rotas, e precisam ser datas válidas (ex.: `2026-10-01T00:00:00.000Z`). |
+| `GET /responses` | `REQUEST_OR_ORIGIN_ID_NOT_FOUND` | Faltou informar o `request_id`. |
+| `GET /responses` | `REQUEST_NOT_FOUND` | O `request_id` informado não foi encontrado ou não é um UUID. |
+| `GET /responses/tracking/{origin_id}` | `REQUEST_OR_TRACKING_NOT_FOUND` | O monitoramento informado não foi encontrado. |
+| `GET /requests` | `page too small: expected number to be >=1` | `page` menor que `1`. |
+| `GET /requests`, `GET /tracking` | `page invalid input: expected number, received NaN` | `page` não numérico. |
+| `GET /requests`, `GET /tracking`, `GET /tracked-item` | `page_size too small: expected number to be >=5` | `page_size` menor que `5`. |
+| `GET /requests`, `GET /transfer-file`, `GET /responses`, `GET /tracking` | `page_size too big: expected number to be <=N` | `page_size` acima do máximo da rota: `100` em `GET /requests` e `GET /transfer-file`; `1000` em `GET /responses` e `GET /tracking`. |
+| `GET /requests`, `GET /tracking` | `status invalid status value.` | Valor de `status` fora da lista aceita. |
+
+<Warning>
+Em `GET /responses`, um `request_id` que não existe retorna **`400`** (`REQUEST_NOT_FOUND` dentro da lista), e não `404`. Já `GET /requests/{request_id}` retorna `404` para o mesmo caso.
+</Warning>
+
+## Erros de aplicação (`application_error`)
+
+Quando a consulta é aceita mas não encontra o que foi pedido, o resultado chega como um item com `response_type: "application_error"` nas respostas da requisição ([`GET /responses`](/api-reference/endpoint/responses/find-many)), que também são entregues no [webhook](/webhook/callbacks#eventos-enviados). O `response_data` tem um `code` numérico e uma `message` com o nome do erro:
+
+| `response_data.code` | `response_data.message` | Quando ocorre | Como resolver |
+| :--- | :--- | :--- | :--- |
+| `2` | `LAWSUIT_NOT_FOUND` | O processo pedido não foi encontrado. | Confira o número do processo e, se for o caso, o tribunal informado. |
+
+```json
+{
+  "response_type": "application_error",
+  "response_data": {
+    "code": 2,
+    "message": "LAWSUIT_NOT_FOUND"
+  }
+}
+```
+
+<Note>
+Os avisos `application_info` (fim da requisição, `code: 600`, e monitoramento pausado, `code: 700` a `703`) não são erros. Veja [Eventos enviados](/webhook/callbacks#eventos-enviados).
+</Note>
 
 ## Handler centralizado (código pronto)
 
@@ -138,53 +174,41 @@ Crie um interceptador único para logar e tratar os erros da Judit API.
 
 <CodeGroup>
 ```python Python
-import requests, os
+import requests
 
 def handle_judit_error(response: requests.Response) -> None:
     """Decodifica e trata erros da Judit API."""
     if response.status_code < 400:
         return
-    try:
-        payload = response.json()
-        error_block = payload.get('error', {})
-        error_name = error_block.get('name', 'UNKNOWN_ERROR')
-        error_details = error_block.get('data', [])
-        print(f"❌ HTTP {response.status_code}: {error_name}")
-        if error_details:
-            print("Detalhes:")
-            for detail in error_details:
-                print(f"  - {detail}")
-        if error_name == 'USER_NOT_FOUND':
-            raise PermissionError("API key inválida. Verifique JUDIT_API_KEY.")
-        if response.status_code == 429:
-            print("⚠️ Rate limit excedido. Acione backoff.")
-    except ValueError:
-        print(f"Erro crítico {response.status_code}: resposta não é JSON válido.")
-        print(response.text)
+    if "application/json" not in response.headers.get("Content-Type", ""):
+        # Rota inexistente: 404 com corpo em texto puro ("Not Found")
+        raise RuntimeError(f"HTTP {response.status_code}: {response.text}")
+    error = response.json().get("error", {})
+    data = error.get("data")
+    print(f"❌ HTTP {response.status_code} {error.get('message')}: {data}")
+    if data in ("MISSING_AUTHORIZATION", "USER_NOT_FOUND"):
+        raise PermissionError("API key ausente ou inválida. Verifique o header api-key.")
+    if response.status_code == 400 and isinstance(data, list):
+        for violation in data:
+            print(f"  - {violation}")
 ```
 
 ```javascript Node.js
 async function handleJuditError(response) {
   if (response.ok) return;
-  try {
-    const payload = await response.json();
-    const errorBlock = payload.error || {};
-    const errorName = errorBlock.name || 'UNKNOWN_ERROR';
-    const errorDetails = errorBlock.data || [];
-    console.error(`❌ HTTP ${response.status}: ${errorName}`);
-    if (errorDetails.length > 0) {
-      console.error("Detalhes:");
-      errorDetails.forEach(detail => console.error(`  - ${JSON.stringify(detail)}`));
-    }
-    if (errorName === 'USER_NOT_FOUND') {
-      throw new Error("API key inválida. Verifique JUDIT_API_KEY.");
-    }
-    if (response.status === 429) {
-      console.warn("⚠️ Rate limit excedido. Acione backoff.");
-    }
-  } catch (e) {
-    if (e.name !== 'SyntaxError') throw e;
-    console.error(`Erro crítico ${response.status}: resposta não é JSON válido.`);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    // Rota inexistente: 404 com corpo em texto puro ("Not Found")
+    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+  }
+  const { error = {} } = await response.json();
+  const data = error.data;
+  console.error(`❌ HTTP ${response.status} ${error.message}: ${JSON.stringify(data)}`);
+  if (data === "MISSING_AUTHORIZATION" || data === "USER_NOT_FOUND") {
+    throw new Error("API key ausente ou inválida. Verifique o header api-key.");
+  }
+  if (response.status === 400 && Array.isArray(data)) {
+    data.forEach((violation) => console.error(`  - ${violation}`));
   }
 }
 ```
@@ -193,54 +217,42 @@ async function handleJuditError(response) {
 ## Padrões de tratamento
 
 <AccordionGroup>
-  <Accordion title="Backoff exponencial em 429 e 5xx">
-    Implemente retry com jitter:
-
-    ```python
-    import time, random
-    for attempt in range(5):
-        resp = requests.post(url, headers=h, json=body)
-        if resp.status_code < 500 and resp.status_code != 429:
-            break
-        sleep = (2 ** attempt) + random.random()
-        time.sleep(sleep)
-    ```
-
-    O header `Retry-After` (quando presente) deve ser respeitado.
+  <Accordion title="Chaveie pelo `error.data`, não pelo `error.name`">
+    O `error.name` só indica a categoria (`HttpNotFoundError`, por exemplo). O que diferencia um `TRACKING_NOT_FOUND` de um `REQUEST_NOT_FOUND` é o `error.data`.
   </Accordion>
 
-  <Accordion title="Idempotência via `callback_id`">
-    O webhook reentrega em caso de falha. Sempre cheque `callback_id` antes de processar — guarde em uma tabela (id, recebido_em). Se já existe, ignore.
+  <Accordion title="No `400`, mostre todas as violações">
+    O `error.data` do `400` traz todas as regras violadas de uma vez. Exiba a lista inteira para corrigir tudo numa única tentativa.
+  </Accordion>
+
+  <Accordion title="Chaveie o `application_error` pela `message`">
+    No `application_error`, use `response_data.message` (ex.: `LAWSUIT_NOT_FOUND`) para decidir o tratamento.
   </Accordion>
 
   <Accordion title="Distinção `application_error` vs HTTP 4xx">
     Trate `application_error` como **resultado válido** da consulta (a integração está OK), enquanto HTTP 4xx indica que **a chamada** está errada. Logue separadamente no monitoramento.
   </Accordion>
 
-  <Accordion title="Sigilo (`secrecy_level`)">
-    Quando o processo é sigiloso e a `api-key` não tem credencial registrada para o tribunal, a Judit retorna `application_error: SECRECY_RESTRICTED`. Para acessar, cadastre a credencial do advogado no [Cofre](/essentials/cofre-de-credenciais) e referencie via `customer_key` na própria consulta.
-  </Accordion>
-
-  <Accordion title="Quotas e limites">
-    Ao receber 429, leia `X-RateLimit-Limit`, `X-RateLimit-Remaining` e `X-RateLimit-Reset` para ajustar o disparo. Para fluxos em massa, adote janela deslizante.
+  <Accordion title="Idempotência via `callback_id`">
+    O webhook reentrega em caso de falha. Sempre cheque `callback_id` antes de processar — guarde em uma tabela (id, recebido_em). Se já existe, ignore.
   </Accordion>
 </AccordionGroup>
 
 ## Tabela de troubleshooting rápida
 
-| Sintoma | Hipótese mais provável | Próximo passo |
+| Sintoma | Causa | Próximo passo |
 | :--- | :--- | :--- |
-| HTTP 401 sempre | Header `api-key` ausente / valor errado / espaço/quebra de linha. | `echo $JUDIT_API_KEY \| wc -c` — confira o tamanho. |
-| HTTP 403 em rota específica | Feature não habilitada no plano. | Falar com a Judit no `atendimento@judit.io`. |
-| `LAWSUIT_NOT_FOUND` em CNJ existente | CNJ está em sigilo. | Ver [Cofre de Credenciais](/essentials/cofre-de-credenciais). |
-| Webhook não chega | URL não pública/HTTPS, ou retornando ≠ 2xx. | Confira em [Webhook](/webhook/callbacks#requisitos-do-endpoint). |
-| 2 webhooks com mesmo `request_id` | Comportamento esperado — primeiro vem do cache (`cached_response: true`), segundo do tribunal. | Veja [cached_response](/webhook/callbacks#duas-respostas). |
-| Tracking sem novos eventos | `recurrence` muito alta ou `notification_filters.step_terms` muito restrito. | Reduza recurrence; relaxe filtros. |
-| Resposta vazia em `name` | Homônimo ou nome com acentos. | Buscar por CPF/CNPJ; remover acentos para teste. |
+| `401` com `MISSING_AUTHORIZATION` | Header `api-key` não enviado. | Confira o nome do header: `api-key`. |
+| `401` com `USER_NOT_FOUND` | Chave errada, com espaço ou quebra de linha. | `echo $JUDIT_API_KEY \| wc -c` — confira o tamanho. |
+| `400` em `GET /requests` ou `GET /responses/tracking/{origin_id}` com `created_at_gte invalid input` | Faltaram os filtros de data obrigatórios. | Envie `created_at_gte` e `created_at_lte`. |
+| `400` com `page_size too small` | `page_size` menor que `5`. | Use `page_size` a partir de `5`, até o máximo da rota. |
+| `404` com corpo `Not Found` em texto | URL da rota errada. | Confira o host e o caminho na [Referência da API](/api-reference/endpoint/requests/create). |
+| `application_error` com `LAWSUIT_NOT_FOUND` | O processo não foi encontrado. | Confira o número do processo. |
+| 2 webhooks com mesmo `request_id` | Comportamento esperado — primeiro vem do cache (`cached_response: true`), segundo do tribunal. | Veja [cached_response](/webhook/callbacks#cached_response-lendo-as-duas-entregas). |
 
 ## Próximos passos
 
-* 👉 **[Rate Limits](/essentialConcepts/rate-limits)** — função de Retry com Exponential Backoff para tratar `429`.
-* 👉 **[Autenticação](/introduction/authentication)** — como enviar credenciais corretamente para evitar `401`.
-* 👉 **[Webhook & Callbacks](/webhook/callbacks)** — comportamento de reentregas e idempotência.
-* 👉 **[Glossário](/resource/glossary)** — termos técnicos referenciados
+* 👉 **[Autenticação](/introduction/authentication)** — como enviar a `api-key` corretamente para evitar `401`.
+* 👉 **[Paginação](/essentialConcepts/pagination)** — parâmetros `page` e `page_size`.
+* 👉 **[Webhook & Callbacks](/webhook/callbacks)** — eventos, reentregas e idempotência.
+* 👉 **[Glossário](/resource/glossary)** — termos técnicos referenciados.

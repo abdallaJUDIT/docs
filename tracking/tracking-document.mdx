@@ -318,7 +318,7 @@ A propriedade `status` informa a situação atual do monitoramento, podendo ser:
     da última request feita pelo monitoramento.
   </li>
   <li>
-    <strong>paused</strong>: Monitoramento pausado, podendo ainda ser reativado.
+    <strong>paused</strong>: Monitoramento pausado manualmente (rota `pause`) ou automaticamente por teto de consumo ou falta de créditos, podendo ainda ser reativado.
   </li>
   <li>
     <strong>deleted</strong>: Monitoramento cancelado e não pode mais ser
@@ -383,6 +383,10 @@ Aqui está um exemplo de retorno do monitoramento pausado:
   "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+<Warning>
+Além da pausa manual, o monitoramento pode ser pausado automaticamente quando a sua empresa atinge o teto de consumo ou fica sem créditos. Nesse caso, o motivo fica em `tags.pause_reason` e o `callback_url` recebe um aviso `application_info`. A reativação é manual: depois de regularizar os créditos, chame a rota `resume`. Veja [Pausa automática por teto de consumo ou saldo](/tracking/tracking#pausa-automática-por-teto-de-consumo-ou-saldo) e os [códigos do callback](/webhook/callbacks#monitoramento-pausado-por-teto-de-consumo-ou-saldo).
+</Warning>
 
 ## Reativando um Monitoramento
 

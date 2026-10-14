@@ -1,0 +1,450 @@
+---
+title: "Dicionário de Tags Processuais"
+sidebarTitle: "Tags temáticas"
+description: "As 36 tags temáticas que a Judit atribui a cada processo: o que cada uma significa, como é marcada (assunto, classe ou raiz de CNPJ) e como se combina com as demais."
+keywords: ["tags", "classificação", "tema", "setor", "assunto", "classe", "cnpj", "tpu"]
+icon: "tags"
+---
+
+
+As tags classificam o processo por **tema jurídico ou setor econômico**. Elas não são exclusivas: um mesmo processo pode — e frequentemente vai — receber várias tags ao mesmo tempo. Uma ação de consumidor contra uma operadora de telefonia, por exemplo, sai com `consumer` e `telecom`.
+
+São **36 tags** em **6 áreas**.
+
+<Note>
+**Nota metodológica:** como as tags se sobrepõem, a soma de processos por tag é maior que o total de processos de uma carteira. Para contar processos únicos, use o total da carteira — não a soma das tags.
+</Note>
+
+## Como a marcação funciona
+
+Cada tag tem um dicionário próprio. A tag fica **verdadeira** quando o processo casa com pelo menos uma das regras desse dicionário. Existem três critérios, que podem ser usados isoladamente ou combinados:
+
+<CardGroup cols={3}>
+  <Card title="Assunto" icon="book">
+    **35 tags.** Código de assunto da Tabela Processual Unificada (TPU/CNJ) cadastrado no processo. É o critério principal e cobre quase todo o dicionário.
+  </Card>
+  <Card title="Classe" icon="folder-tree">
+    **22 tags.** Classe processual da TPU — por exemplo, execução fiscal, ação civil pública ou recuperação judicial. Captura o tipo de procedimento mesmo quando o assunto é genérico.
+  </Card>
+  <Card title="Raiz de CNPJ" icon="building">
+    **10 tags.** Os 8 primeiros dígitos do CNPJ de uma parte. Identifica o setor pela empresa envolvida (banco, seguradora, operadora, concessionária, plataforma), cobrindo todas as filiais.
+  </Card>
+</CardGroup>
+
+<Warning>
+**Códigos inativos da TPU continuam no dicionário.** Processos antigos seguem com códigos de assunto e classe que o CNJ já desativou. Esses códigos são mantidos de propósito, para que o acervo histórico continue classificado corretamente.
+</Warning>
+
+## Onde as tags aparecem
+
+As tags chegam no objeto `tags` de `response_data`, como chaves booleanas, junto com os metadados de controle do processo (como `dictionary_updated_at`). Só aparecem as tags que se aplicam ao processo: trate uma chave ausente, ou com valor diferente de `true`, como falsa.
+
+```json
+"response_data": {
+  "code": "9999999-99.9999.9.99.9999",
+  "tags": {
+    "dictionary_updated_at": "2026-09-02T03:55:30.682Z",
+    "labor": true
+  }
+}
+```
+
+<Note>
+Em processos sigilosos (`secrecy_level` maior que `0`), o objeto `tags` não é retornado.
+</Note>
+
+## Catálogo de tags
+
+Todas as tags agrupadas por área. Clique no código para ir à definição completa.
+
+### Penal e Compliance (4)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`pld`](#pld) | Prevenção à lavagem de dinheiro | Assunto · Classe |
+| [`criminal`](#criminal) | Criminal | Assunto · Classe |
+| [`environmentalCrimes`](#environmentalcrimes) | Crimes ambientais | Assunto |
+| [`slavery`](#slavery) | Trabalho análogo à escravidão | Assunto |
+
+### Financeiro e Crédito (7)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`banking`](#banking) | Bancário | Assunto · Classe · CNPJ |
+| [`debt_collection`](#debt_collection) | Cobrança e execução de crédito | Assunto · Classe |
+| [`bankruptcy`](#bankruptcy) | Recuperação judicial e falência | Assunto · Classe |
+| [`fiscal_execution`](#fiscal_execution) | Execução fiscal | Assunto · Classe |
+| [`precatory`](#precatory) | Precatório e RPV | Assunto · Classe · CNPJ |
+| [`tax`](#tax) | Tributário | Assunto |
+| [`insurers`](#insurers) | Seguros | Assunto · CNPJ |
+
+### Cível e Empresarial (7)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`civil_liability`](#civil_liability) | Responsabilidade civil | Assunto · Classe |
+| [`contract_law`](#contract_law) | Direito contratual | Assunto · Classe |
+| [`company_law`](#company_law) | Direito societário | Assunto · Classe |
+| [`consumer`](#consumer) | Consumidor | Assunto · Classe |
+| [`real_estate`](#real_estate) | Imobiliário | Assunto · Classe |
+| [`intellectual_property`](#intellectual_property) | Propriedade intelectual | Assunto · Classe |
+| [`data_protection`](#data_protection) | Proteção de dados | Assunto · Classe |
+
+### Público e Institucional (5)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`public_administrative`](#public_administrative) | Administrativo e Fazenda Pública | Assunto · Classe |
+| [`public_civil`](#public_civil) | Ação civil pública e improbidade | Assunto · Classe |
+| [`electoral`](#electoral) | Eleitoral | Assunto · Classe |
+| [`military`](#military) | Militar | Assunto · Classe |
+| [`environmental`](#environmental) | Ambiental | Assunto |
+
+### Trabalho, Família e Social (7)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`labor`](#labor) | Trabalhista | Assunto · Classe |
+| [`gig_platform`](#gig_platform) | Plataforma de trabalho por aplicativo | CNPJ |
+| [`family_succession`](#family_succession) | Família e sucessões | Assunto · Classe |
+| [`juvenile`](#juvenile) | Infância e juventude | Assunto · Classe |
+| [`social_security`](#social_security) | Previdenciário e assistencial | Assunto |
+| [`education`](#education) | Educação | Assunto |
+| [`health`](#health) | Saúde | Assunto · CNPJ |
+
+### Setores Regulados (6)
+
+| Tag | Nome | Como marca |
+| :--- | :--- | :--- |
+| [`energy`](#energy) | Energia e gás | Assunto · CNPJ |
+| [`sanitation`](#sanitation) | Água e saneamento | Assunto · CNPJ |
+| [`telecom`](#telecom) | Telecomunicações | Assunto · CNPJ |
+| [`airlines`](#airlines) | Transporte aéreo | Assunto · CNPJ |
+| [`transport`](#transport) | Transporte e trânsito | Assunto · Classe |
+| [`social_media`](#social_media) | Redes sociais | Assunto · CNPJ |
+
+## Dicionário detalhado
+
+Para cada tag: **quando ela é marcada**, **o que significa estar verdadeira** e quais outras tags costumam vir junto ou devem ser usadas no lugar.
+
+### Penal e Compliance
+
+#### `pld`
+
+**Prevenção à lavagem de dinheiro** · Critérios: Assunto · Classe
+
+- **Quando marca:** Alerta de compliance. Marca processos com crimes ou classes do recorte de PLD: crimes contra a administração pública, contra as finanças públicas, contrabando e demais códigos selecionados para esse alerta.
+- **Tag verdadeira significa:** Há um sinal de risco de PLD no processo. É um recorte curado — o catálogo penal completo está em `criminal`.
+- **Tags relacionadas:** [`criminal`](#criminal) [`tax`](#tax) [`public_civil`](#public_civil)
+
+#### `criminal`
+
+**Criminal** · Critérios: Assunto · Classe
+
+- **Quando marca:** Qualquer processo penal, contravencional ou de ato infracional: crimes, contravenções e o espelho do ato infracional, inclusive quando o fato também pertence a outra tag.
+- **Tag verdadeira significa:** Existe um ilícito penal ou ato infracional no processo. A tag temática (tributário, ambiental, família etc.) pode vir ao lado.
+- **Tags relacionadas:** [`pld`](#pld) [`tax`](#tax) [`environmental`](#environmental) [`environmentalCrimes`](#environmentalcrimes) [`family_succession`](#family_succession) [`juvenile`](#juvenile) [`military`](#military) [`public_civil`](#public_civil)
+
+#### `environmentalCrimes`
+
+**Crimes ambientais** · Critérios: Assunto
+
+- **Quando marca:** Recorte estreito dos dois ramos de crime ambiental da TPU. Marca apenas por assunto.
+- **Tag verdadeira significa:** O assunto do processo é crime ambiental. O mesmo processo sempre recebe também `environmental` e `criminal`.
+- **Tags relacionadas:** [`environmental`](#environmental) [`criminal`](#criminal)
+
+#### `slavery`
+
+**Trabalho análogo à escravidão** · Critérios: Assunto
+
+- **Quando marca:** Trabalho escravo, tráfico de pessoas para esse fim e a chamada “lista suja”. Marca apenas por assunto.
+- **Tag verdadeira significa:** O processo trata de trabalho análogo à escravidão. O crime correspondente também marca `criminal`.
+- **Tags relacionadas:** [`criminal`](#criminal) [`labor`](#labor)
+
+### Financeiro e Crédito
+
+#### `banking`
+
+**Bancário** · Critérios: Assunto · Classe · CNPJ
+
+- **Quando marca:** Contrato bancário, cartão, financiamento, consórcio, alienação fiduciária, SFH, crédito rural, cédulas de crédito e demais matérias bancárias. Também marca quando qualquer parte tem raiz de CNPJ de banco, financeira ou fintech de pagamento.
+- **Tag verdadeira significa:** O processo é bancário pelo assunto, pela classe ou porque uma instituição financeira está em algum polo.
+- **Atenção:** A raiz de CNPJ, sozinha, marca somente `banking`.
+- **Tags relacionadas:** [`consumer`](#consumer) [`debt_collection`](#debt_collection) [`contract_law`](#contract_law)
+
+#### `debt_collection`
+
+**Cobrança e execução de crédito** · Critérios: Assunto · Classe
+
+- **Quando marca:** Cobrança de crédito privado: monitória, execução de título extrajudicial, cumprimento de sentença, embargos, penhora, títulos de crédito, protesto, inadimplemento e pagamento.
+- **Tag verdadeira significa:** O processo cobra ou executa um crédito privado.
+- **Atenção:** Precatório fica em `precatory`; dívida ativa fica em `fiscal_execution`.
+- **Tags relacionadas:** [`precatory`](#precatory) [`fiscal_execution`](#fiscal_execution) [`banking`](#banking)
+
+#### `bankruptcy`
+
+**Recuperação judicial e falência** · Critérios: Assunto · Classe
+
+- **Quando marca:** Recuperação judicial, falência, liquidação e concurso de credores, incluindo a classificação de crédito público da Fazenda dentro da insolvência.
+- **Tag verdadeira significa:** O processo é o da insolvência ou um incidente dela.
+- **Tags relacionadas:** [`fiscal_execution`](#fiscal_execution) [`company_law`](#company_law)
+
+#### `fiscal_execution`
+
+**Execução fiscal** · Critérios: Assunto · Classe
+
+- **Quando marca:** Cobrança da dívida ativa, tributária ou não: execução fiscal, embargos à execução fiscal e classificação de crédito público.
+- **Tag verdadeira significa:** A Fazenda Pública está cobrando uma CDA.
+- **Tags relacionadas:** [`tax`](#tax) [`environmental`](#environmental) [`bankruptcy`](#bankruptcy) [`debt_collection`](#debt_collection)
+
+#### `precatory`
+
+**Precatório e RPV** · Critérios: Assunto · Classe · CNPJ
+
+- **Quando marca:** Precatório e requisição de pequeno valor, inclusive processos que ainda vão gerar um. Também marca quando um ente público do dicionário está no polo passivo.
+- **Tag verdadeira significa:** Há precatório ou RPV, ou a Fazenda está sendo cobrada no polo passivo por um ente da lista.
+- **Atenção:** O CNPJ público só conta no polo passivo.
+- **Tags relacionadas:** [`debt_collection`](#debt_collection) [`public_administrative`](#public_administrative)
+
+#### `tax`
+
+**Tributário** · Critérios: Assunto
+
+- **Quando marca:** Impostos, taxas, contribuições, crédito tributário e processo administrativo fiscal, incluindo IBS, CBS, dívida ativa tributária e crimes contra a ordem tributária e as finanças públicas.
+- **Tag verdadeira significa:** Discute-se tributo ou crime tributário.
+- **Tags relacionadas:** [`fiscal_execution`](#fiscal_execution) [`social_security`](#social_security) [`criminal`](#criminal)
+
+#### `insurers`
+
+**Seguros** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Contrato de seguro, DPVAT e SPVAT. Também marca quando qualquer parte tem raiz de CNPJ de seguradora, em qualquer polo.
+- **Tag verdadeira significa:** Há seguro no assunto ou uma seguradora está no processo.
+- **Tags relacionadas:** [`contract_law`](#contract_law) [`consumer`](#consumer)
+
+### Cível e Empresarial
+
+#### `civil_liability`
+
+**Responsabilidade civil** · Critérios: Assunto · Classe
+
+- **Quando marca:** Dano civil em geral: responsabilidade civil, dano moral, dano material e direito de resposta da antiga Lei de Imprensa.
+- **Tag verdadeira significa:** Discute-se reparação civil. Quando o dano pertence a um tema com tag própria (consumo, saúde, trânsito), as duas tags podem vir juntas.
+- **Tags relacionadas:** [`consumer`](#consumer) [`health`](#health) [`transport`](#transport)
+
+#### `contract_law`
+
+**Direito contratual** · Critérios: Assunto · Classe
+
+- **Quando marca:** Contratos civis e comerciais em espécie: compra e venda, prestação de serviço, empreitada, mandato, doação, comodato, depósito, edição, mútuo, cláusula penal, arras, rescisão e evicção.
+- **Tag verdadeira significa:** O objeto do litígio é o contrato. Locação, seguro, transporte e contrato bancário recebem também a tag do tema.
+- **Tags relacionadas:** [`real_estate`](#real_estate) [`insurers`](#insurers) [`transport`](#transport) [`banking`](#banking)
+
+#### `company_law`
+
+**Direito societário** · Critérios: Assunto · Classe
+
+- **Quando marca:** Sociedades, tipos societários, dissolução e mercado de capitais.
+- **Tag verdadeira significa:** O processo discute a sociedade ou o mercado de capitais.
+- **Atenção:** Franquia, representação comercial e recuperação judicial ficam nas tags próprias.
+- **Tags relacionadas:** [`bankruptcy`](#bankruptcy) [`contract_law`](#contract_law)
+
+#### `consumer`
+
+**Consumidor** · Critérios: Assunto · Classe
+
+- **Quando marca:** Relação de consumo: árvore de Direito do Consumidor, crimes contra o consumidor e repactuação de dívidas por superendividamento.
+- **Tag verdadeira significa:** Existe relação de consumo. Plano de saúde, telefonia, energia, água, escola, banco e transporte recebem também a tag do setor.
+- **Tags relacionadas:** [`health`](#health) [`telecom`](#telecom) [`energy`](#energy) [`sanitation`](#sanitation) [`education`](#education) [`banking`](#banking) [`airlines`](#airlines)
+
+#### `real_estate`
+
+**Imobiliário** · Critérios: Assunto · Classe
+
+- **Quando marca:** Coisa imóvel, posse, propriedade, condomínio, locação, usucapião, registro de imóveis, desapropriação, política agrária e financiamento habitacional.
+- **Tag verdadeira significa:** O bem ou o contrato em discussão é imobiliário.
+- **Tags relacionadas:** [`family_succession`](#family_succession) [`public_administrative`](#public_administrative) [`contract_law`](#contract_law)
+
+#### `intellectual_property`
+
+**Propriedade intelectual** · Critérios: Assunto · Classe
+
+- **Quando marca:** Marca, patente, desenho industrial, direito autoral, software e contrato de edição, incluindo crimes contra a propriedade intelectual.
+- **Tag verdadeira significa:** O bem jurídico em disputa é a propriedade intelectual.
+- **Tags relacionadas:** [`criminal`](#criminal) [`contract_law`](#contract_law)
+
+#### `data_protection`
+
+**Proteção de dados** · Critérios: Assunto · Classe
+
+- **Quando marca:** LGPD e tratamento de dados pessoais, identificados por assunto ou classe próprios.
+- **Tag verdadeira significa:** O litígio discute o dado pessoal em si — não apenas um contrato ou serviço que, por acaso, trata dados.
+- **Tags relacionadas:** [`consumer`](#consumer) [`social_media`](#social_media)
+
+### Público e Institucional
+
+#### `public_administrative`
+
+**Administrativo e Fazenda Pública** · Critérios: Assunto · Classe
+
+- **Quando marca:** Direito Administrativo e demais matérias de direito público dessa árvore: servidor público, licitação, multa administrativa e desapropriação.
+- **Tag verdadeira significa:** A matéria é administrativa. Saúde, educação, energia, saneamento e desapropriação continuam recebendo a tag do tema.
+- **Tags relacionadas:** [`health`](#health) [`education`](#education) [`real_estate`](#real_estate) [`social_security`](#social_security) [`precatory`](#precatory)
+
+#### `public_civil`
+
+**Ação civil pública e improbidade** · Critérios: Assunto · Classe
+
+- **Quando marca:** Ação civil pública, improbidade administrativa e crimes de responsabilidade do dicionário.
+- **Tag verdadeira significa:** O processo é coletivo de tutela pública ou de improbidade.
+- **Tags relacionadas:** [`criminal`](#criminal) [`public_administrative`](#public_administrative) [`environmental`](#environmental)
+
+#### `electoral`
+
+**Eleitoral** · Critérios: Assunto · Classe
+
+- **Quando marca:** Eleições, partidos, propaganda, diplomação, crimes eleitorais e matérias da Justiça Eleitoral.
+- **Tag verdadeira significa:** A matéria é eleitoral.
+- **Tags relacionadas:** [`social_media`](#social_media) [`criminal`](#criminal)
+
+#### `military`
+
+**Militar** · Critérios: Assunto · Classe
+
+- **Quando marca:** Justiça Militar, crimes militares, pensões e procedimentos das Forças Armadas.
+- **Tag verdadeira significa:** O processo é militar.
+- **Tags relacionadas:** [`criminal`](#criminal) [`public_administrative`](#public_administrative)
+
+#### `environmental`
+
+**Ambiental** · Critérios: Assunto
+
+- **Quando marca:** Meio ambiente nas esferas civil, administrativa e penal: árvore ambiental, saneamento quando classificado nesse ramo e os dois ramos de crime ambiental. Marca apenas por assunto.
+- **Tag verdadeira significa:** A matéria é ambiental.
+- **Tags relacionadas:** [`environmentalCrimes`](#environmentalcrimes) [`criminal`](#criminal) [`sanitation`](#sanitation) [`fiscal_execution`](#fiscal_execution)
+
+### Trabalho, Família e Social
+
+#### `labor`
+
+**Trabalhista** · Critérios: Assunto · Classe
+
+- **Quando marca:** Relação de emprego, verbas trabalhistas, FGTS e processo do trabalho.
+- **Tag verdadeira significa:** A matéria é trabalhista.
+- **Tags relacionadas:** [`gig_platform`](#gig_platform) [`transport`](#transport) [`social_security`](#social_security)
+
+#### `gig_platform`
+
+**Plataforma de trabalho por aplicativo** · Critérios: CNPJ
+
+- **Quando marca:** Parte é uma plataforma que intermedia trabalho em massa por aplicativo (transporte de passageiros, entregas, serviços sob demanda). Marca apenas pela raiz de CNPJ — a TPU não tem assunto próprio.
+- **Tag verdadeira significa:** Uber, 99, iFood, Rappi, Loggi ou outra plataforma da lista está no processo.
+- **Tags relacionadas:** [`labor`](#labor) [`consumer`](#consumer)
+
+#### `family_succession`
+
+**Família e sucessões** · Critérios: Assunto · Classe
+
+- **Quando marca:** Casamento, união estável, filiação, alimentos, guarda, tutela, adoção, inventário, partilha e registro civil, incluindo crimes contra a família e procedimentos de família do ECA.
+- **Tag verdadeira significa:** O processo é de família ou de sucessão.
+- **Tags relacionadas:** [`juvenile`](#juvenile) [`real_estate`](#real_estate) [`criminal`](#criminal)
+
+#### `juvenile`
+
+**Infância e juventude** · Critérios: Assunto · Classe
+
+- **Quando marca:** Matérias do ECA: ato infracional, medidas de proteção, adoção, guarda, alimentos e acolhimento.
+- **Tag verdadeira significa:** O processo corre na lógica da infância e da juventude.
+- **Tags relacionadas:** [`family_succession`](#family_succession) [`criminal`](#criminal) [`education`](#education) [`social_media`](#social_media)
+
+#### `social_security`
+
+**Previdenciário e assistencial** · Critérios: Assunto
+
+- **Quando marca:** Benefícios do RGPS, tempo de serviço, BPC, Bolsa Família e auxílios assistenciais; contribuição previdenciária, aposentadoria do servidor, previdência privada, execução previdenciária na Justiça do Trabalho e descontos em benefício.
+- **Tag verdadeira significa:** Discute-se benefício, contribuição, regime ou desconto previdenciário ou assistencial.
+- **Tags relacionadas:** [`tax`](#tax) [`public_administrative`](#public_administrative) [`labor`](#labor)
+
+#### `education`
+
+**Educação** · Critérios: Assunto
+
+- **Quando marca:** Direito à educação, matrícula, mensalidade, transporte escolar e a árvore administrativa de ensino. Marca apenas por assunto.
+- **Tag verdadeira significa:** O processo é de educação.
+- **Tags relacionadas:** [`consumer`](#consumer) [`juvenile`](#juvenile) [`public_administrative`](#public_administrative)
+
+#### `health`
+
+**Saúde** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Direito à saúde, plano de saúde, serviço hospitalar e a árvore administrativa de saúde. Também marca quando qualquer parte tem raiz de CNPJ de operadora de plano.
+- **Tag verdadeira significa:** O processo é de saúde ou uma operadora de plano está no polo.
+- **Tags relacionadas:** [`consumer`](#consumer) [`public_administrative`](#public_administrative) [`civil_liability`](#civil_liability)
+
+### Setores Regulados
+
+#### `energy`
+
+**Energia e gás** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Fornecimento de energia elétrica, concessão de energia e fornecimento de gás. Também marca quando qualquer parte tem raiz de CNPJ de distribuidora de energia ou gás.
+- **Tag verdadeira significa:** O serviço é de energia ou gás, ou a distribuidora está no processo.
+- **Tags relacionadas:** [`consumer`](#consumer) [`public_administrative`](#public_administrative)
+
+#### `sanitation`
+
+**Água e saneamento** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Fornecimento de água, água e esgoto, coleta de lixo e saneamento. Também marca quando qualquer parte tem raiz de CNPJ de companhia de saneamento.
+- **Tag verdadeira significa:** O serviço é de água, esgoto ou lixo, ou a concessionária está no processo.
+- **Tags relacionadas:** [`environmental`](#environmental) [`consumer`](#consumer)
+
+#### `telecom`
+
+**Telecomunicações** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Telefonia, radiodifusão e concessão de telecomunicações. Também marca quando qualquer parte tem raiz de CNPJ de operadora.
+- **Tag verdadeira significa:** O serviço é de telecom ou a operadora está no processo.
+- **Tags relacionadas:** [`consumer`](#consumer)
+
+#### `airlines`
+
+**Transporte aéreo** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Transporte aéreo, atraso e cancelamento de voo, extravio de bagagem e concessão aeroportuária. Também marca quando qualquer parte tem raiz de CNPJ de companhia aérea.
+- **Tag verdadeira significa:** O processo é aéreo pelo assunto ou porque a companhia está no polo.
+- **Tags relacionadas:** [`consumer`](#consumer) [`transport`](#transport)
+
+#### `transport`
+
+**Transporte e trânsito** · Critérios: Assunto · Classe
+
+- **Quando marca:** Transporte marítimo, terrestre e aquaviário, contrato e concessão de transporte, trânsito, CNH e acidentes de trânsito; também penhor de veículo, busca e apreensão do DL 911/69, vale-transporte e transporte escolar.
+- **Tag verdadeira significa:** O processo é de transporte ou de trânsito. O transporte aéreo fica em `airlines`.
+- **Tags relacionadas:** [`airlines`](#airlines) [`civil_liability`](#civil_liability) [`labor`](#labor) [`contract_law`](#contract_law)
+
+#### `social_media`
+
+**Redes sociais** · Critérios: Assunto · CNPJ
+
+- **Quando marca:** Rede social como parte (raiz de CNPJ) ou assuntos da TPU ligados a rede, internet e mensagens: propaganda eleitoral em rede social, aplicativo de mensagem e internet, desinformação eleitoral, cyberbullying e conteúdo digital monetizado de crianças e adolescentes.
+- **Tag verdadeira significa:** Uma rede social está no polo ou o assunto envolve rede, mensageria ou internet.
+- **Atenção:** A raiz da Meta cobre Facebook, Instagram, WhatsApp e Threads; a do Google cobre YouTube e demais serviços do Google Brasil.
+- **Tags relacionadas:** [`electoral`](#electoral) [`criminal`](#criminal) [`juvenile`](#juvenile) [`data_protection`](#data_protection)
+
+## Regras de convivência entre tags
+
+Regras que mais geram dúvida na hora de interpretar ou filtrar uma carteira.
+
+| Situação | Como a Judit marca |
+| :--- | :--- |
+| `criminal` | É o catálogo penal completo. Qualquer crime, contravenção ou ato infracional marca `criminal`, mesmo que o fato tenha tag temática própria (tributário, ambiental, eleitoral, militar…). |
+| `pld` × `criminal` | `pld` é um recorte de compliance, não o catálogo penal. Um crime pode marcar `criminal` sem marcar `pld`. |
+| Cobrança de crédito | Crédito privado → `debt_collection`. Dívida ativa (CDA) → `fiscal_execution`. Precatório e RPV → `precatory`. As três não se confundem. |
+| Raiz de CNPJ de banco | Marca **apenas** `banking`. A presença do banco no polo não basta para marcar `consumer` ou `debt_collection`. |
+| CNPJ de ente público | Em `precatory`, só conta quando o ente está no **polo passivo**. Nas demais tags por CNPJ, vale qualquer polo. |
+| Grupos econômicos | A raiz da Meta cobre Facebook, Instagram, WhatsApp e Threads; a raiz do Google cobre YouTube e demais serviços do Google Brasil (`social_media`). |
+| Setor + consumo | Saúde, telecom, energia, saneamento, educação, bancário e aéreo recebem a tag do setor; quando há relação de consumo, também recebem `consumer`. |
+| Recorte amplo × estreito | `environmentalCrimes` é o recorte estreito de `environmental`. Todo processo com `environmentalCrimes` também tem `environmental` e `criminal`. |
+| Transporte | Aéreo fica em `airlines`; terrestre, marítimo, aquaviário e trânsito ficam em `transport`. |
+| Plataformas por aplicativo | `gig_platform` marca só por CNPJ — a TPU não tem assunto próprio. Havendo discussão de vínculo, o processo também recebe `labor`. |

@@ -249,15 +249,11 @@ curl -X GET "https://tracking.production.judit.io/tracking?page=1&page_size=10" 
 <Accordion title="See response example">
 ```json
 {
-  "_id": {
-    "$oid": "65f0efe046ad3bda5b27be2d"
-  },
   "callback_id": "be1406d9-d62d-402d-8e0e-8684044645de",
   "event_type": "response_created",
   "reference_type": "tracking",
   "reference_id": "8744cfea-f9d4-4e83-801e-bc05003ebf6b",
   "user_id": "ac98336e-c493-4609-a058-cf7114f7a2ed",
-  "webhook_id": "2f82201d-1439-436d-8c6a-2e6b3e36a54f",
   "payload": {
     "request_id": "7d50b66c-3e86-4d0b-95af-5ff7561d18ff",
     "response_id": "12576767-d3ea-4ea2-8805-6f2a73ef3439",
@@ -706,6 +702,29 @@ Here is an example of the paused tracking response:
  "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+## Automatic pause by consumption cap or balance
+
+When your company reaches its consumption cap (`max_consumption`) or runs out of credits, trackings billed per item are paused automatically, all at once. Each paused tracking:
+
+- gets `status: "paused"`, with `paused_at` and the reason in `tags.pause_reason`;
+- sends an `application_info` callback to the `callback_url`, with one `code` per reason (see [Callbacks](/en/webhook/callbacks#tracking-paused-by-consumption-cap-or-balance));
+- is listed in the CSV spreadsheet attached to the single email sent to the company's contacts.
+
+`tags.pause_reason` values:
+
+| Value | Meaning |
+| --- | --- |
+| `USER_REACHED_PLAN_MAX_CONSUMPTION` | Consumption reached the plan's consumption cap. |
+| `USER_HAS_INSUFFICIENT_CREDITS` | The credit balance does not cover new items. |
+| `USER_REACHED_REQUEST_LIMIT` | The plan's request limit was reached at cycle renewal (pauses only that tracking). |
+| `PLAN_WITHOUT_CONFIG` | The plan has no configuration for the tracking type (pauses only that tracking). |
+
+<Note>
+Only types billed per item are paused by the cap or the balance: document, public document, communication and custom trackings. All other types keep running.
+</Note>
+
+Reactivation is manual: buy additional credits and call the `/tracking/{tracking}/resume` route for each paused tracking. On resume, `tags.pause_reason` is removed. To list paused trackings, use `GET /tracking?status=paused`.
 
 ## Resuming a tracking
 

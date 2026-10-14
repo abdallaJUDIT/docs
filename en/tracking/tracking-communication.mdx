@@ -215,7 +215,7 @@ The `status` property indicates the current state of the tracking, which can be:
   <li><strong>created</strong>: Tracking created, but never executed.</li>
   <li><strong>updating</strong>: Has a request currently being processed.</li>
   <li><strong>updated</strong>: Tracking updated with at least one response available. The <u>updated_at</u> field shows the last update date and <u>request_id</u> the ID of the last execution.</li>
-  <li><strong>paused</strong>: Tracking paused, but can still be resumed.</li>
+  <li><strong>paused</strong>: Tracking paused manually (`pause` route) or automatically by consumption cap or lack of credits, but can still be resumed.</li>
   <li><strong>deleted</strong>: Tracking canceled and can no longer be resumed.</li>
 </ol>
 
@@ -249,6 +249,10 @@ Response:
   "updated_at": "2026-05-20T20:12:47.839Z"
 }
 ```
+
+<Warning>
+Besides a manual pause, the tracking can be paused automatically when your company reaches its consumption cap or runs out of credits. In that case, the reason is in `tags.pause_reason` and the `callback_url` receives an `application_info` notice. Reactivation is manual: after topping up your credits, call the `resume` route. See [Automatic pause by consumption cap or balance](/en/tracking/tracking#automatic-pause-by-consumption-cap-or-balance) and the [callback codes](/en/webhook/callbacks#tracking-paused-by-consumption-cap-or-balance).
+</Warning>
 
 ## Resuming a Tracking
 

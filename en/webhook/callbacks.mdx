@@ -180,7 +180,7 @@ Every webhook is sent with `event_type: "response_created"` — for both queries
 
 | `response_type` | When it arrives | `response_data` |
 | --- | --- | --- |
-| `application_info` | **End of the request flow** | `{ "code": 600, "message": "REQUEST_COMPLETED" }` |
+| `application_info` | **End of the request flow** (`code: 600`) or paused-tracking notice (`code: 700` to `703`) | `{ "code", "message" }` |
 | `application_error` | Query failure or expired request | `{ "code", "message", "details" }` |
 
 Completion notice example:
@@ -225,6 +225,35 @@ Every payload uses a standard envelope:
 - `callback_id` — unique delivery id (use for idempotency).
 - `reference_id` — the `request_id` or `tracking_id` that originated the event.
 - `payload` — content (lawsuit, registration data, etc.).
+
+### Tracking paused by consumption cap or balance
+
+When a tracking is paused automatically, the `callback_url` receives an `application_info` message with one `code` and `message` per reason, including trackings with `only_application_messages: true`:
+
+| code | message | Reason (`tags.pause_reason`) |
+| --- | --- | --- |
+| `700` | `TRACKING_PAUSED_BY_MAX_CONSUMPTION` | `USER_REACHED_PLAN_MAX_CONSUMPTION` |
+| `701` | `TRACKING_PAUSED_BY_INSUFFICIENT_CREDITS` | `USER_HAS_INSUFFICIENT_CREDITS` |
+| `702` | `TRACKING_PAUSED_BY_REQUEST_LIMIT` | `USER_REACHED_REQUEST_LIMIT` |
+| `703` | `TRACKING_PAUSED_BY_PLAN_WITHOUT_CONFIG` | `PLAN_WITHOUT_CONFIG` |
+
+```json
+{
+  "callback_id": "0b1c3f7e-5a52-4c43-9a61-6a1e0d6e8f21",
+  "event_type": "response_created",
+  "reference_type": "tracking",
+  "reference_id": "8744cfea-f9d4-4e83-801e-bc05003ebf6b",
+  "payload": {
+    "response_type": "application_info",
+    "response_data": {
+      "code": 700,
+      "message": "TRACKING_PAUSED_BY_MAX_CONSUMPTION"
+    }
+  }
+}
+```
+
+To resume, buy additional credits and call `POST /tracking/{tracking}/resume`. See [Automatic pause by consumption cap or balance](/en/tracking/tracking#automatic-pause-by-consumption-cap-or-balance).
 
 ## `cached_response`: reading the two deliveries
 

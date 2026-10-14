@@ -51,6 +51,7 @@
                 "pages": [
                   "schemas/lawsuit-object",
                   "schemas/lawsuit-enums",
+                  "schemas/lawsuit-tags",
                   "schemas/warrant",
                   "schemas/penal-execution",
                   "schemas/entity",
@@ -255,6 +256,7 @@
                 "pages": [
                   "en/schemas/lawsuit-object",
                   "en/schemas/lawsuit-enums",
+                  "en/schemas/lawsuit-tags",
                   "en/schemas/warrant",
                   "en/schemas/penal-execution",
                   "en/schemas/entity",
