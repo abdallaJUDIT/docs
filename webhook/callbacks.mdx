@@ -162,7 +162,7 @@ Todo webhook é enviado com `event_type: "response_created"` — tanto em consul
 
 | `response_type` | Quando chega | `response_data` |
 | --- | --- | --- |
-| `application_info` | **Fim do fluxo** da requisição | `{ "code": 600, "message": "REQUEST_COMPLETED" }` |
+| `application_info` | **Fim do fluxo** da requisição (`code: 600`) ou aviso de monitoramento pausado (`code: 700` a `703`) | `{ "code", "message" }` |
 | `application_error` | Falha na consulta ou requisição expirada | `{ "code", "message", "details" }` |
 
 Exemplo do aviso de finalização:
@@ -207,6 +207,35 @@ Todo payload tem um envelope padrão:
 - `callback_id` — id único da entrega (use para idempotência).
 - `reference_id` — `request_id` ou `tracking_id` que originou o evento.
 - `payload` — conteúdo (resposta processual, dados cadastrais, etc.).
+
+### Monitoramento pausado por teto de consumo ou saldo
+
+Quando um monitoramento é pausado automaticamente, o `callback_url` recebe uma mensagem `application_info` com um `code` e uma `message` por motivo, inclusive nos monitoramentos com `only_application_messages: true`:
+
+| code | message | Motivo (`tags.pause_reason`) |
+| --- | --- | --- |
+| `700` | `TRACKING_PAUSED_BY_MAX_CONSUMPTION` | `USER_REACHED_PLAN_MAX_CONSUMPTION` |
+| `701` | `TRACKING_PAUSED_BY_INSUFFICIENT_CREDITS` | `USER_HAS_INSUFFICIENT_CREDITS` |
+| `702` | `TRACKING_PAUSED_BY_REQUEST_LIMIT` | `USER_REACHED_REQUEST_LIMIT` |
+| `703` | `TRACKING_PAUSED_BY_PLAN_WITHOUT_CONFIG` | `PLAN_WITHOUT_CONFIG` |
+
+```json
+{
+  "callback_id": "0b1c3f7e-5a52-4c43-9a61-6a1e0d6e8f21",
+  "event_type": "response_created",
+  "reference_type": "tracking",
+  "reference_id": "8744cfea-f9d4-4e83-801e-bc05003ebf6b",
+  "payload": {
+    "response_type": "application_info",
+    "response_data": {
+      "code": 700,
+      "message": "TRACKING_PAUSED_BY_MAX_CONSUMPTION"
+    }
+  }
+}
+```
+
+Para reativar, compre créditos adicionais e chame `POST /tracking/{monitoramento}/resume`. Veja [Pausa automática por teto de consumo ou saldo](/tracking/tracking#pausa-automática-por-teto-de-consumo-ou-saldo).
 
 ## `cached_response`: lendo as duas entregas
 

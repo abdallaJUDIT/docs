@@ -1,0 +1,450 @@
+---
+title: "Lawsuit Tag Dictionary"
+sidebarTitle: "Thematic tags"
+description: "The 36 thematic tags Judit assigns to each lawsuit: what each one means, how it is flagged (subject, class or CNPJ root) and how it combines with the others."
+keywords: ["tags", "classification", "theme", "sector", "subject", "class", "cnpj", "tpu"]
+icon: "tags"
+---
+
+
+Tags classify the lawsuit by **legal theme or economic sector**. They are not exclusive: the same lawsuit can — and often will — get several tags at once. A consumer action against a telephone carrier, for example, comes out with `consumer` and `telecom`.
+
+There are **36 tags** in **6 areas**.
+
+<Note>
+**Methodological note:** since tags overlap, the sum of lawsuits per tag is greater than the total number of lawsuits in a portfolio. To count unique lawsuits, use the portfolio total — not the sum of tags.
+</Note>
+
+## How flagging works
+
+Each tag has its own dictionary. The tag becomes **true** when the lawsuit matches at least one of that dictionary's rules. There are three criteria, which can be used alone or combined:
+
+<CardGroup cols={3}>
+  <Card title="Subject" icon="book">
+    **35 tags.** Subject code from the Unified Procedural Table (TPU/CNJ) registered on the lawsuit. It is the main criterion and covers almost the entire dictionary.
+  </Card>
+  <Card title="Class" icon="folder-tree">
+    **22 tags.** TPU procedural class — for example, tax foreclosure, public civil action or judicial reorganization. Captures the type of proceeding even when the subject is generic.
+  </Card>
+  <Card title="CNPJ root" icon="building">
+    **10 tags.** The first 8 digits of a party's CNPJ. Identifies the sector by the company involved (bank, insurer, carrier, concessionaire, platform), covering all branches.
+  </Card>
+</CardGroup>
+
+<Warning>
+**Inactive TPU codes stay in the dictionary.** Older lawsuits keep subject and class codes that the CNJ has already deactivated. These codes are kept on purpose so the historical collection remains correctly classified.
+</Warning>
+
+## Where tags appear
+
+Tags arrive in the `tags` object of `response_data`, as boolean keys, alongside the lawsuit's control metadata (such as `dictionary_updated_at`). Only the tags that apply to the lawsuit appear: treat a missing key, or any value other than `true`, as false.
+
+```json
+"response_data": {
+  "code": "9999999-99.9999.9.99.9999",
+  "tags": {
+    "dictionary_updated_at": "2026-09-02T03:55:30.682Z",
+    "labor": true
+  }
+}
+```
+
+<Note>
+For sealed lawsuits (`secrecy_level` greater than `0`), the `tags` object is not returned.
+</Note>
+
+## Tag catalog
+
+All tags grouped by area. Click the code to jump to the full definition.
+
+### Criminal and Compliance (4)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`pld`](#pld) | Anti-money laundering (AML) | Subject · Class |
+| [`criminal`](#criminal) | Criminal | Subject · Class |
+| [`environmentalCrimes`](#environmentalcrimes) | Environmental crimes | Subject |
+| [`slavery`](#slavery) | Slave-like labor | Subject |
+
+### Financial and Credit (7)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`banking`](#banking) | Banking | Subject · Class · CNPJ |
+| [`debt_collection`](#debt_collection) | Debt collection and credit enforcement | Subject · Class |
+| [`bankruptcy`](#bankruptcy) | Judicial reorganization and bankruptcy | Subject · Class |
+| [`fiscal_execution`](#fiscal_execution) | Tax foreclosure | Subject · Class |
+| [`precatory`](#precatory) | Precatório and RPV (court-ordered public debts) | Subject · Class · CNPJ |
+| [`tax`](#tax) | Tax | Subject |
+| [`insurers`](#insurers) | Insurance | Subject · CNPJ |
+
+### Civil and Corporate (7)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`civil_liability`](#civil_liability) | Civil liability | Subject · Class |
+| [`contract_law`](#contract_law) | Contract law | Subject · Class |
+| [`company_law`](#company_law) | Corporate law | Subject · Class |
+| [`consumer`](#consumer) | Consumer | Subject · Class |
+| [`real_estate`](#real_estate) | Real estate | Subject · Class |
+| [`intellectual_property`](#intellectual_property) | Intellectual property | Subject · Class |
+| [`data_protection`](#data_protection) | Data protection | Subject · Class |
+
+### Public and Institutional (5)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`public_administrative`](#public_administrative) | Administrative and Public Treasury | Subject · Class |
+| [`public_civil`](#public_civil) | Public civil action and administrative misconduct | Subject · Class |
+| [`electoral`](#electoral) | Electoral | Subject · Class |
+| [`military`](#military) | Military | Subject · Class |
+| [`environmental`](#environmental) | Environmental | Subject |
+
+### Labor, Family and Social (7)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`labor`](#labor) | Labor | Subject · Class |
+| [`gig_platform`](#gig_platform) | App-based work platform | CNPJ |
+| [`family_succession`](#family_succession) | Family and succession | Subject · Class |
+| [`juvenile`](#juvenile) | Children and youth | Subject · Class |
+| [`social_security`](#social_security) | Social security and welfare | Subject |
+| [`education`](#education) | Education | Subject |
+| [`health`](#health) | Health | Subject · CNPJ |
+
+### Regulated Sectors (6)
+
+| Tag | Name | Flagged by |
+| :--- | :--- | :--- |
+| [`energy`](#energy) | Energy and gas | Subject · CNPJ |
+| [`sanitation`](#sanitation) | Water and sanitation | Subject · CNPJ |
+| [`telecom`](#telecom) | Telecommunications | Subject · CNPJ |
+| [`airlines`](#airlines) | Air transport | Subject · CNPJ |
+| [`transport`](#transport) | Transport and traffic | Subject · Class |
+| [`social_media`](#social_media) | Social media | Subject · CNPJ |
+
+## Detailed dictionary
+
+For each tag: **when it is flagged**, **what it means for it to be true** and which other tags usually come along or should be used instead.
+
+### Criminal and Compliance
+
+#### `pld`
+
+**Anti-money laundering (AML)** · Criteria: Subject · Class
+
+- **When it is flagged:** Compliance alert. Flags lawsuits with crimes or classes in the AML scope: crimes against public administration, against public finances, smuggling and other codes selected for this alert.
+- **True means:** There is an AML risk signal in the lawsuit. It is a curated subset — the full criminal catalog is `criminal`.
+- **Related tags:** [`criminal`](#criminal) [`tax`](#tax) [`public_civil`](#public_civil)
+
+#### `criminal`
+
+**Criminal** · Criteria: Subject · Class
+
+- **When it is flagged:** Any criminal, misdemeanor or juvenile offense lawsuit: crimes, misdemeanors and the juvenile-offense mirror, even when the fact also belongs to another tag.
+- **True means:** There is a criminal offense or juvenile offense in the lawsuit. The thematic tag (tax, environmental, family etc.) may come alongside.
+- **Related tags:** [`pld`](#pld) [`tax`](#tax) [`environmental`](#environmental) [`environmentalCrimes`](#environmentalcrimes) [`family_succession`](#family_succession) [`juvenile`](#juvenile) [`military`](#military) [`public_civil`](#public_civil)
+
+#### `environmentalCrimes`
+
+**Environmental crimes** · Criteria: Subject
+
+- **When it is flagged:** Narrow subset of the two environmental-crime branches of the TPU. Flags by subject only.
+- **True means:** The lawsuit subject is an environmental crime. The same lawsuit always also gets `environmental` and `criminal`.
+- **Related tags:** [`environmental`](#environmental) [`criminal`](#criminal)
+
+#### `slavery`
+
+**Slave-like labor** · Criteria: Subject
+
+- **When it is flagged:** Slave labor, human trafficking for that purpose and the so-called “dirty list”. Flags by subject only.
+- **True means:** The lawsuit is about slave-like labor. The corresponding crime also flags `criminal`.
+- **Related tags:** [`criminal`](#criminal) [`labor`](#labor)
+
+### Financial and Credit
+
+#### `banking`
+
+**Banking** · Criteria: Subject · Class · CNPJ
+
+- **When it is flagged:** Banking contracts, cards, financing, consortium, fiduciary lien, SFH, rural credit, credit notes and other banking matters. Also flags when any party has the CNPJ root of a bank, finance company or payment fintech.
+- **True means:** The lawsuit is a banking one by subject, by class or because a financial institution is on either side.
+- **Note:** The CNPJ root alone flags only `banking`.
+- **Related tags:** [`consumer`](#consumer) [`debt_collection`](#debt_collection) [`contract_law`](#contract_law)
+
+#### `debt_collection`
+
+**Debt collection and credit enforcement** · Criteria: Subject · Class
+
+- **When it is flagged:** Collection of private credit: monitory action, enforcement of extrajudicial instruments, judgment enforcement, motions to stay, attachment, credit instruments, protest, default and payment.
+- **True means:** The lawsuit collects or enforces a private credit.
+- **Note:** Court-ordered public debts are in `precatory`; tax/public debt is in `fiscal_execution`.
+- **Related tags:** [`precatory`](#precatory) [`fiscal_execution`](#fiscal_execution) [`banking`](#banking)
+
+#### `bankruptcy`
+
+**Judicial reorganization and bankruptcy** · Criteria: Subject · Class
+
+- **When it is flagged:** Judicial reorganization, bankruptcy, liquidation and creditor competition, including the classification of Treasury public credit within the insolvency.
+- **True means:** The lawsuit is the insolvency proceeding or an incident of it.
+- **Related tags:** [`fiscal_execution`](#fiscal_execution) [`company_law`](#company_law)
+
+#### `fiscal_execution`
+
+**Tax foreclosure** · Criteria: Subject · Class
+
+- **When it is flagged:** Collection of active public debt, tax or non-tax: tax foreclosure, motions to stay tax foreclosure and public credit classification.
+- **True means:** The Public Treasury is collecting a CDA (certificate of active debt).
+- **Related tags:** [`tax`](#tax) [`environmental`](#environmental) [`bankruptcy`](#bankruptcy) [`debt_collection`](#debt_collection)
+
+#### `precatory`
+
+**Precatório and RPV (court-ordered public debts)** · Criteria: Subject · Class · CNPJ
+
+- **When it is flagged:** Precatório and small-value requisition (RPV), including lawsuits that will still generate one. Also flags when a public entity from the dictionary is on the defendant side.
+- **True means:** There is a precatório or RPV, or the Treasury is being charged on the defendant side by an entity on the list.
+- **Note:** The public CNPJ only counts on the defendant side.
+- **Related tags:** [`debt_collection`](#debt_collection) [`public_administrative`](#public_administrative)
+
+#### `tax`
+
+**Tax** · Criteria: Subject
+
+- **When it is flagged:** Taxes, fees, contributions, tax credit and administrative tax proceedings, including IBS, CBS, tax active debt and crimes against the tax order and public finances.
+- **True means:** A tax or tax crime is under discussion.
+- **Related tags:** [`fiscal_execution`](#fiscal_execution) [`social_security`](#social_security) [`criminal`](#criminal)
+
+#### `insurers`
+
+**Insurance** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Insurance contracts, DPVAT and SPVAT. Also flags when any party has the CNPJ root of an insurer, on any side.
+- **True means:** Insurance is in the subject or an insurer is in the lawsuit.
+- **Related tags:** [`contract_law`](#contract_law) [`consumer`](#consumer)
+
+### Civil and Corporate
+
+#### `civil_liability`
+
+**Civil liability** · Criteria: Subject · Class
+
+- **When it is flagged:** Civil damages in general: civil liability, moral damages, material damages and right of reply under the former Press Law.
+- **True means:** Civil reparation is under discussion. When the damage belongs to a theme with its own tag (consumer, health, traffic), both tags may come together.
+- **Related tags:** [`consumer`](#consumer) [`health`](#health) [`transport`](#transport)
+
+#### `contract_law`
+
+**Contract law** · Criteria: Subject · Class
+
+- **When it is flagged:** Specific civil and commercial contracts: sale, services, construction, agency, donation, loan for use, deposit, publishing, loan, penalty clause, earnest money, termination and eviction.
+- **True means:** The subject of the dispute is the contract. Lease, insurance, transport and banking contracts also get the theme tag.
+- **Related tags:** [`real_estate`](#real_estate) [`insurers`](#insurers) [`transport`](#transport) [`banking`](#banking)
+
+#### `company_law`
+
+**Corporate law** · Criteria: Subject · Class
+
+- **When it is flagged:** Companies, corporate types, dissolution and capital markets.
+- **True means:** The lawsuit discusses the company or the capital market.
+- **Note:** Franchising, commercial representation and judicial reorganization have their own tags.
+- **Related tags:** [`bankruptcy`](#bankruptcy) [`contract_law`](#contract_law)
+
+#### `consumer`
+
+**Consumer** · Criteria: Subject · Class
+
+- **When it is flagged:** Consumer relationship: the Consumer Law tree, crimes against consumers and debt renegotiation for over-indebtedness.
+- **True means:** There is a consumer relationship. Health plans, telephony, energy, water, schools, banks and transport also get the sector tag.
+- **Related tags:** [`health`](#health) [`telecom`](#telecom) [`energy`](#energy) [`sanitation`](#sanitation) [`education`](#education) [`banking`](#banking) [`airlines`](#airlines)
+
+#### `real_estate`
+
+**Real estate** · Criteria: Subject · Class
+
+- **When it is flagged:** Real property, possession, ownership, condominium, lease, adverse possession, property registration, expropriation, agrarian policy and housing finance.
+- **True means:** The asset or contract under discussion is real estate.
+- **Related tags:** [`family_succession`](#family_succession) [`public_administrative`](#public_administrative) [`contract_law`](#contract_law)
+
+#### `intellectual_property`
+
+**Intellectual property** · Criteria: Subject · Class
+
+- **When it is flagged:** Trademark, patent, industrial design, copyright, software and publishing contracts, including crimes against intellectual property.
+- **True means:** The legal interest in dispute is intellectual property.
+- **Related tags:** [`criminal`](#criminal) [`contract_law`](#contract_law)
+
+#### `data_protection`
+
+**Data protection** · Criteria: Subject · Class
+
+- **When it is flagged:** LGPD and processing of personal data, identified by their own subject or class.
+- **True means:** The dispute is about the personal data itself — not just a contract or service that happens to process data.
+- **Related tags:** [`consumer`](#consumer) [`social_media`](#social_media)
+
+### Public and Institutional
+
+#### `public_administrative`
+
+**Administrative and Public Treasury** · Criteria: Subject · Class
+
+- **When it is flagged:** Administrative Law and other public-law matters in that tree: public servants, public procurement, administrative fines and expropriation.
+- **True means:** The matter is administrative. Health, education, energy, sanitation and expropriation still get the theme tag.
+- **Related tags:** [`health`](#health) [`education`](#education) [`real_estate`](#real_estate) [`social_security`](#social_security) [`precatory`](#precatory)
+
+#### `public_civil`
+
+**Public civil action and administrative misconduct** · Criteria: Subject · Class
+
+- **When it is flagged:** Public civil action, administrative misconduct (improbidade) and the impeachable offenses in the dictionary.
+- **True means:** The lawsuit is a collective public-protection or misconduct case.
+- **Related tags:** [`criminal`](#criminal) [`public_administrative`](#public_administrative) [`environmental`](#environmental)
+
+#### `electoral`
+
+**Electoral** · Criteria: Subject · Class
+
+- **When it is flagged:** Elections, parties, campaigning, certification of elected officials, electoral crimes and Electoral Court matters.
+- **True means:** The matter is electoral.
+- **Related tags:** [`social_media`](#social_media) [`criminal`](#criminal)
+
+#### `military`
+
+**Military** · Criteria: Subject · Class
+
+- **When it is flagged:** Military Courts, military crimes, pensions and Armed Forces proceedings.
+- **True means:** The lawsuit is military.
+- **Related tags:** [`criminal`](#criminal) [`public_administrative`](#public_administrative)
+
+#### `environmental`
+
+**Environmental** · Criteria: Subject
+
+- **When it is flagged:** Environment in the civil, administrative and criminal spheres: the environmental tree, sanitation when classified in that branch and the two environmental-crime branches. Flags by subject only.
+- **True means:** The matter is environmental.
+- **Related tags:** [`environmentalCrimes`](#environmentalcrimes) [`criminal`](#criminal) [`sanitation`](#sanitation) [`fiscal_execution`](#fiscal_execution)
+
+### Labor, Family and Social
+
+#### `labor`
+
+**Labor** · Criteria: Subject · Class
+
+- **When it is flagged:** Employment relationship, labor payments, FGTS and labor procedure.
+- **True means:** The matter is labor-related.
+- **Related tags:** [`gig_platform`](#gig_platform) [`transport`](#transport) [`social_security`](#social_security)
+
+#### `gig_platform`
+
+**App-based work platform** · Criteria: CNPJ
+
+- **When it is flagged:** A party is a platform that intermediates mass app-based work (ride-hailing, deliveries, on-demand services). Flags by CNPJ root only — the TPU has no specific subject.
+- **True means:** Uber, 99, iFood, Rappi, Loggi or another platform on the list is in the lawsuit.
+- **Related tags:** [`labor`](#labor) [`consumer`](#consumer)
+
+#### `family_succession`
+
+**Family and succession** · Criteria: Subject · Class
+
+- **When it is flagged:** Marriage, stable union, filiation, alimony, custody, guardianship, adoption, probate, partition and civil registry, including crimes against the family and ECA family proceedings.
+- **True means:** The lawsuit is a family or succession case.
+- **Related tags:** [`juvenile`](#juvenile) [`real_estate`](#real_estate) [`criminal`](#criminal)
+
+#### `juvenile`
+
+**Children and youth** · Criteria: Subject · Class
+
+- **When it is flagged:** ECA (Child and Adolescent Statute) matters: juvenile offenses, protective measures, adoption, custody, alimony and foster care.
+- **True means:** The lawsuit follows the children-and-youth framework.
+- **Related tags:** [`family_succession`](#family_succession) [`criminal`](#criminal) [`education`](#education) [`social_media`](#social_media)
+
+#### `social_security`
+
+**Social security and welfare** · Criteria: Subject
+
+- **When it is flagged:** RGPS benefits, length of service, BPC, Bolsa Família and welfare aid; social security contributions, public servant retirement, private pension, social security enforcement in Labor Courts and benefit deductions.
+- **True means:** A social security or welfare benefit, contribution, regime or deduction is under discussion.
+- **Related tags:** [`tax`](#tax) [`public_administrative`](#public_administrative) [`labor`](#labor)
+
+#### `education`
+
+**Education** · Criteria: Subject
+
+- **When it is flagged:** Right to education, enrollment, tuition, school transport and the administrative education tree. Flags by subject only.
+- **True means:** The lawsuit is about education.
+- **Related tags:** [`consumer`](#consumer) [`juvenile`](#juvenile) [`public_administrative`](#public_administrative)
+
+#### `health`
+
+**Health** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Right to health, health plans, hospital services and the administrative health tree. Also flags when any party has the CNPJ root of a health plan operator.
+- **True means:** The lawsuit is about health or a health plan operator is a party.
+- **Related tags:** [`consumer`](#consumer) [`public_administrative`](#public_administrative) [`civil_liability`](#civil_liability)
+
+### Regulated Sectors
+
+#### `energy`
+
+**Energy and gas** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Electricity supply, energy concessions and gas supply. Also flags when any party has the CNPJ root of an energy or gas distributor.
+- **True means:** The service is energy or gas, or the distributor is in the lawsuit.
+- **Related tags:** [`consumer`](#consumer) [`public_administrative`](#public_administrative)
+
+#### `sanitation`
+
+**Water and sanitation** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Water supply, water and sewage, waste collection and sanitation. Also flags when any party has the CNPJ root of a sanitation company.
+- **True means:** The service is water, sewage or waste, or the concessionaire is in the lawsuit.
+- **Related tags:** [`environmental`](#environmental) [`consumer`](#consumer)
+
+#### `telecom`
+
+**Telecommunications** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Telephony, broadcasting and telecom concessions. Also flags when any party has the CNPJ root of a carrier.
+- **True means:** The service is telecom or the carrier is in the lawsuit.
+- **Related tags:** [`consumer`](#consumer)
+
+#### `airlines`
+
+**Air transport** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** Air transport, flight delays and cancellations, lost baggage and airport concessions. Also flags when any party has the CNPJ root of an airline.
+- **True means:** The lawsuit is air-related by subject or because the airline is a party.
+- **Related tags:** [`consumer`](#consumer) [`transport`](#transport)
+
+#### `transport`
+
+**Transport and traffic** · Criteria: Subject · Class
+
+- **When it is flagged:** Maritime, land and waterway transport, transport contracts and concessions, traffic, driver's licenses and traffic accidents; also vehicle pledge, search and seizure under DL 911/69, transport vouchers and school transport.
+- **True means:** The lawsuit is about transport or traffic. Air transport is in `airlines`.
+- **Related tags:** [`airlines`](#airlines) [`civil_liability`](#civil_liability) [`labor`](#labor) [`contract_law`](#contract_law)
+
+#### `social_media`
+
+**Social media** · Criteria: Subject · CNPJ
+
+- **When it is flagged:** A social network as a party (CNPJ root) or TPU subjects tied to networks, the internet and messaging: electoral campaigning on social media, messaging apps and the internet, electoral disinformation, cyberbullying and monetized digital content involving children and adolescents.
+- **True means:** A social network is a party or the subject involves networks, messaging or the internet.
+- **Note:** Meta's root covers Facebook, Instagram, WhatsApp and Threads; Google's covers YouTube and other Google Brasil services.
+- **Related tags:** [`electoral`](#electoral) [`criminal`](#criminal) [`juvenile`](#juvenile) [`data_protection`](#data_protection)
+
+## Rules for how tags coexist
+
+The rules that raise the most questions when interpreting or filtering a portfolio.
+
+| Situation | How Judit flags it |
+| :--- | :--- |
+| `criminal` | It is the full criminal catalog. Any crime, misdemeanor or juvenile offense flags `criminal`, even if the fact has its own thematic tag (tax, environmental, electoral, military…). |
+| `pld` × `criminal` | `pld` is a compliance subset, not the criminal catalog. A crime can flag `criminal` without flagging `pld`. |
+| Debt collection | Private credit → `debt_collection`. Active public debt (CDA) → `fiscal_execution`. Precatório and RPV → `precatory`. The three do not overlap. |
+| Bank CNPJ root | Flags **only** `banking`. A bank being a party is not enough to flag `consumer` or `debt_collection`. |
+| Public entity CNPJ | In `precatory`, it only counts when the entity is on the **defendant side**. In the other CNPJ-based tags, any side counts. |
+| Economic groups | Meta's root covers Facebook, Instagram, WhatsApp and Threads; Google's root covers YouTube and other Google Brasil services (`social_media`). |
+| Sector + consumer | Health, telecom, energy, sanitation, education, banking and air transport get the sector tag; when there is a consumer relationship, they also get `consumer`. |
+| Broad × narrow subset | `environmentalCrimes` is the narrow subset of `environmental`. Every lawsuit with `environmentalCrimes` also has `environmental` and `criminal`. |
+| Transport | Air goes to `airlines`; land, maritime, waterway and traffic go to `transport`. |
+| App-based platforms | `gig_platform` flags by CNPJ only — the TPU has no specific subject. When employment status is disputed, the lawsuit also gets `labor`. |

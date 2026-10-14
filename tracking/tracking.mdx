@@ -834,15 +834,11 @@ func main() {
 <Accordion title="Ver exemplo de resposta">
 ```json
 {
-  "_id": {
-    "$oid": "65f0efe046ad3bda5b27be2d"
-  },
   "callback_id": "be1406d9-d62d-402d-8e0e-8684044645de",
   "event_type": "response_created",
   "reference_type": "tracking",
   "reference_id": "8744cfea-f9d4-4e83-801e-bc05003ebf6b",
   "user_id": "ac98336e-c493-4609-a058-cf7114f7a2ed",
-  "webhook_id": "2f82201d-1439-436d-8c6a-2e6b3e36a54f",
   "payload": {
     "request_id": "7d50b66c-3e86-4d0b-95af-5ff7561d18ff",
     "response_id": "12576767-d3ea-4ea2-8805-6f2a73ef3439",
@@ -1291,6 +1287,29 @@ Aqui está um exemplo de retorno do monitoramento pausado:
  "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+## Pausa automática por teto de consumo ou saldo
+
+Quando a sua empresa atinge o teto de consumo (`max_consumption`) ou fica sem saldo de créditos, os monitoramentos cobrados por item são pausados automaticamente, todos de uma vez. Cada monitoramento pausado:
+
+- passa a ter `status: "paused"`, com `paused_at` e o motivo em `tags.pause_reason`;
+- envia um callback `application_info` para o `callback_url`, com um `code` por motivo (veja [Callbacks](/webhook/callbacks#monitoramento-pausado-por-teto-de-consumo-ou-saldo));
+- entra na planilha CSV anexa ao email único enviado aos contatos da empresa.
+
+Valores de `tags.pause_reason`:
+
+| Valor | Significado |
+| --- | --- |
+| `USER_REACHED_PLAN_MAX_CONSUMPTION` | O consumo atingiu o teto de consumo do plano. |
+| `USER_HAS_INSUFFICIENT_CREDITS` | O saldo de créditos não cobre novos itens. |
+| `USER_REACHED_REQUEST_LIMIT` | O limite de requisições do plano foi atingido na renovação do ciclo (pausa só desse monitoramento). |
+| `PLAN_WITHOUT_CONFIG` | O plano não tem configuração para o tipo do monitoramento (pausa só desse monitoramento). |
+
+<Note>
+Só os tipos cobrados por item são pausados pelo teto ou pelo saldo: monitoramento de documento, de documento público, de comunicação e personalizado. Os demais tipos continuam rodando.
+</Note>
+
+A reativação é manual: compre créditos adicionais e chame a rota `/tracking/{monitoramento}/resume` de cada monitoramento pausado. Ao reativar, o `tags.pause_reason` é removido. Para listar os pausados, use `GET /tracking?status=paused`.
 
 ## Reativando um Monitoramento
 
