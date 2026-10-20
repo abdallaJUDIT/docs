@@ -115,7 +115,7 @@ Each court defines its own login method, and it can change over time. That is wh
 
 ```mermaid
 flowchart TD
-    A[Sign in to the court portal with the credential] --> B{How is the login done?}
+    A[Sign in to the court portal<br/>with the credential] --> B{How is the login done?}
     B -->|Username and password| C{After the password, does it ask<br/>for an authenticator app code?}
     C -->|No| P1[Register username + password]
     C -->|Yes| P2[Register username + password<br/>+ 2FA secret]
@@ -370,12 +370,12 @@ The [A1 digital certificate](#registering-a-credential-with-a-digital-certificat
 
 ```mermaid
 flowchart TD
-    A[Registration under a customer_key] --> B{Which registration?}
-    B -->|POST /credentials/certificate| C{Does the wildcard slot of this key already hold a username and password?}
-    C -->|Yes| D[Error CREDENTIAL_TYPE_CONFLICT]
-    C -->|No| E[Certificate takes the wildcard slot]
-    B -->|POST /credentials with system_name *| F[Username and password take the wildcard slot]
-    B -->|POST /credentials with a court system_name| G[Credential of that court only]
+    A[Registration under<br/>a customer_key] --> B{Which<br/>registration?}
+    B -->|A1 certificate| C{Does the wildcard<br/>slot already hold a<br/>username and password?}
+    C -->|Yes| D[Error<br/>CREDENTIAL_TYPE_CONFLICT]
+    C -->|No| E[Certificate takes<br/>the wildcard slot]
+    B -->|Password with<br/>system_name *| F[Username and password<br/>take the wildcard slot]
+    B -->|Password with a<br/>court system_name| G[Credential of<br/>that court only]
 ```
 
 At query time, Judit only looks at the `customer_key` that was sent:
@@ -386,11 +386,11 @@ At query time, Judit only looks at the `customer_key` that was sent:
 
 ```mermaid
 flowchart TD
-    A[Query arrives with a customer_key and the lawsuit court] --> B{Does this customer_key have a credential for this court?}
-    B -->|Yes| C[Uses the court credential]
-    B -->|No| D{Does the same customer_key have a wildcard, system_name *?}
+    A[Query arrives with a<br/>customer_key and the<br/>lawsuit court] --> B{Does the customer_key<br/>have a credential<br/>for this court?}
+    B -->|Yes| C[Uses the court<br/>credential]
+    B -->|No| D{Does the same<br/>customer_key have a<br/>wildcard, system_name *?}
     D -->|Yes| E[Uses the wildcard]
-    D -->|No| F[Runs without a credential and may return public data only]
+    D -->|No| F[Runs without a<br/>credential and may<br/>return public data only]
 ```
 
 **Vault example:**
