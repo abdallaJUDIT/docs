@@ -91,18 +91,17 @@ A solicitação POST deve incluir um payload com as seguintes propriedades:
 - `search` (**obrigatório**): Objeto que vai para a busca.
     - `search_type` (**obrigatório**): No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
     - `search_key`: O número do processo (Código CNJ) que você deseja buscar;
+    - `search_params` (opcional): Um objeto, dentro de `search`, que contém alguns parâmetros da busca como:
+        - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo;
+
+          `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente todas as instância encontradas para aquela mesma numeração de processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca retornará as duas instâncias.
+
+        - `credential` (opcional): Objeto para o uso do cofre de credenciais (`search.search_params.credential`).
+            - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais. Caso não seja informado, a API usa a credencial cadastrada sem `customer_key` (valor padrão `*`).
 
 - `with_attachments` (opcional): Esse campo define se você quer trazer anexos referente ao processo buscado podendo ser **true** ou **false**
 
   - `Obs:` Os anexos só serão retornados caso o search_type for **lawsuit_cnj**.
-
-- `search_params`: Um objeto que contém alguns parâmetros da busca como: 
-  - `lawsuit_instance` (opcional): Este parâmetro permite definir a instância em que deseja buscar o processo; 
-    
-    `*Obs`: Caso o parâmetro lawsuit_instance não seja especificado, a busca retornará automaticamente todas as instância encontradas para aquela mesma numeração de processo. Por exemplo, se o processo estiver tramitando tanto na primeira quanto na segunda instância, a busca cretornará as duas instâncias.
-
-- `credential` (opcional): Objeto para o uso do cofre de credenciais.
-  - `customer_key` (opcional): Permite passar a chave do usuário que você cadastrou no cofre de credenciais,caso não seja informado, a API tentará encontrar uma credencial cadastrada para a `customer_key` vazia.
 
 - `notification_emails` (opcional): Array de strings fora do `search` que podem ser adicionados emails para os quais deseja receber notificação a cada atualização do monitoramento cadastrado.
 

@@ -122,7 +122,7 @@ Filters can be added to the request, allowing for a more accurate return based o
     - `not_equal` (optional): Boolean value that defines whether the filter will include or exclude the values specified in `keys`.
 
   - `credential` (optional): Object for using the credentials vault:
-    - `customer_key` (optional): Allows you to pass the user key registered in the credentials vault. If not provided, the API will try to find a credential registered for an empty `customer_key`.
+    - `customer_key` (optional): Allows you to pass the user key registered in the credentials vault. If not provided, the API uses the credential registered without a `customer_key` (default value `*`).
   - `last_step_date_gte` (optional): Restricts the search to lawsuits whose last step date is greater than the provided date.
   - `last_step_date_lte` (optional): Restricts the search to lawsuits whose last step date is less than the provided date.
   - `party_names` (optional): List of names that restricts the search to lawsuits containing them in any of the parties.
