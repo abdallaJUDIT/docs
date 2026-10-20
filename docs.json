@@ -191,10 +191,9 @@
               {
                 "group": "Cofre de Credenciais",
                 "pages": [
-                  "api-reference/endpoint/vault/vaultlist",
+                  "api-reference/endpoint/vault/vault",
                   "api-reference/endpoint/vault/vaultcreate",
-                  "api-reference/endpoint/vault/vaultcertificate",
-                  "api-reference/endpoint/vault/vaultdelete"
+                  "api-reference/endpoint/vault/vaultcertificate"
                 ]
               }
             ]
@@ -397,10 +396,9 @@
               {
                 "group": "Credentials Vault",
                 "pages": [
-                  "en/api-reference/endpoint/vault/vaultlist",
+                  "en/api-reference/endpoint/vault/vault",
                   "en/api-reference/endpoint/vault/vaultcreate",
-                  "en/api-reference/endpoint/vault/vaultcertificate",
-                  "en/api-reference/endpoint/vault/vaultdelete"
+                  "en/api-reference/endpoint/vault/vaultcertificate"
                 ]
               }
             ]
@@ -490,14 +488,6 @@
     {
       "source": "/en/resource/consumption",
       "destination": "/en/resource/consumption/history"
-    },
-    {
-      "source": "/api-reference/endpoint/vault/vault",
-      "destination": "/api-reference/endpoint/vault/vaultlist"
-    },
-    {
-      "source": "/en/api-reference/endpoint/vault/vault",
-      "destination": "/en/api-reference/endpoint/vault/vaultlist"
     }
   ]
 }

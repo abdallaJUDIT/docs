@@ -2,108 +2,89 @@
 title: "Cadastro de Credenciais"
 openapi: "openapi/vault.json POST /credentials"
 api: "POST https://crawler.prod.judit.io/credentials"
-description: "Cadastre ou atualize credenciais de usuário e senha (com segredo 2FA opcional) para um ou mais sistemas de tribunal."
+description: "Para cadastrar uma credencial ou atualizar uma já existente, utilize a rota abaixo."
 icon: "key"
 ---
 
-<Info>
-Antes de cadastrar, identifique no portal do tribunal o que ele pede para o login: senha, código de aplicativo autenticador ou certificado digital. Veja [Passo 1: identifique como o tribunal faz o login](/essentials/cofre-de-credenciais#passo-1-identifique-como-o-tribunal-faz-o-login).
-</Info>
-
-<ParamField body="credentials" type="array" required>
-Lista de credenciais a cadastrar.
+<ParamField body="credentials" type="array" required={false}>
     <Expandable title="properties">
+		<ParamField body="credential" type="object" required>
         <ParamField body="system_name" type="string" required>
-        Nome do sistema e tribunal, **exatamente** como aparece em `GET /credentials` — por exemplo `PJE TJBA - 1º grau`. Use `*` para a credencial coringa.
+        PJE TJBA - 1º grau ou * (wildcard)
         </ParamField>
 
-        <ParamField body="customer_key" type="string">
-        Identificador que você define para a credencial (por advogado, cliente ou escritório). Se omitido, é usado o valor padrão `*`.
-        </ParamField>
+    	<ParamField body="customer_key" type="string" required>
+    	00000001 (use sua própria forma de identificar um cliente)
+    	</ParamField>
 
-        <ParamField body="username" type="string" required>
-        Login usado no portal do tribunal: CPF ou número da OAB, conforme o tribunal exige.
-        </ParamField>
+    	<ParamField body="username" type="string" required>
+    	999.999.999-99 (CPF)
+    	</ParamField>
 
         <ParamField body="password" type="string" required>
-        Senha usada no portal do tribunal.
+         Senha123
         </ParamField>
-
-        <ParamField body="custom_data" type="object">
-        Envie apenas quando o tribunal pede código de aplicativo autenticador.
-            <Expandable title="properties">
-                <ParamField body="secret" type="string">
-                Segredo 2FA — a **chave fixa** de configuração do aplicativo autenticador, nunca o código temporário de 6 dígitos. A Judit gera o código a cada login.
-                </ParamField>
-            </Expandable>
         </ParamField>
     </Expandable>
+
 </ParamField>
 
-<RequestExample>
-```bash cURL
-curl --location 'https://crawler.prod.judit.io/credentials' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "advogado_01",
-      "username": "999.999.999-99",
-      "password": "<senha-do-tribunal>"
-    }
-  ]
-}'
-```
+<Accordion title="Notas importantes sobre o cadastro de credenciais">
+`Credencial Wildcard`:  *
 
-```bash cURL com 2FA
-curl --location 'https://crawler.prod.judit.io/credentials' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "advogado_01",
-      "username": "999.999.999-99",
-      "password": "<senha-do-tribunal>",
-      "custom_data": {
-        "secret": "JBSWY3DPEHPK3PXP"
-      }
-    }
-  ]
-}'
-```
-</RequestExample>
+Se você cadastrar uma credencial sob o wildcard, todo tribunal que não tenha uma credencial específica usará a credencial wildcard.
+
+Se nenhuma `customer_key` for informada, será criada uma customer_key `vazia`.
+
+</Accordion>
+
+Para remover a credencial de um determinado sistema, envie `username` e `password` vazios.
 
 <ResponseExample>
 ```json
 [
 	{
+		"system_name": "PJEINTER TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJBA - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJEINTER TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
 		"system_name": "PJE TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 2º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	}
 ]
 ```
 </ResponseExample>
 
-<Warning>
-Com um body válido (a lista `credentials`), esta rota responde **HTTP 200** mesmo quando um item não é cadastrado. Confira o `message` de cada item da resposta. Um body inválido, sem a lista `credentials`, retorna HTTP 400.
-</Warning>
-
-<Accordion title="Valores de message">
-| `message` | Quando acontece |
-| :--- | :--- |
-| `CREDENTIAL_CREATED` | Credencial cadastrada. |
-| `CREDENTIAL_UPDATED` | Já existia credencial com o mesmo `system_name` e `customer_key`; ela foi substituída, inclusive o `custom_data`. |
-| `SYSTEM_NAME_NOT_FOUND` | `system_name` vazio ou inexistente no Cofre. |
-| `USERNAME_NOT_FOUND` | `username` ausente ou vazio. |
-| `PASSWORD_NOT_FOUND` | `password` ausente ou vazio. |
-| `USERNAME_AND_PASSWORD_NOT_FOUND` | `username` e `password` ausentes. |
-| `CERTIFICATE_FIELDS_NOT_ALLOWED` | Campos de certificado enviados em `custom_data`. |
-</Accordion>
-
-<Note>
-Certificado digital não é aceito nesta rota: um campo `file_base64` é ignorado sem erro. Use [Cadastro de Certificado Digital](/api-reference/endpoint/vault/vaultcertificate). Para remover uma credencial, use [Remoção de Credencial](/api-reference/endpoint/vault/vaultdelete).
-</Note>
+**Se a credencial já existir, a mensagem será `CREDENTIAL_UPDATED`.**

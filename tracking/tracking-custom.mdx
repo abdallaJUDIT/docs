@@ -122,7 +122,7 @@ Filtros poderão ser adicionados à requisição, permitindo um retorno mais ass
     - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
 
   - `credential` (opcional): Objeto para o uso do cofre de credenciais:
-    - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API usa a credencial cadastrada sem `customer_key` (valor padrão `*`).
+    - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
   - `last_step_date_gte` (opcional): Restringe a busca a processos cuja data da última movimentação seja maior que à data fornecida.
   - `last_step_date_lte` (opcional): Restringe a busca a processos cuja data da última movimentação seja menor que à data fornecida.
   - `party_names` (opcional): Lista de nomes que restringe a busca a processos que os contenham em alguma das partes.

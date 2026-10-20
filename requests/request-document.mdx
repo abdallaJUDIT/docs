@@ -172,7 +172,7 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
 | `search.on_demand` | boolean | Não | Se `true`, força a busca em tempo real nos tribunais em vez do Datalake. |
 | `search.search_params.with_inferred_parties` | boolean | Não | Se `true`, inclui na busca os processos em que o vínculo com o documento pesquisado foi inferido pela Judit. Padrão: `false`. |
 | `cache_ttl_in_days` | integer | Não | Considera o cache válido se a última extração ocorreu nos últimos X dias. |
-| `search.search_params.credential.customer_key` | string | Não | Chave do usuário no Cofre de Credenciais (usado para acessar os tribunais com credenciais cadastrada no [cofre de credenciais](/essentials/cofre-de-credenciais)). |
+| `customer_key` | string | Não | Chave do usuário no Cofre de Credenciais (usado para acessar os tribunais com credenciais cadastrada no [cofre de credenciais](/essentials/cofre-de-credenciais)). |
 
 <Note>
 **Sobre o uso da `customer_key`:** Esta credencial só terá efeito se o parâmetro `on_demand` for igual a `true`. Ao informá-la, a Judit acessará os tribunais de forma autenticada, permitindo a captura de **processos em segredo de justiça** aos quais o dono da credencial (advogado) esteja previamente vinculado ao respectivo processo.
@@ -205,11 +205,7 @@ Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o doc
         "search_type": "cpf",
         "search_key": "999.999.999-99",
         "on_demand": true,
-        "search_params": {
-            "credential": {
-                "customer_key": "ADV01"
-            }
-        }
+        "customer_key: "ADV01"
     }
 }
 ```
