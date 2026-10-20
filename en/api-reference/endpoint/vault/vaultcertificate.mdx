@@ -7,8 +7,16 @@ icon: "certificate"
 ---
 
 <Warning>
-The certificate **cannot** be sent through the `POST /credentials` route. Certificate fields inside `custom_data` are rejected with the `CERTIFICATE_FIELDS_NOT_ALLOWED` error.
+The certificate **cannot** be sent through the `POST /credentials` route: there, the `file_base64` field is silently ignored and certificate fields inside `custom_data` are rejected with `CERTIFICATE_FIELDS_NOT_ALLOWED`.
 </Warning>
+
+<Info>
+The certificate is always registered as the **wildcard credential** (`*`) of the given `customer_key`: it applies to every system that has no specific credential for that `customer_key`. A `system_name` sent to this route is silently ignored.
+</Info>
+
+<Note>
+This route only accepts `file_base64`, `password` and `customer_key`. Other fields, such as `system_name`, `totp_secret` or `custom_data`, are **silently ignored**. If the court also asks for an authenticator app code, [contact Judit support](/en/resource/support).
+</Note>
 
 <ParamField body="file_base64" type="string" required>
 Content of the `.pfx` / `.p12` (PKCS#12) file converted to Base64, on a **single line**, with no breaks. File must be at most 64 KB.
@@ -18,21 +26,8 @@ Content of the `.pfx` / `.p12` (PKCS#12) file converted to Base64, on a **single
 Password of the `.pfx` file. Not the court portal password.
 </ParamField>
 
-<ParamField body="system_name" type="string">
-System and court where the certificate will be used, for example `ESAJ - TJSP - 1º grau`. Use `*` to register it as a wildcard credential.
-</ParamField>
-
 <ParamField body="customer_key" type="string">
 Credential identifier defined by you. If omitted, the default value `*` is used.
-</ParamField>
-
-<ParamField body="custom_data" type="object">
-Extra credential data. Only send it when the court also requires two-factor authentication.
-    <Expandable title="properties">
-        <ParamField body="secret" type="string">
-        2FA secret (`secret`) — the **fixed** setup key of the authenticator app, never the temporary 6-digit code.
-        </ParamField>
-    </Expandable>
 </ParamField>
 
 <RequestExample>
@@ -41,25 +36,9 @@ curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data '{
-  "customer_key": "teste",
-  "system_name": "ESAJ - TJSP - 1º grau",
+  "customer_key": "lawyer_01",
   "file_base64": "<pfx-content-in-base64>",
-  "password": "123456"
-}'
-```
-
-```bash cURL with 2FA
-curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "customer_key": "teste",
-  "system_name": "ESAJ - TJSP - 1º grau",
-  "file_base64": "<pfx-content-in-base64>",
-  "password": "123456",
-  "custom_data": {
-    "secret": "JBSWY3DPEHPK3PXP"
-  }
+  "password": "<pfx-file-password>"
 }'
 ```
 </RequestExample>
@@ -68,7 +47,7 @@ curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 ```json
 {
 	"message": "CERTIFICATE_CREATED",
-	"customer_key": "teste",
+	"customer_key": "lawyer_01",
 	"subject_cn": "HOLDER NAME:12345678909",
 	"not_after": "2027-01-01T00:00:00.000Z",
 	"uploaded_at": "2026-07-31T17:00:00.000Z"
@@ -76,11 +55,14 @@ curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 ```
 </ResponseExample>
 
-**If a certificate for the same holder already exists in that credential, the message will be `CERTIFICATE_UPDATED` and the previous certificate is discarded.**
+**If a certificate for the same holder already exists for that `customer_key`, the message will be `CERTIFICATE_UPDATED` and the previous certificate is discarded.**
 
 <Accordion title="Possible errors">
+Errors come in the format `{ "error": { "name", "message", "data": ["<CODE>"] } }`.
+
 | Code | HTTP | When it happens |
 | :--- | :--- | :--- |
+| Validation error | 400 | `file_base64` or `password` is missing |
 | `PFX_MALFORMED` | 400 | Invalid Base64 or corrupted PFX file |
 | `PFX_PASSWORD_INVALID` | 400 | Wrong file password |
 | `PFX_NO_PRIVATE_KEY` | 400 | File has no private key |
@@ -88,8 +70,8 @@ curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 | `PFX_EXPIRED` | 400 | Certificate expired |
 | `PFX_NOT_YET_VALID` | 400 | Certificate not valid yet |
 | `PFX_TOO_LARGE` | 400 | File larger than 64 KB |
-| `CERTIFICATE_HOLDER_MISMATCH` | 409 | New certificate belongs to a different holder (CPF/CN) |
-| `CREDENTIAL_TYPE_CONFLICT` | 409 | A username/password credential already exists for the same credential and `customer_key` combination |
+| `CERTIFICATE_HOLDER_MISMATCH` | 409 | A certificate from another holder (CPF/CN) is already registered for this `customer_key` |
+| `CREDENTIAL_TYPE_CONFLICT` | 409 | A wildcard (`*`) username/password credential already exists for this `customer_key` |
 </Accordion>
 
 Full guide, including converting the file to Base64 and the Postman walkthrough: [Credentials Vault — digital certificate](/en/essentials/cofre-de-credenciais#registering-a-credential-with-a-digital-certificate-a1).

@@ -54,9 +54,9 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 })()</script></body></html>`} />
 );
 
-O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + senha) que advogados usam para se autenticar em tribunais brasileiros. Com isso, a Judit pode acessar processos sob **segredo de justiça** em nome do advogado, sem que sua aplicação precise jamais armazenar ou trafegar a senha.
+O **Cofre de Credenciais** guarda, criptografadas, as credenciais que advogados usam para se autenticar em tribunais brasileiros, em três formas de login que você mesmo cadastra: usuário e senha; usuário, senha e segredo 2FA de aplicativo autenticador; ou certificado digital A1. Com isso, a Judit pode acessar processos sob **segredo de justiça** em nome do advogado, sem que sua aplicação precise jamais armazenar ou trafegar a senha.
 
-> 🤖 Endpoint base: `https://crawler.prod.judit.io/credentials`. Cadastre uma vez por sistema/tribunal e referencie depois nas consultas via `credential.customer_key`.
+> 🤖 Endpoint base: `https://crawler.prod.judit.io/credentials`. Cadastre uma vez e referencie depois nas consultas via `credential.customer_key`.
 
 ## Quando usar
 
@@ -68,15 +68,34 @@ O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + sen
     Use `customer_key` para separar credenciais por advogado/cliente do escritório.
   </Card>
   <Card title="Conformidade LGPD" icon="shield-halved">
-    Senhas são armazenadas criptografadas em cofre dedicado — sua aplicação nunca transita a senha.
+    Senhas, segredos e certificados são armazenados criptografados em cofre dedicado e nunca são devolvidos pela API.
   </Card>
   <Card title="Credencial coringa" icon="asterisk">
-    Cadastre `"system_name": "*"` como fallback para tribunais sem credencial específica.
+    Cadastre `"system_name": "*"` para cobrir os sistemas que não têm credencial específica na mesma `customer_key`.
   </Card>
   <Card title="Certificado digital A1" icon="certificate" href="#cadastro-de-credencial-com-certificado-digital-a1">
-    Tribunais que só aceitam login por certificado usam a rota `POST /credentials/certificate`.
+    Tribunais que exigem login por certificado usam a rota `POST /credentials/certificate`.
   </Card>
 </CardGroup>
+
+## Como funciona
+
+<Steps>
+  <Step title="Identifique como o tribunal faz o login">
+    Entre no portal do tribunal com a credencial que será usada e anote o que ele pede: senha, código de aplicativo autenticador ou certificado digital.
+  </Step>
+  <Step title="Cadastre a credencial no Cofre">
+    Envie para o Cofre exatamente o que o tribunal pede, associado a uma `customer_key` escolhida por você.
+  </Step>
+  <Step title="Confira o cadastro">
+    Consulte `GET /credentials` e verifique se a credencial aparece como `active`.
+  </Step>
+  <Step title="Use na consulta">
+    Informe a `customer_key` em `search.search_params.credential` nas suas requisições.
+  </Step>
+</Steps>
+
+<VaultAnimation />
 
 ## Antes de cadastrar no Cofre: cadastro no tribunal
 
@@ -87,12 +106,47 @@ A Judit não cria usuários, senhas ou permissões dentro dos sistemas dos tribu
 Após a criação ou validação da credencial no tribunal, ela poderá ser cadastrada no Cofre de Credenciais da Judit e associada a uma chave de identificação chamada `customer_key`.
 
 <Info>
-A `customer_key` não é a senha do tribunal. Ela é apenas uma chave de referência utilizada para selecionar, dentro do Cofre de Credenciais, qual credencial deve ser usada na consulta.
+A `customer_key` não é a senha do tribunal. Ela é apenas uma chave de referência, escolhida por você, usada para selecionar dentro do Cofre qual credencial deve ser usada na consulta.
 </Info>
 
-### Fluxo de cadastro e uso
+## Passo 1: identifique como o tribunal faz o login
 
-<VaultAnimation />
+Cada tribunal define a própria forma de login, e ela pode mudar com o tempo. Por isso, **quem identifica o que cadastrar é você**: acesse o portal do tribunal com a credencial e observe o que é pedido para concluir o login.
+
+```mermaid
+flowchart TD
+    A[Acesse o portal do tribunal com a credencial] --> B{Como o login é feito?}
+    B -->|Usuário e senha| C{Depois da senha, pede um código<br/>do aplicativo autenticador?}
+    C -->|Não| P1[Cadastre usuário + senha]
+    C -->|Sim| P2[Cadastre usuário + senha<br/>+ segredo 2FA]
+    B -->|Certificado digital| D{Também pede um código<br/>do aplicativo autenticador?}
+    D -->|Não| P3[Cadastre o certificado A1]
+    D -->|Sim| P4[Fale com o suporte da Judit<br/>antes de cadastrar]
+```
+
+| O tribunal pede… | O que cadastrar no Cofre | Rota |
+| :--- | :--- | :--- |
+| Usuário (CPF ou OAB) e senha | `username` e `password` | [`POST /credentials`](#usuário-e-senha) |
+| Usuário, senha **e** código de aplicativo autenticador (Google Authenticator, Microsoft Authenticator, Authy etc.) | `username`, `password` e `custom_data.secret` — o segredo 2FA | [`POST /credentials`](#usuário-senha-e-segredo-2fa) |
+| Certificado digital | Arquivo `.pfx` / `.p12` (A1) em Base64 e a senha do arquivo | [`POST /credentials/certificate`](#cadastro-de-credencial-com-certificado-digital-a1) |
+| Certificado digital **e** código de aplicativo autenticador ao mesmo tempo | Não há cadastro self-service: fale com o suporte da Judit antes | [Suporte da Judit](/resource/support) |
+
+<Warning>
+O Cofre aceita apenas o 2FA por **aplicativo autenticador**. Nesse caso, você cadastra o **segredo 2FA** (a chave fixa de configuração do autenticador) e a Judit gera o código temporário a cada login. Códigos enviados por **e-mail** ou **SMS** não podem ser cadastrados no Cofre.
+</Warning>
+
+<Note>
+Se o tribunal exigir **certificado digital e código de aplicativo autenticador ao mesmo tempo**, [entre em contato com o suporte da Judit](/resource/support) antes de cadastrar a credencial.
+
+Não tente combinar os dois por conta própria. A rota de certificado ignora o segredo 2FA sem retornar erro, e cadastrar o segredo pelo `POST /credentials` na mesma `customer_key` do certificado tem um destes efeitos:
+
+- **Com o `system_name` de um tribunal:** cria outra credencial, de usuário e senha. O certificado coringa continua cadastrado, mas aquele tribunal passa a usar a credencial específica e não usa o certificado.
+- **Com `"system_name": "*"`:** substitui a credencial coringa. O `custom_data` inteiro é trocado e o certificado deixa de valer.
+</Note>
+
+<Tip>
+Se o tribunal mudar a forma de login, por exemplo passando a exigir 2FA, a credencial cadastrada deixará de funcionar. Repita este passo e atualize a credencial no Cofre.
+</Tip>
 
 ### Permissões da credencial no tribunal
 
@@ -110,45 +164,151 @@ Por exemplo:
 Cadastrar uma credencial no Cofre não garante, por si só, acesso a processos sigilosos ou documentos restritos. O acesso sempre depende das permissões existentes no tribunal.
 </Warning>
 
-### Autenticação em dois fatores
+## Passo 2: cadastre a credencial no Cofre
 
-Alguns tribunais podem exigir autenticação em dois fatores, também conhecida como **2FA**, **MFA**, token, código por e-mail, SMS, aplicativo autenticador ou certificado digital.
+### Descubra o `system_name` do tribunal
 
-Quando isso acontece, o comportamento pode variar conforme a regra de autenticação do próprio tribunal.
+Para cadastrar usuário e senha (com ou sem segredo 2FA), você precisa informar o `system_name`: o nome do sistema e do tribunal **exatamente** como o Cofre o reconhece. Para obter a lista, chame `GET /credentials` sem parâmetros:
 
-Em geral:
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials' \
+--header 'api-key: <api-key>'
+```
 
-- se o tribunal exigir o segundo fator apenas no primeiro acesso ou em intervalos específicos, a credencial poderá funcionar após a validação inicial;
-- se o tribunal exigir o segundo fator a cada novo login, a consulta autenticada poderá depender de uma etapa adicional de validação;
-- se o código de autenticação expirar rapidamente ou exigir ação manual recorrente, a execução automatizada poderá ser impactada.
+A resposta traz um item para cada sistema disponível. O valor de `name` é o `system_name` que você vai usar no cadastro:
 
-<Note>
-Se o tribunal exigir **certificado digital**, o cadastro é feito por uma rota específica do Cofre. Veja [Cadastro de credencial com certificado digital (A1)](#cadastro-de-credencial-com-certificado-digital-a1).
-</Note>
+```json
+{
+  "systems": [
+    { "name": "*", "customer_key": "", "credential_status": "not exists" },
+    { "name": "EPROC - JFES - 1º grau", "customer_key": "*", "credential_status": "not exists" },
+    { "name": "PJE TJBA - 1º grau", "customer_key": "*", "credential_status": "not exists" }
+  ]
+}
+```
+
+Como ler esse exemplo (um `GET` sem parâmetro, quando nada foi cadastrado na `customer_key` padrão):
+
+- **`"name": "*"` com `"customer_key": ""` e `not exists`:** não há [credencial coringa](#credencial-coringa) cadastrada na `customer_key` padrão.
+- **Demais linhas com `"customer_key": "*"`:** a API repete a `customer_key` padrão usada no filtro, mesmo quando o status é `not exists`. Esse `*` não é uma credencial coringa cadastrada: é o nome da gaveta usada quando o cadastro não envia `customer_key`. A coringa dessa gaveta só entra em consultas que também não enviam `customer_key`.
+- **O `system_name` a copiar é o `name` do tribunal**, por exemplo `PJE TJBA - 1º grau`. O `name` `"*"` não é nome de tribunal.
+
+<Tip>
+Copie o `name` exatamente como aparece, incluindo acentos, espaços, hífens e maiúsculas. Um nome diferente retorna `SYSTEM_NAME_NOT_FOUND`. O certificado digital não usa `system_name`: ele é sempre cadastrado como credencial coringa.
+</Tip>
+
+Em seguida, escolha a seção correspondente ao que você identificou no Passo 1.
+
+### Usuário e senha
+
+Envie uma requisição `POST` para `https://crawler.prod.judit.io/credentials`. É possível cadastrar várias credenciais de uma vez na lista `credentials`.
+
+| Campo | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `system_name` | string | **Sim** | Nome do sistema e tribunal, **exatamente** como aparece na [lista retornada por `GET /credentials`](#descubra-o-system_name-do-tribunal) — por exemplo `PJE TJBA - 1º grau`. Use `"*"` para cadastrar uma [credencial coringa](#credencial-coringa). |
+| `customer_key` | string | Não | Identificador que você define para a credencial (por advogado, cliente ou escritório). Se não for enviado, é usado o valor padrão `"*"`. |
+| `username` | string | **Sim** | Login usado no portal do tribunal: CPF ou número da OAB, conforme o tribunal exige. |
+| `password` | string | **Sim** | Senha usada no portal do tribunal. |
+| `custom_data` | objeto | Não | Dados extras da credencial. Use apenas para o [segredo 2FA](#usuário-senha-e-segredo-2fa). |
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "advogado_01",
+      "username": "999.999.999-99",
+      "password": "<senha-do-tribunal>"
+    },
+    {
+      "system_name": "ESAJ - TJAC - 1º grau",
+      "customer_key": "advogado_01",
+      "username": "999.999.999-99",
+      "password": "<senha-do-tribunal>"
+    }
+  ]
+}'
+```
+
+Exemplo de resposta:
+
+```json
+[
+  {
+    "system_name": "PJE TJBA - 1º grau",
+    "message": "CREDENTIAL_CREATED"
+  },
+  {
+    "system_name": "ESAJ - TJAC - 1º grau",
+    "message": "CREDENTIAL_CREATED"
+  }
+]
+```
 
 <Warning>
-Tribunais com autenticação em dois fatores podem aumentar o tempo de execução da consulta ou exigir validações adicionais. Nesses casos, o suporte da Judit deve ser acionado para avaliar a viabilidade operacional do uso da credencial.
+Com um body válido (a lista `credentials`), esta rota responde **HTTP 200** mesmo quando um item não é cadastrado: o erro de cada item vem no campo `message`. Confira o `message` de **cada item** da resposta. Um body inválido, sem a lista `credentials`, retorna HTTP 400. A ordem dos itens pode ser diferente da ordem enviada.
 </Warning>
 
-### Como obter o segredo 2FA para cadastro no Cofre
-
-Em tribunais que exigem autenticação em dois fatores por aplicativo autenticador, como Google Authenticator, Microsoft Authenticator, Authy ou similares, é necessário cadastrar no Cofre o **segredo 2FA** da credencial.
-
-Esse segredo também pode ser identificado como `secret`, `secrecy`, chave secreta, chave manual ou chave de configuração, dependendo do sistema utilizado.
+| `message` | O que significa | O que fazer |
+| :--- | :--- | :--- |
+| `CREDENTIAL_CREATED` | Credencial cadastrada. | — |
+| `CREDENTIAL_UPDATED` | Já existia uma credencial com o mesmo `system_name` e `customer_key`; ela foi substituída. | — |
+| `SYSTEM_NAME_NOT_FOUND` | O `system_name` está vazio ou não corresponde a nenhum sistema do Cofre. | Copie o nome exatamente como aparece em `GET /credentials`, incluindo acentos, espaços e maiúsculas. |
+| `USERNAME_NOT_FOUND` | O campo `username` não foi enviado ou está vazio. | Envie o login do tribunal. |
+| `PASSWORD_NOT_FOUND` | O campo `password` não foi enviado ou está vazio. | Envie a senha do tribunal. |
+| `USERNAME_AND_PASSWORD_NOT_FOUND` | `username` e `password` não foram enviados. | Envie os dois campos. |
+| `CERTIFICATE_FIELDS_NOT_ALLOWED` | Foram enviados campos de certificado em `custom_data`. | Cadastre o certificado pela rota [`POST /credentials/certificate`](#cadastro-de-credencial-com-certificado-digital-a1). |
 
 <Warning>
-Não cadastre o código temporário de 6 dígitos no campo de 2FA.  
-Esse código muda a cada poucos segundos e não deve ser usado como segredo da credencial.
+O certificado digital **não** é aceito nesta rota. Um campo `file_base64` enviado para `POST /credentials` é **ignorado sem erro**: a resposta vem `CREDENTIAL_CREATED`, mas nenhum certificado é armazenado. Use sempre a rota [`POST /credentials/certificate`](#cadastro-de-credencial-com-certificado-digital-a1).
 </Warning>
 
-#### Diferença entre segredo 2FA e código temporário
+### Usuário, senha e segredo 2FA
+
+Quando o tribunal pede, depois da senha, um código de aplicativo autenticador, cadastre também o **segredo 2FA** no campo `custom_data.secret`. A Judit usa esse segredo para gerar o código temporário de 6 dígitos no momento de cada login, do mesmo jeito que o aplicativo autenticador faz no seu celular.
+
+```bash
+curl --location 'https://crawler.prod.judit.io/credentials' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "credentials": [
+    {
+      "system_name": "PJE TJBA - 1º grau",
+      "customer_key": "advogado_01",
+      "username": "999.999.999-99",
+      "password": "<senha-do-tribunal>",
+      "custom_data": {
+        "secret": "JBSWY3DPEHPK3PXP"
+      }
+    }
+  ]
+}'
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `custom_data.secret` | string | Quando o tribunal pede código do autenticador | Segredo 2FA — a **chave fixa** de configuração do aplicativo autenticador. |
+
+<Warning>
+Não cadastre o código temporário de 6 dígitos no campo `secret`. Esse código muda a cada poucos segundos e faz a credencial parar de funcionar. Se o tribunal pedir o código e o `secret` não estiver cadastrado, a consulta autenticada falha.
+</Warning>
+
+#### Como obter o segredo 2FA para cadastro no Cofre
+
+O segredo 2FA também pode ser identificado como `secret`, `secrecy`, chave secreta, chave manual ou chave de configuração, dependendo do sistema utilizado.
+
+##### Diferença entre segredo 2FA e código temporário
 
 | Informação | O que é | Deve ser cadastrado no Cofre? |
 | :--- | :--- | :--- |
 | **Segredo 2FA** | Chave fixa usada para gerar os códigos temporários | **Sim** |
 | **Código temporário** | Código de 6 dígitos gerado pelo aplicativo autenticador | **Não** |
 
-#### Como identificar o segredo 2FA
+##### Como identificar o segredo 2FA
 
 Durante a configuração do 2FA no portal do tribunal, normalmente o tribunal exibe um **QR Code** para ser lido por um aplicativo autenticador.
 
@@ -168,7 +328,7 @@ O segredo 2FA geralmente é uma sequência alfanumérica maior que um código co
 Exemplo meramente ilustrativo: `JBSWY3DPEHPK3PXP`
 </Info>
 
-#### Fluxo recomendado para cadastro com 2FA
+##### Fluxo recomendado para cadastro com 2FA
 
 ```mermaid
 sequenceDiagram
@@ -186,20 +346,7 @@ sequenceDiagram
     Cliente->>Cofre: Cadastra usuário, senha e segredo 2FA
 ```
 
-#### O que cadastrar no Cofre
-
-Ao cadastrar uma credencial com autenticação em dois fatores, informe:
-
-- usuário/login do tribunal;
-- senha do tribunal;
-- `customer_key` desejada para identificar a credencial;
-- segredo 2FA, quando o tribunal exigir autenticação por aplicativo autenticador.
-
-<Warning>
-O segredo 2FA deve ser a chave fixa de configuração do autenticador, e não o código temporário gerado pelo aplicativo.
-</Warning>
-
-#### Caso o 2FA já esteja configurado
+##### Caso o 2FA já esteja configurado
 
 Se o 2FA já tiver sido configurado anteriormente e o tribunal não exibir mais a chave secreta, normalmente não é possível recuperar o segredo diretamente pelo aplicativo autenticador.
 
@@ -215,143 +362,72 @@ Nesse cenário, o caminho recomendado é:
 Cada tribunal pode ter um fluxo diferente para redefinição do 2FA. Caso o portal não permita visualizar ou reconfigurar o segundo fator, será necessário acionar o suporte do próprio tribunal ou o responsável pela credencial.
 </Note>
 
-## Boas práticas para cadastro de credenciais
+### Credencial coringa
 
-Recomendamos que as credenciais cadastradas no Cofre sejam:
+A credencial coringa evita repetir o mesmo login em cada tribunal. Você cadastra uma vez, com `"system_name": "*"`, e a Judit usa essa credencial em todo tribunal da mesma `customer_key` que não tiver credencial própria.
 
-- credenciais institucionais ou de serviço, quando permitido pelo tribunal;
-- criadas com permissões compatíveis com os processos que precisam ser consultados;
-- validadas previamente no portal do tribunal antes do uso via API;
-- mantidas atualizadas sempre que houver troca de senha ou alteração de acesso;
-- configuradas com um método de autenticação em dois fatores compatível com a operação automatizada, quando aplicável.
+O [certificado digital A1](#cadastro-de-credencial-com-certificado-digital-a1) cai sempre nessa vaga: o arquivo é do advogado, e `POST /credentials/certificate` não recebe tribunal. Usuário e senha com `"system_name": "*"` ocupam a mesma vaga. Se ela já estiver ocupada por senha, o upload do certificado responde `CREDENTIAL_TYPE_CONFLICT`.
 
-<Note>
-Caso a senha seja alterada, a credencial expire ou o tribunal solicite uma nova validação de acesso, será necessário atualizar ou revalidar a credencial no Cofre para manter a consulta funcionando corretamente.
-</Note>
-
-## Como selecionar a credencial no payload da requisição
-
-Para utilizar uma credencial cadastrada no Cofre de Credenciais durante a consulta, informe o campo `customer_key` dentro de `search.search_params.credential`.
-
-O valor de `customer_key` deve corresponder à chave da credencial previamente cadastrada no Cofre.
-
-<Note>
-A consulta será executada utilizando a credencial associada à `customer_key` informada no payload.
-</Note>
-
-### Exemplo de requisição
-
-```bash
-curl --location 'https://requests.prod.judit.io/requests/' \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-    "search": {
-        "search_type": "lawsuit_cnj",
-        "search_key": "0000000-00.0000.0.00.0000",
-        "search_params": {
-            "credential": {
-                "customer_key": "CUSTOMER-KEY"
-            }
-        }
-    }
-}'
+```mermaid
+flowchart TD
+    A[Cadastro em uma customer_key] --> B{Qual cadastro?}
+    B -->|POST /credentials/certificate| C{A vaga coringa dessa chave já tem usuário e senha?}
+    C -->|Sim| D[Erro CREDENTIAL_TYPE_CONFLICT]
+    C -->|Não| E[Certificado ocupa a vaga coringa]
+    B -->|POST /credentials com system_name *| F[Usuário e senha ocupam a vaga coringa]
+    B -->|POST /credentials com o system_name de um tribunal| G[Credencial própria daquele tribunal]
 ```
+
+Na consulta, a Judit olha só a `customer_key` enviada:
+
+1. se essa chave tem credencial daquele tribunal, usa essa credencial;
+2. se não tem, e a mesma chave tem coringa (`"system_name": "*"`), usa a coringa;
+3. se não tem nenhuma das duas, a consulta segue sem credencial e pode voltar só dado público.
+
+```mermaid
+flowchart TD
+    A[Consulta chega com customer_key e o tribunal do processo] --> B{Essa customer_key tem credencial desse tribunal?}
+    B -->|Sim| C[Usa a credencial do tribunal]
+    B -->|Não| D{Essa mesma customer_key tem coringa, system_name *?}
+    D -->|Sim| E[Usa a coringa]
+    D -->|Não| F[Segue sem credencial e pode voltar só dado público]
+```
+
+**Exemplo de cofre:**
+
+| `customer_key` | `system_name` | Credencial |
+| :--- | :--- | :--- |
+| `advogado_01` | `PJE TJBA - 1º grau` | Senha desse tribunal |
+| `advogado_01` | `*` | Certificado A1 (a coringa) |
+| `advogado_02` | — | Nada cadastrado |
+
+**Resultado:**
+
+- Consulta no PJE TJBA com `advogado_01` usa a senha do PJE TJBA. A coringa fica de fora.
+- Consulta no ESAJ TJSP com `advogado_01` usa o certificado da coringa.
+- Consulta com `advogado_02` não usa nada de `advogado_01`.
+
+### Atualizar uma credencial
+
+As credenciais são criptografadas e não podem ser lidas depois do cadastro. Para alterar uma credencial (troca de senha, novo segredo 2FA), envie um novo cadastro com o **mesmo `system_name` e a mesma `customer_key`**. A resposta vem `CREDENTIAL_UPDATED` e a credencial volta ao status `active`.
 
 <Warning>
-Caso a `customer_key` informada não exista, esteja inválida ou esteja vinculada a uma credencial expirada, a consulta poderá falhar ou não utilizar a credencial esperada.
+A atualização **substitui todos os campos**, inclusive o `custom_data`. Se a credencial usa 2FA, envie o `custom_data.secret` novamente junto com a nova senha; caso contrário, o segredo é perdido.
 </Warning>
 
-## Rota para cadastrar suas chaves no cofre de credenciais
+### Cadastro de credencial com certificado digital (A1)
 
-Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
+Quando o tribunal exige login por **certificado digital**, o cadastro é feito por uma rota separada, exclusiva para upload de certificado: `POST /credentials/certificate`.
 
-### Payload da Solicitação
+<Note>
+Esta rota cadastra apenas o certificado. Se o tribunal também pedir o código do aplicativo autenticador, [entre em contato com o suporte da Judit](/resource/support).
+</Note>
 
-A solicitação POST deve incluir um payload com as seguintes propriedades: 
+<Info>
+O certificado é sempre cadastrado como **credencial coringa** (`*`) da `customer_key` informada: ele vale para todos os sistemas que não têm credencial específica nessa `customer_key`. Um `system_name` enviado nesta rota é ignorado sem erro.
+</Info>
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
-  - `Obs:` Poderá ser cadastrada uma credencial coringa `"system_name": "*"`. Se uma credencial for cadastrada nela, todos os tribunais que não tiverem outra credencial cadastrada utilizarão a credencial coringa.
-- `customer_key`: Identificador personalizado para associar a credencial a um cliente ou advogado. Pode ser qualquer nome ou rótulo definido pelo responsável pelo cadastro, facilitando a organização e o gerenciamento das credenciais.
-
-- `username`: CPF (Cadastro de Pessoas Físicas) ou número da OAB (Ordem dos Advogados do Brasil), conforme exigido pelo sistema do tribunal onde o login será realizado.
-
-- `password`: Senha cadastrada no respectivo tribunal.
-
-Propriedades necessárias apenas nos casos de tribunais que exigem autenticação de dois fatores:
-
-- `custom_data`: Objeto opcional destinado a armazenar informações adicionais específicas para o sistema ou contexto de uso. Pode incluir campos personalizados como, por exemplo, um secret necessário para autenticação ou outras configurações específicas.
-
-- `secret`: Token de autenticação de dois fatores do sistema a ser cadastrado.
-
-`Obs:` As credenciais cadastradas são criptografadas, garantindo a segurança dos dados, e não podem ser acessadas posteriormente. Para modificar informações já cadastradas, basta criar um novo registro utilizando o mesmo `customer_key` e o mesmo `system_name`. O novo cadastro substituirá automaticamente a credencial existente.
-
-Exemplo de payload para cadastro de credenciais sem autenticação de dois fatores:
-
-```json
-
-{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "00000001",
-      "username": "999.999.999-99",
-      "password": "Senha123"
-    },
-    {
-      "system_name": "ESAJ - TJAC - 1º grau",
-      "customer_key": "00000002",
-      "username": "999.999.999-99",
-      "password": "Senha123"
-    }
-  ]
-}
-```
-
-Exemplo de payload para cadastro de credenciais com autenticação de dois fatores:
-
-```json
-
-{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "00000001",
-      "username": "999.999.999-99",
-      "password": "Senha123",
-      "custom_data": {
-				"secret": "<TOKEN>"
-			}
-    }
-  ]
-}
-```
-
-Exemplo de resposta a solicitação:
-
-```json
-
-[
-    {
-        "system_name": "ESAJ - TJAC - 1º grau",
-        "message": "CREDENTIAL_CREATED"
-    },
-    {
-        "system_name": "PJE TJBA - 1º grau",
-        "message": "CREDENTIAL_CREATED"
-    }
-]
-```
-
-## Cadastro de credencial com certificado digital (A1)
-
-Alguns tribunais não aceitam login por CPF/OAB + senha e exigem **certificado digital**. Para esses casos, o Cofre de Credenciais possui uma rota separada, exclusiva para upload de certificado: `POST /credentials/certificate`.
-
-<Warning>
-O certificado **não** pode ser enviado pela rota `POST /credentials`. Se você tentar colocar o certificado dentro de `custom_data`, a API responde com o erro `CERTIFICATE_FIELDS_NOT_ALLOWED`. Use sempre a rota `/credentials/certificate`.
-</Warning>
-
-### O que você precisa antes de começar
+#### O que você precisa antes de começar
 
 | Item | Detalhe |
 | :--- | :--- |
@@ -365,7 +441,7 @@ O certificado **não** pode ser enviado pela rota `POST /credentials`. Se você 
 Se você tem um certificado A3 e precisa usá-lo em consultas automatizadas, será necessário emitir um certificado A1 do mesmo titular. Fale com a sua Autoridade Certificadora (Serasa, Certisign, Soluti, etc.).
 </Info>
 
-### Passo 1 — Converter o arquivo `.pfx` para Base64
+#### Etapa 1 — Converter o arquivo `.pfx` para Base64
 
 O JSON de uma requisição HTTP só transporta texto, e um `.pfx` é um arquivo binário. Por isso, antes de enviar, o arquivo precisa ser convertido para **Base64** — que é apenas o mesmo arquivo reescrito como texto.
 
@@ -416,17 +492,16 @@ print(file_base64)
 
 **Como saber se deu certo:** o texto gerado é enorme (milhares de caracteres — isso é normal) e normalmente começa com `MII`. Se o que você copiou for algo curto como `C:\certificados\meu.pfx` ou `./certificado.pfx`, você copiou o **caminho** do arquivo, e não o conteúdo dele.
 
-### Passo 2 — Enviar o certificado para o Cofre
+#### Etapa 2 — Enviar o certificado para o Cofre
 
 ```bash
 curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 --header 'api-key: <api-key>' \
 --header 'Content-Type: application/json' \
 --data '{
-  "customer_key": "teste",
-  "system_name": "ESAJ - TJSP - 1º grau",
+  "customer_key": "advogado_01",
   "file_base64": "<conteudo-do-pfx-em-base64>",
-  "password": "123456"
+  "password": "<senha-do-arquivo-pfx>"
 }'
 ```
 
@@ -434,21 +509,17 @@ curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
 A autenticação é feita pelo header **`api-key`**, exatamente como nas outras rotas da Judit. **Não use `Authorization: Bearer`** — essa rota não usa token Bearer.
 </Warning>
 
-#### Campos do corpo da requisição
-
 | Campo | Tipo | Obrigatório | Descrição |
 | :--- | :--- | :--- | :--- |
-| `file_base64` | string | **Sim** | Conteúdo do arquivo `.pfx` / `.p12` convertido para Base64, em uma única linha (o resultado do Passo 1). |
+| `file_base64` | string | **Sim** | Conteúdo do arquivo `.pfx` / `.p12` convertido para Base64, em uma única linha (o resultado da Etapa 1). |
 | `password` | string | **Sim** | Senha do arquivo `.pfx`. Repetindo: é a senha do certificado, não a do tribunal. |
-| `system_name` | string | Recomendado | Sistema e tribunal em que o certificado será usado, exatamente como aparece na [lista de sistemas do Cofre](/api-reference/endpoint/vault/vault) — por exemplo `ESAJ - TJSP - 1º grau`. Use `"*"` para cadastrar o certificado como **credencial coringa**, válida para qualquer tribunal que não tenha credencial específica. |
 | `customer_key` | string | Recomendado | Identificador que você define para essa credencial (por advogado, cliente ou escritório). É essa mesma chave que você informará na consulta. Se não for enviada, é usado o valor padrão `"*"`. |
-| `custom_data` | objeto | Não | Só é necessário quando o tribunal também exige autenticação em dois fatores. Veja o [Passo 5](#passo-5-opcional--certificado--código-2fa). |
 
-<Info>
-A `customer_key` é apenas um rótulo de referência escolhido por você. Ela não tem relação com o tribunal e não é uma senha.
-</Info>
+<Note>
+Esta rota aceita apenas `file_base64`, `password` e `customer_key`. Outros campos, como `system_name`, `totp_secret` ou `custom_data`, são **ignorados sem erro**. A resposta `CERTIFICATE_CREATED` confirma só o certificado: `customer_key`, titular (`subject_cn`) e validade (`not_after`). Um campo que não aparece na resposta não foi cadastrado. `totp_secret` não é um campo desta rota.
+</Note>
 
-#### Passo a passo no Postman
+##### Passo a passo no Postman
 
 <Steps>
   <Step title="Método e URL">
@@ -463,7 +534,7 @@ A `customer_key` é apenas um rótulo de referência escolhido por você. Ela n�
     | `Content-Type` | `application/json` |
   </Step>
   <Step title="Body">
-    Na aba **Body**, selecione **raw** e, no seletor à direita, escolha **JSON**. Cole o JSON com os quatro campos e substitua `file_base64` pelo texto gerado no Passo 1.
+    Na aba **Body**, selecione **raw** e, no seletor à direita, escolha **JSON**. Cole o JSON com os três campos e substitua `file_base64` pelo texto gerado na Etapa 1.
 
     <Warning>
     Não use **form-data** nem o tipo **File** do Postman para anexar o `.pfx`. Esta rota recebe apenas JSON, com o arquivo já convertido para Base64.
@@ -474,12 +545,12 @@ A `customer_key` é apenas um rótulo de referência escolhido por você. Ela n�
   </Step>
 </Steps>
 
-### Passo 3 — Conferir a resposta
+#### Etapa 3 — Conferir a resposta
 
 ```json
 {
   "message": "CERTIFICATE_CREATED",
-  "customer_key": "teste",
+  "customer_key": "advogado_01",
   "subject_cn": "NOME DO TITULAR:12345678909",
   "not_after": "2027-01-01T00:00:00.000Z",
   "uploaded_at": "2026-07-31T17:00:00.000Z"
@@ -496,99 +567,56 @@ A `customer_key` é apenas um rótulo de referência escolhido por você. Ela n�
 
 O certificado é validado no momento do upload (senha, validade e tamanho) e armazenado criptografado. A resposta **nunca** devolve o arquivo nem a senha — depois de cadastrado, o certificado não pode ser lido de volta.
 
-### Passo 4 — Usar o certificado na consulta
-
-O uso é igual ao de qualquer outra credencial do Cofre: basta informar a mesma `customer_key` em `search.search_params.credential`.
-
-```bash
-curl --location 'https://requests.prod.judit.io/requests/' \
---header 'Content-Type: application/json' \
---header 'api-key: <api-key>' \
---data '{
-  "search": {
-    "search_type": "lawsuit_cnj",
-    "search_key": "0000000-00.0000.0.00.0000",
-    "search_params": {
-      "credential": {
-        "customer_key": "teste"
-      }
-    }
-  }
-}'
-```
-
 <Note>
-Se você cadastrou o certificado com a `customer_key` padrão `"*"`, não é necessário informar `credential` na consulta — ele será usado automaticamente como credencial coringa.
+Se a mesma `customer_key` também tiver uma credencial de usuário e senha cadastrada para um sistema específico, essa credencial específica tem prioridade sobre o certificado naquele sistema.
 </Note>
 
-### Passo 5 (opcional) — Certificado + código 2FA
+#### Trocar, renovar ou remover o certificado
 
-Alguns tribunais exigem **duas coisas ao mesmo tempo**: o certificado digital **e** o segredo 2FA — enviado no campo `secret`, e chamado no portal do tribunal de chave secreta, chave manual ou chave de configuração do autenticador.
+- **Renovar ou trocar:** repita o upload com a mesma `customer_key`. O certificado anterior é descartado e a resposta vem com `CERTIFICATE_UPDATED`.
+- **Titular diferente:** se o novo certificado pertencer a outro CPF/CNPJ, a API retorna `CERTIFICATE_HOLDER_MISMATCH` (409). [Remova a credencial](#remover-uma-credencial) antes de cadastrar o certificado do novo titular.
+- **Remover:** use `DELETE https://crawler.prod.judit.io/credentials` com `"system_name": "*"` e a `customer_key` do certificado. O certificado armazenado é apagado junto com a credencial.
 
-Tudo é feito em **uma única requisição**: basta acrescentar o objeto `custom_data`, com a chave `secret` dentro, ao mesmo payload do certificado.
+#### Erros do cadastro de certificado
 
-```bash
-curl --location 'https://crawler.prod.judit.io/credentials/certificate' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "customer_key": "teste",
-  "system_name": "ESAJ - TJSP - 1º grau",
-  "file_base64": "<conteudo-do-pfx-em-base64>",
-  "password": "123456",
-  "custom_data": {
-    "secret": "JBSWY3DPEHPK3PXP"
+Os erros desta rota vêm no formato abaixo, com o código dentro de `data`:
+
+```json
+{
+  "error": {
+    "name": "HttpBadRequestError",
+    "message": "BAD_REQUEST",
+    "data": ["PFX_PASSWORD_INVALID"]
   }
-}'
+}
 ```
-
-| Campo | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `custom_data` | objeto | Não | Objeto com dados extras da credencial. Envie apenas quando o tribunal exigir 2FA. |
-| `custom_data.secret` | string | Não | Segredo 2FA da credencial — a **chave fixa** de configuração do aplicativo autenticador. |
-
-<Warning>
-O `secret` é a **chave fixa de configuração** do autenticador (algo como `JBSWY3DPEHPK3PXP`) — **nunca** o código temporário de 6 dígitos, que muda a cada poucos segundos. Cadastrar o código de 6 dígitos faz a credencial parar de funcionar em minutos.
-</Warning>
-
-<Note>
-Não sabe onde encontrar essa chave? Ela aparece na configuração do 2FA no portal do tribunal, atrás de opções como "Não consigo ler o QR Code", "Inserir chave manualmente", "Exibir chave secreta" ou "Setup key". O passo a passo completo está em [Como obter o segredo 2FA para cadastro no Cofre](#como-obter-o-segredo-2fa-para-cadastro-no-cofre).
-</Note>
-
-<Info>
-Se a credencial já tinha um `secret` cadastrado anteriormente, o upload do certificado **não apaga** esse segredo. Você pode enviar `custom_data` de novo para atualizá-lo, ou omitir o campo para manter o que já está gravado.
-</Info>
-
-### Trocar, renovar ou remover o certificado
-
-- **Renovar ou trocar:** repita o mesmo upload com a mesma `customer_key` e o `system_name`. A credencial é atualizada, o certificado anterior é descartado e a resposta vem com `CERTIFICATE_UPDATED`.
-- **Titular diferente:** se o novo certificado pertencer a outro CPF/CNPJ, a API retorna `CERTIFICATE_HOLDER_MISMATCH` (409). Remova a credencial antes de cadastrar o certificado do novo titular.
-- **Consultar:** use `GET https://crawler.prod.judit.io/credentials?customer_key=teste` com o header `api-key`. Uma credencial cadastrada com `system_name: "*"` aparece na lista com `name: "*"`.
-- **Remover:** use `DELETE https://crawler.prod.judit.io/credentials` enviando `system_name` e `customer_key`. O certificado armazenado é apagado junto com a credencial. Se ela não existir, a resposta é `404` (`CREDENTIAL_NOT_FOUND`).
-
-### Erros e como resolver
 
 | Código | HTTP | O que aconteceu | Como resolver |
 | :--- | :--- | :--- | :--- |
-| `PFX_MALFORMED` | 400 | O Base64 está inválido ou o arquivo `.pfx` está corrompido. | Refaça o Passo 1 garantindo uma única linha, sem quebras e sem espaços. Confirme que enviou o conteúdo do arquivo, não o caminho dele. |
+| `PFX_MALFORMED` | 400 | O Base64 está inválido ou o arquivo `.pfx` está corrompido. | Refaça a Etapa 1 garantindo uma única linha, sem quebras e sem espaços. Confirme que enviou o conteúdo do arquivo, não o caminho dele. |
 | `PFX_PASSWORD_INVALID` | 400 | A senha informada não abre o arquivo. | Use a senha do arquivo `.pfx`, não a senha do portal do tribunal. Teste abrir o certificado localmente com essa senha. |
 | `PFX_NO_PRIVATE_KEY` | 400 | O arquivo não contém a chave privada. | Exporte o certificado novamente marcando a opção de exportar a chave privada. |
 | `PFX_NO_CERTIFICATE` | 400 | O arquivo não contém certificado. | Verifique se o arquivo exportado é realmente um `.pfx` / `.p12` completo. |
 | `PFX_EXPIRED` | 400 | O certificado está vencido. | Emita ou renove o certificado junto à Autoridade Certificadora. |
 | `PFX_NOT_YET_VALID` | 400 | O certificado ainda não entrou em vigor. | Aguarde a data de início da validade. |
 | `PFX_TOO_LARGE` | 400 | O arquivo tem mais de 64 KB. | Exporte apenas o certificado do titular, sem cadeias ou certificados extras desnecessários. |
-| `CERTIFICATE_HOLDER_MISMATCH` | 409 | Já existe um certificado cadastrado nessa credencial e ele pertence a outro titular. | Remova a credencial e cadastre novamente com o novo titular. |
-| `CREDENTIAL_TYPE_CONFLICT` | 409 | Já existe uma credencial de usuário/senha para essa combinação de `customer_key` e sistema. | Use outra `customer_key` para o certificado ou remova a credencial de usuário/senha antes. |
-| `CERTIFICATE_FIELDS_NOT_ALLOWED` | 400 | Você tentou enviar campos de certificado na rota `POST /credentials`. | Envie o certificado pela rota `POST /credentials/certificate`. |
+| `CERTIFICATE_HOLDER_MISMATCH` | 409 | Já existe um certificado cadastrado nessa `customer_key` e ele pertence a outro titular. | Remova a credencial e cadastre novamente com o novo titular. |
+| `CREDENTIAL_TYPE_CONFLICT` | 409 | Já existe uma credencial coringa (`*`) de usuário e senha nessa `customer_key`. | Use outra `customer_key` para o certificado ou remova a credencial coringa de usuário e senha antes. |
 
-### Erros mais comuns na prática
+#### Erros mais comuns na prática
 
 <AccordionGroup>
+  <Accordion title="Enviei o certificado pela rota POST /credentials">
+    A rota `POST /credentials` ignora o campo `file_base64` sem retornar erro: a resposta vem `CREDENTIAL_CREATED`, mas nenhum certificado é armazenado. Envie o certificado pela rota `POST /credentials/certificate`.
+  </Accordion>
+  <Accordion title="Enviei totp_secret ou system_name e recebi CERTIFICATE_CREATED">
+    O HTTP 200 confirma que o certificado foi aceito; o body só traz `customer_key`, titular (`subject_cn`) e validade (`not_after`). `system_name`, `totp_secret` e `custom_data.secret` enviados nessa rota não são gravados. Para usuário, senha e segredo 2FA, use `POST /credentials` com `custom_data.secret`. Para certificado e código de aplicativo autenticador no mesmo login, [fale com o suporte da Judit](/resource/support).
+  </Accordion>
   <Accordion title="Enviei o caminho do arquivo em vez do conteúdo">
-    `"file_base64": "C:\\certificados\\meu.pfx"` está errado. O campo espera o **texto Base64** gerado no Passo 1, com milhares de caracteres — e não o local do arquivo no seu computador.
+    `"file_base64": "C:\\certificados\\meu.pfx"` está errado. O campo espera o **texto Base64** gerado na Etapa 1, com milhares de caracteres — e não o local do arquivo no seu computador.
   </Accordion>
   <Accordion title="O Base64 saiu quebrado em várias linhas">
-    Acontece quando o comando é executado sem `tr -d '\n'` (macOS) ou sem `-w 0` (Linux). Refaça a conversão usando exatamente os comandos do Passo 1.
+    Acontece quando o comando é executado sem `tr -d '\n'` (macOS) ou sem `-w 0` (Linux). Refaça a conversão usando exatamente os comandos da Etapa 1.
   </Accordion>
   <Accordion title="Usei a senha do tribunal no campo password">
     O campo `password` é a senha do arquivo `.pfx`, criada na emissão ou exportação do certificado. A senha do portal do tribunal não abre o arquivo e gera `PFX_PASSWORD_INVALID`.
@@ -607,65 +635,56 @@ Se a credencial já tinha um `secret` cadastrado anteriormente, o upload do cert
   </Accordion>
 </AccordionGroup>
 
-## Rota de verificação de credenciais cadastradas
+## Passo 3: confira o cadastro
 
-Para verificar se uma credencial está cadastrada, envie uma solicitação GET para o endpoint `crawler.prod.judit.io/credentials`, incluindo o parâmetro `customer_key` correspondente à credencial que deseja consultar.
+Envie uma requisição `GET` para `https://crawler.prod.judit.io/credentials`.
 
-A resposta retornará todas as credenciais disponíveis no cofre associadas à `customer_key` consultada. O campo `credential_status` indicará o status de cada credencial:
-
-- active: Credencial cadastrada e ativa.
-- not exists: Credencial não encontrada no sistema.
-
-Segue um exemplo de solicitação GET para verificar a existência de uma credencial:
-
-```json
-
-curl --location 'https://crawler.prod.judit.io/credentials?customer_key=teste_01' \
---header 'api-key: <API-KEY>'
-
-```
-
-Segue um exemplo de resposta para a solicitação GET realizada:
-
-```json
-
-{
-    "systems": [
-        {
-            "name": "*",
-            "customer_key": "",
-            "credential_status": "not exists"
-        },
-        {
-            "name": "ESAJ - TJAM - 1º grau",
-            "customer_key": "teste_01",
-            "credential_status": "active"
-        },
-        {
-            "name": "PROJUDI TJGO - 1º grau",
-            "customer_key": "teste_01",
-            "credential_status": "active"
-        }
-    ]
-}
-
-```
-
-## Como utilizar o Cofre de Credenciais na requisição
-
-O **Cofre de Credenciais** permite vincular uma consulta a uma credencial previamente cadastrada para o cliente.  
-Para isso, informe a chave da credencial no campo `customer_key`, dentro de `search.search_params.credential`.
-
-Essa chave identifica qual credencial deve ser utilizada na execução da consulta.
-
-<Note>
-O valor de `customer_key` deve corresponder a uma chave já cadastrada no Cofre de Credenciais. Caso a chave informada não exista ou esteja inválida, a consulta poderá falhar ou não utilizar a credencial esperada.
-</Note>
-
-### Exemplo de requisição
+- **Sem `customer_key`:** a resposta lista **todos os sistemas** disponíveis no Cofre, com o status de cada um na `customer_key` padrão `"*"`. Só a linha cujo `name` é `"*"` é a credencial coringa dessa chave. Use essa lista para copiar o `system_name` exato no cadastro.
+- **Com `?customer_key=advogado_01`:** a linha com `name` `"*"` é a credencial coringa dessa chave. As outras linhas são apenas os tribunais que têm credencial própria nela. Um tribunal que não aparece na lista ainda pode usar a coringa na consulta.
 
 ```bash
-curl --location 'https://requests.prod.judit.io/requests/' \
+curl --location 'https://crawler.prod.judit.io/credentials?customer_key=advogado_01' \
+--header 'api-key: <api-key>'
+```
+
+```json
+{
+  "systems": [
+    {
+      "name": "*",
+      "customer_key": "advogado_01",
+      "credential_status": "active"
+    },
+    {
+      "name": "ESAJ - TJAM - 1º grau",
+      "customer_key": "advogado_01",
+      "credential_status": "active"
+    },
+    {
+      "name": "PROJUDI TJGO - 1º grau",
+      "customer_key": "advogado_01",
+      "credential_status": "inactive"
+    }
+  ]
+}
+```
+
+| `credential_status` | O que significa | O que fazer |
+| :--- | :--- | :--- |
+| `active` | Credencial cadastrada e disponível para uso. | — |
+| `inactive` | A credencial falhou no login do tribunal: senha inválida ou expirada, usuário bloqueado ou certificado vencido. | Acesse o portal do tribunal, revalide o login ([Passo 1](#passo-1-identifique-como-o-tribunal-faz-o-login)) e [atualize a credencial](#atualizar-uma-credencial). O novo cadastro volta o status para `active`. |
+| `not exists` | Não há credencial cadastrada. | Cadastre a credencial ([Passo 2](#passo-2-cadastre-a-credencial-no-cofre)). |
+
+<Note>
+A resposta não indica o tipo da credencial (senha ou certificado) nem se há segredo 2FA cadastrado, e nunca devolve senhas, segredos ou certificados.
+</Note>
+
+## Passo 4: use a credencial na consulta
+
+Informe a `customer_key` dentro de `search.search_params.credential`. A consulta será executada com a credencial associada a essa chave.
+
+```bash
+curl --location 'https://requests.production.judit.io/requests' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data '{
@@ -674,35 +693,52 @@ curl --location 'https://requests.prod.judit.io/requests/' \
     "search_key": "0000000-00.0000.0.00.0000",
     "search_params": {
       "credential": {
-        "customer_key": "CUSTOMER-KEY"
+        "customer_key": "advogado_01"
       }
     }
   }
 }'
 ```
 
-## Rota para deletar uma chave no cofre de Credenciais
+<Note>
+Se a `customer_key` não for informada, a Judit usa a credencial cadastrada sem `customer_key` (valor padrão `"*"`).
+</Note>
 
-Para deletar um sistema no cofre de credenciais, você deve realizar uma solicitação DELETE para a rota `crawler.prod.judit.io/credentials`.
+<Warning>
+Se a `customer_key` não tiver credencial `active` que atenda o sistema consultado (do próprio tribunal ou [coringa](#credencial-coringa)), a consulta **não falha**: ela segue sem a sua credencial e pode retornar apenas dados públicos. Se um processo sigiloso voltar sem os dados esperados, confira o status da credencial no [Passo 3](#passo-3-confira-o-cadastro).
+</Warning>
 
-### Payload da Solicitação
+## Remover uma credencial
 
-A solicitação DELETE deve incluir um payload com a seguinte propriedade: 
+Envie uma requisição `DELETE` para `https://crawler.prod.judit.io/credentials`.
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
-- `customer_key`: Identificador personalizado adicionado no momento do cadastro da credencial.
+| Campo | Tipo | Obrigatório | Descrição |
+| :--- | :--- | :--- | :--- |
+| `system_name` | string | **Sim** | Sistema da credencial que será removida, exatamente como foi cadastrado. Para a credencial coringa ou para um certificado, use `"*"`. |
+| `customer_key` | string | Não | `customer_key` da credencial. Se não for enviada, é usado o valor padrão `"*"`. |
 
-Exemplo de payload para deletar credencial:
-
-```json
-
-{
-	"system_name": "PROJUDI TJGO - 1º grau",
-    "customer_key":"teste_01"
-}
-
+```bash
+curl --location --request DELETE 'https://crawler.prod.judit.io/credentials' \
+--header 'api-key: <api-key>' \
+--header 'Content-Type: application/json' \
+--data '{
+  "system_name": "PROJUDI TJGO - 1º grau",
+  "customer_key": "advogado_01"
+}'
 ```
-- Caso a solicitação seja bem sucedida a resposta será um objeto vazio.
 
+Se a remoção for bem-sucedida, a resposta é um objeto vazio (`{}`). Se o sistema não existir, a API retorna `404` com `SOURCE_NOT_FOUND`; se não houver credencial cadastrada para essa combinação, retorna `404` com `CREDENTIAL_NOT_FOUND`.
 
-A atualização das credenciais nos tribunais é de inteira responsabilidade do usuário. Portanto, cabe ao usuário realizar o cadastro da credencial no tribunal correspondente e acompanhar a validade e a situação da mesma para garantir que ela não seja suspensa ou invalidada.
+## Boas práticas para cadastro de credenciais
+
+Recomendamos que as credenciais cadastradas no Cofre sejam:
+
+- credenciais institucionais ou de serviço, quando permitido pelo tribunal;
+- criadas com permissões compatíveis com os processos que precisam ser consultados;
+- validadas previamente no portal do tribunal antes do uso via API;
+- mantidas atualizadas sempre que houver troca de senha ou alteração de acesso;
+- configuradas com 2FA por aplicativo autenticador, quando o tribunal exigir segundo fator.
+
+<Note>
+A atualização das credenciais nos tribunais é de inteira responsabilidade do usuário. Cabe ao usuário realizar o cadastro da credencial no tribunal correspondente e acompanhar a validade e a situação dela, para garantir que não seja suspensa ou invalidada. Sempre que a senha for alterada, o certificado for renovado ou o tribunal mudar a forma de login, atualize a credencial no Cofre.
+</Note>

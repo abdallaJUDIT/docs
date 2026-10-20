@@ -172,7 +172,7 @@ To initiate the asynchronous flow, make a `POST` request providing the desired d
 | `search.on_demand` | boolean | No | If `true`, forces the search in real time at the courts instead of the Datalake. |
 | `search.search_params.with_inferred_parties` | boolean | No | If `true`, also includes lawsuits in which the link to the searched document was inferred by Judit. Default: `false`. |
 | `cache_ttl_in_days` | integer | No | Considers the cache valid if the last extraction occurred within the last X days. |
-| `customer_key` | string | No | User key in the Credentials Vault (used to access the courts with credentials registered in the [credentials vault](/en/essentials/cofre-de-credenciais)). |
+| `search.search_params.credential.customer_key` | string | No | User key in the Credentials Vault (used to access the courts with credentials registered in the [credentials vault](/en/essentials/cofre-de-credenciais)). |
 
 <Note>
 **About the use of `customer_key`:** This credential will only take effect if the `on_demand` parameter is set to `true`. When provided, Judit will access the courts in an authenticated manner, allowing the capture of **lawsuits under judicial secrecy** to which the credential owner (lawyer) is previously linked within the respective lawsuit.
@@ -205,7 +205,11 @@ To initiate the asynchronous flow, make a `POST` request providing the desired d
         "search_type": "cpf",
         "search_key": "999.999.999-99",
         "on_demand": true,
-        "customer_key": "ADV01"
+        "search_params": {
+            "credential": {
+                "customer_key": "ADV01"
+            }
+        }
     }
 }
 ```

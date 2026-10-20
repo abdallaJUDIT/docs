@@ -91,16 +91,14 @@ The POST request must include a payload with the following properties:
 - `search` (**required**): Object used for the search.
     - `search_type` (**required**): In the context of lawsuit tracking, the value of this field will always be `lawsuit_cnj`.
     - `search_key`: The lawsuit number (CNJ code) you want to search;
+    - `search_params` (optional): An object, inside `search`, containing some search parameters such as:
+        - `lawsuit_instance` (optional): This parameter allows you to define the instance in which you want to search the lawsuit;
+        - `credential` (optional): Object for using the credentials vault (`search.search_params.credential`).
+            - `customer_key` (optional): Allows you to pass the user key you registered in the credentials vault. If not provided, the API uses the credential registered without a `customer_key` (default value `*`).
 
 - `with_attachments` (optional): This field defines whether you want to fetch attachments related to the searched lawsuit. It can be **true** or **false**
 
   - `Note:` Attachments will only be returned if search_type is **lawsuit_cnj**.
-
-- `search_params`: An object containing some search parameters such as: 
-  - `lawsuit_instance` (optional): This parameter allows you to define the instance in which you want to search the lawsuit; 
-    
-- `credential` (optional): Object for using the credentials vault.
-  - `customer_key` (optional): Allows you to pass the user key you registered in the credentials vault. If not provided, the API will try to find a credential registered for an empty `customer_key`.
 
 - `notification_emails` (optional): Array of strings outside of `search` where you can add email addresses to receive notifications for every update of the registered tracking.
 
