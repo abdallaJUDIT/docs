@@ -2,108 +2,89 @@
 title: "Credential Registration"
 openapi: "openapi/vault.json POST /credentials"
 api: "POST https://crawler.prod.judit.io/credentials"
-description: "Register or update username and password credentials (with an optional 2FA secret) for one or more court systems."
+description: "To register a credential or update an existing one, use the route below."
 icon: "key"
 ---
 
-<Info>
-Before registering, check in the court portal what it asks for at login: password, authenticator app code or digital certificate. See [Step 1: identify how the court handles login](/en/essentials/cofre-de-credenciais#step-1-identify-how-the-court-handles-login).
-</Info>
-
-<ParamField body="credentials" type="array" required>
-List of credentials to register.
+<ParamField body="credentials" type="array" required={false}>
     <Expandable title="properties">
+		<ParamField body="credential" type="object" required>
         <ParamField body="system_name" type="string" required>
-        System and court name, **exactly** as listed by `GET /credentials` — for example `PJE TJBA - 1º grau`. Use `*` for the wildcard credential.
+        PJE TJBA - 1º grau or * (wildcard)
         </ParamField>
 
-        <ParamField body="customer_key" type="string">
-        Identifier you define for the credential (per lawyer, client or firm). If omitted, the default value `*` is used.
-        </ParamField>
+    	<ParamField body="customer_key" type="string" required>
+    	00000001 (use your own way of identifying a client)
+    	</ParamField>
 
-        <ParamField body="username" type="string" required>
-        Login used in the court portal: CPF or OAB number, as the court requires.
-        </ParamField>
+    	<ParamField body="username" type="string" required>
+    	999.999.999-99 (CPF)
+    	</ParamField>
 
         <ParamField body="password" type="string" required>
-        Password used in the court portal.
+         Senha123
         </ParamField>
-
-        <ParamField body="custom_data" type="object">
-        Send it only when the court asks for an authenticator app code.
-            <Expandable title="properties">
-                <ParamField body="secret" type="string">
-                2FA secret — the **fixed** setup key of the authenticator app, never the temporary 6-digit code. Judit generates the code at each login.
-                </ParamField>
-            </Expandable>
         </ParamField>
     </Expandable>
+
 </ParamField>
 
-<RequestExample>
-```bash cURL
-curl --location 'https://crawler.prod.judit.io/credentials' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "lawyer_01",
-      "username": "999.999.999-99",
-      "password": "<court-password>"
-    }
-  ]
-}'
-```
+<Accordion title="Important notes about credential registration">
+`Wildcard Credential`:  *
 
-```bash cURL with 2FA
-curl --location 'https://crawler.prod.judit.io/credentials' \
---header 'api-key: <api-key>' \
---header 'Content-Type: application/json' \
---data '{
-  "credentials": [
-    {
-      "system_name": "PJE TJBA - 1º grau",
-      "customer_key": "lawyer_01",
-      "username": "999.999.999-99",
-      "password": "<court-password>",
-      "custom_data": {
-        "secret": "JBSWY3DPEHPK3PXP"
-      }
-    }
-  ]
-}'
-```
-</RequestExample>
+If you register a credential under it, every court that does not have its own specific credential will use the wildcard credential.
+
+If no `customer_key` is provided, an `empty` customer_key will be created.
+
+</Accordion>
+
+If you want to remove the credential from a given system, you must send `username` and `password` as empty.
 
 <ResponseExample>
 ```json
 [
 	{
+		"system_name": "PJEINTER TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJBA - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJEINTER TJMT - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
 		"system_name": "PJE TJBA - 1º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PJE TJMT - 2º grau",
+		"customer_key": "00000001",
+		"message": "CREDENTIAL_CREATED"
+	},
+	{
+		"system_name": "PROJUDI TJBA - 2º grau",
+		"customer_key": "00000001",
 		"message": "CREDENTIAL_CREATED"
 	}
 ]
 ```
 </ResponseExample>
 
-<Warning>
-With a valid body (the `credentials` list), this route responds with **HTTP 200** even when an item is not registered. Check the `message` of each item in the response. An invalid body, without the `credentials` list, returns HTTP 400.
-</Warning>
-
-<Accordion title="message values">
-| `message` | When it happens |
-| :--- | :--- |
-| `CREDENTIAL_CREATED` | Credential registered. |
-| `CREDENTIAL_UPDATED` | A credential with the same `system_name` and `customer_key` already existed; it was replaced, including `custom_data`. |
-| `SYSTEM_NAME_NOT_FOUND` | `system_name` is empty or does not exist in the vault. |
-| `USERNAME_NOT_FOUND` | `username` is missing or empty. |
-| `PASSWORD_NOT_FOUND` | `password` is missing or empty. |
-| `USERNAME_AND_PASSWORD_NOT_FOUND` | Both `username` and `password` are missing. |
-| `CERTIFICATE_FIELDS_NOT_ALLOWED` | Certificate fields were sent in `custom_data`. |
-</Accordion>
-
-<Note>
-Digital certificates are not accepted on this route: a `file_base64` field is silently ignored. Use [Digital Certificate Registration](/en/api-reference/endpoint/vault/vaultcertificate). To remove a credential, use [Credential Deletion](/en/api-reference/endpoint/vault/vaultdelete).
-</Note>
+**If the credential already exists, the message will be `CREDENTIAL_UPDATED`.**

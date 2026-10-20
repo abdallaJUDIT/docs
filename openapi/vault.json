@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "JUDIT - Credentials Vault API",
-    "description": "OpenAPI description for the credentials vault routes: register, inspect and delete per-tribunal credentials (username/password, 2FA secret or A1 certificate).",
+    "description": "OpenAPI description for the credentials vault routes, used to register and inspect per-tribunal system credentials. Mirrored locally so this page's playground exposes exactly one base URL (no other Judit service host). Transcribed from the fields already documented on the vault/vault and vault/vaultcreate pages.",
     "version": "1.0.0"
   },
   "servers": [
@@ -29,7 +29,7 @@
           "Credentials"
         ],
         "summary": "List credential status by system",
-        "description": "Returns the credential status of each tribunal system. Without `customer_key`, lists every system available in the vault (use it to copy the exact `system_name`). With `customer_key`, lists only the systems that have a credential for that key, plus the wildcard (`*`) row. `inactive` means the credential failed to log in to the court (invalid/expired password, blocked user or expired certificate); re-register it to make it `active` again.",
+        "description": "Returns the registration status (`credential_status`) of each tribunal system's credential for the authenticated company.",
         "operationId": "getCredentials",
         "responses": {
           "200": {
@@ -49,8 +49,7 @@
                             "description": "Tribunal system name, or `*` for the wildcard credential"
                           },
                           "customer_key": {
-                            "type": "string",
-                            "description": "Key used as the filter (default `*`). In the `*` row it is empty when no wildcard credential exists for that key; the other rows repeat the filter key even when the status is `not exists`."
+                            "type": "string"
                           },
                           "credential_status": {
                             "type": "string",
@@ -58,8 +57,7 @@
                               "not exists",
                               "active",
                               "inactive"
-                            ],
-                            "description": "`active`: available. `inactive`: failed to log in to the court. `not exists`: no credential registered."
+                            ]
                           }
                         }
                       }
@@ -72,80 +70,66 @@
                       "name": "*",
                       "customer_key": "",
                       "credential_status": "not exists"
-                    },
-                    {
-                      "name": "PJE TJBA - 1º grau",
-                      "customer_key": "*",
-                      "credential_status": "not exists"
                     }
                   ]
                 }
               }
             }
           }
-        },
-        "parameters": [
-          {
-            "name": "customer_key",
-            "in": "query",
-            "required": false,
-            "description": "Credential key defined at registration. Defaults to `*`.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
           "Credentials"
         ],
-        "summary": "Register or update password credentials",
-        "description": "Registers username/password credentials (optionally with a 2FA authenticator secret) for one or more tribunal systems. Sending the same `system_name` + `customer_key` replaces the existing credential, including `custom_data`. With a valid body (the `credentials` list) it returns HTTP 200 even when an item is not registered: check the `message` of each item. An invalid body returns HTTP 400. Digital certificates are not accepted here: a `file_base64` field is silently ignored; use `POST /credentials/certificate`.",
+        "summary": "Register or update credentials",
+        "description": "Registers a credential for a tribunal system, or updates it if it already exists. Send empty `username`/`password` to remove a credential for a given system.",
         "operationId": "postCredentials",
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "credentials"
-                ],
                 "properties": {
                   "credentials": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "system_name",
-                        "username",
-                        "password"
-                      ],
                       "properties": {
-                        "system_name": {
-                          "type": "string",
-                          "description": "System name exactly as listed by `GET /credentials` (e.g. \"PJE TJBA - 1º grau\"), or `*` for the wildcard credential."
-                        },
-                        "customer_key": {
-                          "type": "string",
-                          "description": "Client-defined identifier for the credential. Defaults to `*`."
-                        },
-                        "username": {
-                          "type": "string",
-                          "description": "Court portal login (CPF or OAB, as the court requires)."
-                        },
-                        "password": {
-                          "type": "string",
-                          "description": "Court portal password."
-                        },
-                        "custom_data": {
+                        "credential": {
                           "type": "object",
-                          "description": "Extra credential data. Only for courts that ask for an authenticator app code.",
+                          "required": [
+                            "system_name",
+                            "customer_key",
+                            "username",
+                            "password"
+                          ],
                           "properties": {
-                            "secret": {
+                            "system_name": {
                               "type": "string",
-                              "description": "2FA secret: the fixed authenticator setup key (never the temporary 6-digit code). Judit generates the code at each login."
+                              "description": "e.g. \"PJE TJBA - 1º grau\" or `*` (wildcard)"
+                            },
+                            "customer_key": {
+                              "type": "string",
+                              "description": "Client-defined identifier for the credential owner"
+                            },
+                            "username": {
+                              "type": "string",
+                              "description": "e.g. CPF"
+                            },
+                            "password": {
+                              "type": "string"
+                            },
+                            "custom_data": {
+                              "type": "object",
+                              "description": "Extra data required by some courts. Use `secret` for the 2FA setup key (never the temporary 6-digit code).",
+                              "properties": {
+                                "secret": {
+                                  "type": "string",
+                                  "description": "Fixed 2FA setup key of the authenticator app"
+                                }
+                              }
                             }
                           }
                         }
@@ -157,12 +141,11 @@
               "example": {
                 "credentials": [
                   {
-                    "system_name": "PJE TJBA - 1º grau",
-                    "customer_key": "advogado_01",
-                    "username": "999.999.999-99",
-                    "password": "<senha-do-tribunal>",
-                    "custom_data": {
-                      "secret": "JBSWY3DPEHPK3PXP"
+                    "credential": {
+                      "system_name": "PJE TJBA - 1º grau",
+                      "customer_key": "00000001",
+                      "username": "999.999.999-99",
+                      "password": "Senha123"
                     }
                   }
                 ]
@@ -172,7 +155,7 @@
         },
         "responses": {
           "200": {
-            "description": "One result per item sent (order may differ). Errors are reported per item in `message`, still with HTTP 200.",
+            "description": "Credential(s) created or updated",
             "content": {
               "application/json": {
                 "schema": {
@@ -183,104 +166,18 @@
                       "system_name": {
                         "type": "string"
                       },
+                      "customer_key": {
+                        "type": "string"
+                      },
                       "message": {
                         "type": "string",
                         "enum": [
                           "CREDENTIAL_CREATED",
-                          "CREDENTIAL_UPDATED",
-                          "SYSTEM_NAME_NOT_FOUND",
-                          "USERNAME_NOT_FOUND",
-                          "PASSWORD_NOT_FOUND",
-                          "USERNAME_AND_PASSWORD_NOT_FOUND",
-                          "CERTIFICATE_FIELDS_NOT_ALLOWED"
+                          "CREDENTIAL_UPDATED"
                         ]
                       }
                     }
                   }
-                },
-                "example": [
-                  {
-                    "system_name": "PJE TJBA - 1º grau",
-                    "message": "CREDENTIAL_CREATED"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "Body is not a valid `credentials` array.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Credentials"
-        ],
-        "summary": "Delete a credential",
-        "operationId": "deleteCredential",
-        "description": "Deletes the credential of a system for a `customer_key`. To delete the wildcard credential or a certificate, use `system_name: \"*\"`. A stored certificate is deleted together with the credential.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "system_name"
-                ],
-                "properties": {
-                  "system_name": {
-                    "type": "string",
-                    "description": "System name as registered, or `*`."
-                  },
-                  "customer_key": {
-                    "type": "string",
-                    "description": "Credential key. Defaults to `*`."
-                  }
-                }
-              },
-              "example": {
-                "system_name": "PROJUDI TJGO - 1º grau",
-                "customer_key": "advogado_01"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Credential deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                },
-                "example": {}
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid body",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`SOURCE_NOT_FOUND` (unknown system) or `CREDENTIAL_NOT_FOUND`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -294,7 +191,7 @@
           "Credentials"
         ],
         "summary": "Register or update a digital certificate credential",
-        "description": "Uploads an A1 digital certificate (PKCS#12 `.pfx` / `.p12`, max 64 KB). The certificate is always stored as the wildcard (`*`) credential of the given `customer_key`, so it applies to every system without a specific credential for that key. This is the only route that accepts certificates. Other fields (`system_name`, `totp_secret`, `custom_data`) are silently ignored. If the court also asks for an authenticator app code, contact Judit support.",
+        "description": "Uploads an A1 digital certificate (PKCS#12 `.pfx` / `.p12`, max 64 KB) as a credential in the vault. This is the only route that accepts certificate upload — sending certificate fields to `POST /credentials` returns `CERTIFICATE_FIELDS_NOT_ALLOWED`. When the court also requires two-factor authentication, send the 2FA setup key in `custom_data.secret` in this same payload.",
         "operationId": "postCredentialsCertificate",
         "requestBody": {
           "required": true,
@@ -315,16 +212,34 @@
                     "type": "string",
                     "description": "Password of the PKCS#12 file (not the court portal password)"
                   },
+                  "system_name": {
+                    "type": "string",
+                    "description": "e.g. \"ESAJ - TJSP - 1º grau\" or `*` (wildcard)"
+                  },
                   "customer_key": {
                     "type": "string",
                     "description": "Client-defined identifier for the credential. Defaults to `*`"
+                  },
+                  "custom_data": {
+                    "type": "object",
+                    "description": "Extra credential data. Only required when the court also enforces two-factor authentication.",
+                    "properties": {
+                      "secret": {
+                        "type": "string",
+                        "description": "2FA secret — the fixed authenticator setup key, never the temporary 6-digit code"
+                      }
+                    }
                   }
                 }
               },
               "example": {
-                "customer_key": "advogado_01",
+                "customer_key": "teste",
+                "system_name": "ESAJ - TJSP - 1º grau",
                 "file_base64": "MIIK...",
-                "password": "<senha-do-arquivo-pfx>"
+                "password": "123456",
+                "custom_data": {
+                  "secret": "JBSWY3DPEHPK3PXP"
+                }
               }
             }
           }
@@ -364,7 +279,7 @@
                 },
                 "example": {
                   "message": "CERTIFICATE_CREATED",
-                  "customer_key": "advogado_01",
+                  "customer_key": "teste",
                   "subject_cn": "NOME DO TITULAR:12345678909",
                   "not_after": "2027-01-01T00:00:00.000Z",
                   "uploaded_at": "2026-07-31T17:00:00.000Z"
@@ -373,24 +288,10 @@
             }
           },
           "400": {
-            "description": "Invalid certificate file. Possible codes: `PFX_MALFORMED`, `PFX_PASSWORD_INVALID`, `PFX_NO_PRIVATE_KEY`, `PFX_NO_CERTIFICATE`, `PFX_EXPIRED`, `PFX_NOT_YET_VALID`, `PFX_TOO_LARGE`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Invalid certificate file. Possible codes: `PFX_MALFORMED`, `PFX_PASSWORD_INVALID`, `PFX_NO_PRIVATE_KEY`, `PFX_NO_CERTIFICATE`, `PFX_EXPIRED`, `PFX_NOT_YET_VALID`, `PFX_TOO_LARGE`"
           },
           "409": {
-            "description": "Conflict. Possible codes: `CERTIFICATE_HOLDER_MISMATCH` (a certificate from another holder is already registered for this key), `CREDENTIAL_TYPE_CONFLICT` (a wildcard username/password credential already exists for this key)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Conflict. Possible codes: `CERTIFICATE_HOLDER_MISMATCH`, `CREDENTIAL_TYPE_CONFLICT`"
           }
         }
       }
@@ -403,36 +304,6 @@
         "in": "header",
         "name": "api-key",
         "description": "API key for authentication"
-      }
-    },
-    "schemas": {
-      "Error": {
-        "type": "object",
-        "description": "Error envelope. The specific error code is in `data`.",
-        "properties": {
-          "error": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "example": "HttpBadRequestError"
-              },
-              "message": {
-                "type": "string",
-                "example": "BAD_REQUEST"
-              },
-              "data": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "example": [
-                  "PFX_PASSWORD_INVALID"
-                ]
-              }
-            }
-          }
-        }
       }
     }
   }
