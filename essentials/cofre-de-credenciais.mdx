@@ -115,7 +115,7 @@ Cada tribunal define a própria forma de login, e ela pode mudar com o tempo. Po
 
 ```mermaid
 flowchart TD
-    A[Acesse o portal do tribunal<br/>com a credencial] --> B{Como o login é feito?}
+    A[Acesse o portal do tribunal com a credencial] --> B{Como o login é feito?}
     B -->|Usuário e senha| C{Depois da senha, pede um código<br/>do aplicativo autenticador?}
     C -->|Não| P1[Cadastre usuário + senha]
     C -->|Sim| P2[Cadastre usuário + senha<br/>+ segredo 2FA]
@@ -370,12 +370,12 @@ O [certificado digital A1](#cadastro-de-credencial-com-certificado-digital-a1) c
 
 ```mermaid
 flowchart TD
-    A[Cadastro em uma<br/>customer_key] --> B{Qual<br/>cadastro?}
-    B -->|Certificado A1| C{A vaga coringa<br/>já tem usuário<br/>e senha?}
-    C -->|Sim| D[Erro<br/>CREDENTIAL_TYPE_CONFLICT]
-    C -->|Não| E[Certificado ocupa<br/>a vaga coringa]
-    B -->|Senha com<br/>system_name *| F[Usuário e senha<br/>ocupam a vaga coringa]
-    B -->|Senha com o system_name<br/>de um tribunal| G[Credencial própria<br/>daquele tribunal]
+    A[Cadastro em uma customer_key] --> B{Qual cadastro?}
+    B -->|POST /credentials/certificate| C{A vaga coringa dessa chave já tem usuário e senha?}
+    C -->|Sim| D[Erro CREDENTIAL_TYPE_CONFLICT]
+    C -->|Não| E[Certificado ocupa a vaga coringa]
+    B -->|POST /credentials com system_name *| F[Usuário e senha ocupam a vaga coringa]
+    B -->|POST /credentials com o system_name de um tribunal| G[Credencial própria daquele tribunal]
 ```
 
 Na consulta, a Judit olha só a `customer_key` enviada:
@@ -386,11 +386,11 @@ Na consulta, a Judit olha só a `customer_key` enviada:
 
 ```mermaid
 flowchart TD
-    A[Consulta chega com<br/>customer_key e o<br/>tribunal do processo] --> B{A customer_key tem<br/>credencial desse<br/>tribunal?}
-    B -->|Sim| C[Usa a credencial<br/>do tribunal]
-    B -->|Não| D{A mesma customer_key<br/>tem coringa,<br/>system_name *?}
+    A[Consulta chega com customer_key e o tribunal do processo] --> B{Essa customer_key tem credencial desse tribunal?}
+    B -->|Sim| C[Usa a credencial do tribunal]
+    B -->|Não| D{Essa mesma customer_key tem coringa, system_name *?}
     D -->|Sim| E[Usa a coringa]
-    D -->|Não| F[Segue sem credencial<br/>e pode voltar só<br/>dado público]
+    D -->|Não| F[Segue sem credencial e pode voltar só dado público]
 ```
 
 **Exemplo de cofre:**
