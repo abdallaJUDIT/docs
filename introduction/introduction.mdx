@@ -32,7 +32,7 @@ var FLOWS=[
     {fr:'judit',to:'app',label:'webhook / polling',note:'response_data',col:J,ts:19.7,te:20.5,yp:0.80}]},
   {id:'track',title:'③ Tracking — Monitoramento',sub:'Verifica o tribunal periodicamente e notifica por webhook',col:'#F6AD55',ts:26,te:39,act:['app','judit','court'],steps:[
     {fr:'app',to:'judit',label:'POST /tracking',note:'{search_type, search_key}',col:A,ts:26.5,te:27.3,yp:0.32},
-    {fr:'judit',to:'court',label:'verifica periodicamente',note:'recorrência configurável',col:T,ts:28.2,te:29.0,yp:0.48},
+    {fr:'judit',to:'court',label:'verifica periodicamente',note:'execução diária',col:T,ts:28.2,te:29.0,yp:0.48},
     {fr:'court',to:'judit',label:'nova movimentação',note:'',col:J,ts:29.9,te:30.7,yp:0.62},
     {fr:'judit',to:'app',label:'webhook',note:'event: new_step',col:'#F6AD55',ts:31.6,te:32.4,yp:0.78}]},
   {id:'sync',title:'④ Lawsuits — Síncrono (Hot Storage)',sub:'Lê o datalake JUDIT — não vai ao tribunal',col:D,ts:40,te:53,act:['app','judit','dl'],steps:[
@@ -119,7 +119,7 @@ Três serviços, um padrão de autenticação:
 | Serviço | URL | Quando usar |
 | --- | --- | --- |
 | `requests` | `https://requests.production.judit.io` | Consulta direta nos tribunais. Resultado chega via webhook ou polling. |
-| `tracking` | `https://tracking.production.judit.io` | Monitoramento contínuo de processos com a recorrência que você define. |
+| `tracking` | `https://tracking.production.judit.io` | Monitoramento contínuo de processos com execução diária. |
 | `lawsuits` | `https://lawsuits.production.judit.io` | Leitura síncrona do datalake JUDIT, retorno do processos atrelados ao documento consultado. |
 
 ## Comece em 2 passos

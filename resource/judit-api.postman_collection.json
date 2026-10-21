@@ -270,10 +270,10 @@
                 "tracking"
               ]
             },
-            "description": "Monitora um processo pelo CNJ. A primeira execução acontece nas 24 horas seguintes; as próximas seguem `recurrence`. O `tracking_id` fica salvo na variável `tracking_id`.\n\nDocumentação: https://docs.judit.io/tracking/tracking",
+            "description": "Monitora um processo pelo CNJ. A primeira execução acontece nas 24 horas seguintes; as próximas acontecem diariamente (recorrência fixa, não configurável). O `tracking_id` fica salvo na variável `tracking_id`.\n\nDocumentação: https://docs.judit.io/tracking/tracking",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recurrence\": 1,                    // a cada quantos dias o processo é atualizado\n  \"search\": {\n    \"search_type\": \"lawsuit_cnj\",     // monitoramento processual é sempre por CNJ\n    \"search_key\": \"{{cnj_code}}\"      // número CNJ do processo\n  },\n  \"callback_url\": \"https://sua-app.com/webhooks/judit\"  // opcional: URL que recebe as atualizações\n}",
+              "raw": "{\n  \"search\": {\n    \"search_type\": \"lawsuit_cnj\",     // monitoramento processual é sempre por CNJ\n    \"search_key\": \"{{cnj_code}}\"      // número CNJ do processo\n  },\n  \"callback_url\": \"https://sua-app.com/webhooks/judit\"  // opcional: URL que recebe as atualizações\n}",
               "options": {
                 "raw": {
                   "language": "json"
