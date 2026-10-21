@@ -1,7 +1,7 @@
 ---
 title: "Monitoramento Processual"
 sidebarTitle: "Monitoramento Processual"
-description: "Acompanhe automaticamente as movimentações de um processo específico pelo seu número CNJ. A Judit consulta o tribunal com a recorrência configurada e envia atualizações via webhook."
+description: "Acompanhe automaticamente as movimentações de um processo específico pelo seu número CNJ. A Judit consulta o tribunal diariamente e envia atualizações via webhook."
 keywords: ["monitoramento", "tracking", "webhook", "recorrência", "atualização", "tribunal", "cnj", "processo"]
 icon: "radar"
 ---
@@ -17,9 +17,9 @@ var XP={app:0.13,judit:0.50,court:0.87};
 var NW=88,NH=42;
 var NODES=[{id:'app',label:'Sua App',col:A},{id:'judit',label:'Judit API',col:J},{id:'court',label:'Tribunal',col:T}];
 var STEPS=[
-  {fr:'app',to:'judit',label:'POST /tracking',note:'{lawsuit_cnj, recurrence:1}',col:A,ts:1.0,te:1.8,yp:0.30},
+  {fr:'app',to:'judit',label:'POST /tracking',note:'{lawsuit_cnj}',col:A,ts:1.0,te:1.8,yp:0.30},
   {fr:'judit',to:'app',label:'201 {tracking_id}',note:'status: created',col:J,ts:2.3,te:3.1,yp:0.42},
-  {sep:true,label:'↻  execução automática a cada N dias',yp:0.52},
+  {sep:true,label:'↻  execução automática diária',yp:0.52},
   {fr:'judit',to:'court',label:'verifica no tribunal',note:'sem ação da sua aplicação',col:T,ts:4.8,te:5.6,yp:0.60},
   {fr:'court',to:'judit',label:'nova movimentação',note:'',col:J,ts:6.1,te:6.9,yp:0.72},
   {fr:'judit',to:'app',label:'webhook',note:'event_type: response_created',col:J,ts:7.4,te:8.2,yp:0.84}
@@ -55,9 +55,9 @@ window.addEventListener('resize',function(){dim=setup();});
 })()</script></body></html>`} />
 );
 
-O **Monitoramento Processual** acompanha automaticamente um processo específico pelo seu número CNJ. Você cadastra o CNJ, define a recorrência (em dias) e a Judit consulta o tribunal para você. Sempre que houver novidade — nova movimentação, anexo ou decisão — você recebe a atualização via **webhook** ou e-mail.
+O **Monitoramento Processual** acompanha automaticamente um processo específico pelo seu número CNJ. Você cadastra o CNJ e a Judit consulta o tribunal diariamente para você. Sempre que houver novidade — nova movimentação, anexo ou decisão — você recebe a atualização via **webhook** ou e-mail.
 
-> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking` com `search.search_type: "lawsuit_cnj"`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida em `recurrence` (em dias).
+> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking` com `search.search_type: "lawsuit_cnj"`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida por padrão pela API (`recurrence: 1`, ou seja, diária).
 
 <TrackingAnimation />
 
@@ -86,8 +86,6 @@ Para começar a monitorar um processo, você deve realizar uma solicitação POS
 
 A solicitação POST deve incluir um payload com as seguintes propriedades:
 
-- `recurrence`: A recorrência em dias de atualização dos processos.
-
 - `search` (**obrigatório**): Objeto que vai para a busca.
     - `search_type` (**obrigatório**): No contexto de monitoramento processual, o valor desse campo sempre será `lawsuit_cnj`.
     - `search_key`: O número do processo (Código CNJ) que você deseja buscar;
@@ -114,7 +112,6 @@ Exemplo de payload com alguns filtros opcionais:
 
 ```json
 {
-	"recurrence": 1,
     "search": {
         "search_type": "lawsuit_cnj",
         "search_key": "1111111-04.1111.1.11.1111"
@@ -135,7 +132,6 @@ Exemplo de payload sem filtros:
 ```json
 
 {
-    "recurrence": 1,
     "search": {
         "search_type": "lawsuit_cnj",
         "search_key": "1111111-04.1111.1.11.1111"
@@ -192,7 +188,6 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>>' \
 --header 'Content-Type: application/json' \
 --data '{
-    "recurrence": 1,
     "search": {
         "search_type": "lawsuit_cnj",
         "search_key": "1111111-04.1111.1.11.1111"
@@ -205,23 +200,23 @@ curl --location 'https://tracking.production.judit.io/tracking' \
     da data de criação.
 </Note>
 
+Depois disso, o monitoramento é executado diariamente. A recorrência é fixa em 1 dia (`recurrence: 1` na resposta) e não pode ser configurada: se o campo `recurrence` for enviado na criação, ele é ignorado.
+
 ## Atualizando um Monitoramento
 
 Para atualizar um monitoramento, você pode fazer uma solicitação PATCH para a rota `/tracking/{monitoramento}`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja atualizar.
 
-Esta rota campos opcionais para atualização do tracking: `recurrence`, `tags` e o objeto de `search` para a busca com exceção de alguns campos.
+Esta rota aceita os seguintes campos opcionais para atualização do tracking: `notification_emails`, `callback_url` e o objeto `search.search_params` (apenas `filter`, `credential` e `public_search`). Qualquer outro campo — como `recurrence`, `tags`, `search_type` ou `search_key` — é rejeitado com erro `400`.
 
 Aqui está um exemplo de como fazer isso usando curl:
 
 ```bash
 curl -X PATCH "https://tracking.production.judit.io/tracking/{monitoramento}" \
--H "api-key: YOUR_API_KEY"
+-H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
 -d '{
-  "recurrence": 5,
-  "search": {
-    "search_type": "lawsuit_cnj",
-    "search_key": "1111111-04.1111.1.11.1111"
-  }
+  "notification_emails": ["teste@teste.com"],
+  "callback_url": "https://sua-app.com/webhooks/judit"
 }'
 ```
 
@@ -878,7 +873,6 @@ Para cadastrar seu webhook, entre em contato com a equipe de [suporte](https://a
 </Warning>
 ```json
 {
-    "recurrence": 1,
     "search": {
         "search_type": "lawsuit_cnj",
         "search_key": "1111111-04.1111.1.11.1111"

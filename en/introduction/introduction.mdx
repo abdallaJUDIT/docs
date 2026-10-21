@@ -32,7 +32,7 @@ var FLOWS=[
     {fr:'judit',to:'app',label:'webhook / polling',note:'response_data',col:J,ts:19.7,te:20.5,yp:0.80}]},
   {id:'track',title:'③ Tracking — Monitoring',sub:'Periodically checks the court and notifies via webhook',col:'#F6AD55',ts:26,te:39,act:['app','judit','court'],steps:[
     {fr:'app',to:'judit',label:'POST /tracking',note:'{search_type, search_key}',col:A,ts:26.5,te:27.3,yp:0.32},
-    {fr:'judit',to:'court',label:'checks periodically',note:'configurable recurrence',col:T,ts:28.2,te:29.0,yp:0.48},
+    {fr:'judit',to:'court',label:'checks periodically',note:'daily runs',col:T,ts:28.2,te:29.0,yp:0.48},
     {fr:'court',to:'judit',label:'new movement',note:'',col:J,ts:29.9,te:30.7,yp:0.62},
     {fr:'judit',to:'app',label:'webhook',note:'event: new_step',col:'#F6AD55',ts:31.6,te:32.4,yp:0.78}]},
   {id:'sync',title:'④ Lawsuits — Synchronous (Hot Storage)',sub:'Reads the JUDIT datalake — does not query the court',col:D,ts:40,te:53,act:['app','judit','dl'],steps:[
@@ -144,7 +144,7 @@ Three services, one auth pattern:
 | Service | URL | When to use |
 | --- | --- | --- |
 | `requests` | `https://requests.production.judit.io` | Live fetch from courts. Result arrives via webhook or polling. |
-| `tracking` | `https://tracking.production.judit.io` | Continuous lawsuit monitoring at the recurrence you choose. |
+| `tracking` | `https://tracking.production.judit.io` | Continuous lawsuit monitoring with daily runs. |
 | `lawsuits` | `https://lawsuits.production.judit.io` | Synchronous reading of the JUDIT data lake, returning the processes linked to the consulted document. |
 
 ## Get started in 2 steps
