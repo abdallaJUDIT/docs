@@ -726,6 +726,17 @@ Only types billed per item are paused by the cap or the balance: document, publi
 
 Reactivation is manual: buy additional credits and call the `/tracking/{tracking}/resume` route for each paused tracking. On resume, `tags.pause_reason` is removed. To list paused trackings, use `GET /tracking?status=paused`.
 
+## Items withheld by the consumption cap or balance
+
+Pausing disables the tracking's schedule: no new execution is triggered while it's paused. Withheld responses only come from the execution that was already in flight at the moment the cap or balance ran out - the courts keep answering what had already been requested for that specific execution, and the withholding only applies to those responses. Once that execution finishes responding, nothing else is collected until you resume the tracking.
+
+Each of these withheld responses:
+
+- does not become a `tracked_item`, is not delivered via callback or email, and does not enter the consumption projection;
+- is marked as withheld (`withheld`) on the responses API side, and because of that disappears from `GET /responses`, `GET /responses/tracking/{origin_id}` and from exports, for as long as the withholding lasts.
+
+To find out whether a paused tracking has withheld responses, use `include_withheld_summary=true` on `GET /tracking` or `GET /tracking/{tracking_id}` - there's no field persisted on the tracking itself for this, see [Before recovering](#before-recovering).
+
 ## Resuming a tracking
 
 To resume a paused tracking, you can make a POST request to the `/tracking/{tracking}/resume` route, replacing `{tracking}` with the ID of the tracking you want to resume.
@@ -761,6 +772,33 @@ Here is an example of an **active** tracking response:
  "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+If the pause had withheld items (see [Items withheld by the consumption cap or balance](#items-withheld-by-the-consumption-cap-or-balance)), call resume with `recover_withheld_responses: true` to recover them:
+
+```bash
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+-H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{ "recover_withheld_responses": true }'
+```
+
+Withheld items that now fit the balance or cap are delivered and billed normally; the ones that still don't fit stay withheld, and the tracking is paused again. Without this field (or with `false`), nothing is recovered - and the items withheld during that specific pause are lost as soon as a more recent pause happens.
+
+### Before recovering
+
+Before deciding, check `GET /tracking/{tracking_id}?include_withheld_summary=true` (or `GET /tracking?include_withheld_summary=true` for several at once) on a `paused` tracking to see how many responses are withheld and the cost of recovering all of them:
+
+```json
+{
+  "withheld_summary": {
+    "hidden_count": 12,
+    "estimated_cost": 3.00
+  }
+}
+```
+
+- `hidden_count`: how many responses are withheld since the current pause.
+- `estimated_cost`: estimated cost of recovering all `hidden_count` responses, even though not all of them may fit the balance or cap available - `resume` only delivers and bills what fits, and the rest stays withheld.
 
 ## Deleting a tracking
 

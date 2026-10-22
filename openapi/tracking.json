@@ -80,7 +80,7 @@
       },
       "get": {
         "summary": "Listar monitoramentos",
-        "description": "Endpoint para listar os monitoramentos disponíveis\n \npara o usuário autenticado. Suporta filtros, \n\nordenação e paginação por meio dos parâmetros de consulta.",
+        "description": "Endpoint para listar os monitoramentos disponíveis\n \npara o usuário autenticado. Suporta filtros, \n\nordenação e paginação por meio dos parâmetros de consulta.\n\nCom `include_withheld_summary: true`, cada monitoramento `paused` da página também traz `withheld_summary` (quantas responses estão retidas e o custo estimado de recuperar todas elas). Ignorado silenciosamente para os demais, ou se a consulta interna que calcula o resumo falhar.",
         "tags": [
           "Monitoramento"
         ],
@@ -362,6 +362,14 @@
               "minimum": 5,
               "maximum": 1000
             }
+          },
+          {
+            "name": "include_withheld_summary",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -573,7 +581,7 @@
       },
       "get": {
         "summary": "Buscar monitoramento",
-        "description": "Endpoint para buscar um monitoramento\n \nespecífico pelo seu id (tracking_id). Retorna\n \nos detalhes completos do monitoramento quando encontrado.",
+        "description": "Endpoint para buscar um monitoramento\n \nespecífico pelo seu id (tracking_id). Retorna\n \nos detalhes completos do monitoramento quando encontrado.\n\nCom `include_withheld_summary: true` num monitoramento `paused`, a resposta também traz `withheld_summary` (quantas responses estão retidas e o custo estimado de recuperar todas elas). Ignorado silenciosamente se o monitoramento não estiver `paused`, ou se a consulta interna que calcula o resumo falhar.",
         "tags": [
           "Monitoramento"
         ],
@@ -584,6 +592,14 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "include_withheld_summary",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -778,7 +794,7 @@
     "/tracking/{tracking_id}/resume": {
       "post": {
         "summary": "Retomar monitoramento",
-        "description": "Endpoint para retomar um monitoramento\n\npreviamente pausado. Retorna o \n\nmonitoramento atualizado após a retomada.",
+        "description": "Endpoint para retomar um monitoramento\n\npreviamente pausado. Retorna o \n\nmonitoramento atualizado após a retomada.\n\nCom `recover_withheld_responses: true`, recupera as responses retidas durante a pausa que está sendo encerrada: as que couberem no saldo ou teto de consumo são entregues e cobradas; as que não couberem continuam retidas, e o monitoramento é pausado de novo. Sem este campo (ou com `false`), nada é recuperado - e as retidas dessa pausa ficam perdidas assim que uma pausa mais recente acontecer.",
         "tags": [
           "Tracking"
         ],
@@ -841,7 +857,17 @@
           {
             "jwtAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingTrackingIdResume.Body.Post"
+              }
+            }
+          }
+        }
       }
     },
     "/tracked-item": {
@@ -4266,6 +4292,17 @@
           "deleted_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "withheld_summary": {
+            "type": "object",
+            "properties": {
+              "hidden_count": {
+                "type": "number"
+              },
+              "estimated_cost": {
+                "type": "number"
+              }
+            }
           }
         },
         "required": [
@@ -4416,6 +4453,9 @@
             "type": "number",
             "minimum": 5,
             "maximum": 1000
+          },
+          "include_withheld_summary": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -4844,6 +4884,17 @@
                 "deleted_at": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "withheld_summary": {
+                  "type": "object",
+                  "properties": {
+                    "hidden_count": {
+                      "type": "number"
+                    },
+                    "estimated_cost": {
+                      "type": "number"
+                    }
+                  }
                 }
               },
               "required": [
@@ -7061,6 +7112,15 @@
           "tracked_items_count",
           "tracked_items_steps_count"
         ]
+      },
+      "TrackingTrackingIdResume.Body.Post": {
+        "type": "object",
+        "properties": {
+          "recover_withheld_responses": {
+            "default": false,
+            "type": "boolean"
+          }
+        }
       }
     }
   },
