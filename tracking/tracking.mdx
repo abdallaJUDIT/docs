@@ -1311,6 +1311,17 @@ Só os tipos cobrados por item são pausados pelo teto ou pelo saldo: monitorame
 
 A reativação é manual: compre créditos adicionais e chame a rota `/tracking/{monitoramento}/resume` de cada monitoramento pausado. Ao reativar, o `tags.pause_reason` é removido. Para listar os pausados, use `GET /tracking?status=paused`.
 
+## Itens retidos pelo teto de consumo ou saldo
+
+A pausa desabilita o agendamento do monitoramento: nenhuma nova execução é disparada enquanto ele estiver pausado. As respostas retidas vêm só da execução que já estava em andamento no momento em que o teto ou o saldo estourou - os tribunais continuam respondendo o que já havia sido solicitado àquela execução específica, e é só para essas respostas que a retenção vale. Depois que essa execução termina de responder, nada mais é coletado até você reativar o monitoramento.
+
+Cada uma dessas respostas retidas:
+
+- não vira `tracked_item`, não é entregue por callback nem por email, e não entra na projeção de consumo;
+- fica marcada como retida (`withheld`) do lado da API de respostas, e por isso some de `GET /responses`, `GET /responses/tracking/{origin_id}` e das exportações, enquanto durar a retenção.
+
+Para saber se um monitoramento pausado tem responses retidas, use `include_withheld_summary=true` em `GET /tracking` ou `GET /tracking/{monitoramento}` - não há um campo persistido no próprio monitoramento para isso, veja [Antes de recuperar](#antes-de-recuperar).
+
 ## Reativando um Monitoramento
 
 Para reativar um monitoramento pausado, você pode fazer uma solicitação POST para a rota `/tracking/{monitoramento}/resume`, substituindo `{monitoramento}` pelo ID do monitoramento que você deseja reativar.
@@ -1346,6 +1357,33 @@ Aqui está um exemplo de retorno do monitoramento **ativo**
  "updated_at": "2024-02-21T18:26:38.499Z"
 }
 ```
+
+Se a pausa tinha itens retidos (veja [Itens retidos pelo teto de consumo ou saldo](#itens-retidos-pelo-teto-de-consumo-ou-saldo)), chame o resume com `recover_withheld_responses: true` para recuperá-los:
+
+```bash
+curl -X POST "https://tracking.production.judit.io/tracking/15d632c6-a2ab-40c1-bfc5-d8f7bf8d8dd9/resume" \
+-H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{ "recover_withheld_responses": true }'
+```
+
+As retidas que couberem no saldo ou teto disponível agora são entregues e cobradas normalmente; as que ainda não couberem continuam retidas, e o monitoramento é pausado de novo. Sem esse campo (ou com `false`), nada é recuperado - e as retidas dessa pausa específica ficam perdidas assim que uma pausa mais recente acontecer.
+
+### Antes de recuperar
+
+Antes de decidir, consulte `GET /tracking/{monitoramento}?include_withheld_summary=true` (ou `GET /tracking?include_withheld_summary=true` para vários de uma vez) num monitoramento `paused` para ver quantas responses estão retidas e o custo de recuperar todas elas:
+
+```json
+{
+  "withheld_summary": {
+    "hidden_count": 12,
+    "estimated_cost": 3.00
+  }
+}
+```
+
+- `hidden_count`: quantas responses estão retidas desde a pausa vigente.
+- `estimated_cost`: custo estimado de recuperar as `hidden_count` responses, mesmo que nem todas caibam no saldo ou teto disponível - o `resume` entrega e cobra só o que couber, e o restante continua retido.
 
 ## Deletando um Monitoramento
 
