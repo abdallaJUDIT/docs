@@ -183,6 +183,85 @@
         ]
       }
     },
+    "/lawsuits/{lawsuit_cnj}/{instance}/consolidated": {
+      "get": {
+        "summary": "Download consolidado de anexos",
+        "description": "Retorna uma URL para download de um arquivo consolidado com todos os anexos disponíveis do processo na instância informada.",
+        "tags": [
+          "Anexos"
+        ],
+        "parameters": [
+          {
+            "name": "lawsuit_cnj",
+            "in": "path",
+            "required": true,
+            "description": "Número CNJ do processo.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "description": "Instância do processo (ex.: 1 para primeiro grau, 2 para segundo grau).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LawsuitsLawsuitCnjInstanceConsolidated.Response.Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
     "/lawsuits": {
       "post": {
         "summary": "Buscar processos",
@@ -8898,6 +8977,17 @@
         },
         "required": [
           "search"
+        ]
+      },
+      "LawsuitsLawsuitCnjInstanceConsolidated.Response.Get": {
+        "type": "object",
+        "properties": {
+          "attachment_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "attachment_url"
         ]
       }
     }

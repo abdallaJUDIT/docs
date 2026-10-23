@@ -1331,6 +1331,17 @@ curl --location --request GET 'https://lawsuits.prod.judit.io/lawsuits/<Número 
 * `private`: Se `true`, significa que o documento está em segredo de justiça no tribunal.
 * `extension`: Formato do arquivo extraído (ex: `pdf`, `html`, `jpg`).
 
+### Baixando todos os anexos de uma vez (consolidado)
+
+Em vez de baixar cada anexo pelo `attachment_id`, você pode obter uma URL para download de um **arquivo consolidado com todos os anexos disponíveis** do processo na instância informada:
+
+```bash cURL
+curl --location --request GET 'https://lawsuits.production.judit.io/lawsuits/<Número do processo>/<instância>/consolidated' \
+--header 'api-key: <api-key>'
+```
+
+A resposta traz o campo `attachment_url` com o link para download. Veja a referência completa em [Baixar anexos consolidados](/api-reference/endpoint/attachments/attachment-consolidated).
+
 ---
 
 <Note>
