@@ -185,6 +185,7 @@
                 "group": "Lawsuits · Anexos de Processos",
                 "pages": [
                   "api-reference/endpoint/attachments/attachment-access",
+                  "api-reference/endpoint/attachments/attachment-consolidated",
                   "api-reference/endpoint/attachments/attachment-access-warrant"
                 ]
               },
@@ -390,6 +391,7 @@
                 "group": "Lawsuits · Lawsuit Attachments",
                 "pages": [
                   "en/api-reference/endpoint/attachments/attachment-access",
+                  "en/api-reference/endpoint/attachments/attachment-consolidated",
                   "en/api-reference/endpoint/attachments/attachment-access-warrant"
                 ]
               },
