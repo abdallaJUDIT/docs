@@ -74,6 +74,12 @@ Depende. Para acessar, é necessário fornecer credenciais do advogado via [cofr
 
 ---
 
+### Onde vejo os tribunais e sistemas que posso cadastrar no Cofre de Credenciais?
+
+Faça uma solicitação GET para `https://crawler.prod.judit.io/credentials` com a sua `api-key`. A resposta lista todos os sistemas disponíveis; o campo `name` de cada item é o valor a ser usado em `system_name` no cadastro. Veja [Lista de sistemas para cadastro no Cofre](/essentials/cofre-de-credenciais#lista-de-sistemas-para-cadastro-no-cofre).
+
+---
+
 ### Um processo pode ter duas instâncias?
 
 Sim. Um mesmo processo pode tramitar em mais de uma instância e, dependendo do tribunal, isso pode ocorrer de duas formas:

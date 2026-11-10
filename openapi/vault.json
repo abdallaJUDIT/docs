@@ -28,9 +28,21 @@
         "tags": [
           "Credentials"
         ],
-        "summary": "List credential status by system",
-        "description": "Returns the registration status (`credential_status`) of each tribunal system's credential for the authenticated company.",
+        "summary": "List available systems and credential status",
+        "description": "Lists every tribunal system available for registration in the Credentials Vault. The response is always the full catalog. Pass the `customer_key` query parameter to see that key's credential status on each system. If the parameter is omitted, the status is for the empty `customer_key`. A system can return `not exists` even when another key has an active credential for it. Use each item's `name` as the `system_name` when registering a credential.",
         "operationId": "getCredentials",
+        "parameters": [
+          {
+            "name": "customer_key",
+            "in": "query",
+            "required": false,
+            "description": "Key whose credential status is returned for each system. If omitted, the status is for the empty customer_key.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "teste_01"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of systems with their credential status",
@@ -49,10 +61,12 @@
                             "description": "Tribunal system name, or `*` for the wildcard credential"
                           },
                           "customer_key": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Key of the credential found for this system and the queried customer_key. Empty when that key has no credential for the system."
                           },
                           "credential_status": {
                             "type": "string",
+                            "description": "Status of the queried key for this system. `not exists` means that key has no credential here, even if another key does.",
                             "enum": [
                               "not exists",
                               "active",
@@ -108,7 +122,7 @@
                           "properties": {
                             "system_name": {
                               "type": "string",
-                              "description": "e.g. \"PJE TJBA - 1º grau\" or `*` (wildcard)"
+                              "description": "e.g. \"PJE TJBA - 1º grau\" or `*` (wildcard). Must match exactly the `name` of an item returned by `GET /credentials`."
                             },
                             "customer_key": {
                               "type": "string",
@@ -214,7 +228,7 @@
                   },
                   "system_name": {
                     "type": "string",
-                    "description": "e.g. \"ESAJ - TJSP - 1º grau\" or `*` (wildcard)"
+                    "description": "e.g. \"ESAJ - TJSP - 1º grau\" or `*` (wildcard). Must match exactly the `name` of an item returned by `GET /credentials`."
                   },
                   "customer_key": {
                     "type": "string",

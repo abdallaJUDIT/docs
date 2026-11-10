@@ -80,6 +80,29 @@ The **Credentials Vault** stores, encrypted, the credentials (CPF/OAB + password
 
 <VaultAnimation />
 
+## Systems available for registration in the vault
+
+The `system_name` value must be **exactly** one of the names accepted by the vault, including the same spaces, hyphens and the `º` of the instance (for example `PJE TJBA - 1º grau` or `ESAJ - TJSP - 1º grau`). To get the up-to-date list of available systems, send a GET request to the `crawler.prod.judit.io/credentials` route:
+
+```bash
+curl --request GET \
+  --url https://crawler.prod.judit.io/credentials \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: <api-key>'
+```
+
+Each item of the `systems` array is a system/court available for registration. The response always returns the full catalog. Each item's `credential_status` is the status of the `customer_key` passed in the URL. If the parameter is omitted, the status is for the empty key. A system can appear as `not exists` even when another key has an active credential for it.
+
+| Field               | Description                                                                                                                                                                  |
+| :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | System and court name. This is the value to send as `system_name` when registering. The `*` item is the wildcard credential.                                                  |
+| `customer_key`      | Key of the credential for this system and the queried key. Empty when that key has no credential there.                                                                      |
+| `credential_status` | Status of that same key: `not exists` (no credential for this key), `active` (registered and active) or `inactive` (registered but inactive — likely a password issue or lock). |
+
+<Info>
+The list of systems changes as new systems are added or courts migrate platforms (for example, from PJe to eproc). Query the route before registering instead of keeping a hardcoded list in your application. The full route reference is at [List systems and credential status](/en/api-reference/endpoint/vault/vault).
+</Info>
+
 ## Endpoint to register your keys in the credentials vault
 
 To start using the credentials vault, you must make a POST request to the `crawler.prod.judit.io/credentials` route and register the lawyers' credentials for the courts made available.
@@ -88,7 +111,7 @@ To start using the credentials vault, you must make a POST request to the `crawl
 
 The POST request must include a payload with the following properties:
 
-- `system_name`: The acronym of the [court and system](/en/resource/glossary#credentials-vault-list) for which the new credential will be registered.
+- `system_name`: The name of the [system and court](#systems-available-for-registration-in-the-vault) for which the new credential will be registered, exactly as returned by the GET `/credentials` route.
   - `Note:` A wildcard credential can be registered using `"system_name": "*"`. If a credential is registered under the wildcard, all courts without their own specific credential will use the wildcard credential.
 - `customer_key`: Custom identifier to associate the credential with a client or lawyer. It can be any name or label defined by whoever is registering the credential, making it easier to organize and manage credentials.
 
@@ -429,10 +452,11 @@ If the credential already had a `secret` registered before, uploading the certif
 
 To check whether a credential is registered, send a GET request to the `crawler.prod.judit.io/credentials` endpoint, including the `customer_key` parameter that corresponds to the credential you want to look up.
 
-The response will return every credential available in the vault associated with the queried `customer_key`. The `credential_status` field indicates the status of each credential:
+The response returns the full catalog of systems. The `credential_status` field indicates the status of the queried `customer_key` on each system:
 
-- active: Credential registered and active.
-- not exists: Credential not found in the system.
+- active: Credential registered and active for this key.
+- inactive: Credential registered for this key but inactive (likely a password issue or account lock).
+- not exists: This key has no credential for this system. The item's `customer_key` comes back empty, even if another key has an active credential there.
 
 Below is an example GET request to check whether a credential exists:
 
@@ -476,7 +500,7 @@ To delete a system from the credentials vault, you must make a DELETE request to
 
 The DELETE request must include a payload with the following properties:
 
-- `system_name`: The acronym of the [court and system](/en/resource/glossary#credentials-vault-list) whose credential will be removed.
+- `system_name`: The name of the [system and court](#systems-available-for-registration-in-the-vault) whose credential will be removed.
 - `customer_key`: Custom identifier added when the credential was registered.
 
 Example payload to delete a credential:

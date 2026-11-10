@@ -74,6 +74,12 @@ It depends. To access them, you must provide the lawyer's credentials via the [c
 
 ---
 
+### Where can I see which courts and systems I can register in the Credentials Vault?
+
+Send a GET request to `https://crawler.prod.judit.io/credentials` with your `api-key`. The response lists every available system; the `name` field of each item is the value to use as `system_name` when registering. See [Systems available for registration in the vault](/en/essentials/cofre-de-credenciais#systems-available-for-registration-in-the-vault).
+
+---
+
 ### Can a lawsuit have two instances?
 
 Yes. The same lawsuit can proceed in more than one instance and, depending on the court, this can occur in two ways:

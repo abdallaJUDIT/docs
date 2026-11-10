@@ -262,6 +262,29 @@ curl --location 'https://requests.prod.judit.io/requests/' \
 Caso a `customer_key` informada não exista, esteja inválida ou esteja vinculada a uma credencial expirada, a consulta poderá falhar ou não utilizar a credencial esperada.
 </Warning>
 
+## Lista de sistemas para cadastro no Cofre
+
+O valor de `system_name` precisa ser **exatamente** um dos nomes aceitos pelo Cofre, com os mesmos espaços, hífens e o `º` do grau (por exemplo `PJE TJBA - 1º grau` ou `ESAJ - TJSP - 1º grau`). Para ver a lista atualizada dos sistemas disponíveis, faça uma solicitação GET para a rota `crawler.prod.judit.io/credentials`:
+
+```bash
+curl --request GET \
+  --url https://crawler.prod.judit.io/credentials \
+  --header 'Content-Type: application/json' \
+  --header 'api-key: <api-key>'
+```
+
+Cada item do array `systems` é um sistema/tribunal disponível para cadastro. A resposta traz sempre o catálogo completo. O `credential_status` de cada item é o da `customer_key` informada na URL. Se o parâmetro for omitido, o status é o da chave vazia. Um sistema pode aparecer como `not exists` mesmo com credencial ativa em outra chave.
+
+| Campo               | Descrição                                                                                                                                                          |
+| :------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | Nome do sistema e tribunal. É o valor a ser informado em `system_name` no cadastro. O item `*` corresponde à credencial coringa.                                    |
+| `customer_key`      | Chave da credencial desse sistema para a chave consultada. Vazia quando essa chave não tem cadastro ali.                                                           |
+| `credential_status` | Status dessa mesma chave: `not exists` (sem cadastro nessa chave), `active` (cadastrada e ativa) ou `inactive` (cadastrada, porém inativa — provável problema com senha ou bloqueio). |
+
+<Info>
+A lista de sistemas muda conforme novos sistemas são adicionados ou os tribunais migram de plataforma (por exemplo, de PJe para eproc). Consulte a rota antes de cadastrar, em vez de manter uma lista fixa na sua aplicação. A referência completa da rota está em [Listar sistemas e status das credenciais](/api-reference/endpoint/vault/vault).
+</Info>
+
 ## Rota para cadastrar suas chaves no cofre de credenciais
 
 Para começar a utilizar o cofre de credeniais, você deve realizar uma solicitação POST para a rota `crawler.prod.judit.io/credentials` e cadastrar as credenciais dos advogados nos respectivos tribunais disponibilizados.
@@ -270,7 +293,7 @@ Para começar a utilizar o cofre de credeniais, você deve realizar uma solicita
 
 A solicitação POST deve incluir um payload com as seguintes propriedades: 
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+- `system_name`: O nome do [sistema e tribunal](#lista-de-sistemas-para-cadastro-no-cofre) em que será cadastrada a nova credencial, exatamente como retornado pela rota GET `/credentials`.
   - `Obs:` Poderá ser cadastrada uma credencial coringa `"system_name": "*"`. Se uma credencial for cadastrada nela, todos os tribunais que não tiverem outra credencial cadastrada utilizarão a credencial coringa.
 - `customer_key`: Identificador personalizado para associar a credencial a um cliente ou advogado. Pode ser qualquer nome ou rótulo definido pelo responsável pelo cadastro, facilitando a organização e o gerenciamento das credenciais.
 
@@ -611,10 +634,11 @@ Se a credencial já tinha um `secret` cadastrado anteriormente, o upload do cert
 
 Para verificar se uma credencial está cadastrada, envie uma solicitação GET para o endpoint `crawler.prod.judit.io/credentials`, incluindo o parâmetro `customer_key` correspondente à credencial que deseja consultar.
 
-A resposta retornará todas as credenciais disponíveis no cofre associadas à `customer_key` consultada. O campo `credential_status` indicará o status de cada credencial:
+A resposta traz o catálogo completo de sistemas. O campo `credential_status` indica o status da `customer_key` consultada em cada sistema:
 
-- active: Credencial cadastrada e ativa.
-- not exists: Credencial não encontrada no sistema.
+- active: Credencial cadastrada e ativa nessa chave.
+- inactive: Credencial cadastrada nessa chave, porém inativa (provável problema com senha ou bloqueio).
+- not exists: Essa chave não tem credencial nesse sistema. O `customer_key` do item vem vazio, mesmo que outra chave tenha credencial ativa ali.
 
 Segue um exemplo de solicitação GET para verificar a existência de uma credencial:
 
@@ -689,7 +713,7 @@ Para deletar um sistema no cofre de credenciais, você deve realizar uma solicit
 
 A solicitação DELETE deve incluir um payload com a seguinte propriedade: 
 
-- `system_name`: A sigla do [tribunal e sistema](/resource/glossary#lista-para-cofre-de-credenciais) que será cadastrado a nova credencial.
+- `system_name`: O nome do [sistema e tribunal](#lista-de-sistemas-para-cadastro-no-cofre) da credencial que será removida.
 - `customer_key`: Identificador personalizado adicionado no momento do cadastro da credencial.
 
 Exemplo de payload para deletar credencial:
