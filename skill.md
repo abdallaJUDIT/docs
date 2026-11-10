@@ -52,7 +52,6 @@ curl -X POST "https://tracking.production.judit.io/tracking" \
   -H "api-key: $JUDIT_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "recurrence": 1,
     "search": { "search_type": "lawsuit_cnj", "search_key": "<NUMERO_CNJ>" }
   }'
 ```

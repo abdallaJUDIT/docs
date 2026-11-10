@@ -108,10 +108,10 @@ Status mais específico e variável, capturado diretamente da capa do tribunal:
 
 | Valor | Descrição | Comportamento na Judit |
 | :--- | :--- | :--- |
-| `INICIAL` | Processo recém-distribuído. | Costuma gerar muitas atualizações nos primeiros dias — vale recorrência baixa no tracking. |
+| `INICIAL` | Processo recém-distribuído. | Costuma gerar muitas atualizações nos primeiros dias. |
 | `SENTENÇA` | Processo com sentença proferida. | Ponto crítico — frequente alvo de `notification_filters.step_terms`. |
 | `EXECUÇÃO OU CUMPRIMENTO` | Processo em fase de execução/cobrança. | Movimentações financeiras (penhoras, bloqueios) ficam visíveis nos `steps`. |
-| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva sem cabimento de recurso. | Pouca atividade subsequente; recorrência alta (ex.: 30 dias) é suficiente. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Decisão definitiva sem cabimento de recurso. | Pouca atividade subsequente. |
 | `RECURSO` | Processo aguardando julgamento de recurso. | Muitas vezes gera novos `lawsuit_cnj` na 2ª instância. |
 | `ARQUIVADO` | Processo guardado definitivamente. | O robô continua coletando, mas raramente retorna novidade. |
 | `SUSPENSO` | Tramitação paralisada temporariamente. | Pode voltar a `ATIVO` — manter o monitoramento ativo. |

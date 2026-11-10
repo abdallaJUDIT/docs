@@ -17,9 +17,9 @@ var XP={app:0.13,judit:0.50,court:0.87};
 var NW=88,NH=42;
 var NODES=[{id:'app',label:'Your App',col:A},{id:'judit',label:'Judit API',col:J},{id:'court',label:'Courts',col:T}];
 var STEPS=[
-  {fr:'app',to:'judit',label:'POST /tracking',note:'{cpf, recurrence:1}',col:A,ts:1.0,te:1.8,yp:0.30},
+  {fr:'app',to:'judit',label:'POST /tracking',note:'{cpf}',col:A,ts:1.0,te:1.8,yp:0.30},
   {fr:'judit',to:'app',label:'201 {tracking_id}',note:'status: created',col:J,ts:2.3,te:3.1,yp:0.42},
-  {sep:true,label:'↻  automatic execution every N days',yp:0.52},
+  {sep:true,label:'↻  daily automatic execution',yp:0.52},
   {fr:'judit',to:'court',label:'checks for new lawsuits',note:'for the monitored CPF/CNPJ',col:T,ts:4.8,te:5.6,yp:0.60},
   {fr:'court',to:'judit',label:'new lawsuit filed',note:'',col:J,ts:6.1,te:6.9,yp:0.72},
   {fr:'judit',to:'app',label:'webhook',note:'event: new_lawsuit',col:J,ts:7.4,te:8.2,yp:0.84}
@@ -137,7 +137,6 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>' \
 --header 'Content-Type: application/json' \
 --data '{
-    "recurrence": 1,
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99"
@@ -150,7 +149,7 @@ curl --location 'https://tracking.production.judit.io/tracking' \
   concurrency window, within the next 24 hours from the creation date.
 </Note>
 
-After that, it will run according to the frequency registered in the ***recurrence*** field.
+After that, the tracking runs daily. The recurrence is fixed at 1 day (`recurrence: 1` in the response) and cannot be configured: if the `recurrence` field is sent on creation, it is ignored.
 
 Example payload with some optional filters:
 
@@ -159,7 +158,6 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>' \
 --header 'Content-Type: application/json' \
 --data '{
-    "recurrence": 1,
     "search": {
         "search_type": "cnpj",
         "search_key": "00.000.000/0001-00",
@@ -222,7 +220,6 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --header 'api-key: <API-KEY>' \
 --header 'Content-Type: application/json' \
 --data '{
-    "recurrence": 1,
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99",
@@ -330,19 +327,17 @@ The **request_id** property is only created after the tracking has executed for 
 
 To update a tracking, you can make a PATCH request to the `/tracking/{tracking}` route, replacing `{tracking}` with the ID of the tracking you want to update.
 
-This route accepts optional fields for updating the tracking: `recurrence`, `tags` and the `search` object, with the exception of some fields.
+This route accepts the following optional fields for updating the tracking: `notification_emails`, `callback_url` and the `search.search_params` object (only `filter`, `credential` and `public_search`). Any other field — such as `recurrence`, `tags`, `search_type` or `search_key` — is rejected with a `400` error.
 
 Here is an example of how to do this using curl:
 
 ```bash
 curl -X PATCH "https://tracking.production.judit.io/tracking/{tracking}" \
 -H "api-key: YOUR_API_KEY" \
+-H "Content-Type: application/json" \
 -d '{
-  "recurrence": 5,
-  "search": {
-    "search_type": "cpf",
-    "search_key": "999.999.999-99"
-  }
+  "notification_emails": ["test@test.com"],
+  "callback_url": "https://your-app.com/webhooks/judit"
 }'
 ```
 
@@ -809,7 +804,6 @@ To register your webhook, contact the [support](https://api.whatsapp.com/send/?p
 </Warning>
 ```json
 {
-    "recurrence": 1,
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99"

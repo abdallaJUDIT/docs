@@ -108,10 +108,10 @@ More specific and variable status, captured directly from the court's header:
 
 | Value | Description | Behavior on Judit |
 | :--- | :--- | :--- |
-| `INICIAL` | Lawsuit recently filed. | Tends to generate many updates in the first days — a low tracker recurrence is recommended. |
+| `INICIAL` | Lawsuit recently filed. | Tends to generate many updates in the first days. |
 | `SENTENÇA` | Lawsuit with a judgment issued. | Critical point — common target for `notification_filters.step_terms`. |
 | `EXECUÇÃO OU CUMPRIMENTO` | Lawsuit in execution/collection phase. | Financial events (seizures, blocks) appear in the `steps`. |
-| `TRÂNSITO JULGADO OU EM ACORDO` | Final decision with no further appeal possible. | Little follow-up activity; a high recurrence (e.g. 30 days) is enough. |
+| `TRÂNSITO JULGADO OU EM ACORDO` | Final decision with no further appeal possible. | Little follow-up activity. |
 | `RECURSO` | Lawsuit awaiting appeal judgment. | Often generates new `lawsuit_cnj` at the 2nd instance. |
 | `ARQUIVADO` | Lawsuit permanently archived. | The crawler keeps collecting, but rarely brings news. |
 | `SUSPENSO` | Proceedings temporarily halted. | May return to `ATIVO` — keep the tracker active. |
