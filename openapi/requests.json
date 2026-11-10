@@ -669,7 +669,7 @@
     "/responses": {
       "get": {
         "summary": "Listar responses",
-        "description": "Endpoint para listar as respostas associadas à uma \n\nrequisição ou id de origem (que pode ser o id de um monitoramento). \n\nSuporta filtros por request_id ou origin_id, ordenação e paginação. \n\nO retorno inclui os dados das respostas, informações de paginação \n\ne o status da requisição associada.",
+        "description": "Endpoint para listar as respostas associadas à uma \n\nrequisição ou id de origem (que pode ser o id de um monitoramento). \n\nSuporta filtros por request_id ou origin_id, ordenação e paginação. \n\nO retorno inclui os dados das respostas, informações de paginação \n\ne o status da requisição associada.\n\nResponses retidas por teto de consumo ou saldo (monitoramento pausado) não aparecem neste retorno.",
         "tags": [
           "Respostas"
         ],
@@ -955,7 +955,7 @@
     "/responses/{response_id}": {
       "get": {
         "summary": "Buscar response",
-        "description": "Endpoint para buscar uma resposta pelo seu ID. \n\nRetorna os detalhes da resposta.",
+        "description": "Endpoint para buscar uma resposta pelo seu ID. \n\nRetorna os detalhes da resposta.\n\nSe a response estiver retida por teto de consumo ou saldo (monitoramento pausado), este endpoint responde como se o `response_id` não existisse (404).",
         "tags": [
           "Respostas"
         ],
@@ -1009,6 +1009,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found - Response does not exist or is withheld",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpNotFoundError"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1024,7 +1034,7 @@
     "/responses/tracking/{origin_id}": {
       "get": {
         "summary": "Listar responses por origin_id",
-        "description": "Endpoint para listar as respostas associadas a um origin_id \n\n(que pode ser o id de um monitoramento), agrupadas por \n\nnúmero CNJ + instância. Suporta ordenação e paginação. \n\nO retorno inclui os dados das respostas, informações de \n\npaginação e o status da requisição associada.",
+        "description": "Endpoint para listar as respostas associadas a um origin_id \n\n(que pode ser o id de um monitoramento), agrupadas por \n\nnúmero CNJ + instância. Suporta ordenação e paginação. \n\nO retorno inclui os dados das respostas, informações de \n\npaginação e o status da requisição associada.\n\nResponses retidas por teto de consumo ou saldo (monitoramento pausado) não aparecem neste retorno.",
         "tags": [
           "Respostas"
         ],
