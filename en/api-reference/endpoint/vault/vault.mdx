@@ -1,10 +1,18 @@
 ---
-title: "Credentials Vault"
+title: "List systems and credential status"
 openapi: "openapi/vault.json GET /credentials"
 api: "GET https://crawler.prod.judit.io/credentials"
-description: "Lets the partner client register, in our credentials vault, the credentials of its lawyers by system and court. In our credentials vault, you can provide a `customer_key` so you can identify your client's credentials."
+description: "Lists the systems and courts available for registration in the Credentials Vault and the credential status of each one. Use the `name` field as `system_name` when registering."
 icon: "key"
 ---
+
+Use this route to find out **which systems can be registered** in the [Credentials Vault](/en/essentials/cofre-de-credenciais) and to check the status of credentials already registered. Each item of `systems` has, in `name`, the exact value to send as `system_name` when registering (`POST /credentials` or `POST /credentials/certificate`).
+
+The response always returns the full catalog. To see the status of a specific key, pass `customer_key` in the URL (for example, `?customer_key=teste_01`). If the parameter is omitted, the status is for the empty key. A system can come back as `not exists` even when another key has an active credential for it.
+
+<Note>
+The response example below is illustrative. The list of systems changes over time; the official source is always this route's response.
+</Note>
 
 <ResponseExample>
 ```json
@@ -658,7 +666,7 @@ icon: "key"
 <Accordion title="Credential Status Types">
 *credential_status can be*:
 
-`not exists`: Not registered
+`not exists`: The queried key has no credential for this system
 
 `active`: Registered and active
 
@@ -667,5 +675,3 @@ icon: "key"
 If a registration is created under the system `*` (generic registration), that credential will be used for every court that does not have its own specific registration — so be careful with this type of registration.
 
 </Accordion>
-
-If no `customer_key` is provided, an `empty` customer_key will be created.

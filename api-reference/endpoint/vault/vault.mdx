@@ -1,10 +1,18 @@
 ---
-title: "Cofre de Credenciais"
+title: "Listar sistemas e status das credenciais"
 openapi: "openapi/vault.json GET /credentials"
 api: "GET https://crawler.prod.judit.io/credentials"
-description: "Permite ao cliente parceiro cadastrar em nosso cofre de senhas as credenciais dos seus advogados por sistema e tribunal. Em nosso cofre de senhas é possível passar uma chave `customer_key`, para que você possa identificar as credenciais do seu cliente."
+description: "Lista os sistemas e tribunais disponíveis para cadastro no Cofre de Credenciais e o status da credencial de cada um. Use o campo `name` como `system_name` no cadastro."
 icon: "key"
 ---
+
+Use esta rota para descobrir **quais sistemas podem ser cadastrados** no [Cofre de Credenciais](/essentials/cofre-de-credenciais) e para conferir o status das credenciais já cadastradas. Cada item de `systems` traz em `name` o valor exato a ser enviado como `system_name` no cadastro (`POST /credentials` ou `POST /credentials/certificate`).
+
+A resposta traz sempre o catálogo completo. Para ver o status de uma chave específica, informe `customer_key` na URL (por exemplo, `?customer_key=teste_01`). Se o parâmetro for omitido, o status é o da chave vazia. Um sistema pode voltar como `not exists` mesmo quando outra chave tem credencial ativa nele.
+
+<Note>
+O exemplo de resposta abaixo é ilustrativo. A lista de sistemas muda com o tempo; a fonte oficial é sempre a resposta desta rota.
+</Note>
 
 <ResponseExample>
 ```json
@@ -658,7 +666,7 @@ icon: "key"
 <Accordion title="Tipos de Status das Credenciais">
 *credential_status pode ser*:
 
-`not exists`: Não cadastrada
+`not exists`: A chave consultada não tem credencial nesse sistema
 
 `active`: Cadastrada e ativa
 
@@ -667,5 +675,3 @@ icon: "key"
 Caso seja utilizado um cadastro no sistema \* (cadastro genérico), essa credencial será utilizada para todos os tribunais que não contenha um outro cadastro, então cuidado com esse tipo de cadastro.
 
 </Accordion>
-
-Caso não seja informada nenhuma customer_key, será criada um customer_key `vazia`.
