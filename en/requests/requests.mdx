@@ -1310,6 +1310,17 @@ The capture is finished when **no** attachment in the array has `status: "pendin
 
 If the attachment volume is a cost concern, first run a query **without** `with_attachments` to find out how many attachments the lawsuit has and estimate the number of repetitions. That initial query is billed as a lawsuit query, without the attachment capture cost.
 
+### Downloading all attachments at once (consolidated)
+
+Instead of downloading each attachment by its `attachment_id`, you can get a download URL for a **single consolidated file with all available attachments** of the lawsuit in the given instance:
+
+```bash cURL
+curl --location --request GET 'https://lawsuits.production.judit.io/lawsuits/<lawsuit number>/<instance>/consolidated' \
+--header 'api-key: <api-key>'
+```
+
+The response contains the `attachment_url` field with the download link. See the full reference at [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
+
 ---
 
 ## Next steps
