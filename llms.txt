@@ -6,14 +6,17 @@
 
 - Todas as chamadas exigem o header HTTP `api-key: <SUA_API_KEY>`.
 - Não usa `Authorization: Bearer <token>`.
-- Solicite chave em https://api.whatsapp.com/send/?phone=5511955049222
+- Ainda não é cliente: solicite a chave ao comercial em https://api.whatsapp.com/send/?phone=5511955049222
+- Já é cliente: fale com o suporte em atendimento@judit.io ou https://api.whatsapp.com/send/?phone=5511920501949
 
 ## Serviços e bases
 
 - **Requests** (`https://requests.production.judit.io`) — consulta assíncrona aos tribunais; resultado por webhook ou polling.
-- **Tracking** (`https://tracking.production.judit.io`) — monitoramento contínuo com recorrência configurável.
+- **Tracking** (`https://tracking.production.judit.io`) — monitoramento contínuo com execução diária. A recorrência é fixa (`recurrence: 1`): se o campo for enviado na criação, é ignorado.
 - **Lawsuits** (`https://lawsuits.production.judit.io`) — leitura síncrona do datalake JUDIT, dados cadastrais, anexos, contagens, agregações.
 - **Crawler** (`https://crawler.prod.judit.io`) — Cofre de Credenciais (login em tribunais).
+- **Miner** (`https://miner.production.judit.io`) — busca em escala de ativos judiciais (precatórios, execuções de sentença) por filtros estruturais.
+- **Users** (`https://users.production.judit.io`) — saldo de créditos de contas pré-pagas.
 
 ## Endpoints principais
 
@@ -25,13 +28,14 @@
 - GET /responses — Listar resultados
 - GET /responses/{response_id} — Buscar resultado
 - GET /responses/tracking/{origin_id} — Resultados de um tracking
+- GET /billing/consumption — Consumo do ciclo atual
 
 ### tracking.production.judit.io
 - POST /tracking — Criar monitoramento
 - POST /tracking/bulk — Criar em lote
 - GET /tracking — Listar monitoramentos
 - GET /tracking/{tracking_id} — Buscar monitoramento
-- PATCH /tracking/{tracking_id} — Atualizar
+- PATCH /tracking/{tracking_id} — Atualizar (aceita apenas `notification_emails`, `callback_url` e `search.search_params`)
 - DELETE /tracking/{tracking_id} — Excluir
 - POST /tracking/{tracking_id}/pause — Pausar
 - POST /tracking/{tracking_id}/resume — Retomar
@@ -47,10 +51,27 @@
 - POST /lawsuits/synthetic — Agregações sintéticas (por tribunal/classe/área/etc.)
 - POST /steps/count — Contagem de andamentos por CNJ
 - GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id} — Download de anexo
+- GET /lawsuits/{lawsuit_cnj}/{instance}/consolidated — Download consolidado dos anexos do processo
 - GET /warrants/{lawsuit_cnj}/attachments/{attachment_id} — Download de anexo de mandado
 - GET /transfer-file — Listar transferências
 - GET /transfer-file/{transfer_file_id} — Obter transferência
 - PATCH /transfer-file/{transfer_file_id} — Atualizar status
+
+### crawler.prod.judit.io
+- POST /credentials — Cadastrar credencial de tribunal (login e senha)
+- POST /credentials/certificate — Cadastrar credencial por certificado digital
+- GET /credentials — Listar credenciais
+- DELETE /credentials — Excluir credencial
+
+### miner.production.judit.io
+- POST /requests/count — Contar processos que atendem aos filtros
+- POST /requests/create — Criar busca
+- GET /requests/{request_id} — Buscar requisição
+- GET /responses — Listar processos encontrados
+- GET /tribunals — Listar tribunais (id e sigla)
+
+### users.production.judit.io
+- GET /credits/balance — Créditos disponíveis (pré-pago)
 
 ## Tipos de busca
 
@@ -77,17 +98,31 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 - Consulta histórica por documento: https://docs.judit.io/requests/request-document
 - Consulta customizada: https://docs.judit.io/requests/custom-search
 - Hot Storage (síncrona): https://docs.judit.io/cache-judit/hotstorage
+- Consulta processual síncrona (On-Demand por CNJ): https://docs.judit.io/cache-judit/on-demand
+- Quantidade de processos (síncrona): https://docs.judit.io/cache-judit/count
 - Consulta agrupada: https://docs.judit.io/cache-judit/cache-grouped
-- Monitoramento: https://docs.judit.io/tracking/tracking
+- Monitoramento processual: https://docs.judit.io/tracking/tracking
+- Monitoramento de novas ações por documento: https://docs.judit.io/tracking/tracking-document
+- Monitoramento customizado por filtros: https://docs.judit.io/tracking/tracking-custom
+- Monitoramento do Diário Oficial de Justiça: https://docs.judit.io/tracking/tracking-communication
 - Dados cadastrais: https://docs.judit.io/registration-data/registration-data
 - Mandados de prisão: https://docs.judit.io/criminal-consultation/warrant
 - Execução penal: https://docs.judit.io/criminal-consultation/criminal-execution
+- Anexos consolidados: https://docs.judit.io/api-reference/endpoint/attachments/attachment-consolidated
 - File Transfer: https://docs.judit.io/file-transfer/file-transfer
 - Cofre de Credenciais: https://docs.judit.io/essentials/cofre-de-credenciais
 - Webhook: https://docs.judit.io/webhook/callbacks
+- Miner: https://docs.judit.io/miner/introduction
 - Schemas (Lawsuit, Warrant, Penal Execution, Entity, Enums): https://docs.judit.io/schemas/lawsuit-object
 - Rate Limits: https://docs.judit.io/essentialConcepts/rate-limits
 - Erros: https://docs.judit.io/resource/errors
+- Histórico de consumo: https://docs.judit.io/resource/consumption/history
+- Consumo do ciclo atual: https://docs.judit.io/resource/consumption/current
+- Créditos disponíveis (pré-pago): https://docs.judit.io/resource/consumption/credits
+- Cobertura de tribunais: https://docs.judit.io/resource/courtCoverage
+- FAQ: https://docs.judit.io/resource/faq
+- Glossário: https://docs.judit.io/resource/glossary
+- Suporte: https://docs.judit.io/resource/support
 - Postman Collection: https://docs.judit.io/resource/postman-collection
 - MCP (Model Context Protocol): https://docs.judit.io/resource/mcp
 
@@ -96,6 +131,7 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 - Requests: https://requests.production.judit.io/docs/spec
 - Tracking: https://tracking.production.judit.io/docs/spec
 - Lawsuits: https://lawsuits.production.judit.io/docs/spec
+- Miner: https://miner.production.judit.io/docs/spec
 
 ## Rate limits
 
