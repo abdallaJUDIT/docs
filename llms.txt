@@ -104,7 +104,6 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 - Monitoramento processual: https://docs.judit.io/tracking/tracking
 - Monitoramento de novas ações por documento: https://docs.judit.io/tracking/tracking-document
 - Monitoramento customizado por filtros: https://docs.judit.io/tracking/tracking-custom
-  - Preço: R$ 100 fixo por filtro.
 - Monitoramento do Diário Oficial de Justiça: https://docs.judit.io/tracking/tracking-communication
 - Dados cadastrais: https://docs.judit.io/registration-data/registration-data
 - Mandados de prisão: https://docs.judit.io/criminal-consultation/warrant
