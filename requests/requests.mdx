@@ -1321,7 +1321,7 @@ Os metadados desses arquivos estarão listados dentro do array `attachments` no 
 **Fidelidade de Formato:** A Judit API não converte os arquivos. O anexo será retornado para você no **exato mesmo formato original** em que foi capturado e disponibilizado pelo tribunal. Prepare sua aplicação para receber documentos (PDF, HTML, DOCX), imagens (JPG, PNG) e até mídias de audiências (MP3, MP4).
 </Info>
 
-Para baixar um anexo, use o `response_id` do processo (obtido no Passo 3) e o `attachment_id` do anexo. A rota responde `302` e redireciona para o arquivo: seguindo o redirecionamento (como o `--location` do curl), você recebe o arquivo direto; sem seguir, a URL vem no header `Location`. O download vale para respostas criadas há até 30 dias.
+Para baixar um anexo, use o `response_id` do processo (obtido no Passo 3) e o `attachment_id` do anexo. A rota retorna `200` com o próprio arquivo do anexo (a entrega é feita por redirecionamento, então use `--location` no curl). O download vale para respostas criadas há até 30 dias.
 
 ```bash cURL
 curl --location --request GET 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \

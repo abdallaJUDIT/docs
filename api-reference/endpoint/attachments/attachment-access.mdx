@@ -20,10 +20,11 @@ O download só funciona para respostas criadas há **até 30 dias**. Depois diss
 
 ## Resposta
 
-A rota responde **`302 Found`** e redireciona para uma URL temporária do arquivo, informada no header `Location`. O que você recebe depende do seu cliente HTTP:
+A rota retorna **`200`** com o **próprio arquivo do anexo**, no formato original capturado do tribunal (PDF, HTML, imagem etc.). O `Content-Type` da resposta indica o formato (por exemplo, `application/pdf` ou `text/html`).
 
-- **Seguindo o redirecionamento** (navegadores, Bruno, Postman, `curl --location`): você recebe o próprio arquivo, no formato original capturado do tribunal (PDF, HTML, imagem etc.).
-- **Sem seguir o redirecionamento**: você recebe o `302` e pega a URL do arquivo no header `Location`.
+<Info>
+A entrega é feita por redirecionamento para uma URL temporária do arquivo. Navegadores, Bruno, Postman e `curl --location` seguem o redirecionamento sozinhos. Se o seu cliente HTTP não seguir redirecionamentos, você recebe um `302` com a URL do arquivo no header `Location`.
+</Info>
 
 ```bash cURL
 curl --location 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \

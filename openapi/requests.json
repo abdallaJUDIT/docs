@@ -1024,7 +1024,7 @@
     "/responses/{response_id}/attachments/{attachment_id}": {
       "get": {
         "summary": "Baixar anexo",
-        "description": "Redireciona (`302`) para a URL temporária de download de um anexo de um processo presente em uma resposta.\n\nClientes que seguem o redirecionamento recebem o arquivo no formato original (PDF, HTML, imagem etc.). Sem seguir, a URL vem no header `Location`.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`, e a resposta precisa ter sido criada há até 30 dias.",
+        "description": "Retorna o arquivo de um anexo de um processo presente em uma resposta, no formato original capturado do tribunal (PDF, HTML, imagem etc.).\n\nA entrega é feita por redirecionamento para uma URL temporária do arquivo. Clientes HTTP como navegadores, Bruno, Postman e `curl --location` seguem o redirecionamento sozinhos e recebem o arquivo com status `200`. Sem seguir, a URL vem no header `Location` de uma resposta `302`.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`, e a resposta precisa ter sido criada há até 30 dias.",
         "tags": [
           "Respostas"
         ],
@@ -1051,13 +1051,25 @@
           }
         ],
         "responses": {
-          "302": {
-            "description": "Found - Redireciona para a URL temporária do arquivo do anexo",
-            "headers": {
-              "Location": {
-                "description": "URL temporária para download do arquivo do anexo.",
+          "200": {
+            "description": "OK - Arquivo do anexo no formato original (após seguir o redirecionamento)",
+            "content": {
+              "application/pdf": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }

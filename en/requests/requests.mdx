@@ -1312,7 +1312,7 @@ If the attachment volume is a cost concern, first run a query **without** `with_
 
 ### Downloading an attachment
 
-To download an attachment, use the lawsuit's `response_id` (obtained in Step 3) and the attachment's `attachment_id`. The route responds `302` and redirects to the file: following the redirect (like curl's `--location`), you get the file directly; otherwise, the URL is in the `Location` header. Downloads work for responses created up to 30 days ago.
+To download an attachment, use the lawsuit's `response_id` (obtained in Step 3) and the attachment's `attachment_id`. The route returns `200` with the attachment file itself (it is delivered through a redirect, so use `--location` with curl). Downloads work for responses created up to 30 days ago.
 
 ```bash cURL
 curl --location --request GET 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \

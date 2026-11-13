@@ -20,10 +20,11 @@ Downloads only work for responses created **up to 30 days ago**. After that, the
 
 ## Response
 
-The route responds **`302 Found`** and redirects to a temporary URL of the file, given in the `Location` header. What you get depends on your HTTP client:
+The route returns **`200`** with the **attachment file itself**, in the original format captured from the court (PDF, HTML, image, etc.). The response `Content-Type` tells the format (for example, `application/pdf` or `text/html`).
 
-- **Following the redirect** (browsers, Bruno, Postman, `curl --location`): you get the file itself, in the original format captured from the court (PDF, HTML, image, etc.).
-- **Not following the redirect**: you get the `302` and read the file URL from the `Location` header.
+<Info>
+The file is delivered through a redirect to a temporary URL. Browsers, Bruno, Postman and `curl --location` follow the redirect automatically. If your HTTP client does not follow redirects, you get a `302` with the file URL in the `Location` header.
+</Info>
 
 ```bash cURL
 curl --location 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
