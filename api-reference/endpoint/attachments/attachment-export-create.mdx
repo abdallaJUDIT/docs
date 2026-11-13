@@ -1,0 +1,25 @@
+---
+title: "Criar exportação ZIP de anexos"
+description: "Essa página tem como objetivo mostrar o fluxo para solicitar a exportação de todos os anexos de um processo em um arquivo ZIP."
+openapi: "openapi/requests.json POST /responses/{response_id}/attachments/exports"
+api: "POST https://requests.production.judit.io/responses/{response_id}/attachments/exports"
+icon: "file-zipper"
+---
+
+<Warning>
+**Rota cobrada e não disponível para todos os clientes.** Cada chamada é cobrada, mesmo quando a Judit reaproveita um ZIP já gerado para o mesmo processo. Para habilitar a exportação na sua conta, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+A exportação é **assíncrona** e sempre começa com `status: "pending"`. O fluxo completo tem três etapas:
+
+<Steps>
+  <Step title="Crie a exportação">
+    Chame esta rota com o `response_id` do processo. Guarde o `attachments_export_id` retornado.
+  </Step>
+  <Step title="Acompanhe o status">
+    Consulte [Consultar exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-status) até o `status` mudar para `completed` (ou `failed`).
+  </Step>
+  <Step title="Baixe o ZIP">
+    Use o `attachments_zip_url` da consulta de status ou chame [Baixar ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-download).
+  </Step>
+</Steps>

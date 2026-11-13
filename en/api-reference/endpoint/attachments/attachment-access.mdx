@@ -1,8 +1,19 @@
 ---
 title: "Download lawsuit attachment"
-description: "Downloads an attachment from a lawsuit."
-openapi: "openapi/lawsuits.json GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
-api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
+description: "Downloads an attachment from a lawsuit returned in a response."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/{attachment_id}"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/{attachment_id}"
 icon: "paperclip"
 ---
 
+The attachment is downloaded from the **response** (`response_id`) that contains the lawsuit. The route returns the `attachment_url` field with the file's download link.
+
+For the attachment to be available:
+
+1. Create the request with `"with_attachments": true`.
+2. Fetch the responses at `GET /responses?request_id=<request_id>` and take the lawsuit's `response_id`.
+3. In the lawsuit's `attachments` array, use the `attachment_id` of an attachment with `status: "done"`.
+
+<Note>
+Need every attachment of the lawsuit in a single file? See [Create attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create) or [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
+</Note>

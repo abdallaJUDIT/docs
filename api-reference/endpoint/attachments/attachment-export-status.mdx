@@ -1,0 +1,18 @@
+---
+title: "Consultar exportação ZIP de anexos"
+description: "Essa página tem como objetivo mostrar o fluxo para consultar o status de uma exportação ZIP de anexos."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/exports/{attachments_export_id}"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/exports/{attachments_export_id}"
+icon: "file-zipper"
+---
+
+<Note>
+Esta rota faz parte do fluxo de [exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create), que não está disponível para todos os clientes.
+</Note>
+
+| `status` | Significado |
+| :--- | :--- |
+| `pending` | A exportação está na fila. |
+| `processing` | O ZIP está sendo gerado. Acompanhe `exported_attachments` em relação a `total_attachments`. |
+| `completed` | O ZIP está pronto. A resposta traz `attachments_zip_url`, válido até `expires_at`. |
+| `failed` | A exportação falhou. O motivo vem no campo `error`. |

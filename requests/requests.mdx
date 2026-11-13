@@ -1321,10 +1321,14 @@ Os metadados desses arquivos estarão listados dentro do array `attachments` no 
 **Fidelidade de Formato:** A Judit API não converte os arquivos. O anexo será retornado para você no **exato mesmo formato original** em que foi capturado e disponibilizado pelo tribunal. Prepare sua aplicação para receber documentos (PDF, HTML, DOCX), imagens (JPG, PNG) e até mídias de audiências (MP3, MP4).
 </Info>
 
+Para baixar um anexo, use o `response_id` do processo (obtido no Passo 3) e o `attachment_id` do anexo. A resposta traz o campo `attachment_url` com o link para download:
+
 ```bash cURL
-curl --location --request GET 'https://lawsuits.prod.judit.io/lawsuits/<Número do processo>/<instância>/attachments/<attachment_id>' \
+curl --location --request GET 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
 --header 'api-key: <api-key>'
 ```
+
+Veja a referência completa em [Baixar anexo](/api-reference/endpoint/attachments/attachment-access).
 
 ### Propriedades do Anexo
 * `status`: Indica o estado do arquivo no nosso banco. `done` significa que está pronto para download; `pending` significa que o anexo existe no processo mas ainda não foi capturado. Veja [Como funcionam os anexos](#como-funcionam-os-anexos-attachments).
@@ -1341,6 +1345,22 @@ curl --location --request GET 'https://lawsuits.production.judit.io/lawsuits/<N�
 ```
 
 A resposta traz o campo `attachment_url` com o link para download. Veja a referência completa em [Baixar anexos consolidados](/api-reference/endpoint/attachments/attachment-consolidated).
+
+### Exportando todos os anexos em ZIP
+
+<Warning>
+**Rota cobrada e não disponível para todos os clientes.** Para habilitar, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+Você também pode pedir a exportação de todos os anexos do processo de uma resposta em um arquivo ZIP. A exportação é assíncrona: crie com `POST /responses/<response_id>/attachments/exports`, acompanhe o status até `completed` e baixe o ZIP. Veja o fluxo completo em [Criar exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create).
+
+### Texto dos anexos (OCR)
+
+<Warning>
+**Beta, disponível apenas para alguns clientes.** Para habilitar, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+Clientes habilitados podem pedir o texto extraído por OCR enviando `"with_attachments_ocr": true` em `search_params`. O texto de cada anexo fica disponível em `GET /responses/<response_id>/attachments/<attachment_id>/text`. Veja [Baixar texto do anexo (OCR)](/api-reference/endpoint/attachments/attachment-text).
 
 ---
 

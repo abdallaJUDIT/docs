@@ -1,0 +1,18 @@
+---
+title: "Get attachments ZIP export"
+description: "Gets the status of an attachments ZIP export."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/exports/{attachments_export_id}"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/exports/{attachments_export_id}"
+icon: "file-zipper"
+---
+
+<Note>
+This route is part of the [attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create) flow, which is not available to all customers.
+</Note>
+
+| `status` | Meaning |
+| :--- | :--- |
+| `pending` | The export is queued. |
+| `processing` | The ZIP is being generated. Track `exported_attachments` against `total_attachments`. |
+| `completed` | The ZIP is ready. The response includes `attachments_zip_url`, valid until `expires_at`. |
+| `failed` | The export failed. The reason is in the `error` field. |

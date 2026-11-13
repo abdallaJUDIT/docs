@@ -1310,6 +1310,17 @@ The capture is finished when **no** attachment in the array has `status: "pendin
 
 If the attachment volume is a cost concern, first run a query **without** `with_attachments` to find out how many attachments the lawsuit has and estimate the number of repetitions. That initial query is billed as a lawsuit query, without the attachment capture cost.
 
+### Downloading an attachment
+
+To download an attachment, use the lawsuit's `response_id` (obtained in Step 3) and the attachment's `attachment_id`. The response contains the `attachment_url` field with the download link:
+
+```bash cURL
+curl --location --request GET 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>'
+```
+
+See the full reference at [Download lawsuit attachment](/en/api-reference/endpoint/attachments/attachment-access).
+
 ### Downloading all attachments at once (consolidated)
 
 Instead of downloading each attachment by its `attachment_id`, you can get a download URL for a **single consolidated file with all available attachments** of the lawsuit in the given instance:
@@ -1320,6 +1331,22 @@ curl --location --request GET 'https://lawsuits.production.judit.io/lawsuits/<la
 ```
 
 The response contains the `attachment_url` field with the download link. See the full reference at [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
+
+### Exporting all attachments as a ZIP
+
+<Warning>
+**Billed route, not available to all customers.** To enable it, contact sales at [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+You can also request the export of every attachment of a response's lawsuit into a ZIP file. The export is asynchronous: create it with `POST /responses/<response_id>/attachments/exports`, track the status until `completed`, then download the ZIP. See the full flow at [Create attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create).
+
+### Attachment text (OCR)
+
+<Warning>
+**Beta, available only to some customers.** To enable it, contact sales at [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+Enabled customers can request OCR-extracted text by sending `"with_attachments_ocr": true` in `search_params`. Each attachment's text is available at `GET /responses/<response_id>/attachments/<attachment_id>/text`. See [Download attachment text (OCR)](/en/api-reference/endpoint/attachments/attachment-text).
 
 ---
 

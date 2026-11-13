@@ -1,0 +1,19 @@
+---
+title: "Baixar texto do anexo (OCR)"
+description: "Essa página tem como objetivo mostrar o fluxo para baixar o texto extraído por OCR de um anexo de processo."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/{attachment_id}/text"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/{attachment_id}/text"
+icon: "file-lines"
+---
+
+<Warning>
+**Beta, disponível apenas para alguns clientes.** Para habilitar o OCR de anexos na sua conta, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+</Warning>
+
+A rota retorna o campo `attachment_text_url`, com o link para download do texto extraído do anexo (UTF-8).
+
+Para que o texto esteja disponível, a requisição precisa ter sido criada com `search_params.with_attachments_ocr: true`. Enquanto o texto ainda não foi extraído, a rota responde `404`.
+
+<Info>
+O arquivo de texto vem com `Content-Encoding: gzip`. Navegadores e clientes HTTP como fetch, axios e requests descompactam sozinhos. Com curl, use `--compressed`.
+</Info>

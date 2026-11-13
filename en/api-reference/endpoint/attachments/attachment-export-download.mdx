@@ -1,0 +1,19 @@
+---
+title: "Download attachments ZIP"
+description: "Downloads the ZIP file of a completed attachments export."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/exports/{attachments_export_id}/download"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/exports/{attachments_export_id}/download"
+icon: "file-zipper"
+---
+
+<Note>
+This route is part of the [attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create) flow, which is not available to all customers.
+</Note>
+
+When the export is `completed`, the route responds `307` and redirects to the ZIP's pre-signed URL. Configure your HTTP client to follow redirects. With curl, use `--location`:
+
+```bash cURL
+curl --location 'https://requests.production.judit.io/responses/<response_id>/attachments/exports/<attachments_export_id>/download' \
+--header 'api-key: <api-key>' \
+--output attachments.zip
+```

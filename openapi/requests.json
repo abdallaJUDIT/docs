@@ -1021,6 +1021,412 @@
         ]
       }
     },
+    "/responses/{response_id}/attachments/{attachment_id}": {
+      "get": {
+        "summary": "Baixar anexo",
+        "description": "Retorna a URL para download de um anexo de um processo presente em uma resposta.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do anexo (`attachment_id`), listado no array `attachments` do processo na resposta.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsesResponseIdAttachmentsAttachmentId.Response.Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
+    "/responses/{response_id}/attachments/{attachment_id}/text": {
+      "get": {
+        "summary": "Baixar texto (OCR) do anexo",
+        "description": "**Beta, disponível apenas para clientes habilitados.**\n\nRetorna a URL para download do texto extraído por OCR de um anexo (UTF-8).\n\nExige que a requisição tenha sido criada com `search_params.with_attachments_ocr: true`. Responde `404` enquanto o texto ainda não foi extraído.\n\nO arquivo de texto vem com `Content-Encoding: gzip`. Navegadores e clientes HTTP como fetch, axios e requests descompactam sozinhos; com curl, use `--compressed`.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do anexo (`attachment_id`), listado no array `attachments` do processo na resposta.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsesResponseIdAttachmentsAttachmentIdText.Response.Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Texto do anexo ainda não extraído",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
+    "/responses/{response_id}/attachments/exports": {
+      "post": {
+        "summary": "Criar exportação ZIP de anexos",
+        "description": "**Rota cobrada, não disponível para todos os clientes.**\n\nSolicita a exportação assíncrona de todos os anexos do processo de uma resposta em um único arquivo ZIP.\n\nA exportação sempre começa com status `pending`. Acompanhe o andamento em `GET /responses/{response_id}/attachments/exports/{attachments_export_id}`.\n\nCada chamada é cobrada, mesmo quando a Judit reaproveita um ZIP já gerado para o mesmo processo.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsesResponseIdAttachmentsExports.Response.Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
+    "/responses/{response_id}/attachments/exports/{attachments_export_id}": {
+      "get": {
+        "summary": "Consultar exportação ZIP de anexos",
+        "description": "Consulta o status de uma exportação ZIP de anexos.\n\nQuando o status é `completed`, a resposta inclui `attachments_zip_url`, uma URL pré-assinada para download do ZIP, válida até `expires_at`.\n\nFaz parte do fluxo de exportação ZIP, que não está disponível para todos os clientes.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attachments_export_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da exportação (`attachments_export_id`) retornado ao criar a exportação ZIP.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsesResponseIdAttachmentsExportsAttachmentsExportId.Response.Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
+    "/responses/{response_id}/attachments/exports/{attachments_export_id}/download": {
+      "get": {
+        "summary": "Baixar ZIP de anexos",
+        "description": "Baixa o ZIP de uma exportação concluída (`completed`). A rota responde `307` e redireciona para a URL pré-assinada do arquivo.\n\nFaz parte do fluxo de exportação ZIP, que não está disponível para todos os clientes.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attachments_export_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da exportação (`attachments_export_id`) retornado ao criar a exportação ZIP.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Temporary Redirect - Redireciona para a URL pré-assinada do ZIP",
+            "headers": {
+              "Location": {
+                "description": "URL pré-assinada para download do ZIP.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpForbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
     "/responses/tracking/{origin_id}": {
       "get": {
         "summary": "Listar responses por origin_id",
@@ -4040,6 +4446,10 @@
                   },
                   "public_search": {
                     "type": "boolean"
+                  },
+                  "with_attachments_ocr": {
+                    "type": "boolean",
+                    "description": "**Beta, disponível apenas para clientes habilitados.** Quando `true`, extrai o texto (OCR) dos anexos capturados. O texto fica disponível em `GET /responses/{response_id}/attachments/{attachment_id}/text`."
                   },
                   "lawsuit_instance": {
                     "type": "number"
@@ -12824,6 +13234,123 @@
           "all_pages_count",
           "all_count",
           "page_data"
+        ]
+      },
+      "ResponsesResponseIdAttachmentsAttachmentId.Response.Get": {
+        "type": "object",
+        "properties": {
+          "attachment_url": {
+            "type": "string",
+            "description": "URL para download do anexo."
+          }
+        },
+        "required": [
+          "attachment_url"
+        ]
+      },
+      "ResponsesResponseIdAttachmentsAttachmentIdText.Response.Get": {
+        "type": "object",
+        "properties": {
+          "attachment_text_url": {
+            "type": "string",
+            "description": "URL para download do texto extraído do anexo (UTF-8, entregue com `Content-Encoding: gzip`)."
+          }
+        },
+        "required": [
+          "attachment_text_url"
+        ]
+      },
+      "ResponsesResponseIdAttachmentsExports.Response.Post": {
+        "type": "object",
+        "properties": {
+          "attachments_export_id": {
+            "type": "string",
+            "description": "ID da exportação. Use para consultar o status e baixar o ZIP."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "failed"
+            ],
+            "description": "Status da exportação: `pending` (na fila), `processing` (gerando o ZIP), `completed` (ZIP pronto) ou `failed` (erro)."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data de expiração do ZIP."
+          }
+        },
+        "required": [
+          "attachments_export_id",
+          "status"
+        ]
+      },
+      "ResponsesResponseIdAttachmentsExportsAttachmentsExportId.Response.Get": {
+        "type": "object",
+        "properties": {
+          "attachments_export_id": {
+            "type": "string",
+            "description": "ID da exportação."
+          },
+          "response_id": {
+            "type": "string",
+            "description": "ID da resposta de origem."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "ID da requisição de origem."
+          },
+          "lawsuit_cnj": {
+            "type": "string",
+            "description": "Número CNJ do processo."
+          },
+          "instance": {
+            "type": "number",
+            "description": "Instância do processo."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "failed"
+            ],
+            "description": "Status da exportação: `pending` (na fila), `processing` (gerando o ZIP), `completed` (ZIP pronto) ou `failed` (erro)."
+          },
+          "total_attachments": {
+            "type": "number",
+            "description": "Total de anexos do processo incluídos na exportação."
+          },
+          "exported_attachments": {
+            "type": "number",
+            "description": "Quantidade de anexos já exportados para o ZIP."
+          },
+          "error": {
+            "type": "string",
+            "description": "Mensagem de erro, presente quando o status é `failed`."
+          },
+          "attachments_zip_url": {
+            "type": "string",
+            "description": "URL pré-assinada para download do ZIP. Presente quando o status é `completed`."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data de expiração da URL do ZIP."
+          }
+        },
+        "required": [
+          "attachments_export_id",
+          "response_id",
+          "request_id",
+          "lawsuit_cnj",
+          "instance",
+          "status",
+          "total_attachments"
         ]
       }
     }

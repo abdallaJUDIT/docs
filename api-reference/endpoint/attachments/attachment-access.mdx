@@ -1,8 +1,19 @@
 ---
 title: "Baixar anexo"
-description: "Essa página tem como objetivo mostrar o fluxo para baixar um anexo de um processo."
-openapi: "openapi/lawsuits.json GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
-api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
+description: "Essa página tem como objetivo mostrar o fluxo para baixar um anexo de um processo retornado em uma resposta."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/{attachment_id}"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/{attachment_id}"
 icon: "paperclip"
 ---
 
+O anexo é baixado a partir da **resposta** (`response_id`) que contém o processo. A rota retorna o campo `attachment_url`, com o link para download do arquivo.
+
+Para que o anexo esteja disponível:
+
+1. Crie a requisição com `"with_attachments": true`.
+2. Busque as respostas em `GET /responses?request_id=<request_id>` e pegue o `response_id` do processo.
+3. No array `attachments` do processo, use o `attachment_id` de um anexo com `status: "done"`.
+
+<Note>
+Precisa de todos os anexos do processo em um único arquivo? Veja [Criar exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create) ou [Baixar anexos consolidados](/api-reference/endpoint/attachments/attachment-consolidated).
+</Note>

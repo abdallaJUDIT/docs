@@ -182,9 +182,13 @@
                 ]
               },
               {
-                "group": "Lawsuits · Anexos de Processos",
+                "group": "Anexos de Processos",
                 "pages": [
                   "api-reference/endpoint/attachments/attachment-access",
+                  "api-reference/endpoint/attachments/attachment-text",
+                  "api-reference/endpoint/attachments/attachment-export-create",
+                  "api-reference/endpoint/attachments/attachment-export-status",
+                  "api-reference/endpoint/attachments/attachment-export-download",
                   "api-reference/endpoint/attachments/attachment-consolidated",
                   "api-reference/endpoint/attachments/attachment-access-warrant"
                 ]
@@ -388,9 +392,13 @@
                 ]
               },
               {
-                "group": "Lawsuits · Lawsuit Attachments",
+                "group": "Lawsuit Attachments",
                 "pages": [
                   "en/api-reference/endpoint/attachments/attachment-access",
+                  "en/api-reference/endpoint/attachments/attachment-text",
+                  "en/api-reference/endpoint/attachments/attachment-export-create",
+                  "en/api-reference/endpoint/attachments/attachment-export-status",
+                  "en/api-reference/endpoint/attachments/attachment-export-download",
                   "en/api-reference/endpoint/attachments/attachment-consolidated",
                   "en/api-reference/endpoint/attachments/attachment-access-warrant"
                 ]
