@@ -17,3 +17,25 @@ Para que o anexo esteja disponível:
 <Note>
 Precisa de todos os anexos do processo em um único arquivo? Veja [Baixar anexos consolidados](/api-reference/endpoint/attachments/attachment-consolidated).
 </Note>
+
+## Erros
+
+| HTTP | `error.name` | `error.message` | Quando ocorre |
+| :--- | :--- | :--- | :--- |
+| `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | Header `api-key` ausente ou com chave inválida. |
+| `403` | `HttpForbiddenError` | `FORBIDDEN` | A chave é válida, mas não tem permissão para acessar o recurso. |
+| `500` | `HttpInternalServerError` | `INTERNAL_SERVER_ERROR` | Erro interno da Judit. Tente novamente e, se persistir, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+Todo erro usa o mesmo envelope. O código específico vem em `error.data`:
+
+```json
+{
+  "error": {
+    "name": "HttpUnauthorizedError",
+    "message": "UNAUTHORIZED",
+    "data": "MISSING_AUTHORIZATION"
+  }
+}
+```
+
+Veja a lista de códigos de `error.data` em [Erros da API](/resource/errors).

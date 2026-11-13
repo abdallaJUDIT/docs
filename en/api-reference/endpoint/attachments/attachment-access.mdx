@@ -17,3 +17,25 @@ For the attachment to be available:
 <Note>
 Need every attachment of the lawsuit in a single file? See [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
 </Note>
+
+## Errors
+
+| HTTP | `error.name` | `error.message` | When it happens |
+| :--- | :--- | :--- | :--- |
+| `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | The `api-key` header is missing or the key is invalid. |
+| `403` | `HttpForbiddenError` | `FORBIDDEN` | The key is valid but is not allowed to access the resource. |
+| `500` | `HttpInternalServerError` | `INTERNAL_SERVER_ERROR` | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+Every error uses the same envelope. The specific code is in `error.data`:
+
+```json
+{
+  "error": {
+    "name": "HttpUnauthorizedError",
+    "message": "UNAUTHORIZED",
+    "data": "MISSING_AUTHORIZATION"
+  }
+}
+```
+
+See the list of `error.data` codes in [API errors](/en/resource/errors).
