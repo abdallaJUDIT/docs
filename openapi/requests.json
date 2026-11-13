@@ -1105,7 +1105,7 @@
     "/responses/{response_id}/attachments/{attachment_id}/text": {
       "get": {
         "summary": "Baixar texto (OCR) do anexo",
-        "description": "**Beta · requer liberação na conta.**\n\nRetorna a URL para download do texto extraído por OCR de um anexo (UTF-8).\n\nExige que a requisição tenha sido criada com `search_params.with_attachments_ocr: true`. Responde `404` enquanto o texto ainda não foi extraído.\n\nO arquivo de texto vem com `Content-Encoding: gzip`. Navegadores e clientes HTTP como fetch, axios e requests descompactam sozinhos; com curl, use `--compressed`.",
+        "description": "**Beta fechado: liberado apenas para clientes selecionados durante a fase de testes.**\n\nRetorna a URL para download do texto extraído por OCR de um anexo (UTF-8).\n\nExige que a requisição tenha sido criada com `search_params.with_attachments_ocr: true`. Responde `404` enquanto o texto ainda não foi extraído.\n\nO arquivo de texto vem com `Content-Encoding: gzip`. Navegadores e clientes HTTP como fetch, axios e requests descompactam sozinhos; com curl, use `--compressed`.",
         "tags": [
           "Respostas"
         ],
@@ -1196,7 +1196,7 @@
     "/responses/{response_id}/attachments/exports": {
       "post": {
         "summary": "Criar exportação ZIP de anexos",
-        "description": "**Requer liberação na conta.**\n\nSolicita a exportação assíncrona de todos os anexos do processo de uma resposta em um único arquivo ZIP.\n\nA exportação sempre começa com status `pending`. Acompanhe o andamento em `GET /responses/{response_id}/attachments/exports/{attachments_export_id}`.",
+        "description": "**Beta fechado: liberado apenas para clientes selecionados durante a fase de testes.**\n\nSolicita a exportação assíncrona de todos os anexos do processo de uma resposta em um único arquivo ZIP.\n\nA exportação sempre começa com status `pending`. Acompanhe o andamento em `GET /responses/{response_id}/attachments/exports/{attachments_export_id}`.",
         "tags": [
           "Respostas"
         ],
@@ -1267,7 +1267,7 @@
     "/responses/{response_id}/attachments/exports/{attachments_export_id}": {
       "get": {
         "summary": "Consultar exportação ZIP de anexos",
-        "description": "Consulta o status de uma exportação ZIP de anexos.\n\nQuando o status é `completed`, a resposta inclui `attachments_zip_url`, uma URL pré-assinada para download do ZIP, válida até `expires_at`.\n\nFaz parte do fluxo de exportação ZIP, que requer liberação na conta.",
+        "description": "Consulta o status de uma exportação ZIP de anexos.\n\nQuando o status é `completed`, a resposta inclui `attachments_zip_url`, uma URL pré-assinada para download do ZIP, válida até `expires_at`.\n\nFaz parte do fluxo de exportação ZIP, que está em beta fechado.",
         "tags": [
           "Respostas"
         ],
@@ -1348,7 +1348,7 @@
     "/responses/{response_id}/attachments/exports/{attachments_export_id}/download": {
       "get": {
         "summary": "Baixar ZIP de anexos",
-        "description": "Baixa o ZIP de uma exportação concluída (`completed`). A rota responde `307` e redireciona para a URL pré-assinada do arquivo.\n\nFaz parte do fluxo de exportação ZIP, que requer liberação na conta.",
+        "description": "Baixa o ZIP de uma exportação concluída (`completed`). A rota responde `307` e redireciona para a URL pré-assinada do arquivo.\n\nFaz parte do fluxo de exportação ZIP, que está em beta fechado.",
         "tags": [
           "Respostas"
         ],
@@ -4449,7 +4449,7 @@
                   },
                   "with_attachments_ocr": {
                     "type": "boolean",
-                    "description": "**Beta · requer liberação na conta.** Quando `true`, extrai o texto (OCR) dos anexos capturados. O texto fica disponível em `GET /responses/{response_id}/attachments/{attachment_id}/text`."
+                    "description": "**Beta fechado: liberado apenas para clientes selecionados durante a fase de testes.** Quando `true`, extrai o texto (OCR) dos anexos capturados. O texto fica disponível em `GET /responses/{response_id}/attachments/{attachment_id}/text`."
                   },
                   "lawsuit_instance": {
                     "type": "number"
