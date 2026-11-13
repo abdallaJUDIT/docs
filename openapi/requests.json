@@ -1081,6 +1081,23 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found - Anexo não encontrado na resposta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpNotFoundError"
+                },
+                "example": {
+                  "error": {
+                    "name": "HttpNotFoundError",
+                    "message": "NOT_FOUND",
+                    "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
+                  }
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {

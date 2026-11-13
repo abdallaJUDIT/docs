@@ -89,6 +89,7 @@ A route that does not exist (mistyped URL) returns `404` with a plain-text body 
 | :--- | :--- | :--- |
 | `REQUEST_NOT_FOUND` | `GET /requests/{request_id}` | The `request_id` was not found. |
 | `RESPONSE_NOT_FOUND` | `GET /responses/{response_id}` | The `response_id` was not found. |
+| `ATTACHMENT_NOT_FOUND_IN_RESPONSE` | `GET /responses/{response_id}/attachments/{attachment_id}` | The `attachment_id` was not found in the given response. |
 | `TRACKING_NOT_FOUND` | `GET /tracking/{tracking_id}` | The `tracking_id` was not found. |
 | `TRACKED_ITEM_NOT_FOUND` | `GET /tracked-item/{tracked_item_id}` | The tracked item was not found. |
 | `TRANSFER_FILE_NOT_FOUND` | `GET /transfer-file/{transfer_file_id}` | The file transfer was not found. |

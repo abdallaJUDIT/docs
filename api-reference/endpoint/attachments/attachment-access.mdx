@@ -24,16 +24,17 @@ Precisa de todos os anexos do processo em um único arquivo? Veja [Baixar anexos
 | :--- | :--- | :--- | :--- |
 | `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | Header `api-key` ausente ou com chave inválida. |
 | `403` | `HttpForbiddenError` | `FORBIDDEN` | A chave é válida, mas não tem permissão para acessar o recurso. |
+| `404` | `HttpNotFoundError` | `NOT_FOUND` | O `attachment_id` não foi encontrado na resposta informada (`error.data`: `ATTACHMENT_NOT_FOUND_IN_RESPONSE`). |
 | `500` | `HttpInternalServerError` | `INTERNAL_SERVER_ERROR` | Erro interno da Judit. Tente novamente e, se persistir, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io). |
 
-Todo erro usa o mesmo envelope. O código específico vem em `error.data`:
+Todo erro usa o mesmo envelope. O código específico vem em `error.data`. Exemplo de `404` quando o anexo não está na resposta:
 
 ```json
 {
   "error": {
-    "name": "HttpUnauthorizedError",
-    "message": "UNAUTHORIZED",
-    "data": "MISSING_AUTHORIZATION"
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
   }
 }
 ```

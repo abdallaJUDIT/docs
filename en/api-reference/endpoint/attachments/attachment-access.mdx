@@ -24,16 +24,17 @@ Need every attachment of the lawsuit in a single file? See [Download consolidate
 | :--- | :--- | :--- | :--- |
 | `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | The `api-key` header is missing or the key is invalid. |
 | `403` | `HttpForbiddenError` | `FORBIDDEN` | The key is valid but is not allowed to access the resource. |
+| `404` | `HttpNotFoundError` | `NOT_FOUND` | The `attachment_id` was not found in the given response (`error.data`: `ATTACHMENT_NOT_FOUND_IN_RESPONSE`). |
 | `500` | `HttpInternalServerError` | `INTERNAL_SERVER_ERROR` | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
 
-Every error uses the same envelope. The specific code is in `error.data`:
+Every error uses the same envelope. The specific code is in `error.data`. Example `404` when the attachment is not in the response:
 
 ```json
 {
   "error": {
-    "name": "HttpUnauthorizedError",
-    "message": "UNAUTHORIZED",
-    "data": "MISSING_AUTHORIZATION"
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
   }
 }
 ```
