@@ -1074,31 +1074,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad Request - `response_id` não é um UUID válido ou `attachment_id` vazio",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpBadRequestError"
-                },
-                "examples": {
-                  "INVALID_RESPONSE_ID": {
-                    "value": {
-                      "error": {
-                        "name": "HttpBadRequestError",
-                        "message": "BAD_REQUEST",
-                        "data": [
-                          "response_id invalid UUID"
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "401": {
-            "description": "Unauthorized - Header `api-key` ausente ou inválido",
+            "description": "Unauthorized - Header `api-key` não enviado",
             "content": {
               "application/json": {
                 "schema": {
@@ -1113,52 +1090,13 @@
                         "data": "MISSING_AUTHORIZATION"
                       }
                     }
-                  },
-                  "USER_NOT_FOUND": {
-                    "value": {
-                      "error": {
-                        "name": "HttpUnauthorizedError",
-                        "message": "UNAUTHORIZED",
-                        "data": "USER_NOT_FOUND"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Plano sem acesso à rota ou resposta de outra conta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpForbiddenError"
-                },
-                "examples": {
-                  "PLAN_NOT_ALLOWED": {
-                    "value": {
-                      "error": {
-                        "name": "HttpForbiddenError",
-                        "message": "FORBIDDEN",
-                        "data": "PLAN_NOT_ALLOWED"
-                      }
-                    }
-                  },
-                  "UNAUTHORIZED_TO_ACCESS_THIS_REQUEST": {
-                    "value": {
-                      "error": {
-                        "name": "HttpForbiddenError",
-                        "message": "FORBIDDEN",
-                        "data": "UNAUTHORIZED_TO_ACCESS_THIS_REQUEST"
-                      }
-                    }
                   }
                 }
               }
             }
           },
           "404": {
-            "description": "Not Found - Resposta, requisição ou anexo não encontrado",
+            "description": "Not Found - Resposta ou anexo não encontrado",
             "content": {
               "application/json": {
                 "schema": {
@@ -1191,22 +1129,13 @@
                         "data": "RESPONSE_NOT_FOUND"
                       }
                     }
-                  },
-                  "REQUEST_NOT_FOUND": {
-                    "value": {
-                      "error": {
-                        "name": "HttpNotFoundError",
-                        "message": "NOT_FOUND",
-                        "data": "REQUEST_NOT_FOUND"
-                      }
-                    }
                   }
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Entity - A resposta não permite o download do anexo",
+            "description": "Unprocessable Entity - Resposta com mais de 30 dias ou requisição sem anexos",
             "content": {
               "application/json": {
                 "schema": {
@@ -1230,35 +1159,7 @@
                         "data": "REQUEST_WITHOUT_ATTACHMENTS"
                       }
                     }
-                  },
-                  "RESPONSE_IS_NOT_A_LAWSUIT": {
-                    "value": {
-                      "error": {
-                        "name": "HttpUnprocessableEntityError",
-                        "message": "UNPROCESSABLE_ENTITY",
-                        "data": "RESPONSE_IS_NOT_A_LAWSUIT"
-                      }
-                    }
-                  },
-                  "INVALID_RESPONSE_DATA": {
-                    "value": {
-                      "error": {
-                        "name": "HttpUnprocessableEntityError",
-                        "message": "UNPROCESSABLE_ENTITY",
-                        "data": "INVALID_RESPONSE_DATA"
-                      }
-                    }
                   }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpInternalServerError"
                 }
               }
             }

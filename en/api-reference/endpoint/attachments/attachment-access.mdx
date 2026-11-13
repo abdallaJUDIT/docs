@@ -52,21 +52,13 @@ Every error uses the same envelope. The specific code is in `error.data`:
 
 | HTTP | `error.data` | When it happens |
 | :--- | :--- | :--- |
-| `400` | List of validation messages | `response_id` is not a valid UUID or `attachment_id` is empty. |
 | `401` | `MISSING_AUTHORIZATION` | The `api-key` header was not sent. |
-| `401` | `USER_NOT_FOUND` | The `api-key` sent does not exist. |
-| `403` | `PLAN_NOT_ALLOWED` | The account's plan does not give access to this route. |
-| `403` | `UNAUTHORIZED_TO_ACCESS_THIS_REQUEST` | The response belongs to a request from another account. |
 | `404` | `RESPONSE_NOT_FOUND` | The `response_id` was not found. |
 | `404` | `ATTACHMENT_NOT_FOUND_IN_RESPONSE` | The `attachment_id` is not in the response's `attachments` array. |
-| `404` | `REQUEST_NOT_FOUND` | The response's source request was not found. |
 | `404` | `ATTACHMENT_NOT_FOUND` | The attachment is in the response, but the file has not been captured yet (for example, an attachment with `status: "pending"`). |
-| `422` | `RESPONSE_IS_NOT_A_LAWSUIT` | The response is not a lawsuit (`response_type` other than `lawsuit`). |
 | `422` | `RESPONSE_ATTACHMENT_ACCESS_EXPIRED` | The response was created more than 30 days ago. Create a new request for the lawsuit. |
-| `422` | `INVALID_RESPONSE_DATA` | The response has no lawsuit number or instance. |
 | `422` | `REQUEST_WITHOUT_ATTACHMENTS` | The source request was made without `"with_attachments": true`. |
-| `500` | — | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
 
-`error.name` and `error.message` follow the status: `HttpBadRequestError` / `BAD_REQUEST` (400), `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpForbiddenError` / `FORBIDDEN` (403), `HttpNotFoundError` / `NOT_FOUND` (404) and `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422). For `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`, `error.message` carries the hint `Create a new request to the lawsuit to access the attachment`.
+`error.name` and `error.message` follow the status: `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpNotFoundError` / `NOT_FOUND` (404) and `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422). For `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`, `error.message` carries the hint `Create a new request to the lawsuit to access the attachment`.
 
 See more about the error format in [Error Codes](/en/resource/errors).
