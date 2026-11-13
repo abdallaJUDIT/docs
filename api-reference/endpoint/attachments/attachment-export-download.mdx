@@ -7,7 +7,7 @@ icon: "file-zipper"
 ---
 
 <Note>
-Esta rota faz parte do fluxo de [exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create), que não está disponível para todos os clientes.
+Esta rota faz parte do fluxo de [exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create), que requer liberação na conta.
 </Note>
 
 Quando a exportação está `completed`, a rota responde `307` e redireciona para a URL pré-assinada do ZIP. Configure seu cliente HTTP para seguir redirecionamentos. Com curl, use `--location`:

@@ -7,7 +7,7 @@ icon: "file-zipper"
 ---
 
 <Note>
-This route is part of the [attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create) flow, which is not available to all customers.
+This route is part of the [attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create) flow, which requires account enablement.
 </Note>
 
 When the export is `completed`, the route responds `307` and redirects to the ZIP's pre-signed URL. Configure your HTTP client to follow redirects. With curl, use `--location`:

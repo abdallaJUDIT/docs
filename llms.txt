@@ -25,8 +25,8 @@
 - GET /responses — Listar resultados
 - GET /responses/{response_id} — Buscar resultado
 - GET /responses/{response_id}/attachments/{attachment_id} — Download de anexo
-- GET /responses/{response_id}/attachments/{attachment_id}/text — Texto (OCR) do anexo (beta, apenas clientes habilitados)
-- POST /responses/{response_id}/attachments/exports — Criar exportação ZIP de anexos (apenas clientes habilitados)
+- GET /responses/{response_id}/attachments/{attachment_id}/text — Texto (OCR) do anexo (beta, requer liberação na conta)
+- POST /responses/{response_id}/attachments/exports — Criar exportação ZIP de anexos (requer liberação na conta)
 - GET /responses/{response_id}/attachments/exports/{attachments_export_id} — Status da exportação ZIP
 - GET /responses/{response_id}/attachments/exports/{attachments_export_id}/download — Download do ZIP (redirect 307)
 - GET /responses/tracking/{origin_id} — Resultados de um tracking
