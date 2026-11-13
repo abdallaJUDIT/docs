@@ -1096,22 +1096,13 @@
             }
           },
           "404": {
-            "description": "Not Found - Resposta ou anexo não encontrado",
+            "description": "Not Found - Arquivo do anexo ainda não capturado",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpNotFoundError"
                 },
                 "examples": {
-                  "ATTACHMENT_NOT_FOUND_IN_RESPONSE": {
-                    "value": {
-                      "error": {
-                        "name": "HttpNotFoundError",
-                        "message": "NOT_FOUND",
-                        "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
-                      }
-                    }
-                  },
                   "ATTACHMENT_NOT_FOUND": {
                     "value": {
                       "error": {
@@ -1120,22 +1111,13 @@
                         "data": "ATTACHMENT_NOT_FOUND"
                       }
                     }
-                  },
-                  "RESPONSE_NOT_FOUND": {
-                    "value": {
-                      "error": {
-                        "name": "HttpNotFoundError",
-                        "message": "NOT_FOUND",
-                        "data": "RESPONSE_NOT_FOUND"
-                      }
-                    }
                   }
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Entity - Resposta com mais de 30 dias ou requisição sem anexos",
+            "description": "Unprocessable Entity - Resposta criada há mais de 30 dias",
             "content": {
               "application/json": {
                 "schema": {
@@ -1150,16 +1132,17 @@
                         "data": "RESPONSE_ATTACHMENT_ACCESS_EXPIRED"
                       }
                     }
-                  },
-                  "REQUEST_WITHOUT_ATTACHMENTS": {
-                    "value": {
-                      "error": {
-                        "name": "HttpUnprocessableEntityError",
-                        "message": "UNPROCESSABLE_ENTITY",
-                        "data": "REQUEST_WITHOUT_ATTACHMENTS"
-                      }
-                    }
                   }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Erro interno da Judit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
                 }
               }
             }

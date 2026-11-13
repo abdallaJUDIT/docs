@@ -5,3 +5,35 @@ openapi: "openapi/lawsuits.json GET /lawsuits/{lawsuit_cnj}/{instance}/consolida
 api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/consolidated"
 icon: "paperclip"
 ---
+
+## Resposta
+
+A rota retorna **`200`** com o campo `attachment_url`, uma URL temporária para download de um **PDF único** com todos os anexos já capturados do processo na instância informada.
+
+O PDF junta os anexos em PDF e HTML, em ordem de data do anexo. Anexos em HTML entram como páginas de texto.
+
+## Erros
+
+Todo erro usa o mesmo envelope. O código específico vem em `error.data`:
+
+```json
+{
+  "error": {
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "LAWSUIT_NOT_FOUND"
+  }
+}
+```
+
+| HTTP | `error.data` | Quando ocorre |
+| :--- | :--- | :--- |
+| `400` | `["INVALID_LAWSUIT_CNJ"]` | O número CNJ informado não é válido. |
+| `401` | `MISSING_AUTHORIZATION` | O header `api-key` não foi enviado. |
+| `404` | `LAWSUIT_NOT_FOUND` | O processo não foi encontrado na instância informada. |
+| `422` | `ERROR_PROCESSING_REQUEST` | Falha ao gerar o arquivo consolidado. Tente novamente. |
+| `500` | — | Erro interno da Judit. Tente novamente e, se persistir, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+Os campos `error.name` e `error.message` seguem o status: `HttpBadRequestError` / `BAD_REQUEST` (400), `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpNotFoundError` / `NOT_FOUND` (404), `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422) e `HttpInternalServerError` / `INTERNAL_SERVER_ERROR` (500).
+
+Veja mais sobre o formato dos erros em [Códigos de Erro](/resource/errors).
