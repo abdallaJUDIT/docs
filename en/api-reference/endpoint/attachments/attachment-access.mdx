@@ -6,7 +6,7 @@ api: "GET https://requests.production.judit.io/responses/{response_id}/attachmen
 icon: "paperclip"
 ---
 
-The attachment is downloaded from the **response** (`response_id`) that contains the lawsuit. The route returns the `attachment_url` field with the file's download link.
+The attachment is downloaded from the **response** (`response_id`) that contains the lawsuit.
 
 For the attachment to be available:
 
@@ -14,20 +14,30 @@ For the attachment to be available:
 2. Fetch the responses at `GET /responses?request_id=<request_id>` and take the lawsuit's `response_id`.
 3. In the lawsuit's `attachments` array, use the `attachment_id` of an attachment with `status: "done"`.
 
+<Warning>
+Downloads only work for responses created **up to 30 days ago**. After that, the route returns `422` with `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`. To download the attachment, create a new request for the lawsuit.
+</Warning>
+
+## Response
+
+The route responds **`302 Found`** and redirects to a temporary URL of the file, given in the `Location` header. What you get depends on your HTTP client:
+
+- **Following the redirect** (browsers, Bruno, Postman, `curl --location`): you get the file itself, in the original format captured from the court (PDF, HTML, image, etc.).
+- **Not following the redirect**: you get the `302` and read the file URL from the `Location` header.
+
+```bash cURL
+curl --location 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>' \
+--output attachment
+```
+
 <Note>
 Need every attachment of the lawsuit in a single file? See [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
 </Note>
 
 ## Errors
 
-| HTTP | `error.name` | `error.message` | When it happens |
-| :--- | :--- | :--- | :--- |
-| `401` | `HttpUnauthorizedError` | `UNAUTHORIZED` | The `api-key` header is missing or the key is invalid. |
-| `403` | `HttpForbiddenError` | `FORBIDDEN` | The key is valid but is not allowed to access the resource. |
-| `404` | `HttpNotFoundError` | `NOT_FOUND` | The `attachment_id` was not found in the given response (`error.data`: `ATTACHMENT_NOT_FOUND_IN_RESPONSE`). |
-| `500` | `HttpInternalServerError` | `INTERNAL_SERVER_ERROR` | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
-
-Every error uses the same envelope. The specific code is in `error.data`. Example `404` when the attachment is not in the response:
+Every error uses the same envelope. The specific code is in `error.data`:
 
 ```json
 {
@@ -39,4 +49,23 @@ Every error uses the same envelope. The specific code is in `error.data`. Exampl
 }
 ```
 
-See the list of `error.data` codes in [API errors](/en/resource/errors).
+| HTTP | `error.data` | When it happens |
+| :--- | :--- | :--- |
+| `400` | List of validation messages | `response_id` is not a valid UUID or `attachment_id` is empty. |
+| `401` | `MISSING_AUTHORIZATION` | The `api-key` header was not sent. |
+| `401` | `USER_NOT_FOUND` | The `api-key` sent does not exist. |
+| `403` | `PLAN_NOT_ALLOWED` | The account's plan does not give access to this route. |
+| `403` | `UNAUTHORIZED_TO_ACCESS_THIS_REQUEST` | The response belongs to a request from another account. |
+| `404` | `RESPONSE_NOT_FOUND` | The `response_id` was not found. |
+| `404` | `ATTACHMENT_NOT_FOUND_IN_RESPONSE` | The `attachment_id` is not in the response's `attachments` array. |
+| `404` | `REQUEST_NOT_FOUND` | The response's source request was not found. |
+| `404` | `ATTACHMENT_NOT_FOUND` | The attachment is in the response, but the file has not been captured yet (for example, an attachment with `status: "pending"`). |
+| `422` | `RESPONSE_IS_NOT_A_LAWSUIT` | The response is not a lawsuit (`response_type` other than `lawsuit`). |
+| `422` | `RESPONSE_ATTACHMENT_ACCESS_EXPIRED` | The response was created more than 30 days ago. Create a new request for the lawsuit. |
+| `422` | `INVALID_RESPONSE_DATA` | The response has no lawsuit number or instance. |
+| `422` | `REQUEST_WITHOUT_ATTACHMENTS` | The source request was made without `"with_attachments": true`. |
+| `500` | — | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+`error.name` and `error.message` follow the status: `HttpBadRequestError` / `BAD_REQUEST` (400), `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpForbiddenError` / `FORBIDDEN` (403), `HttpNotFoundError` / `NOT_FOUND` (404) and `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422). For `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`, `error.message` carries the hint `Create a new request to the lawsuit to access the attachment`.
+
+See more about the error format in [Error Codes](/en/resource/errors).

@@ -1024,7 +1024,7 @@
     "/responses/{response_id}/attachments/{attachment_id}": {
       "get": {
         "summary": "Baixar anexo",
-        "description": "Retorna a URL para download de um anexo de um processo presente em uma resposta.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`.",
+        "description": "Redireciona (`302`) para a URL temporária de download de um anexo de um processo presente em uma resposta.\n\nClientes que seguem o redirecionamento recebem o arquivo no formato original (PDF, HTML, imagem etc.). Sem seguir, a URL vem no header `Location`.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`, e a resposta precisa ter sido criada há até 30 dias.",
         "tags": [
           "Respostas"
         ],
@@ -1051,48 +1051,191 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful response",
+          "302": {
+            "description": "Found - Redireciona para a URL temporária do arquivo do anexo",
+            "headers": {
+              "Location": {
+                "description": "URL temporária para download do arquivo do anexo.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - `response_id` não é um UUID válido ou `attachment_id` vazio",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponsesResponseIdAttachmentsAttachmentId.Response.Get"
+                  "$ref": "#/components/schemas/HttpBadRequestError"
+                },
+                "examples": {
+                  "INVALID_RESPONSE_ID": {
+                    "value": {
+                      "error": {
+                        "name": "HttpBadRequestError",
+                        "message": "BAD_REQUEST",
+                        "data": [
+                          "response_id invalid UUID"
+                        ]
+                      }
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized - Missing or invalid token",
+            "description": "Unauthorized - Header `api-key` ausente ou inválido",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpUnauthorizedError"
+                },
+                "examples": {
+                  "MISSING_AUTHORIZATION": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnauthorizedError",
+                        "message": "UNAUTHORIZED",
+                        "data": "MISSING_AUTHORIZATION"
+                      }
+                    }
+                  },
+                  "USER_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnauthorizedError",
+                        "message": "UNAUTHORIZED",
+                        "data": "USER_NOT_FOUND"
+                      }
+                    }
+                  }
                 }
               }
             }
           },
           "403": {
-            "description": "Forbidden - Insufficient permissions",
+            "description": "Forbidden - Plano sem acesso à rota ou resposta de outra conta",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpForbiddenError"
+                },
+                "examples": {
+                  "PLAN_NOT_ALLOWED": {
+                    "value": {
+                      "error": {
+                        "name": "HttpForbiddenError",
+                        "message": "FORBIDDEN",
+                        "data": "PLAN_NOT_ALLOWED"
+                      }
+                    }
+                  },
+                  "UNAUTHORIZED_TO_ACCESS_THIS_REQUEST": {
+                    "value": {
+                      "error": {
+                        "name": "HttpForbiddenError",
+                        "message": "FORBIDDEN",
+                        "data": "UNAUTHORIZED_TO_ACCESS_THIS_REQUEST"
+                      }
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not Found - Anexo não encontrado na resposta",
+            "description": "Not Found - Resposta, requisição ou anexo não encontrado",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpNotFoundError"
                 },
-                "example": {
-                  "error": {
-                    "name": "HttpNotFoundError",
-                    "message": "NOT_FOUND",
-                    "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
+                "examples": {
+                  "ATTACHMENT_NOT_FOUND_IN_RESPONSE": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "ATTACHMENT_NOT_FOUND_IN_RESPONSE"
+                      }
+                    }
+                  },
+                  "ATTACHMENT_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "ATTACHMENT_NOT_FOUND"
+                      }
+                    }
+                  },
+                  "RESPONSE_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "RESPONSE_NOT_FOUND"
+                      }
+                    }
+                  },
+                  "REQUEST_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "REQUEST_NOT_FOUND"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - A resposta não permite o download do anexo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnprocessableEntityError"
+                },
+                "examples": {
+                  "RESPONSE_ATTACHMENT_ACCESS_EXPIRED": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "Create a new request to the lawsuit to access the attachment",
+                        "data": "RESPONSE_ATTACHMENT_ACCESS_EXPIRED"
+                      }
+                    }
+                  },
+                  "REQUEST_WITHOUT_ATTACHMENTS": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "UNPROCESSABLE_ENTITY",
+                        "data": "REQUEST_WITHOUT_ATTACHMENTS"
+                      }
+                    }
+                  },
+                  "RESPONSE_IS_NOT_A_LAWSUIT": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "UNPROCESSABLE_ENTITY",
+                        "data": "RESPONSE_IS_NOT_A_LAWSUIT"
+                      }
+                    }
+                  },
+                  "INVALID_RESPONSE_DATA": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "UNPROCESSABLE_ENTITY",
+                        "data": "INVALID_RESPONSE_DATA"
+                      }
+                    }
                   }
                 }
               }
@@ -12922,18 +13065,6 @@
           "all_pages_count",
           "all_count",
           "page_data"
-        ]
-      },
-      "ResponsesResponseIdAttachmentsAttachmentId.Response.Get": {
-        "type": "object",
-        "properties": {
-          "attachment_url": {
-            "type": "string",
-            "description": "URL para download do anexo."
-          }
-        },
-        "required": [
-          "attachment_url"
         ]
       }
     }
