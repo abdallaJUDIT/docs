@@ -1346,22 +1346,6 @@ curl --location --request GET 'https://lawsuits.production.judit.io/lawsuits/<N�
 
 A resposta traz o campo `attachment_url` com o link para download. Veja a referência completa em [Baixar anexos consolidados](/api-reference/endpoint/attachments/attachment-consolidated).
 
-### Exportando todos os anexos em ZIP
-
-<Warning>
-**Beta fechado.** A exportação ZIP de anexos está liberada apenas para clientes selecionados durante a fase de testes. Para participar, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io).
-</Warning>
-
-Você também pode pedir a exportação de todos os anexos do processo de uma resposta em um arquivo ZIP. A exportação é assíncrona: crie com `POST /responses/<response_id>/attachments/exports`, acompanhe o status até `completed` e baixe o ZIP. Veja o fluxo completo em [Criar exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create).
-
-### Texto dos anexos (OCR)
-
-<Warning>
-**Beta fechado.** O OCR de anexos está liberado apenas para clientes selecionados durante a fase de testes. Para participar, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io).
-</Warning>
-
-Com o recurso liberado, peça o texto extraído por OCR enviando `"with_attachments_ocr": true` em `search_params`. O texto de cada anexo fica disponível em `GET /responses/<response_id>/attachments/<attachment_id>/text`. Veja [Baixar texto do anexo (OCR)](/api-reference/endpoint/attachments/attachment-text).
-
 ---
 
 <Note>
