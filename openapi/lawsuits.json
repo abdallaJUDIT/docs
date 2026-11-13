@@ -186,7 +186,7 @@
     "/lawsuits/{lawsuit_cnj}/{instance}/consolidated": {
       "get": {
         "summary": "Download consolidado de anexos",
-        "description": "Retorna uma URL para download de um arquivo consolidado com todos os anexos disponíveis do processo na instância informada.",
+        "description": "Retorna uma URL temporária para download de um PDF único com todos os anexos já capturados do processo na instância informada.\n\nO PDF junta os anexos em PDF e HTML, em ordem de data do anexo. Anexos em HTML entram como páginas de texto.",
         "tags": [
           "Anexos"
         ],
@@ -221,28 +221,94 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized - Missing or invalid token",
+          "400": {
+            "description": "Bad Request - Número CNJ inválido",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                  "$ref": "#/components/schemas/HttpBadRequestError"
+                },
+                "examples": {
+                  "INVALID_LAWSUIT_CNJ": {
+                    "value": {
+                      "error": {
+                        "name": "HttpBadRequestError",
+                        "message": "BAD_REQUEST",
+                        "data": [
+                          "INVALID_LAWSUIT_CNJ"
+                        ]
+                      }
+                    }
+                  }
                 }
               }
             }
           },
-          "403": {
-            "description": "Forbidden - Insufficient permissions",
+          "401": {
+            "description": "Unauthorized - Header `api-key` não enviado",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HttpForbiddenError"
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                },
+                "examples": {
+                  "MISSING_AUTHORIZATION": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnauthorizedError",
+                        "message": "UNAUTHORIZED",
+                        "data": "MISSING_AUTHORIZATION"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Processo não encontrado na instância informada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpNotFoundError"
+                },
+                "examples": {
+                  "LAWSUIT_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "LAWSUIT_NOT_FOUND"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Falha ao gerar o arquivo consolidado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnprocessableEntityError"
+                },
+                "examples": {
+                  "ERROR_PROCESSING_REQUEST": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "UNPROCESSABLE_ENTITY",
+                        "data": "ERROR_PROCESSING_REQUEST"
+                      }
+                    }
+                  }
                 }
               }
             }
           },
           "500": {
-            "description": "Internal Server Error",
+            "description": "Internal Server Error - Erro interno da Judit",
             "content": {
               "application/json": {
                 "schema": {
@@ -8983,7 +9049,8 @@
         "type": "object",
         "properties": {
           "attachment_url": {
-            "type": "string"
+            "type": "string",
+            "description": "URL temporária para download do PDF consolidado."
           }
         },
         "required": [

@@ -1310,6 +1310,17 @@ The capture is finished when **no** attachment in the array has `status: "pendin
 
 If the attachment volume is a cost concern, first run a query **without** `with_attachments` to find out how many attachments the lawsuit has and estimate the number of repetitions. That initial query is billed as a lawsuit query, without the attachment capture cost.
 
+### Downloading an attachment
+
+To download an attachment, use the lawsuit's `response_id` (obtained in Step 3) and the attachment's `attachment_id`. The route returns `200` with the attachment file itself (it is delivered through a redirect, so use `--location` with curl). Downloads work for responses created up to 30 days ago.
+
+```bash cURL
+curl --location --request GET 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>'
+```
+
+See the full reference at [Download lawsuit attachment](/en/api-reference/endpoint/attachments/attachment-access).
+
 ### Downloading all attachments at once (consolidated)
 
 Instead of downloading each attachment by its `attachment_id`, you can get a download URL for a **single consolidated file with all available attachments** of the lawsuit in the given instance:

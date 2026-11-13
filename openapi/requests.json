@@ -1021,6 +1021,143 @@
         ]
       }
     },
+    "/responses/{response_id}/attachments/{attachment_id}": {
+      "get": {
+        "summary": "Baixar anexo",
+        "description": "Retorna o arquivo de um anexo de um processo presente em uma resposta, no formato original capturado do tribunal (PDF, HTML, imagem etc.).\n\nA entrega é feita por redirecionamento para uma URL temporária do arquivo. Clientes HTTP como navegadores, Bruno, Postman e `curl --location` seguem o redirecionamento sozinhos e recebem o arquivo com status `200`. Sem seguir, a URL vem no header `Location` de uma resposta `302`.\n\nO anexo precisa ter sido capturado (`status: \"done\"`) em uma requisição feita com `with_attachments: true`, e a resposta precisa ter sido criada há até 30 dias.",
+        "tags": [
+          "Respostas"
+        ],
+        "parameters": [
+          {
+            "name": "response_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da resposta (`response_id`) que contém o processo com o anexo. Obtido em `GET /responses?request_id=...`.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do anexo (`attachment_id`), listado no array `attachments` do processo na resposta.",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Arquivo do anexo no formato original (após seguir o redirecionamento)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Header `api-key` não enviado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnauthorizedError"
+                },
+                "examples": {
+                  "MISSING_AUTHORIZATION": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnauthorizedError",
+                        "message": "UNAUTHORIZED",
+                        "data": "MISSING_AUTHORIZATION"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Arquivo do anexo ainda não capturado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpNotFoundError"
+                },
+                "examples": {
+                  "ATTACHMENT_NOT_FOUND": {
+                    "value": {
+                      "error": {
+                        "name": "HttpNotFoundError",
+                        "message": "NOT_FOUND",
+                        "data": "ATTACHMENT_NOT_FOUND"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Resposta criada há mais de 30 dias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpUnprocessableEntityError"
+                },
+                "examples": {
+                  "RESPONSE_ATTACHMENT_ACCESS_EXPIRED": {
+                    "value": {
+                      "error": {
+                        "name": "HttpUnprocessableEntityError",
+                        "message": "Create a new request to the lawsuit to access the attachment",
+                        "data": "RESPONSE_ATTACHMENT_ACCESS_EXPIRED"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Erro interno da Judit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpInternalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          },
+          {
+            "jwtAuth": []
+          }
+        ]
+      }
+    },
     "/responses/tracking/{origin_id}": {
       "get": {
         "summary": "Listar responses por origin_id",
