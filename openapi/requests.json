@@ -1196,7 +1196,7 @@
     "/responses/{response_id}/attachments/exports": {
       "post": {
         "summary": "Criar exportação ZIP de anexos",
-        "description": "**Rota cobrada, não disponível para todos os clientes.**\n\nSolicita a exportação assíncrona de todos os anexos do processo de uma resposta em um único arquivo ZIP.\n\nA exportação sempre começa com status `pending`. Acompanhe o andamento em `GET /responses/{response_id}/attachments/exports/{attachments_export_id}`.\n\nCada chamada é cobrada, mesmo quando a Judit reaproveita um ZIP já gerado para o mesmo processo.",
+        "description": "**Não disponível para todos os clientes.**\n\nSolicita a exportação assíncrona de todos os anexos do processo de uma resposta em um único arquivo ZIP.\n\nA exportação sempre começa com status `pending`. Acompanhe o andamento em `GET /responses/{response_id}/attachments/exports/{attachments_export_id}`.",
         "tags": [
           "Respostas"
         ],

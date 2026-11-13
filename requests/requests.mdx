@@ -1349,7 +1349,7 @@ A resposta traz o campo `attachment_url` com o link para download. Veja a refer�
 ### Exportando todos os anexos em ZIP
 
 <Warning>
-**Rota cobrada e não disponível para todos os clientes.** Para habilitar, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+**Não disponível para todos os clientes.** Para habilitar, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io).
 </Warning>
 
 Você também pode pedir a exportação de todos os anexos do processo de uma resposta em um arquivo ZIP. A exportação é assíncrona: crie com `POST /responses/<response_id>/attachments/exports`, acompanhe o status até `completed` e baixe o ZIP. Veja o fluxo completo em [Criar exportação ZIP de anexos](/api-reference/endpoint/attachments/attachment-export-create).
@@ -1357,7 +1357,7 @@ Você também pode pedir a exportação de todos os anexos do processo de uma re
 ### Texto dos anexos (OCR)
 
 <Warning>
-**Beta, disponível apenas para alguns clientes.** Para habilitar, fale com o comercial em [comercial@judit.io](mailto:comercial@judit.io).
+**Beta, disponível apenas para alguns clientes.** Para habilitar, fale com o atendimento em [atendimento@judit.io](mailto:atendimento@judit.io).
 </Warning>
 
 Clientes habilitados podem pedir o texto extraído por OCR enviando `"with_attachments_ocr": true` em `search_params`. O texto de cada anexo fica disponível em `GET /responses/<response_id>/attachments/<attachment_id>/text`. Veja [Baixar texto do anexo (OCR)](/api-reference/endpoint/attachments/attachment-text).

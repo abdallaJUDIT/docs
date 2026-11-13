@@ -1335,7 +1335,7 @@ The response contains the `attachment_url` field with the download link. See the
 ### Exporting all attachments as a ZIP
 
 <Warning>
-**Billed route, not available to all customers.** To enable it, contact sales at [comercial@judit.io](mailto:comercial@judit.io).
+**Not available to all customers.** To enable it, contact support at [atendimento@judit.io](mailto:atendimento@judit.io).
 </Warning>
 
 You can also request the export of every attachment of a response's lawsuit into a ZIP file. The export is asynchronous: create it with `POST /responses/<response_id>/attachments/exports`, track the status until `completed`, then download the ZIP. See the full flow at [Create attachments ZIP export](/en/api-reference/endpoint/attachments/attachment-export-create).
@@ -1343,7 +1343,7 @@ You can also request the export of every attachment of a response's lawsuit into
 ### Attachment text (OCR)
 
 <Warning>
-**Beta, available only to some customers.** To enable it, contact sales at [comercial@judit.io](mailto:comercial@judit.io).
+**Beta, available only to some customers.** To enable it, contact support at [atendimento@judit.io](mailto:atendimento@judit.io).
 </Warning>
 
 Enabled customers can request OCR-extracted text by sending `"with_attachments_ocr": true` in `search_params`. Each attachment's text is available at `GET /responses/<response_id>/attachments/<attachment_id>/text`. See [Download attachment text (OCR)](/en/api-reference/endpoint/attachments/attachment-text).
