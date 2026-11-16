@@ -1,8 +1,62 @@
 ---
 title: "Download lawsuit attachment"
-description: "Downloads an attachment from a lawsuit."
-openapi: "openapi/lawsuits.json GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
-api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id}"
+description: "Downloads an attachment from a lawsuit returned in a response."
+openapi: "openapi/requests.json GET /responses/{response_id}/attachments/{attachment_id}"
+api: "GET https://requests.production.judit.io/responses/{response_id}/attachments/{attachment_id}"
 icon: "paperclip"
 ---
 
+The attachment is downloaded from the **response** (`response_id`) that contains the lawsuit.
+
+For the attachment to be available:
+
+1. Create the request with `"with_attachments": true`.
+2. Fetch the responses at `GET /responses?request_id=<request_id>` and take the lawsuit's `response_id`.
+3. In the lawsuit's `attachments` array, use the `attachment_id` of an attachment with `status: "done"`.
+
+<Warning>
+Downloads only work for responses created **up to 30 days ago**. After that, the route returns `422` with `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`. To download the attachment, create a new request for the lawsuit.
+</Warning>
+
+## Response
+
+The route returns **`200`** with the **attachment file itself**, in the original format captured from the court (PDF, HTML, image, etc.). The response `Content-Type` tells the format (for example, `application/pdf` or `text/html`).
+
+<Info>
+The file is delivered through a redirect to a temporary URL. Browsers, Bruno, Postman and `curl --location` follow the redirect automatically. If your HTTP client does not follow redirects, you get a `302` with the file URL in the `Location` header.
+</Info>
+
+```bash cURL
+curl --location 'https://requests.production.judit.io/responses/<response_id>/attachments/<attachment_id>' \
+--header 'api-key: <api-key>' \
+--output attachment
+```
+
+<Note>
+Need every attachment of the lawsuit in a single file? See [Download consolidated attachments](/en/api-reference/endpoint/attachments/attachment-consolidated).
+</Note>
+
+## Errors
+
+Every error uses the same envelope. The specific code is in `error.data`:
+
+```json
+{
+  "error": {
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "ATTACHMENT_NOT_FOUND"
+  }
+}
+```
+
+| HTTP | `error.data` | When it happens |
+| :--- | :--- | :--- |
+| `401` | `MISSING_AUTHORIZATION` | The `api-key` header was not sent. |
+| `404` | `ATTACHMENT_NOT_FOUND` | The attachment file has not been captured yet (for example, an attachment with `status: "pending"`). |
+| `422` | `RESPONSE_ATTACHMENT_ACCESS_EXPIRED` | The response was created more than 30 days ago. Create a new request for the lawsuit. |
+| `500` | — | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+`error.name` and `error.message` follow the status: `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpNotFoundError` / `NOT_FOUND` (404), `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422) and `HttpInternalServerError` / `INTERNAL_SERVER_ERROR` (500). For `RESPONSE_ATTACHMENT_ACCESS_EXPIRED`, `error.message` carries the hint `Create a new request to the lawsuit to access the attachment`.
+
+See more about the error format in [Error Codes](/en/resource/errors).

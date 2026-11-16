@@ -5,3 +5,35 @@ openapi: "openapi/lawsuits.json GET /lawsuits/{lawsuit_cnj}/{instance}/consolida
 api: "GET https://lawsuits.production.judit.io/lawsuits/{lawsuit_cnj}/{instance}/consolidated"
 icon: "paperclip"
 ---
+
+## Response
+
+The route returns **`200`** with the `attachment_url` field, a temporary download URL for a **single PDF** with every attachment already captured for the lawsuit in the given instance.
+
+The PDF merges the PDF and HTML attachments, ordered by attachment date. HTML attachments are added as text pages.
+
+## Errors
+
+Every error uses the same envelope. The specific code is in `error.data`:
+
+```json
+{
+  "error": {
+    "name": "HttpNotFoundError",
+    "message": "NOT_FOUND",
+    "data": "LAWSUIT_NOT_FOUND"
+  }
+}
+```
+
+| HTTP | `error.data` | When it happens |
+| :--- | :--- | :--- |
+| `400` | `["INVALID_LAWSUIT_CNJ"]` | The CNJ number is not valid. |
+| `401` | `MISSING_AUTHORIZATION` | The `api-key` header was not sent. |
+| `404` | `LAWSUIT_NOT_FOUND` | The lawsuit was not found in the given instance. |
+| `422` | `ERROR_PROCESSING_REQUEST` | Failed to generate the consolidated file. Retry. |
+| `500` | — | Internal Judit error. Retry and, if it persists, contact support at [atendimento@judit.io](mailto:atendimento@judit.io). |
+
+`error.name` and `error.message` follow the status: `HttpBadRequestError` / `BAD_REQUEST` (400), `HttpUnauthorizedError` / `UNAUTHORIZED` (401), `HttpNotFoundError` / `NOT_FOUND` (404), `HttpUnprocessableEntityError` / `UNPROCESSABLE_ENTITY` (422) and `HttpInternalServerError` / `INTERNAL_SERVER_ERROR` (500).
+
+See more about the error format in [Error Codes](/en/resource/errors).
