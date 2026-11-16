@@ -89,6 +89,8 @@ Uma rota que não existe (URL digitada errada) retorna `404` com corpo em texto 
 | :--- | :--- | :--- |
 | `REQUEST_NOT_FOUND` | `GET /requests/{request_id}` | O `request_id` não foi encontrado. |
 | `RESPONSE_NOT_FOUND` | `GET /responses/{response_id}` | O `response_id` não foi encontrado. |
+| `ATTACHMENT_NOT_FOUND_IN_RESPONSE` | `GET /responses/{response_id}/attachments/{attachment_id}` | O `attachment_id` não está no array `attachments` da resposta. |
+| `ATTACHMENT_NOT_FOUND` | `GET /responses/{response_id}/attachments/{attachment_id}` | O anexo está na resposta, mas o arquivo ainda não foi capturado. |
 | `TRACKING_NOT_FOUND` | `GET /tracking/{tracking_id}` | O `tracking_id` não foi encontrado. |
 | `TRACKED_ITEM_NOT_FOUND` | `GET /tracked-item/{tracked_item_id}` | O item monitorado não foi encontrado. |
 | `TRANSFER_FILE_NOT_FOUND` | `GET /transfer-file/{transfer_file_id}` | A transferência de arquivo não foi encontrada. |

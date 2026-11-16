@@ -24,6 +24,7 @@
 - DELETE /requests/{request_id} — Excluir (soft-delete)
 - GET /responses — Listar resultados
 - GET /responses/{response_id} — Buscar resultado
+- GET /responses/{response_id}/attachments/{attachment_id} — Download de anexo
 - GET /responses/tracking/{origin_id} — Resultados de um tracking
 
 ### tracking.production.judit.io
@@ -46,7 +47,7 @@
 - POST /lawsuits/count — Contagem de processos
 - POST /lawsuits/synthetic — Agregações sintéticas (por tribunal/classe/área/etc.)
 - POST /steps/count — Contagem de andamentos por CNJ
-- GET /lawsuits/{lawsuit_cnj}/{instance}/attachments/{attachment_id} — Download de anexo
+- GET /lawsuits/{lawsuit_cnj}/{instance}/consolidated — Download consolidado de anexos
 - GET /warrants/{lawsuit_cnj}/attachments/{attachment_id} — Download de anexo de mandado
 - GET /transfer-file — Listar transferências
 - GET /transfer-file/{transfer_file_id} — Obter transferência
