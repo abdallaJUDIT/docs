@@ -250,22 +250,22 @@ A maior parte das requisições gera **duas entregas** em sequência: a primeira
 ## Boas práticas (essencial para produção)
 
 <AccordionGroup>
-  <Accordion title="✅ Idempotência" icon="repeat">
+  <Accordion title="Idempotência" icon="repeat">
     Use `callback_id` como chave de idempotência: rejeite duplicatas baseado nele. Em retries, o mesmo `callback_id` é reentregue.
   </Accordion>
-  <Accordion title="✅ Resposta rápida (HTTP 2xx)" icon="bolt">
+  <Accordion title="Resposta rápida (HTTP 2xx)" icon="bolt">
     Responda `200 OK` em **menos de 10 segundos**. Processe assincronamente (fila/worker). Se demorar, contamos como falha e fazemos retry.
   </Accordion>
-  <Accordion title="✅ Persistir o evento antes de processar" icon="database">
+  <Accordion title="Persistir o evento antes de processar" icon="database">
     Padrão produção: gravar o evento bruto em fila/log e processar depois. Evita perda em caso de erro de aplicação.
   </Accordion>
-  <Accordion title="✅ Tratar `cached_response: true` como provisório" icon="layer-group">
+  <Accordion title="Tratar `cached_response: true` como provisório" icon="layer-group">
     Sempre considere a entrega com `cached_response: false` (quando existir) como a versão final. UI/relatórios devem refletir o último valor.
   </Accordion>
-  <Accordion title="✅ Validar origem (HTTPS + IP allowlist)" icon="shield-halved">
+  <Accordion title="Validar origem (HTTPS + IP allowlist)" icon="shield-halved">
     Aceite `POST` apenas de IPs Judit (consulte o suporte). Use HTTPS sempre. Em ambientes regulados, valide também o cabeçalho `User-Agent`.
   </Accordion>
-  <Accordion title="✅ Implementar retry tolerante" icon="rotate">
+  <Accordion title="Implementar retry tolerante" icon="rotate">
     Em caso de erro 5xx ou timeout, fazemos retries com backoff exponencial. Se sua URL ficar indisponível por muito tempo, perdemos eventos — mantenha o endpoint estável.
   </Accordion>
 </AccordionGroup>
