@@ -82,8 +82,6 @@ This is a performance optimization, **not a billing exemption**: every request y
 
 The **Asynchronous Lawsuit Query** is the most complete and freshest way to fetch a lawsuit: Judit reaches the court in real time, downloads the full tree (cover, parties, lawyers, steps, classes, attachments) and returns it via webhook or polling.
 
-> 🤖 The lawsuit search route operates **asynchronously**. The client application must make a `POST /requests` to start the search, wait for processing (via Webhook or by polling `GET /requests/{id}`), and, when the status is `completed`, capture the data via `GET /responses`.
-
 <EndpointBadges auth billing="billable" flow="async" attachments />
 
 ## When to use

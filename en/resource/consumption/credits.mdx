@@ -10,8 +10,6 @@ import { EndpointBadges } from '/snippets/badges.mdx';
 
 Accounts on the **pre-paid** model work with a credit balance loaded upfront. `GET /credits/balance` returns **how much of that balance is still available**, so you can check it before firing new queries.
 
-> 🤖 Endpoint: `GET https://users.production.judit.io/credits/balance`. The response is synchronous (HTTP 200) and carries the remaining credit balance of the account authenticated by the `api-key`.
-
 <EndpointBadges auth billing={null} flow="sync" />
 
 <Note>
@@ -32,6 +30,8 @@ This route serves the **pre-paid** model. If your account runs on a cycle cap (p
 ## Check the Balance (GET)
 
 `GET https://users.production.judit.io/credits/balance`
+
+The response is synchronous (HTTP 200).
 
 ### Authentication
 

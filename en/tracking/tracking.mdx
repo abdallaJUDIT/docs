@@ -57,7 +57,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 **Lawsuit Tracking** automatically follows a specific lawsuit by its CNJ number. You register the CNJ and Judit polls the court daily for you. Whenever something changes — new step, attachment or decision — you get the update via **webhook** or e-mail.
 
-> 🤖 Base endpoint: `POST https://tracking.production.judit.io/tracking` with `search.search_type: "lawsuit_cnj"`. Tracking runs in the background, within Judit's optimal concurrency window for each court. The first run happens within 24 hours after registration; subsequent runs follow the recurrence set by default by the API (`recurrence: 1`, i.e. daily).
+To create one, send `POST https://tracking.production.judit.io/tracking` with `search.search_type: "lawsuit_cnj"`. The tracking runs in the background, within Judit's best concurrency window at the court: the first run happens within 24 hours of registration and then every day, since the recurrence is fixed at 1 day.
 
 <TrackingAnimation />
 

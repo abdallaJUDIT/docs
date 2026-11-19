@@ -67,7 +67,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 O **Judit Miner** é um produto dedicado a **garimpar ativos judiciais em escala**: precatórios pagos ou em fase de pagamento (`judgement-bond`) e execuções de sentença com potencial de recuperação (`sentence-execution`). Em vez de ir processo por processo, você define um conjunto de filtros (tribunais, faixa de valor, naturezas, tags) e a Judit identifica para você todos os processos que se encaixam — descontando os que sua empresa já consultou anteriormente.
 
-> 🤖 Host base: `https://miner.production.judit.io`. Autenticação por header `api-key` (mesma chave usada nos demais produtos Judit, com a permissão `miner_enabled` habilitada). O modelo de cobrança é por **créditos** — cada `find` é precificado por faixa antes de ser processado.
+A API do Miner fica em `https://miner.production.judit.io` e usa o mesmo header `api-key` dos demais produtos da Judit. A chave precisa ter a permissão `miner_enabled` habilitada.
 
 ## O que o Miner faz
 

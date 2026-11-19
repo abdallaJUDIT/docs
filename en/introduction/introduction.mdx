@@ -72,8 +72,6 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 The **Judit API** delivers ready-to-use Brazilian lawsuit data through a single integration. Instead of maintaining scrapers for each court, your application makes one HTTP call and receives the lawsuit cover, parties, lawyers, steps, attachments and relationships — in real time or from a constantly updated datalake.
 
-> 🤖 Judit covers state, federal, labor, electoral, military and superior courts plus BNMP. Authentication is via the `api-key` header. The 3 main services are `requests` (asynchronous), `tracking` (monitoring) and `lawsuits` (synchronous / cache).
-
 ## What you can do
 
 - **Search lawsuits** by CPF, CNPJ, OAB, Name or CNJ number — asynchronous (live court fetch) or synchronous (Judit cache in milliseconds).
@@ -139,7 +137,7 @@ flowchart LR
     W -.-> A
 ```
 
-Three services, one auth pattern:
+Three services, one auth pattern (the `api-key` header):
 
 | Service | URL | When to use |
 | --- | --- | --- |

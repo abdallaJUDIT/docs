@@ -56,7 +56,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 O **Cofre de Credenciais** guarda, criptografadas, as credenciais (CPF/OAB + senha) que advogados usam para se autenticar em tribunais brasileiros. Com isso, a Judit pode acessar processos sob **segredo de justiça** em nome do advogado, sem que sua aplicação precise jamais armazenar ou trafegar a senha.
 
-> 🤖 Endpoint base: `https://crawler.prod.judit.io/credentials`. Cadastre uma vez por sistema/tribunal e referencie depois nas consultas via `credential.customer_key`.
+O Cofre fica em `https://crawler.prod.judit.io/credentials`. Cada credencial é cadastrada uma vez por sistema (`system_name`, que junta sistema, tribunal e grau) e depois é usada em todas as consultas pela `credential.customer_key`.
 
 ## Quando usar
 

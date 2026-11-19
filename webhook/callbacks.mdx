@@ -75,8 +75,6 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 Os **Webhooks** entregam push em tempo real os resultados das suas consultas e monitoramentos: você não precisa fazer polling. Assim que a Judit termina de processar a requisição, fazemos um `POST` para a URL configurada com o objeto resposta no corpo. É a forma mais eficiente e barata de integração para fluxos assíncronos.
 
-> 🤖 Padrão de entrega: HTTP POST com Content-Type `application/json`. Use uma URL HTTPS pública. Implemente idempotência baseada em `request_id` + `cached_response`. Em caso de erro 5xx ou timeout, fazemos retry com backoff.
-
 ## Quando usar
 
 <CardGroup cols={2}>

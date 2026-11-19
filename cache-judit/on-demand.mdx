@@ -18,8 +18,6 @@ A **Consulta On-Demand** resolve exatamente esse caso: no mesmo `POST` síncrono
 
 A Consulta On-Demand usa o **mesmo endpoint** da [Consulta Síncrona ao Datalake](/cache-judit/hotstorage) — `POST /lawsuits` — buscando por `search_type: "lawsuit_cnj"`. A diferença é o uso de dois parâmetros novos, `search.on_demand` e `search.cache_ttl_in_days`, que decidem se vale a pena ir ao tribunal antes de responder.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits`. Continua sendo uma resposta síncrona (HTTP 200 com o JSON pronto) — porém, quando a extração no tribunal é engatilhada, o **timeout sobe para até 3 minutos**. Nos testes realizados, o tempo médio de atualização foi de **13 segundos**, mas em horários de pico ou instabilidade do tribunal esse tempo pode se prolongar.
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## Como funciona

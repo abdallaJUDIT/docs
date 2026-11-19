@@ -6,8 +6,6 @@ keywords: ["entity", "registration data", "cpf", "cnpj", "individual", "legal en
 icon: "id-card"
 ---
 
-> 🤖 Registration data queries return a common base object called `entity`. Depending on whether the query was made by CPF or CNPJ, the `entity_type` property will return `"person"` or `"company"`, respectively. Some fields, such as `parents` (parentage) or `share_capital`, are exclusive to their respective entity type.
-
 ## Base structure (common to CPF and CNPJ)
 
 Whenever you query a valid document, the Judit API returns the `entity` block containing the following universal properties:

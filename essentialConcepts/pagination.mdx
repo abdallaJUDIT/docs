@@ -6,7 +6,7 @@ keywords: ["paginação", "pagination", "page", "page_size", "offset", "query pa
 icon: "list-ol"
 ---
 
-> 🤖 A paginação da Judit API não utiliza cursores. Ela é baseada no padrão *Offset*, utilizando exclusivamente os parâmetros de *query* `page` (número da página) e `page_size` (quantidade de itens). O limite máximo estrito para `page_size` é de <strong>1000 itens</strong>. Os metadados de paginação são retornados na raiz do objeto de resposta.
+A paginação da Judit API é por *offset*, sem cursor: você navega com os parâmetros de query `page` (número da página) e `page_size` (itens por página, no máximo **1000**). Os metadados de paginação vêm na raiz da resposta.
 
 ## Como Funciona a Paginação
 

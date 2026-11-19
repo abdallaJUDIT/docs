@@ -67,7 +67,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 **Judit Miner** is a product dedicated to **discovering judicial assets at scale**: paid or in-payment **judgement bonds** (`judgement-bond`) and **sentence executions** with recovery potential (`sentence-execution`). Instead of going lawsuit by lawsuit, you define a set of filters (courts, amount range, natures, tags) and Judit identifies every lawsuit that fits — automatically excluding the ones your company has already retrieved.
 
-> 🤖 Base host: `https://miner.production.judit.io`. Authentication via the `api-key` header (same key used across Judit products, with `miner_enabled` granted). Pricing is **credit-based** — every `find` is priced by tier before processing.
+The Miner API lives at `https://miner.production.judit.io` and uses the same `api-key` header as the other Judit products. The key must have the `miner_enabled` permission granted.
 
 ## What Miner does
 

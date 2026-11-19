@@ -14,8 +14,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
 A **Consulta Síncrona de Quantidade** retorna apenas o **total** de processos no datalake da Judit que correspondem aos critérios informados. Sem listar processos, sem paginação — só o número. Perfeita para dashboards, scoring de risco e tomadas de decisão baseadas em volume.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/count`. A resposta é síncrona (HTTP 200 com `{ "total": <number> }`) e suporta o **mesmo objeto de filtros** da [Consulta Hot Storage](/cache-judit/hotstorage) — tribunal, polo, classes, assuntos, valor da causa, datas etc.
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## Quando usar

@@ -6,8 +6,6 @@ keywords: ["entity", "dados cadastrais", "cpf", "cnpj", "pessoa física", "pesso
 icon: "id-card"
 ---
 
-> 🤖 As consultas de Dados Cadastrais retornam um objeto base comum chamado `entity`. Dependendo se a consulta foi feita por um CPF ou CNPJ, a propriedade `entity_type` retornará `"person"` ou `"company"`, respectivamente. Alguns campos, como `parents` (filiação) ou `share_capital` (capital social), são exclusivos do seu respectivo tipo de entidade.
-
 ## Estrutura Base (Comum a CPF e CNPJ)
 
 Sempre que você consultar um documento válido, a Judit API retornará o bloco `entity` contendo as seguintes propriedades universais:

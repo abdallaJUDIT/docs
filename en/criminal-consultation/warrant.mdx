@@ -51,7 +51,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 The **Arrest Warrant Query** integrates with the Brazilian National Arrest Warrant Database (BNMP 2.0) by CPF, Name or RJI and returns, in Judit's standard JSON, the judicial order, calculated sentence, infringed laws and full data of the wanted individual. It covers preventive, temporary, definitive and recapture warrants.
 
-> 🤖 **Asynchronous flow.** Same route as the lawsuit query: `POST https://requests.production.judit.io/requests` with `response_type: "warrant"`. To download the warrant PDF, set `with_attachments: true`.
+The query is asynchronous and uses the same route as the lawsuit query: `POST https://requests.production.judit.io/requests`, with `response_type: "warrant"`. To receive the warrant PDF, send `with_attachments: true`.
 
 <WarrantAnimation />
 

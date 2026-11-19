@@ -75,8 +75,6 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 **Webhooks** push your query and tracking results in real time: no polling required. As soon as Judit finishes processing a request, we `POST` the response object to your configured URL. It's the most efficient and cheapest way to integrate asynchronous flows.
 
-> 🤖 Delivery pattern: HTTP POST with `application/json`. Use a public HTTPS URL. Implement idempotency based on `request_id` + `cached_response`. On 5xx or timeout, we retry with backoff.
-
 ## When to use
 
 <CardGroup cols={2}>

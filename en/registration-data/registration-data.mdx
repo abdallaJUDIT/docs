@@ -56,9 +56,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 <CnpjAlphaInfo />
 
-The **Registration Data Query** returns identity information for an individual or company: name/corporate name, registration status, addresses, contacts, partners and relationships. The whole call is synchronous and can read from Judit's datalake (fast and cheap) or directly from the Brazilian Federal Revenue in real time (`on_demand: true`).
-
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/entities`. `search_type` accepts `cpf`, `cnpj` or `name`. `response_type` is always `entity`. For real-time response (Receita Federal), send `on_demand: true` in the payload.
+The **Registration Data Query** returns identity information for an individual or company: name/corporate name, registration status, addresses, contacts, partners and relationships. The call is a synchronous `POST https://lawsuits.production.judit.io/entities`, where `search_type` accepts `cpf`, `cnpj` or `name` and `response_type` is always `entity`. By default it reads from Judit's datalake (fast and cheap); with `on_demand: true` in the payload, it queries the Brazilian Federal Revenue directly in real time.
 
 <EntityAnimation />
 

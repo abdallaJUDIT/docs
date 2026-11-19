@@ -59,7 +59,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 O **Monitoramento do Diário Oficial de Justiça** varre diariamente o Diário de Justiça Eletrônico Nacional (DJEN) em busca de publicações que contenham o termo cadastrado. A busca é feita em **todos os campos de texto** da publicação — partes, advogados, órgão, texto completo — independentemente do tipo de `search_type` escolhido.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` com `response_type: "communication"`. Diariamente, a Judit processa as publicações do DJEN e envia via webhook aquelas em que houver correspondência com o seu termo.
+Para criar, faça um `POST https://tracking.production.judit.io/tracking` com `response_type: "communication"`. Todo dia a Judit processa as publicações do DJEN e envia por webhook as que tiverem correspondência com o seu termo.
 
 <DjenAnimation />
 

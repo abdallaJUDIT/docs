@@ -6,8 +6,6 @@ keywords: ["rate limit", "429", "exponential backoff", "retry", "throttling"]
 icon: "gauge"
 ---
 
-> 🤖 The Judit API has a strict global limit of 180 requests per minute per API Key. If this limit is exceeded, the API will return the HTTP Status Code `429 Too Many Requests`. Code generators should always implement *Exponential Backoff* logic or respect the time window by reading the `X-RateLimit-*` headers.
-
 ## Rate Limit Rules (Global)
 
 To ensure ecosystem stability, every authenticated request is subject to the following global rules:

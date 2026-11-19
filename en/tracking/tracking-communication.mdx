@@ -59,7 +59,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 **Official Justice Gazette Monitoring** scans the National Electronic Justice Gazette (DJEN) daily for publications containing the registered term. The search is performed across **all text fields** of the publication — parties, lawyers, court organ, full text — regardless of the `search_type` chosen.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. Daily, Judit processes DJEN publications and delivers via webhook those that match your term.
+To create one, send `POST https://tracking.production.judit.io/tracking` with `response_type: "communication"`. Every day Judit processes the DJEN publications and delivers via webhook the ones that match your term.
 
 <DjenAnimation />
 
