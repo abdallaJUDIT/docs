@@ -15,8 +15,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
 A **Consulta Agrupada (Synthetic)** entrega, em uma única chamada síncrona, um resumo estatístico de todos os processos vinculados a um documento, agrupado por classe, assunto, área, tribunal, justiça, fase, estado, instância, lado da parte e tipo de pessoa. Use quando o cliente precisa de **visão geral**, não da lista completa.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/synthetic`. Resposta síncrona com contagens agregadas. Para listar os processos individualmente, use `POST /lawsuits` ([Hot Storage](/cache-judit/hotstorage)). Para apenas saber se existem processos (true/false) ou contar, use [`POST /lawsuits/count`](/api-reference/endpoint/crawler/req-count).
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## Quando usar

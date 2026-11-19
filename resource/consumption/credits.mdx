@@ -10,8 +10,6 @@ import { EndpointBadges } from '/snippets/badges.mdx';
 
 Contas no modelo **pré-pago** trabalham com um saldo de créditos carregado antecipadamente. O `GET /credits/balance` devolve **quanto desse saldo ainda existe**, para você conferir a disponibilidade antes de disparar novas consultas.
 
-> 🤖 Endpoint: `GET https://users.production.judit.io/credits/balance`. A resposta é síncrona (HTTP 200) e traz o saldo de créditos remanescente da conta autenticada pela `api-key`.
-
 <EndpointBadges auth billing={null} flow="sync" />
 
 <Note>
@@ -32,6 +30,8 @@ Esta rota atende ao modelo **pré-pago**. Se a sua conta opera por teto de ciclo
 ## Consultar o Saldo (GET)
 
 `GET https://users.production.judit.io/credits/balance`
+
+A resposta é síncrona (HTTP 200).
 
 ### Autenticação
 

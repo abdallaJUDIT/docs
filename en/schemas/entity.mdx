@@ -6,8 +6,6 @@ keywords: ["entity", "registration data", "cpf", "cnpj", "individual", "legal en
 icon: "id-card"
 ---
 
-> 🤖 Registration data queries return a common base object called `entity`. Depending on whether the query was made by CPF or CNPJ, the `entity_type` property will return `"person"` or `"company"`, respectively. Some fields, such as `parents` (parentage) or `share_capital`, are exclusive to their respective entity type.
-
 ## Base structure (common to CPF and CNPJ)
 
 Whenever you query a valid document, the Judit API returns the `entity` block containing the following universal properties:
@@ -68,7 +66,7 @@ List of secondary identification documents (such as RG, CNH, or state registrati
 
 ---
 
-## 👤 Exclusive properties: Natural person (`person`)
+## Exclusive properties: Natural person (`person`)
 
 If the query is for a **CPF** (`entity_type: "person"`), the object may contain the following additional properties and arrays:
 
@@ -82,7 +80,7 @@ If the query is for a **CPF** (`entity_type: "person"`), the object may contain 
 
 ---
 
-## 🏢 Exclusive properties: Company (`company`)
+## Exclusive properties: Company (`company`)
 
 If the query is for a **CNPJ** (`entity_type: "company"`), the object may contain the following corporate and operational fields:
 
@@ -192,4 +190,4 @@ If the query is for a **CNPJ** (`entity_type: "company"`), the object may contai
 
 Now that you understand the registration data dictionary, see how to query this information:
 
-* 👉 **[Registration data queries](/en/registration-data/registration-data):** See the documentation for the request route to fetch and enrich CPFs and CNPJs in real time.
+* **[Registration data queries](/en/registration-data/registration-data):** See the documentation for the request route to fetch and enrich CPFs and CNPJs in real time.

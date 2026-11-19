@@ -6,7 +6,7 @@ keywords: ["penal execution", "execução penal", "cumprimento de pena", "reeduc
 icon: "gavel"
 ---
 
-> **🤖 Contexto para IAs e Assistentes de Código:** A estrutura do objeto de Execução Penal é semelhante à do [Objeto Lawsuit](/schemas/lawsuit-object), mas contém campos específicos como `free_justice` e um objeto dedicado para a `last_step` (última movimentação). Os papéis das partes (`person_type`) também diferem, assumindo valores como `EXECUTADO` ou `REEDUCANDO`.
+O objeto de Execução Penal segue a estrutura do [Objeto Lawsuit](/schemas/lawsuit-object), com campos a mais, como `free_justice` e o objeto `last_step` (última movimentação). Os papéis das partes (`person_type`) também mudam e assumem valores como `EXECUTADO` ou `REEDUCANDO`.
 
 ## Estrutura Geral
 
@@ -209,5 +209,5 @@ Exemplo de retorno da resposta:
 
 Agora que você entende o dicionário de dados da Execução Penal, avance para a integração:
 
-* 👉 **[Consultas Penais](/criminal-consultation/criminal-execution):** Veja a documentação do endpoint para iniciar uma extração em varas criminais e de execução.
-* 👉 **[Objeto Dados Cadastrais](/schemas/entity):** Veja como interpretar o modelo de dados de dados cadastrais.
+* **[Consultas Penais](/criminal-consultation/criminal-execution):** Veja a documentação do endpoint para iniciar uma extração em varas criminais e de execução.
+* **[Objeto Dados Cadastrais](/schemas/entity):** Veja como interpretar o modelo de dados de dados cadastrais.

@@ -57,7 +57,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 O **Monitoramento Processual** acompanha automaticamente um processo específico pelo seu número CNJ. Você cadastra o CNJ e a Judit consulta o tribunal diariamente para você. Sempre que houver novidade — nova movimentação, anexo ou decisão — você recebe a atualização via **webhook** ou e-mail.
 
-> 🤖 Endpoint base: `POST https://tracking.production.judit.io/tracking` com `search.search_type: "lawsuit_cnj"`. O monitoramento roda em background, dentro da janela de melhor concorrência da Judit no tribunal. A primeira execução acontece nas 24 horas seguintes ao cadastro; as próximas seguem a recorrência definida por padrão pela API (`recurrence: 1`, ou seja, diária).
+Para criar um monitoramento processual, faça um `POST /tracking` com `search.search_type: "lawsuit_cnj"`. O monitoramento roda em segundo plano, na janela de melhor concorrência da Judit no tribunal: a primeira execução acontece nas 24 horas seguintes ao cadastro e, depois, todo dia, porque a recorrência é fixa em 1 dia.
 
 <TrackingAnimation />
 
@@ -821,7 +821,7 @@ func main() {
 ## Recebendo a resposta enviada por webhook
 
 <Info>
-👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+*[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
 </Info>
 
 **Obs**: Todas movimentações serão notificadas via webhook contendo o processo por completo, incrementando as últimas movimentações.

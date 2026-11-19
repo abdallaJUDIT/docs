@@ -68,11 +68,9 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 })()\x3c/script></body></html>`} />
 );
 
-![title](/images/judit-api-charts.png)
+<img src="/images/judit-api-charts.png" alt="Judit API" style={{ marginTop: 0 }} />
 
 A **Judit API** entrega dados de processos judiciais brasileiros prontos para uso, em uma única integração. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe os dados que você precisa — seja a capa completa de um processo específico, a lista de processos vinculados a uma pessoa/empresa, ou o monitoramento contínuo de movimentações.
-
-> 🤖 A Judit cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP. Autenticação é por header `api-key`. Os 3 serviços principais são `requests` (consultas assíncronas), `tracking` (monitoramento contínuo) e `lawsuits` (consultas síncronas direto do datalake JUDIT).
 
 ## O que você consegue fazer
 
@@ -114,7 +112,7 @@ A **Judit API** entrega dados de processos judiciais brasileiros prontos para us
 
 <ArchitectureAnimation />
 
-Três serviços, um padrão de autenticação:
+Três serviços, um padrão de autenticação (header `api-key`):
 
 | Serviço | URL | Quando usar |
 | --- | --- | --- |

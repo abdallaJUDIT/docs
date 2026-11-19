@@ -10,8 +10,6 @@ import { EndpointBadges } from '/snippets/badges.mdx';
 
 While [Consumption History](/en/resource/consumption/history) lists **request by request**, `GET /billing/consumption` returns the **consolidated figure for the current cycle**: how much the company has already consumed, what the effective cap is and how much is left.
 
-> 🤖 Endpoint: `GET https://requests.production.judit.io/billing/consumption`. The response is synchronous (HTTP 200) and carries `consumption`, `max_consumption`, `remaining` and the cycle's opening and closing dates.
-
 <EndpointBadges auth billing={null} flow="sync" />
 
 ## When to use it
@@ -27,13 +25,15 @@ While [Consumption History](/en/resource/consumption/history) lists **request by
     Before firing a large volume of queries, check whether `remaining` covers the planned operation.
   </Card>
   <Card title="Cycle-based reporting" icon="calendar">
-    Use `cycle_started_at` and `cycle_ended_at` to align your reports with the real billing window.
+    `cycle_started_at` and `cycle_ended_at` are the cycle's opening and closing dates. Use them to align your reports with the real billing window.
   </Card>
 </CardGroup>
 
 ## Step 1: Make the Request (GET)
 
 `GET https://requests.production.judit.io/billing/consumption`
+
+The response is synchronous (HTTP 200).
 
 ### Authentication
 

@@ -1,12 +1,10 @@
 ---
 title: "Enums e Domínios da Judit API"
 sidebarTitle: "Enums"
-description: "Lista completa de valores literais aceitos e retornados pelas propriedades de Lawsuit, Warrant, Penal Execution e Entity (área, status, side, person_type, secrecy_level e mais)."
-keywords: ["enums", "valores", "domínios", "área", "status", "side", "person_type", "secrecy_level"]
+description: "Lista completa de valores literais aceitos e retornados pelas propriedades de Lawsuit, Warrant, Penal Execution e Entity (área, status, side, person_type, secrecy_level e mais). No Lawsuit, os campos de capa ficam em response_data, e side e person_type ficam em cada item de parties."
+keywords: ["enums", "valores", "domínios", "área", "status", "side", "person_type", "secrecy_level", "response_data", "parties"]
 icon: "list-tree"
 ---
-
-> 🤖 Este documento lista os valores literais aceitos e retornados pelas propriedades da Judit API em seus diversos Schemas. Lembre-se que no objeto `lawsuit`, as propriedades de capa (como `area`, `status`, `situation`, `secrecy_level`) ficam aninhadas dentro do objeto raiz `response_data`, enquanto `side` e `person_type` ficam dentro dos objetos do array `parties`.
 
 ## Áreas do Processo (`area`)
 
@@ -243,7 +241,7 @@ sp_lawsuits = [
 
 ## Próximos Passos
 
-* 👉 **[Buscar Processos](/requests/requests):** Utilize estas enumerações como parâmetros de filtro em suas buscas.
-* 👉 **[Mandado de Prisão](/schemas/warrant):** Veja o schema de mandados de prisão.
-* 👉 **[Execução Penal](/schemas/penal-execution):** Veja o schema de execuções penais e enums relacionados.
-* 👉 **[Glossário](/resource/glossary):** Termos jurídicos e técnicos da Judit API.
+* **[Buscar Processos](/requests/requests):** Utilize estas enumerações como parâmetros de filtro em suas buscas.
+* **[Mandado de Prisão](/schemas/warrant):** Veja o schema de mandados de prisão.
+* **[Execução Penal](/schemas/penal-execution):** Veja o schema de execuções penais e enums relacionados.
+* **[Glossário](/resource/glossary):** Termos jurídicos e técnicos da Judit API.

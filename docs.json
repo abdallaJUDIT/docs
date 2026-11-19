@@ -16,7 +16,7 @@
     "dark": "#15BE62"
   },
   "appearance": {
-    "default": "light"
+    "default": "dark"
   },
   "logo": {
     "dark": "/logo/dark.svg",

@@ -14,8 +14,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
 The **Lawsuits Count Synchronous Query** returns only the **total** of lawsuits in the Judit datalake matching the given criteria. No listing, no pagination — just the number. Perfect for dashboards, risk scoring and volume-driven decisions.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/count`. The response is synchronous (HTTP 200 with `{ "total": <number> }`) and supports the **same filter object** as the [Hot Storage Query](/en/cache-judit/hotstorage) — tribunal, side, classes, subjects, claim amount, dates, etc.
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## When to use
@@ -295,7 +293,7 @@ Without filters, `total` brings **all** datalake lawsuits linked to the queried 
 
 ## Next steps
 
-* 👉 **[Has Lawsuits? (true/false)](/en/cache-judit/has-lawsuits)** — light boolean gate.
-* 👉 **[Hot Storage (full list)](/en/cache-judit/hotstorage)** — paginated listing.
-* 👉 **[Synthetic Aggregations](/en/cache-judit/cache-grouped)** — buckets per tribunal, class, phase, side.
-* 👉 **[Asynchronous query (Requests)](/en/requests/requests)** — fresh data from court.
+* **[Has Lawsuits? (true/false)](/en/cache-judit/has-lawsuits)** — light boolean gate.
+* **[Hot Storage (full list)](/en/cache-judit/hotstorage)** — paginated listing.
+* **[Synthetic Aggregations](/en/cache-judit/cache-grouped)** — buckets per tribunal, class, phase, side.
+* **[Asynchronous query (Requests)](/en/requests/requests)** — fresh data from court.

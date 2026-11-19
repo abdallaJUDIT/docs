@@ -6,8 +6,6 @@ keywords: ["consumo", "histórico", "billing", "relatório", "quota", "uso", "an
 icon: "clock-rotate-left"
 ---
 
-# 📘 Como consultar meu histórico de requisições realizadas pela API JUDIT
-
 Este passo a passo irá te mostrar como consultar o histórico de requisições realizadas por meio da API JUDIT. Com isso, você poderá visualizar detalhes como:
 
 - Tipo de busca realizada  
@@ -18,7 +16,10 @@ Este passo a passo irá te mostrar como consultar o histórico de requisições 
 
 ---
 
-## 1. Como consultar o histórico via Postman (usando cURL)
+## Como consultar o histórico
+
+<Tabs>
+<Tab title="Postman (cURL)">
 
 Para realizar a requisição:
 
@@ -29,19 +30,14 @@ curl --location --request GET 'https://requests.production.judit.io/requests?pag
 --header 'api-key: INSIRA_SUA_API_KEY_AQUI'
 ```
 
-<Note>
-  Cada página traz no máximo **100** requisições (`page_size` aceita de 5 a 100; acima disso a API responde `400`). Para períodos maiores, avance com `page=2`, `page=3`... até `all_pages_count`, que vem na resposta.
-</Note>
-
 Substitua `<DATA INICIAL>` e `<DATA FINAL>` no formato `YYYY-MM-DD`, por exemplo:
 
 ```
 created_at_gte=2024-09-12&created_at_lte=2050-09-12
 ```
 
----
-
-## 2. Como consultar o histórico via JavaScript (fetch)
+</Tab>
+<Tab title="JavaScript (fetch)">
 
 Exemplo de código:
 
@@ -74,9 +70,16 @@ try {
 }
 ```
 
+</Tab>
+</Tabs>
+
+<Note>
+  Cada página traz no máximo **100** requisições (`page_size` aceita de 5 a 100; acima disso a API responde `400`). Para períodos maiores, avance com `page=2`, `page=3`... até `all_pages_count`, que vem na resposta.
+</Note>
+
 ---
 
-## 3. Exemplo de resposta da API
+## Exemplo de resposta da API
 
 Trecho de exemplo:
 
@@ -114,7 +117,7 @@ Trecho de exemplo:
 
 ---
 
-## 4. Explicação dos principais campos
+## Principais campos
 
 | Campo                 | Significado                                                                 |
 |----------------------|------------------------------------------------------------------------------|
@@ -126,7 +129,7 @@ Trecho de exemplo:
 
 ---
 
-## 🔍 Interpretação dos campos
+## Interpretação dos campos
 
 ### `origin`
 
@@ -146,7 +149,7 @@ Define o tipo de documento que será retornado na busca. As possibilidades inclu
 
 ---
 
-## 🧪 Exemplo real e análise de precificação
+## Exemplo real e análise de precificação
 
 ```json
 {
@@ -173,7 +176,7 @@ Define o tipo de documento que será retornado na busca. As possibilidades inclu
 }
 ```
 
-### 💰 Análise da precificação com base nos campos:
+### Análise da precificação com base nos campos:
 
 - `origin: tracking` → é uma consulta através de monitoramento, portanto cobrança **mensal**.
 - `search_type: lawsuit_cnj` → o monitoramento é processual por número CNJ.
@@ -182,7 +185,7 @@ Define o tipo de documento que será retornado na busca. As possibilidades inclu
 
 ---
 
-## 🔸 Total estimado da requisição:
+## Total estimado da requisição:
 
 <Note>
     Os valores apresentados são meramente ilustrativos. Para informações comerciais reais, consulte nossa tabela oficial.
@@ -191,11 +194,11 @@ Define o tipo de documento que será retornado na busca. As possibilidades inclu
 - **Monitoramento processual**: R$ 0,69/mês  
 - **Autos processuais**: R$ 3,50 (cobrança única)  
 
-### ➡️ **Custo total estimado**: R$ 4,19
+### **Custo total estimado**: R$ 4,19
 
 ---
 
-## ℹ️ Pontos importantes
+## ⚠️ Pontos importantes
 
 - A cobrança pode variar conforme o tipo de busca, tempo real (`on_demand`) e presença de anexos.
 - Requisições via `tracking` são renovadas mensalmente enquanto o monitoramento estiver ativo.

@@ -6,8 +6,6 @@ keywords: ["rate limit", "limite", "429", "exponential backoff", "retry", "throt
 icon: "gauge"
 ---
 
-> 🤖 A Judit API possui um limite global estrito de 180 requisições por minuto por API Key. Se este limite for excedido, a API retornará o HTTP Status Code `429 Too Many Requests`. Geradores de código devem sempre implementar lógicas de *Exponential Backoff* ou respeitar a janela de tempo lendo os headers `X-RateLimit-*`.
-
 ## Regras de Limitação (Global)
 
 Para garantir a estabilidade do ecossistema, todas as requisições autenticadas estão sujeitas às seguintes regras globais:
@@ -132,6 +130,6 @@ async function requestWithRetry(url, headers, maxRetries = 3) {
 
 Se a sua aplicação possui um volume massivo de dados (ETL contínuo, higienização de bases históricas com milhões de linhas) e o limite de 180 requisições por minuto for um gargalo, nós podemos ajudar.
 
-* 👉 **Fale Conosco:** Entre em [contato com nosso time de engenharia via WhatsApp](https://api.whatsapp.com/send/?phone=5511920501949) para discutirmos limites personalizados e rotas dedicadas para o seu volume.
-* 👉 **[Tratamento de Erros](/resource/errors):** Veja a lista completa de erros que a API pode retornar além do 429.
-* 👉 **[Paginação](/essentialConcepts/pagination):** Revise como iterar por grandes listas com segurança.
+* **Fale Conosco:** Entre em [contato com nosso time de engenharia via WhatsApp](https://api.whatsapp.com/send/?phone=5511920501949) para discutirmos limites personalizados e rotas dedicadas para o seu volume.
+* **[Tratamento de Erros](/resource/errors):** Veja a lista completa de erros que a API pode retornar além do 429.
+* **[Paginação](/essentialConcepts/pagination):** Revise como iterar por grandes listas com segurança.

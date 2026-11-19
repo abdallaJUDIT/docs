@@ -52,7 +52,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 O **Monitoramento Customizado** vigia o nascimento de novos processos com base em **filtros estruturais** (tribunal, classe, área, valor da causa, partes, datas) — sem precisar de um documento específico. Use quando você quer ser avisado de novidades em um **universo definido por critérios**, não por uma parte.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` com `search_type: "custom"` e `search_params.filter` definido. A precificação é diferente do monitoramento por documento — confirme com o time comercial.
+Para criar um monitoramento customizado, faça um `POST /tracking` com `search_type: "custom"` e o `search_params.filter` definido. A precificação é diferente da do monitoramento por documento: confirme com o time comercial.
 
 <CustomTrackingAnimation />
 
@@ -74,10 +74,6 @@ O **Monitoramento Customizado** vigia o nascimento de novos processos com base e
 </CardGroup>
 
 O monitoramento customizado permite monitorar processos utilizando filtros específicos, retornando processos de todos os tribunais que correspondem aos critérios definidos. Essa consulta é ideal para identificar processos com características específicas em um amplo espectro de jurisdições. Para utilizá-la, é necessário enviar uma requisição ao endpoint correspondente.
-
-<Warning>
-Para este tipo de consulta, certifique-se sobre a precificação, pois não é a mesma da consulta histórica.
-</Warning>
 
 ## Criando um Monitoramento
 
@@ -821,7 +817,7 @@ func main() {
 ## Recebendo a resposta enviada por webhook para monitoramento
 
 <Info>
-👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+*[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
 </Info>
 
 **Obs**: Cada novo processo detectado pelos filtros do monitoramento customizado será notificado via webhook contendo o processo por completo.

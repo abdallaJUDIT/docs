@@ -89,8 +89,6 @@ Isso é uma otimização de performance, **não uma isenção de cobrança**: ca
 
 A **Busca Processual Assíncrona** é a forma mais completa e atualizada de consultar um processo: a Judit vai até o tribunal em tempo real, baixa toda a árvore de dados (capa, partes, advogados, andamentos, classes, anexos) e devolve para você por webhook ou polling.
 
-> 🤖 A rota de busca processual opera de forma **assíncrona**. A aplicação cliente deve fazer um `POST /requests` para iniciar a busca, aguardar o processamento (via Webhook ou consultando via `GET /requests/{id}`) e, quando o status for `completed`, capturar os dados via `GET /responses`.
-
 <EndpointBadges auth billing="billable" flow="async" attachments />
 
 ## Quando usar
@@ -303,7 +301,7 @@ Guarde o valor de `request_id`, pois você precisará dele para os próximos pas
 Se você possui uma URL de Webhook configurada, **os Passos 2 e 3 abaixo são totalmente opcionais**. 
 Em vez de programar sua aplicação para ficar perguntando o status da requisição, a Judit API enviará os processos encontrados de forma **incremental** diretamente para o seu servidor assim que eles forem capturados, finalizando o fluxo com uma resposta `application_info` de código `600` (`REQUEST_COMPLETED`).
 
-👉 *[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
+*[Aprenda a configurar e receber Webhooks aqui](/webhook/callbacks)*
 </Info>
 
 ---
