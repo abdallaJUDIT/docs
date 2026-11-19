@@ -4,6 +4,11 @@
   display: none !important;
 }
 
+/* Show Dark above Light in the theme menu. */
+:has(> [data-component-part="theme-preference-menu-item"]) { display: flex; flex-direction: column; }
+[data-component-part="theme-preference-menu-item"][data-theme-preference="dark"],
+.theme-preference-switch-option[data-theme-preference-value="dark"] { order: -1; }
+
 /* Links do topo no mesmo formato do botão Dashboard, cada um com uma cor. */
 /* Links externos ganham do Mintlify uma "pílula" no <li> (borda, fundo e padding).
    Zeramos para que só o <a> desenhe o botão. */
