@@ -56,7 +56,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 <CnpjAlphaInfo />
 
-A **Consulta por Dados Cadastrais** retorna informações de identificação de uma Pessoa Física ou Jurídica: nome/razão social, situação cadastral, endereços, contatos, sócios e relacionamentos. A chamada é um `POST https://lawsuits.production.judit.io/entities` síncrono, em que `search_type` aceita `cpf`, `cnpj` ou `name` e `response_type` é sempre `entity`. Por padrão ela lê do datalake da Judit (rápido e barato); com `on_demand: true` no payload, consulta direto a Receita Federal em tempo real.
+A **Consulta por Dados Cadastrais** retorna informações de identificação de uma Pessoa Física ou Jurídica: nome/razão social, situação cadastral, endereços, contatos, sócios e relacionamentos. A chamada é um `POST /entities` síncrono, em que `search_type` aceita `cpf`, `cnpj` ou `name` e `response_type` é sempre `entity`. Por padrão ela lê do datalake da Judit (rápido e barato); com `on_demand: true` no payload, consulta direto a Receita Federal em tempo real.
 
 <EntityAnimation />
 

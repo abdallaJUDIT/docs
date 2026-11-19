@@ -56,7 +56,7 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 The **Credentials Vault** stores, encrypted, the credentials (CPF/OAB + password) that lawyers use to authenticate in Brazilian courts. With this, Judit can access lawsuits under **judicial secrecy** on behalf of the lawyer, without your application ever storing or transmitting the password.
 
-The vault lives at `https://crawler.prod.judit.io/credentials`. Each credential is registered once per system (`system_name`, which combines system, court and instance) and is then used in every query through `credential.customer_key`.
+The vault lives at the `/credentials` route of the `crawler.prod.judit.io` host. Each credential is registered once per system (`system_name`, which combines system, court and instance) and is then used in every query through `credential.customer_key`.
 
 ## When to use
 

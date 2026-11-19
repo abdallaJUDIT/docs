@@ -52,7 +52,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 O **Monitoramento por Documento** detecta o **nascimento** de novos processos vinculados a um CPF, CNPJ ou OAB. Diferente do monitoramento por CNJ (que vigia atualizações em um processo conhecido), aqui você descobre processos que **ainda não existiam** quando você começou a monitorar.
 
-Para criar, faça um `POST https://tracking.production.judit.io/tracking` com `search_type` igual a `cpf`, `cnpj` ou `oab`. Sempre que a Judit detectar um processo novo ajuizado, você recebe a notificação por webhook.
+Para criar um monitoramento por documento, faça um `POST /tracking` com `search_type` igual a `cpf`, `cnpj` ou `oab`. Sempre que a Judit detectar um processo novo ajuizado, você recebe a notificação por webhook.
 
 <DocumentTrackingAnimation />
 

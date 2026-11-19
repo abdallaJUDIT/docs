@@ -52,7 +52,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 O **Monitoramento Customizado** vigia o nascimento de novos processos com base em **filtros estruturais** (tribunal, classe, área, valor da causa, partes, datas) — sem precisar de um documento específico. Use quando você quer ser avisado de novidades em um **universo definido por critérios**, não por uma parte.
 
-Para criar, faça um `POST https://tracking.production.judit.io/tracking` com `search_type: "custom"` e o `search_params.filter` definido. A precificação é diferente da do monitoramento por documento: confirme com o time comercial.
+Para criar um monitoramento customizado, faça um `POST /tracking` com `search_type: "custom"` e o `search_params.filter` definido. A precificação é diferente da do monitoramento por documento: confirme com o time comercial.
 
 <CustomTrackingAnimation />
 

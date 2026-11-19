@@ -52,7 +52,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 **Custom Tracking** watches for new lawsuits based on **structural filters** (court, class, area, claim amount, parties, dates) — without needing a specific document. Use it when you want to be notified about new lawsuits in a **universe defined by criteria**, not by a party.
 
-To create one, send `POST https://tracking.production.judit.io/tracking` with `search_type: "custom"` and `search_params.filter` defined. Pricing differs from document tracking: confirm with the commercial team.
+To create a custom tracking, send `POST /tracking` with `search_type: "custom"` and `search_params.filter` defined. Pricing differs from document tracking: confirm with the commercial team.
 
 <CustomTrackingAnimation />
 

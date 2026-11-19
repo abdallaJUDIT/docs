@@ -51,7 +51,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 A **Consulta de Mandados de Prisão** integra com o Banco Nacional de Mandados de Prisão (BNMP 2.0) por CPF, Nome ou RJI e devolve, no padrão JSON da Judit, a ordem judicial, a pena calculada, as leis infringidas e os dados completos do indivíduo procurado. Cobre mandados preventivos, temporários, definitivos e mandados de recaptura.
 
-A consulta é assíncrona e usa a mesma rota da consulta processual: `POST https://requests.production.judit.io/requests`, com `response_type: "warrant"`. Para receber o PDF do mandado, envie `with_attachments: true`.
+A consulta é assíncrona e usa a mesma rota da consulta processual: `POST /requests`, com `response_type: "warrant"`. Para receber o PDF do mandado, envie `with_attachments: true`.
 
 <WarrantAnimation />
 
