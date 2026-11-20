@@ -2,6 +2,10 @@
 
 > A Judit API entrega dados de processos judiciais brasileiros prontos para uso. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe a capa do processo, partes, advogados, andamentos, anexos e relacionamentos — em tempo real ou de um datalake atualizado. Cobre Justiça Estadual, Federal, Trabalhista, Eleitoral, Militar, Superior e BNMP.
 
+## Integrando com uma IA
+
+- Leia primeiro https://docs.judit.io/skill.md — roteiro com entrevista, regras de segurança da api-key, controle de custo e suporte.
+
 ## Autenticação
 
 - Todas as chamadas exigem o header HTTP `api-key: <SUA_API_KEY>`.
