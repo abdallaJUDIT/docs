@@ -30,7 +30,7 @@ Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo este
 
 ## 2. Regras padrão
 
-**Princípio:** nenhuma regra desta skill é um bloqueio definitivo, **exceto a da `api-key`**. Para todo o resto: aplique o caminho seguro por padrão, explique o risco com clareza e, se o cliente decidir explicitamente seguir por outro caminho, faça o que ele pediu e registre a decisão (comentário no código ou resumo na conversa).
+**Princípio:** nenhuma regra desta skill é um bloqueio definitivo, **exceto a da `api-key` (2.1) e a de usar só a doc pública (2.4)**. Para todo o resto: aplique o caminho seguro por padrão, explique o risco com clareza e, se o cliente decidir explicitamente seguir por outro caminho, faça o que ele pediu e registre a decisão (comentário no código ou resumo na conversa).
 
 ### 2.1 `api-key` — bloqueio absoluto
 
@@ -53,13 +53,36 @@ Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo este
 - Reconsultar a mesma chave (ex.: forçar atualização) é permitido: alerte sobre o custo e siga após decisão explícita.
 - Ações de custo alto seguem o protocolo da seção 5.
 
+### 2.4 Somente a doc pública — bloqueio absoluto
+
+- Use apenas endpoints, parâmetros e headers que estão na doc pública.
+- Se o cliente pedir algo que não está documentado, diga que não encontrou na documentação pública e indique o suporte (seção 7).
+- Não tente adivinhar nem testar rotas ou parâmetros não documentados.
+
 ---
 
 ## 3. Entrevista inicial
 
-Antes de escrever código, entenda o negócio. Pergunte **uma coisa por vez**, em linguagem simples, e adapte a próxima pergunta à resposta anterior:
+Antes de escrever código, entenda o negócio. Pergunte **uma coisa por vez**, em linguagem simples, e adapte a próxima pergunta à resposta anterior.
 
-1. O que você quer resolver e para quem? (ex.: aprovar crédito, checar fornecedores, acompanhar processos do escritório, achar precatórios)
+**Formato das perguntas:** quando a pergunta tiver alternativas, ofereça-as como **opções de escolha**:
+
+- Se a sua ferramenta tem seleção nativa de opções (ex.: `AskUserQuestion` no Claude Code), use-a: o cliente escolhe com as setas e sempre pode escolher **"Outro"** e digitar a própria resposta. Use **no máximo 4 opções** e um rótulo curto, com os exemplos na descrição.
+- Sem seleção nativa, mostre uma lista numerada e termine com **"Outro: descreva com suas palavras"**. Aceite o número ou um texto livre.
+
+**Primeira pergunta:** "O que você quer construir com dados judiciais?". Fale de **soluções para o negócio**, não de produtos ou endpoints da Judit:
+
+| Opção | Exemplos (descrição) |
+| --- | --- |
+| Analisar risco de pessoas e empresas | Aprovação de crédito, onboarding/KYC, compliance, checagem de fornecedores e parceiros, due diligence |
+| Acompanhar processos | Carteira do escritório ou do jurídico, alerta de novos processos contra a empresa ou clientes, intimações |
+| Gerar negócios com dados judiciais | Recuperação de crédito, precatórios e ativos judiciais, prospecção de clientes |
+| Criar uma plataforma ou produto | Revender consultas para os seus clientes, software jurídico, enriquecer CRM/ERP, agente de IA |
+| Outro | O cliente descreve com as palavras dele |
+
+Depois, aprofunde:
+
+1. Para quem é e qual decisão depende disso?
 2. Qual a regra de negócio? O que o sistema faz com o resultado (aprova, alerta, gera relatório)?
 3. Quais chaves você tem: CPF, CNPJ, OAB, nome ou número do processo (CNJ)?
 4. Quantas consultas por dia/mês, e com que frequência? É uma vez, recorrente ou contínuo?
@@ -97,6 +120,7 @@ Caminhos de página: acrescente `.md` e prefixe `https://docs.judit.io/` (ex.: `
 | Receber resultados por webhook | `callback_url` ou webhook da conta | `https://docs.judit.io/webhook/callbacks.md` |
 | Consumo e créditos | GET de consumo, histórico e saldo | `https://docs.judit.io/resource/consumption/current.md`, `https://docs.judit.io/resource/consumption/history.md`, `https://docs.judit.io/resource/consumption/credits.md` |
 | Precatórios e ativos judiciais | JUDIT Miner | `https://docs.judit.io/miner/introduction.md` |
+| Plataforma própria de consultas (revenda para os seus clientes, software jurídico, CRM/ERP) | Backend próprio chamando a Judit, webhook da conta, consumo controlado por cliente final; aplicar as travas da seção 5 a cada consulta | `https://docs.judit.io/requests/request-document.md`, `https://docs.judit.io/cache-judit/hotstorage.md`, `https://docs.judit.io/webhook/callbacks.md`, `https://docs.judit.io/resource/consumption/current.md` |
 | Relatório por filtros (sem documento) | Consulta customizada via comercial | `https://docs.judit.io/requests/custom-search.md` |
 | Entender o objeto do processo | Schema do lawsuit | `https://docs.judit.io/schemas/lawsuit-object.md` |
 
