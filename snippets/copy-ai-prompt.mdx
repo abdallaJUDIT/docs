@@ -1,4 +1,5 @@
-{/* SNIPPET: copy-ai-prompt — Card com o prompt de IA e um botão verde "vivo" que copia o texto.
+{/* SNIPPET: copy-ai-prompt — Card com uma frase curta e um botão verde "vivo" ao lado que copia o prompt de IA.
+    O texto do prompt não aparece; só é exibido (e selecionado) se o navegador bloquear a cópia.
     Animação e cores do botão ficam no style.css (.judit-ai-prompt / .judit-ai-prompt-btn). */}
 
 export const CopyAiPrompt = ({
@@ -22,7 +23,12 @@ export const CopyAiPrompt = ({
     sel.addRange(range);
   };
 
-  const reset = () => setTimeout(() => setState("idle"), 2000);
+  useEffect(() => {
+    if (state === "fallback") selectPrompt();
+    if (state !== "copied") return;
+    const t = setTimeout(() => setState("idle"), 2000);
+    return () => clearTimeout(t);
+  }, [state]);
 
   const handleCopy = async () => {
     try {
@@ -30,30 +36,36 @@ export const CopyAiPrompt = ({
       await navigator.clipboard.writeText(prompt);
       setState("copied");
     } catch (e) {
-      selectPrompt();
       setState("fallback");
     }
-    reset();
   };
 
   const label = state === "copied" ? copiedLabel : state === "fallback" ? fallbackLabel : buttonLabel;
   const icon = state === "copied" ? "✓" : "✨";
 
   return (
-    <div className="judit-ai-prompt" style={{ borderRadius: "12px", padding: "18px 20px", margin: "8px 0 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, fontSize: "16px", marginBottom: "4px" }}>
-        <span aria-hidden="true">🤖</span>
-        <span>{title}</span>
+    <div className="judit-ai-prompt" style={{ borderRadius: "12px", padding: "16px 20px", margin: "8px 0 24px" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "12px 20px" }}>
+        <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, fontSize: "16px" }}>
+            <span aria-hidden="true">🤖</span>
+            <span>{title}</span>
+          </div>
+          {description && (
+            <p style={{ margin: "4px 0 0", fontSize: "14px", opacity: 0.85 }}>{description}</p>
+          )}
+        </div>
+        <button type="button" className="judit-ai-prompt-btn" onClick={handleCopy}>
+          <span aria-hidden="true">{icon}</span>
+          <span aria-live="polite">{label}</span>
+        </button>
       </div>
-      {description && (
-        <p style={{ margin: "0 0 12px", fontSize: "14px", opacity: 0.85 }}>{description}</p>
-      )}
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px" }}>
+      {state === "fallback" && (
         <code
           ref={promptRef}
           style={{
-            flex: "1 1 320px",
             display: "block",
+            marginTop: "12px",
             padding: "10px 12px",
             borderRadius: "8px",
             fontSize: "13px",
@@ -65,11 +77,7 @@ export const CopyAiPrompt = ({
         >
           {prompt}
         </code>
-        <button type="button" className="judit-ai-prompt-btn" onClick={handleCopy}>
-          <span aria-hidden="true">{icon}</span>
-          <span aria-live="polite">{label}</span>
-        </button>
-      </div>
+      )}
     </div>
   );
 };
