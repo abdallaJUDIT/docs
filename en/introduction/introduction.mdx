@@ -79,9 +79,20 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
   fallbackLabel="Select and copy"
 />
 
-[How it works](/en/resource/mcp)
+<Accordion title="How it works" icon="sparkles">
+  The prompt points your AI to an official Judit playbook, written so it integrates the API the right way from the very first step.
 
-![title](/images/judit-api-charts.png)
+  1. **Understands your business.** The AI asks a few simple questions: what you want to solve, which data you have (CPF, CNPJ, OAB, name or CNJ), and the volume and frequency of your queries.
+  2. **Builds a tailored plan.** You get a summary with the endpoints and filters that best fit your case and what each response means for your business.
+  3. **Writes the integration following best practices.** Authentication, asynchronous calls, webhooks and pagination follow the official documentation, with your `api-key` kept safe on the server.
+  4. **Helps day to day.** If something doesn't go as expected, the AI helps diagnose it and prepare a complete ticket for our support team.
+
+  The result is a faster integration, more efficient queries and less rework. Want the AI to read the documentation in real time? Connect the [Judit MCP](/en/resource/mcp).
+</Accordion>
+
+<div style={{ margin: "20px 0" }}>
+  <img src="/images/judit-api-charts.png" alt="Judit API" style={{ margin: 0, display: "block", width: "100%" }} />
+</div>
 
 The **Judit API** delivers ready-to-use Brazilian lawsuit data through a single integration. Instead of maintaining scrapers for each court, your application makes one HTTP call and receives the lawsuit cover, parties, lawyers, steps, attachments and relationships — in real time or from a constantly updated datalake.
 

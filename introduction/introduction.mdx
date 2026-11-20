@@ -79,9 +79,20 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
   fallbackLabel="Selecione e copie"
 />
 
-[Como funciona](/resource/mcp)
+<Accordion title="Como funciona" icon="sparkles">
+  O prompt aponta a sua IA para um roteiro oficial da Judit, escrito para que ela integre a API do jeito certo desde o primeiro passo.
 
-![title](/images/judit-api-charts.png)
+  1. **Entende o seu negócio.** A IA faz algumas perguntas simples: o que você quer resolver, quais dados você tem (CPF, CNPJ, OAB, nome ou CNJ), o volume e a frequência das consultas.
+  2. **Monta um plano sob medida.** Você recebe um resumo com os endpoints e filtros mais adequados ao seu caso e o que cada resposta significa para o seu negócio.
+  3. **Escreve a integração com as boas práticas.** Autenticação, chamadas assíncronas, webhooks e paginação seguem a documentação oficial, com a `api-key` protegida no servidor.
+  4. **Ajuda no dia a dia.** Se algo não sair como esperado, a IA ajuda a diagnosticar e a preparar um chamado completo para o nosso suporte.
+
+  O resultado é uma integração mais rápida, com consultas mais eficientes e menos retrabalho. Quer que a IA consulte a documentação em tempo real? Conecte o [MCP da Judit](/resource/mcp).
+</Accordion>
+
+<div style={{ margin: "20px 0" }}>
+  <img src="/images/judit-api-charts.png" alt="Judit API" style={{ margin: 0, display: "block", width: "100%" }} />
+</div>
 
 A **Judit API** entrega dados de processos judiciais brasileiros prontos para uso, em uma única integração. Em vez de manter scrapers em cada tribunal, sua aplicação faz uma chamada HTTP e recebe os dados que você precisa — seja a capa completa de um processo específico, a lista de processos vinculados a uma pessoa/empresa, ou o monitoramento contínuo de movimentações.
 
