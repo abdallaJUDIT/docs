@@ -329,7 +329,7 @@ Cada requisição enviada é contabilizada e cobrada normalmente, conforme estab
 | `400` | `search_type`, `search_key` ou `cache_ttl_in_days` inválidos (ex.: `cache_ttl_in_days` menor ou igual a zero). | Validar o payload antes de enviar. |
 | `401` | API Key ausente ou inválida. | Conferir o header `api-key`. |
 | `404` | Processo não encontrado, mesmo após a tentativa on-demand. | Tratado como `has_lawsuits: false` — não é necessariamente um erro. |
-| `429` | Rate limit excedido (500 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
+| `429` | Rate limit excedido (180 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
 | — | Timeout no cliente antes dos 3 minutos. | Aumentar o timeout do cliente HTTP para pelo menos 180 segundos nesta rota. |
 
 ## Próximos passos

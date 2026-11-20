@@ -128,7 +128,7 @@ Os preços mudam e dependem do contrato: **nunca informe valores**. Fale em "cus
 
 1. **Pergunte por quê.** Qual decisão de negócio depende disso? (ex.: "Por que monitoramento customizado e não um monitoramento por documento?")
 2. **Proponha o uso eficiente, que faça sentido para o caso dele**:
-   - filtros: tribunais (`tribunals.keys`), assuntos (`subject_codes`), classes (`classification_codes`), polo (`side`), valor (`amount_gte`/`amount_lte`), datas, partes;
+   - filtros: tribunais (`tribunals.keys`, com as siglas de `https://docs.judit.io/resource/courtCoverage.md`), assuntos (`subject_codes`), classes (`classification_codes`), polo (`side`), valor (`amount_gte`/`amount_lte`), datas, partes;
    - `count`/`synthetic` antes de puxar tudo, para dimensionar o lote (não por consulta individual);
    - histórico com filtros quando a necessidade é pontual, monitoramento quando precisa saber de novidades continuamente;
    - testar com uma amostra pequena antes do lote completo;
