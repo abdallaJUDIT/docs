@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "43f53130-60c6-40bc-8c65-32aac0964010",
     "name": "Judit API",
-    "description": "Coleção oficial da Judit API.\n\n## Início rápido\n\n1. Abra a aba **Variables** desta coleção.\n2. Cole sua chave de API na variável `api_key` e clique em **Save**.\n3. Execute qualquer requisição abaixo — o header `api-key` é enviado automaticamente.\n\n## Variáveis\n\n- `api_key`: sua chave da Judit API (obrigatória)\n- `base_url_requests`, `base_url_tracking`, `base_url_lawsuits`, `base_url_crawler`: pré-preenchidas com as URLs de produção\n- `request_id`, `tracking_id`: preenchidas automaticamente por scripts de teste após executar as requisições de criação, para que as chamadas encadeadas (status, resposta) já funcionem\n- `cpf`, `cnpj`, `cnj_code`, `oab`, `user_id`: edite uma vez e reutilize em todas as requisições\n\n## Pastas\n\n- **Consulta processual e por documento**: fluxo completo (criar requisição → checar status → buscar resposta → baixar anexo)\n- **Monitoramento**: criar, listar, pausar, retomar, atualizar e deletar monitoramentos\n- **Mandados de prisão**: fluxo de consulta de mandados\n- **Execução penal**: fluxo de consulta de execução penal\n- **Consultas Datalake**: consultas síncronas no datalake da Judit (Hot Storage, contagem, true/false, histórica agrupada)\n- **Dados cadastrais**: consulta de dados cadastrais de partes (CPF/CNPJ/nome)\n- **Relatório de consumo**: lista as requisições de um período de cobrança\n- **Cofre de credenciais**: cadastrar, listar e deletar credenciais de tribunais\n\nReferência completa: [documentação Judit](https://docs.judit.io).",
+    "description": "Coleção oficial da Judit API.\n\n## Início rápido\n\n1. Abra a aba **Variables** desta coleção.\n2. Cole sua chave de API na variável `api_key` e clique em **Save**.\n3. Execute qualquer requisição abaixo — o header `api-key` é enviado automaticamente.\n\n## Variáveis\n\n- `api_key`: sua chave da Judit API (obrigatória)\n- `base_url_requests`, `base_url_tracking`, `base_url_lawsuits`, `base_url_crawler`: pré-preenchidas com as URLs de produção\n- `request_id`, `tracking_id`, `response_id`, `attachment_id`: preenchidas automaticamente por scripts de teste (ao criar requisições/monitoramentos e ao listar respostas), para que as chamadas encadeadas (status, resposta) já funcionem\n- `cpf`, `cnpj`, `cnj_code`, `oab`, `user_id`: edite uma vez e reutilize em todas as requisições\n\n## Pastas\n\n- **Consulta processual e por documento**: fluxo completo (criar requisição → checar status → buscar resposta → baixar anexo)\n- **Monitoramento**: criar, listar, pausar, retomar, atualizar e deletar monitoramentos\n- **Mandados de prisão**: fluxo de consulta de mandados\n- **Execução penal**: fluxo de consulta de execução penal\n- **Consultas Datalake**: consultas síncronas no datalake da Judit (Hot Storage, contagem, histórica agrupada)\n- **Dados cadastrais**: consulta de dados cadastrais de partes (CPF/CNPJ/nome)\n- **Relatório de consumo**: lista as requisições de um período de cobrança\n- **Cofre de credenciais**: cadastrar, listar e deletar credenciais de tribunais\n\nReferência completa: [documentação Judit](https://docs.judit.io).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "58852371",
     "_collection_link": "https://go.postman.co/collection/34443863-43f53130-60c6-40bc-8c65-32aac0964010?source=collection_link"
@@ -164,7 +164,31 @@
             },
             "description": "Lista todas as respostas geradas pela requisição. Habilite `page` para paginar ou `response_type` para filtrar pelo formato."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    const pages = (body && body.page_data) || [];",
+                  "    for (const item of pages) {",
+                  "        const attachments = (item.response_data && item.response_data.attachments) || [];",
+                  "        const done = attachments.find(a => a.status === 'done' && a.attachment_id);",
+                  "        if (done) {",
+                  "            pm.collectionVariables.set('response_id', item.response_id);",
+                  "            pm.collectionVariables.set('attachment_id', done.attachment_id);",
+                  "            console.log('response_id salvo:', item.response_id, '| attachment_id salvo:', done.attachment_id);",
+                  "            break;",
+                  "        }",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "4 - Baixar anexo do processo",
@@ -172,19 +196,18 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url_lawsuits}}/lawsuits/{{cnj_code}}/{{lawsuit_instance}}/attachments/{{attachment_id}}",
+              "raw": "{{base_url_requests}}/responses/{{response_id}}/attachments/{{attachment_id}}",
               "host": [
-                "{{base_url_lawsuits}}"
+                "{{base_url_requests}}"
               ],
               "path": [
-                "lawsuits",
-                "{{cnj_code}}",
-                "{{lawsuit_instance}}",
+                "responses",
+                "{{response_id}}",
                 "attachments",
                 "{{attachment_id}}"
               ]
             },
-            "description": "Baixa um anexo do processo como stream binário. Defina `attachment_id` a partir da resposta do processo (`attachments[].id`)."
+            "description": "Baixa um anexo do processo a partir da resposta que o contém. Retorna o próprio arquivo (o Postman segue o redirecionamento para a URL temporária automaticamente).\n\n- A requisição precisa ter sido criada com `\"with_attachments\": true`.\n- `response_id` e `attachment_id` são preenchidos automaticamente ao executar o passo 3 (primeiro anexo com `status: \"done\"`). Ajuste manualmente se quiser outro anexo.\n- Disponível para respostas criadas há até 30 dias."
           },
           "response": []
         }
@@ -811,40 +834,7 @@
                 "lawsuits"
               ]
             },
-            "description": "Retorna os processos associados à consulta histórica."
-          },
-          "response": []
-        },
-        {
-          "name": "True / false",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"search\": {\n        \"search_type\": \"cpf\",\n        \"search_key\": \"{{cpf}}\"\n    },\n    \"create_complete_request\": false\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url_lawsuits}}/requests/create",
-              "host": [
-                "{{base_url_lawsuits}}"
-              ],
-              "path": [
-                "requests",
-                "create"
-              ]
-            },
-            "description": "Retorna `has_lawsuits: true|false` para o documento consultado. Use `create_complete_request: true` para também disparar uma busca completa quando houver correspondência."
+            "description": "Retorna os processos associados ao documento direto do datalake (síncrono). O campo `has_lawsuits` indica se há processos para o documento."
           },
           "response": []
         },
@@ -868,12 +858,12 @@
               }
             },
             "url": {
-              "raw": "{{base_url_lawsuits}}/requests/count",
+              "raw": "{{base_url_lawsuits}}/lawsuits/count",
               "host": [
                 "{{base_url_lawsuits}}"
               ],
               "path": [
-                "requests",
+                "lawsuits",
                 "count"
               ]
             },
@@ -901,14 +891,13 @@
               }
             },
             "url": {
-              "raw": "{{base_url_lawsuits}}/requests/create/grouped",
+              "raw": "{{base_url_lawsuits}}/lawsuits/synthetic",
               "host": [
                 "{{base_url_lawsuits}}"
               ],
               "path": [
-                "requests",
-                "create",
-                "grouped"
+                "lawsuits",
+                "synthetic"
               ]
             },
             "description": "Retorna a contagem de processos agregada por classificação, assunto, área, tribunal, justiça, fase, estado, instância, polo e tipo de pessoa."
@@ -933,7 +922,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"search\": {\n        \"search_type\": \"cpf\",\n        \"search_key\": \"{{cpf}}\",\n        \"response_type\": \"entity\",\n        \"on_demand\": false\n    }\n}",
+              "raw": "{\n    \"search\": {\n        \"search_type\": \"cpf\",\n        \"search_key\": \"{{cpf}}\",\n        \"on_demand\": false\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -941,16 +930,15 @@
               }
             },
             "url": {
-              "raw": "{{base_url_lawsuits}}/requests/create",
+              "raw": "{{base_url_lawsuits}}/entities",
               "host": [
                 "{{base_url_lawsuits}}"
               ],
               "path": [
-                "requests",
-                "create"
+                "entities"
               ]
             },
-            "description": "Retorna o objeto `entity` (dados cadastrais) para um CPF ou CNPJ.\n\n- Use `on_demand: true` para consultar a Receita Federal em tempo real.\n- Para CNPJ, adicione `\"reveal_partners_documents\": true` no root do body para receber os documentos dos sócios sem mascaramento."
+            "description": "Retorna o objeto `entity` (dados cadastrais) para um CPF ou CNPJ.\n\n- `search_type` aceita `cpf`, `cnpj` ou `name`.\n- Use `on_demand: true` para consultar a Receita Federal em tempo real.\n- Para CNPJ, adicione `\"reveal_partners_documents\": true` no root do body para receber os documentos dos sócios sem mascaramento."
           },
           "response": []
         }
@@ -1143,18 +1131,18 @@
     },
     {
       "key": "base_url_requests",
-      "value": "https://requests.prod.judit.io",
-      "description": "URL base da API de requests/responses."
+      "value": "https://requests.production.judit.io",
+      "description": "URL base da API de requests/responses (inclui o download de anexos de processo)."
     },
     {
       "key": "base_url_tracking",
-      "value": "https://tracking.prod.judit.io",
+      "value": "https://tracking.production.judit.io",
       "description": "URL base da API de tracking (monitoramento)."
     },
     {
       "key": "base_url_lawsuits",
       "value": "https://lawsuits.production.judit.io",
-      "description": "URL base do datalake (consultas síncronas) e dos endpoints de anexos."
+      "description": "URL base do datalake (consultas síncronas), dados cadastrais e anexos de mandado."
     },
     {
       "key": "base_url_crawler",
@@ -1170,6 +1158,11 @@
       "key": "tracking_id",
       "value": "",
       "description": "Preenchida automaticamente após criar um monitoramento. Usada no ciclo de vida do tracking."
+    },
+    {
+      "key": "response_id",
+      "value": "",
+      "description": "Preenchida automaticamente ao listar respostas da consulta processual. Usada no download de anexo do processo."
     },
     {
       "key": "user_id",
@@ -1197,14 +1190,9 @@
       "description": "OAB de exemplo (sigla do estado + número)."
     },
     {
-      "key": "lawsuit_instance",
-      "value": "1",
-      "description": "Instância do processo, usada no endpoint de download de anexo."
-    },
-    {
       "key": "attachment_id",
       "value": "",
-      "description": "ID do anexo (vindo da resposta do processo) usado no endpoint de download."
+      "description": "ID do anexo (`attachments[].attachment_id` da resposta). Preenchido automaticamente ao listar respostas da consulta processual."
     },
     {
       "key": "date_from",
