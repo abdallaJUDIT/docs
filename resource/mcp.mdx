@@ -29,7 +29,7 @@ O prompt aponta para a [skill da Judit](https://docs.judit.io/skill.md), um rote
 
 ## Sem acesso à web?
 
-Se a sua IA não consegue abrir links, use um dos atalhos abaixo (abrem o chat já com o prompt) ou instale o servidor MCP.
+Se a ferramenta que você usa não consegue abrir links, use o Claude.ai ou o ChatGPT, que abrem links (os atalhos abaixo já levam o prompt), ou instale o servidor MCP e use o prompt da seção seguinte.
 
 <CardGroup cols={2}>
   <Card
@@ -55,6 +55,16 @@ O servidor MCP da documentação entrega a mesma skill (`judit-api`) e as tools 
 <Card title="URL do servidor MCP" icon="link" href="https://docs.judit.io/mcp">
   `https://docs.judit.io/mcp`
 </Card>
+
+Com o MCP conectado, use este prompt — ele aponta para a skill entregue pelo próprio MCP (recurso `judit-api`), sem depender de acesso à web:
+
+<CopyAiPrompt
+  title="Prompt para quem usa o MCP"
+  prompt="Integre a Judit neste projeto. Leia o recurso `judit-api` do MCP da Judit (ou https://docs.judit.io/skill.md) e siga as instruções."
+  buttonLabel="Copiar prompt"
+  copiedLabel="Copiado!"
+  fallbackLabel="Selecione e copie"
+/>
 
 <Tabs>
   <Tab title="Claude Desktop">

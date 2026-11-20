@@ -87,7 +87,8 @@ table th code {
   border: none;
   border-radius: 0.75rem;
   background-color: #15BE62;
-  color: #ffffff;
+  /* Texto escuro: branco sobre o verde da marca não atinge o contraste mínimo (WCAG AA). */
+  color: #052E16;
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;

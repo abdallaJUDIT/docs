@@ -36,7 +36,7 @@ Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo este
 
 - A `api-key` fica **somente no servidor**: variável de ambiente ou secret manager. No **Lovable**, use os *secrets* do Supabase e faça as chamadas à Judit dentro de uma **Supabase Edge Function**; o frontend chama a sua função, nunca a Judit.
 - **Nunca** coloque a chave no frontend (React, HTML, JS do navegador, app mobile), em arquivo commitado (`.env` versionado, código, config), em logs, prints, ou em chamados de suporte — **nem que o cliente peça**. Explique o motivo: quem tiver a chave consome os créditos da conta e acessa os dados contratados.
-- **Suspeita de exposição** (a chave já esteve no frontend, foi commitada, colada em chat, aparece em log ou print): oriente o cliente a falar com o suporte (seção 7) e **solicitar uma nova api-key**, e remova a chave antiga do código e do histórico.
+- **Suspeita de exposição** (a chave já esteve no frontend, foi commitada, colada em chat, aparece em log ou print): oriente o cliente a **solicitar uma nova api-key** — pelo suporte (seção 7) ou pelo comercial (`comercial@judit.io`, WhatsApp +55 11 95504-9222, canal indicado na doc para nova chave), e remova a chave antiga do código e do histórico.
 - Header: `api-key: <chave>`. Nunca use `Authorization: Bearer` (não funciona na Judit).
 
 ### 2.2 Fluxo assíncrono (`/requests` e `/tracking`)
@@ -44,7 +44,8 @@ Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo este
 - `POST` devolve um `request_id` (ou `tracking_id`). **Persista esse id** antes de qualquer outra coisa.
 - **Webhook** quando o sistema tem URL pública (ex.: Edge Function, backend publicado): `callback_url` no payload ou webhook da conta toda via suporte. A entrega é incremental — vários POSTs para o mesmo `request_id`; o fim do fluxo chega como `response_type: "application_info"` com `code: 600`.
 - **Polling** quando não há URL pública: `GET /requests/{request_id}` com intervalo (ex.: a cada 10–30 s) e **limite de tentativas/tempo**; ao ver `status: "completed"`, leia `GET /responses?request_id=...`. Nunca faça polling sem limite.
-- Todo `GET` é gratuito, mas respeite o rate limit (500 req/min por chave; em HTTP 429, backoff exponencial).
+- `GET /responses` é **paginado**: padrão `page_size=20`, máximo 1000. Envie `page_size` (ex.: 100) e percorra `page` até `all_pages_count` — senão você lê só os primeiros processos. Ver `https://docs.judit.io/essentialConcepts/pagination.md`.
+- Todo `GET` é gratuito, mas respeite o rate limit da chave (valor atual e headers `X-RateLimit-*` em `https://docs.judit.io/essentialConcepts/rate-limits.md`); em HTTP 429, backoff exponencial.
 
 ### 2.3 Repetição e loops
 
@@ -92,7 +93,7 @@ Caminhos de página: acrescente `.md` e prefixe `https://docs.judit.io/` (ex.: `
 | Dados cadastrais (Receita) de CPF/CNPJ/nome | `POST /entities` | `https://docs.judit.io/registration-data/registration-data.md` |
 | Mandados de prisão / execução penal | `/requests` com `response_type` específico | `https://docs.judit.io/criminal-consultation/warrant.md`, `https://docs.judit.io/criminal-consultation/criminal-execution.md` |
 | Documentos do processo (anexos) | `with_attachments: true` no POST; download via GET | `https://docs.judit.io/api-reference/endpoint/attachments/attachment-access.md` |
-| Processos em segredo de justiça | Cofre de Credenciais + `customer_key` | `https://docs.judit.io/essentials/cofre-de-credenciais.md` |
+| Processos em segredo de justiça | Cofre de Credenciais + `customer_key` (só tem efeito com `on_demand: true`) | `https://docs.judit.io/essentials/cofre-de-credenciais.md` |
 | Receber resultados por webhook | `callback_url` ou webhook da conta | `https://docs.judit.io/webhook/callbacks.md` |
 | Consumo e créditos | GET de consumo, histórico e saldo | `https://docs.judit.io/resource/consumption/current.md`, `https://docs.judit.io/resource/consumption/history.md`, `https://docs.judit.io/resource/consumption/credits.md` |
 | Precatórios e ativos judiciais | JUDIT Miner | `https://docs.judit.io/miner/introduction.md` |
@@ -120,7 +121,7 @@ Os preços mudam e dependem do contrato: **nunca informe valores**. Fale em "cus
 | Nível | Ações | O que você faz |
 | --- | --- | --- |
 | **Livre** | Ler a doc; qualquer `GET` | Executa direto |
-| **Confirmar uma vez** | Consultas pontuais cobradas: hot storage por documento, consulta por CNJ via `/requests`, dados cadastrais, `count`/`synthetic` | Avisa que é cobrado e segue após o "ok" |
+| **Confirmar uma vez** | Consultas pontuais cobradas: hot storage por documento, consulta por CNJ via `/requests`, dados cadastrais, `count`/`synthetic`. Monitoramento de processo (CNJ) e de comunicações de poucos itens (cobrança recorrente) | Avisa que é cobrado e segue após o "ok" |
 | **Trava forte** (desbloqueável) | Histórico com `on_demand: true`; `with_attachments: true`; monitoramento de novas ações; monitoramento customizado; `/tracking/bulk`; qualquer `POST` em loop ou lote (inclusive CNJ em lote) | Protocolo abaixo |
 
 ### 5.3 Protocolo da trava forte
@@ -148,7 +149,7 @@ Consulte a página para detalhes; aqui está o significado que importa para o ne
 - **`cached_response`.** Em `/requests` por CNJ você pode receber duas entregas: primeiro `cached_response: true` (base da Judit), depois `cached_response: false` (tribunal). A última é a atual.
 - **`cache_ttl_in_days`.** Define quantos dias de desatualização o cliente aceita antes de a Judit buscar de novo.
 - **`with_inferred_parties`.** Muitos tribunais não publicam CPF/CNPJ, só o nome. Por padrão a Judit **não** faz inferência. Com `search.search_params.with_inferred_parties: true`, entram também processos cujo vínculo com o documento foi inferido pela Judit — mais resultados, com risco de homônimos. Sugira quando o cliente aceita esse risco.
-- **Anexos.** O array `attachments` sempre lista todos os anexos do processo; o `status` diz se o arquivo foi capturado (`done`) ou não (`pending`). Até 1.000 anexos por requisição. Anexos de processos em **segredo de justiça** (`private: true`) exigem credencial do advogado no Cofre de Credenciais (`customer_key`). Anexos podem também estar **corrompidos no próprio tribunal**.
+- **Anexos.** O array `attachments` sempre lista todos os anexos do processo; o `status` diz se o arquivo foi capturado (`done`) ou não (`pending`). Até 1.000 anexos por requisição. Anexos de processos em **segredo de justiça** (`private: true`) exigem credencial do advogado no Cofre de Credenciais (`customer_key`); a `customer_key` só tem efeito com `on_demand: true` e o advogado precisa estar vinculado ao processo. Anexos podem também estar **corrompidos no próprio tribunal**.
 - **Monitoramento pausado.** Ao atingir o teto de consumo ou sem créditos, monitoramentos cobrados por item pausam; o motivo fica em `tags.pause_reason` e a reativação é manual (`/tracking/{id}/resume`).
 - **Response.** O processo (lawsuit) traz capa, partes, advogados, andamentos (`steps`), anexos e relacionamentos. Veja `https://docs.judit.io/schemas/lawsuit-object.md` antes de mapear campos para o sistema do cliente.
 
@@ -163,7 +164,7 @@ Muitos "erros" são comportamentos esperados. Verifique com o cliente:
 | Sintoma | Verifique |
 | --- | --- |
 | "Não recebi os anexos" | Foi enviado `with_attachments: true`? O `status` está `pending`? O anexo é `private` (segredo de justiça, precisa de credencial)? O arquivo está corrompido no tribunal? Passou de 1.000 anexos? Já passaram 30 dias? |
-| "O processo X não veio na consulta histórica" | A consulta foi ao datalake (sem `on_demand`)? O processo pode estar desatualizado na base. O tribunal publica o documento da parte ou só o nome? Faltou `with_inferred_parties: true`? Algum filtro excluiu o processo? |
+| "O processo X não veio na consulta histórica" | Leu todas as páginas de `/responses` (`page`, `page_size`, `all_pages_count`)? A consulta foi ao datalake (sem `on_demand`)? O processo pode estar desatualizado na base. O tribunal publica o documento da parte ou só o nome? Faltou `with_inferred_parties: true`? Algum filtro excluiu o processo? |
 | "Recebi dois webhooks iguais" | Normal: `cached_response: true` e depois `false`. Use o último. |
 | "O monitoramento parou" | `status: paused` e `tags.pause_reason` (teto de consumo ou falta de créditos). |
 | HTTP 401 | Header `api-key` ausente/errado (nunca use Bearer). |
@@ -188,7 +189,7 @@ Corpo da requisição (sem headers): <JSON>
 O que já foi verificado: <itens da tabela 7.1>
 ```
 
-Nunca inclua a `api-key` no chamado, nem mascarada. Se a chave pode ter vazado, peça no mesmo canal uma **nova api-key**.
+Nunca inclua a `api-key` no chamado, nem mascarada. Se a chave pode ter vazado, peça uma **nova api-key** (suporte ou comercial: `comercial@judit.io`).
 
 ---
 
@@ -232,7 +233,7 @@ curl -X POST "https://lawsuits.production.judit.io/lawsuits/count" \
 
 ```bash
 curl "https://requests.production.judit.io/requests/<REQUEST_ID>" -H "api-key: $JUDIT_API_KEY"
-curl "https://requests.production.judit.io/responses?request_id=<REQUEST_ID>" -H "api-key: $JUDIT_API_KEY"
+curl "https://requests.production.judit.io/responses?request_id=<REQUEST_ID>&page=1&page_size=100" -H "api-key: $JUDIT_API_KEY"
 ```
 
 **Consumo do ciclo (gratuito)**
@@ -248,7 +249,7 @@ curl "https://requests.production.judit.io/billing/consumption" -H "api-key: $JU
 | 400 | Payload inválido | Validar `search_type`, `search_key` e formato do documento |
 | 401 | `api-key` ausente ou inválida | Conferir o header `api-key` |
 | 404 | Recurso não encontrado | Conferir `request_id` / `tracking_id` |
-| 429 | Rate limit (500 req/min) | Backoff exponencial |
+| 429 | Rate limit excedido (limite em `essentialConcepts/rate-limits`) | Backoff exponencial, respeitando `X-RateLimit-Reset` |
 | 500 | Erro interno | Retentar com backoff; se persistir, abrir chamado (7.2) |
 
 CNPJ alfanumérico (IN RFB 2229/24) é aceito.

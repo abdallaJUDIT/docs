@@ -31,7 +31,7 @@ The skill is written in Portuguese; the AI talks to you in your own language.
 
 ## No web access?
 
-If your AI can't open links, use one of the shortcuts below (they open the chat with the prompt) or install the MCP server.
+If the tool you use can't open links, use Claude.ai or ChatGPT, which can (the shortcuts below already carry the prompt), or install the MCP server and use the prompt in the next section.
 
 <CardGroup cols={2}>
   <Card
@@ -57,6 +57,16 @@ The documentation MCP server delivers the same skill (`judit-api`) and the `sear
 <Card title="MCP server URL" icon="link" href="https://docs.judit.io/mcp">
   `https://docs.judit.io/mcp`
 </Card>
+
+With the MCP server connected, use this prompt — it points to the skill delivered by the MCP server itself (the `judit-api` resource), with no web access needed:
+
+<CopyAiPrompt
+  title="Prompt for MCP users"
+  prompt="Integrate Judit into this project. Read the `judit-api` resource from the Judit MCP server (or https://docs.judit.io/skill.md) and follow the instructions."
+  buttonLabel="Copy prompt"
+  copiedLabel="Copied!"
+  fallbackLabel="Select and copy"
+/>
 
 <Tabs>
   <Tab title="Claude Desktop">
