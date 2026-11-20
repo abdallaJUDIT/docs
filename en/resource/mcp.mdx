@@ -1,7 +1,7 @@
 ---
 title: "MCP and AI prompt — integrate Judit with your AI"
 sidebarTitle: "MCP"
-description: "Copy a prompt and paste it into Lovable, Cursor, Claude Code or ChatGPT: the AI reads the Judit skill, learns your use case, checks the current documentation and warns you before high-cost actions. You can also connect the documentation MCP server."
+description: "Copy a prompt and paste it into Lovable, Cursor, Claude Code or ChatGPT: the AI reads the Judit skill, learns your use case, checks the current documentation and suggests the most efficient way to use each feature. You can also connect the documentation MCP server."
 keywords: ["mcp", "model context protocol", "prompt", "skill", "claude", "chatgpt", "lovable", "cursor", "ai", "agent", "integration"]
 icon: "robot"
 ---
@@ -21,11 +21,12 @@ import { CopyAiPrompt } from '/snippets/copy-ai-prompt.mdx';
 
 The prompt points to the [Judit skill](https://docs.judit.io/skill.md), a playbook written for AIs. After reading it, the AI:
 
-- **Interviews you before writing code** — what you want to solve, your business rule, volume and frequency — and proposes an API usage plan.
-- **Reads only the pages it needs** from the documentation, always the current version (the docs are living).
-- **Warns you and asks for confirmation** before potentially high-cost actions (on-demand queries, tracking, batches, attachments) and suggests how to use them efficiently.
-- **Protects your `api-key`**: it always stays on the server, never in the frontend.
-- **Helps you troubleshoot** and, if needed, drafts a complete support ticket.
+- **Understands your business**: asks what you want to solve, your business rule, and the volume and frequency of your queries.
+- **Builds a tailored plan**: points to the endpoints and filters that best fit your case and what each response means for your business.
+- **Uses always up-to-date documentation**: reads only the pages it needs, in the latest version.
+- **Optimizes your API usage**: picks the right mode and filters for each query, for more efficiency and less rework.
+- **Follows best practices**: your `api-key` stays safe on the server, and asynchronous calls, webhooks and pagination follow the official docs.
+- **Helps day to day**: supports troubleshooting and prepares a complete ticket for our support team.
 
 The skill is written in Portuguese; the AI talks to you in your own language.
 

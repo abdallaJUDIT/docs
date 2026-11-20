@@ -1,7 +1,7 @@
 ---
 title: "MCP e prompt de IA — integre a Judit com a sua IA"
 sidebarTitle: "MCP"
-description: "Copie um prompt e cole no Lovable, Cursor, Claude Code ou ChatGPT: a IA lê a skill da Judit, entende o seu negócio, consulta a documentação atual e avisa antes de ações com custo alto. Também é possível conectar o servidor MCP da documentação."
+description: "Copie um prompt e cole no Lovable, Cursor, Claude Code ou ChatGPT: a IA lê a skill da Judit, entende o seu negócio, consulta a documentação atual e sugere o uso mais eficiente de cada recurso. Também é possível conectar o servidor MCP da documentação."
 keywords: ["mcp", "model context protocol", "prompt", "skill", "claude", "chatgpt", "lovable", "cursor", "ia", "agent", "integração"]
 icon: "robot"
 ---
@@ -21,11 +21,12 @@ import { CopyAiPrompt } from '/snippets/copy-ai-prompt.mdx';
 
 O prompt aponta para a [skill da Judit](https://docs.judit.io/skill.md), um roteiro escrito para IAs. Ao ler a skill, a IA:
 
-- **Entrevista você antes de escrever código**: o que quer resolver, a regra de negócio, volume e frequência — e propõe um plano de uso da API.
-- **Consulta só as páginas necessárias**: da documentação, sempre na versão atual (a doc é viva).
-- **Avisa e pede confirmação**: antes de ações com custo potencialmente alto (consultas Histórica on-demand, monitoramentos, lotes, anexos) e sugere como usá-las com eficiência.
-- **Protege a sua `api-key`**: ela fica sempre no servidor, nunca no frontend.
-- **Ajuda no diagnóstico**: monta um chamado para o time de suporte.
+- **Entende o seu negócio**: pergunta o que você quer resolver, a regra de negócio, o volume e a frequência das consultas.
+- **Monta um plano sob medida**: indica os endpoints e filtros mais adequados ao seu caso e o que cada resposta significa para o seu negócio.
+- **Usa a documentação sempre atualizada**: consulta só as páginas necessárias, na versão mais recente.
+- **Otimiza o uso da API**: escolhe a modalidade e os filtros certos para cada consulta, com mais eficiência e menos retrabalho.
+- **Segue as boas práticas**: a `api-key` fica protegida no servidor, e as chamadas assíncronas, webhooks e paginação seguem a doc oficial.
+- **Ajuda no dia a dia**: apoia o diagnóstico e prepara um chamado completo para o nosso suporte.
 
 ## Sem acesso à web?
 
