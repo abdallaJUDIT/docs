@@ -5201,14 +5201,6 @@
                         "type": "string",
                         "format": "date-time"
                       },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
                       "tribunals": {
                         "type": "object",
                         "properties": {
@@ -5484,14 +5476,6 @@
                         "format": "date-time"
                       },
                       "distribution_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
                         "type": "string",
                         "format": "date-time"
                       },
@@ -6006,14 +5990,6 @@
                         "format": "date-time"
                       },
                       "distribution_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
                         "type": "string",
                         "format": "date-time"
                       },
@@ -8028,14 +8004,6 @@
                         "type": "string",
                         "format": "date-time"
                       },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
                       "tribunals": {
                         "type": "object",
                         "properties": {
@@ -8340,14 +8308,6 @@
                         "format": "date-time"
                       },
                       "distribution_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
                         "type": "string",
                         "format": "date-time"
                       },
@@ -8899,14 +8859,6 @@
                         "format": "date-time"
                       },
                       "distribution_date_lte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_gte": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "last_step_date_lte": {
                         "type": "string",
                         "format": "date-time"
                       },
