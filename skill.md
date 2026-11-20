@@ -110,18 +110,18 @@ Os preços mudam e dependem do contrato: **nunca informe valores**. Fale em "cus
 
 - Todos os `GET` são gratuitos (status, responses, listagens, consumo, download de anexo).
 - Anexos: a cobrança acontece no `POST` com `with_attachments: true`. O `GET` do anexo é gratuito e o arquivo fica disponível por **30 dias**.
-- `count` (`/lawsuits/count`) e `synthetic` (`/lawsuits/synthetic`) custam menos do que puxar todos os processos.
+- `count` (`/lawsuits/count`) e `synthetic` (`/lawsuits/synthetic`) custam menos do que puxar todos os processos, mas o `count` também é cobrado: use para **dimensionar um lote** ou decidir se vale puxar tudo, não antes de cada consulta individual (numa tela que consulta um CPF por vez, isso cobraria duas vezes).
 - Hot storage (`POST /lawsuits`) é para **CPF, CNPJ, OAB e nome**. Para CNJ, o padrão é `/requests`.
 - `POST /requests` por CNJ aplica uma regra interna de atualização: se o processo foi atualizado recentemente, a Judit **não** vai ao tribunal.
 - Monitoramentos de novas ações e customizados são **on-demand**. O customizado é cobrado pelo filtro **e** por processo retornado; sem filtros, pode retornar milhares de processos em um único dia.
-- Antes de uma ação cara, consulte o consumo do ciclo (`GET https://requests.production.judit.io/billing/consumption`, ver `/resource/consumption/current`) e o histórico (`/resource/consumption/history`) e mostre ao cliente.
+- Antes de uma ação cara, consulte o consumo do ciclo (`GET https://requests.production.judit.io/billing/consumption`, ver `/resource/consumption/current`) e o histórico (`/resource/consumption/history`) e mostre ao cliente. Essas rotas exigem a **chave administrativa** da conta: chaves de integração comuns não leem faturamento. Normalmente quem cria a integração usa a chave admin; se não for o caso, peça que o cliente confira o consumo com o responsável de billing.
 
 ### 5.2 Níveis
 
 | Nível | Ações | O que você faz |
 | --- | --- | --- |
 | **Livre** | Ler a doc; qualquer `GET` | Executa direto |
-| **Confirmar uma vez** | Consultas pontuais cobradas: hot storage por documento, consulta por CNJ via `/requests`, dados cadastrais, `count`/`synthetic`. Monitoramento de processo (CNJ) e de comunicações de poucos itens (cobrança recorrente) | Avisa que é cobrado e segue após o "ok" |
+| **Confirmar uma vez** | Consultas pontuais cobradas: hot storage por documento, consulta por CNJ via `/requests`, dados cadastrais, `count`/`synthetic`. Nova consulta com `with_inferred_parties: true` (ex.: para achar um processo que não veio). Monitoramento de processo (CNJ) e de comunicações de poucos itens (cobrança recorrente) | Avisa que é cobrado e segue após o "ok" |
 | **Trava forte** (desbloqueável) | Histórico com `on_demand: true`; `with_attachments: true`; monitoramento de novas ações; monitoramento customizado; `/tracking/bulk`; qualquer `POST` em loop ou lote (inclusive CNJ em lote) | Protocolo abaixo |
 
 ### 5.3 Protocolo da trava forte
@@ -129,7 +129,7 @@ Os preços mudam e dependem do contrato: **nunca informe valores**. Fale em "cus
 1. **Pergunte por quê.** Qual decisão de negócio depende disso? (ex.: "Por que monitoramento customizado e não um monitoramento por documento?")
 2. **Proponha o uso eficiente, que faça sentido para o caso dele**:
    - filtros: tribunais (`tribunals.keys`), assuntos (`subject_codes`), classes (`classification_codes`), polo (`side`), valor (`amount_gte`/`amount_lte`), datas, partes;
-   - `count`/`synthetic` antes de puxar tudo, para dimensionar;
+   - `count`/`synthetic` antes de puxar tudo, para dimensionar o lote (não por consulta individual);
    - histórico com filtros quando a necessidade é pontual, monitoramento quando precisa saber de novidades continuamente;
    - testar com uma amostra pequena antes do lote completo;
    - anexos só dos processos que realmente precisam de documento.
