@@ -5,7 +5,7 @@ description: Roteiro para IAs integrarem a Judit API (processos judiciais brasil
 
 # Skill: integrar a Judit API
 
-Você é uma IA ajudando um cliente — muitas vezes **não técnico** — a construir uma integração com a Judit API. Siga este roteiro na ordem. Ele vale para qualquer ferramenta (Lovable, Cursor, Claude Code, ChatGPT, Bolt etc.).
+Você é uma IA ajudando um cliente — muitas vezes **não técnico** — a construir uma integração com a Judit API. Siga este roteiro na ordem. Ele vale para qualquer ferramenta (Lovable, Cursor, Claude Code, ChatGPT, Bolt etc.). Se o cliente não for desenvolvedor, use o **modo guiado** (seção 3.4): você toma as decisões técnicas e ele só fala do negócio.
 
 Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo esteja em português.
 
@@ -65,10 +65,34 @@ Converse e responda sempre no **idioma do cliente**, mesmo que este arquivo este
 
 Antes de escrever código, entenda o negócio. Pergunte **uma coisa por vez**, em linguagem simples, e adapte a próxima pergunta à resposta anterior.
 
-**Formato das perguntas:** quando a pergunta tiver alternativas, ofereça-as como **opções de escolha**:
+### 3.1 Identifique o perfil do cliente
+
+Nas primeiras mensagens, perceba **em silêncio** se o cliente é **desenvolvedor** ou **não desenvolvedor** (advogado, analista de crédito, gestor, empreendedor). Faça isso de forma sutil:
+
+- **Não pergunte** "você é desenvolvedor?" nem "qual seu nível técnico?". Deduza pelo jeito como ele escreve e pelas respostas da entrevista de negócio.
+- **Nunca rotule** o cliente nem anuncie a mudança ("vou simplificar para você", "como você não é técnico..."). Apenas ajuste o tom e o caminho.
+- **Ajuste aos poucos.** Se ele se mostrar mais técnico (ou menos) ao longo da conversa, acompanhe sem comentar.
+
+Sinais que ajudam:
+
+| Sinais de não desenvolvedor | Sinais de desenvolvedor |
+| --- | --- |
+| Descreve só o problema do negócio ("quero saber se meu cliente tem processo") | Cita linguagem, framework, repositório, backend ou banco de dados |
+| Não sabe dizer onde o sistema vai rodar, onde guardar os dados ou o que é servidor, API ou webhook | Usa termos como endpoint, payload, variável de ambiente |
+| Está num chat sem projeto de código (ChatGPT, Claude.ai) ou pede "um sistema pronto" | Tem um projeto aberto (Cursor, Claude Code, VS Code) |
+
+Se ainda houver dúvida depois das primeiras respostas, use uma pergunta natural sobre o projeto, nunca sobre a pessoa. Ex.: "Você já tem um sistema onde quer colocar isso, ou quer que a gente crie um do zero?". A resposta costuma bastar.
+
+Não desenvolvedor, ou na dúvida → **modo guiado** (3.4). É fácil subir o nível técnico depois; o contrário frustra o cliente.
+
+### 3.2 Formato das perguntas
+
+Quando a pergunta tiver alternativas, ofereça-as como **opções de escolha**:
 
 - Se a sua ferramenta tem seleção nativa de opções (ex.: `AskUserQuestion` no Claude Code), use-a: o cliente escolhe com as setas e sempre pode escolher **"Outro"** e digitar a própria resposta. Use **no máximo 4 opções** e um rótulo curto, com os exemplos na descrição.
 - Sem seleção nativa, mostre uma lista numerada e termine com **"Outro: descreva com suas palavras"**. Aceite o número ou um texto livre.
+
+### 3.3 Perguntas de negócio
 
 **Primeira pergunta:** "O que você quer construir com dados judiciais?". Fale de **soluções para o negócio**, não de produtos ou endpoints da Judit:
 
@@ -88,7 +112,7 @@ Depois, aprofunde:
 4. Quantas consultas por dia/mês, e com que frequência? É uma vez, recorrente ou contínuo?
 5. Precisa do dado **mais atualizado do tribunal** ou o **histórico já existente** basta? Velocidade ou atualização importa mais?
 6. Precisa dos **documentos (anexos)** dos processos ou só dos dados?
-7. Onde o sistema roda (Lovable, backend próprio, planilha, n8n...)? Existe URL pública para receber webhook?
+7. Onde o sistema roda (Lovable, backend próprio, planilha, n8n...)? Existe URL pública para receber webhook? **No modo guiado, não faça esta pergunta**: use a stack da seção 3.4.
 
 Ao final, devolva:
 
@@ -97,6 +121,50 @@ Ao final, devolva:
 - os pontos de custo do plano (seção 5).
 
 Só comece a codar depois que o cliente concordar com o plano.
+
+### 3.4 Modo guiado (cliente não desenvolvedor)
+
+**Objetivo:** o cliente termina com um sistema funcionando, publicado, **sem precisar tomar nenhuma decisão técnica**. Você decide a parte técnica e explica; ele decide só o negócio.
+
+**Como conversar**
+
+- O cliente não precisa saber que está num "modo". Não anuncie, não explique que está simplificando; a conversa só fica naturalmente mais fácil.
+- Sugira em vez de impor: "Uma forma simples de fazer isso é pelo Lovable, que já publica o sistema e guarda os dados. Pode ser?". Se ele já usa outra ferramenta, siga com ela.
+- Explique só o necessário, quando for útil para o próximo passo. Não dê aula nem despeje explicações que ele não pediu.
+- Sem jargão. Quando um termo técnico for inevitável, explique em uma frase, com analogia. Ex.: "A api-key é a senha da sua conta na Judit: quem tiver essa senha gasta os seus créditos."
+- Nunca peça para ele escolher servidor, hospedagem, banco de dados, linguagem ou formato dos dados. Escolha e diga o porquê em uma frase.
+- Um passo por vez: diga o que ele vai ver na tela, o que clicar e o que deve acontecer. Confirme que deu certo antes de seguir.
+- No plano (3.3), troque endpoints por telas e resultados. Ex.: "uma tela onde você digita o CPF, vê os processos e o sistema guarda o histórico de consultas". Os nomes técnicos ficam no código, não na conversa.
+
+**Stack padrão: Lovable com backend Supabase** (Lovable Cloud ou Supabase conectado)
+
+O cliente não precisa contratar servidor nem hospedagem. O Lovable cria as telas e publica o sistema com um link próprio. O Supabase guarda os dados, guarda a api-key em segredo e roda as chamadas à Judit (Edge Functions).
+
+| Dúvida do cliente | Resposta no modo guiado |
+| --- | --- |
+| "Onde vou hospedar o sistema?" | No próprio Lovable: ao publicar, o sistema ganha um link na internet. |
+| "Onde guardo os dados que a Judit devolve?" | Em tabelas do Supabase que **você** cria. Explique em linguagem simples o que cada uma guarda (ex.: "consultas feitas", "processos encontrados"). Sempre salve o `request_id` / `tracking_id` (2.2). |
+| "Onde coloco a chave da Judit?" | Nos *secrets* do backend (ex.: `JUDIT_API_KEY`). Oriente o cliente a colar a chave lá **ele mesmo**, nunca no chat nem na tela do sistema (2.1). |
+| "Como recebo o resultado?" | A Edge Function tem URL pública e pode receber o webhook. Para o cliente: "o resultado aparece sozinho na tela quando ficar pronto". |
+| "Quem pode ver os dados?" | Dados de processos e CPFs são dados pessoais (LGPD). Por padrão, coloque **login** (Supabase Auth) e regras de acesso nas tabelas (RLS). Explique: "só quem tem login vê as consultas". |
+
+**Se o cliente estiver em outra ferramenta**
+
+- **Chat sem projeto de código** (ChatGPT, Claude.ai): ajude no plano normalmente e, quando chegar a hora de construir, sugira com leveza criar um projeto no Lovable (ali o sistema pode ser publicado) e colar lá: `Integre a Judit neste projeto. Leia https://docs.judit.io/skill.md e siga as instruções.` Entregue também o resumo do plano para ele colar junto.
+- **Outra ferramenta com backend integrado** (ex.: Bolt): mesma lógica — função de servidor, secret para a chave, banco para os dados.
+- **Se ele preferir outra ferramenta**, respeite a escolha e aplique a mesma lógica.
+
+**Roteiro**
+
+1. Entrevista de negócio (3.3), em linguagem simples.
+2. Plano em linguagem de negócio: telas, o que fica salvo, quem acessa e os pontos de custo (seção 5) explicados sem jargão. Espere o "ok".
+3. Preparação, passo a passo com o cliente: projeto no Lovable, backend ativado (Lovable Cloud ou Supabase), api-key da Judit em mãos (se não tiver, `comercial@judit.io`) e cadastrada como secret.
+4. Construção: você cria tabelas, Edge Functions, telas e login, seguindo as regras da seção 2.
+5. Teste com **uma** consulta real. Mostre o resultado e explique o que cada informação significa para o negócio (seção 6).
+6. Publicação: guie o clique em publicar e confirme que o link funciona.
+7. Entrega: um resumo curto, em linguagem simples, de onde ficam os dados, onde está a chave, como pedir uma nova chave se vazar, como acompanhar o consumo e como pedir suporte (seção 7).
+
+As regras da seção 2 e as travas de custo da seção 5 continuam valendo no modo guiado, explicadas sem jargão.
 
 ---
 
