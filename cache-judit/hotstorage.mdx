@@ -388,7 +388,7 @@ A resposta dessa requisição será um objeto JSON com os dados retornados:
 | `400` | `search_type` ou `search_key` inválidos / formato incorreto. | Validar o documento antes de enviar (ex.: 11 dígitos para CPF, 14 para CNPJ). |
 | `401` | API Key ausente ou inválida. | Conferir o header `api-key`. |
 | `404` | Nenhum processo encontrado. A resposta vem com `has_lawsuits: false` mesmo assim. | Tratar como ausência de exposição judicial — não é necessariamente erro. |
-| `429` | Rate limit excedido (500 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
+| `429` | Rate limit excedido (180 req/min). | Implementar **exponential backoff** lendo `X-RateLimit-Reset`. |
 | `500` | Erro interno transitório. | Repetir com backoff. Se persistir, abrir ticket no [suporte](https://api.whatsapp.com/send/?phone=5511920501949). |
 
 ## Próximos passos

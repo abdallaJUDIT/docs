@@ -327,7 +327,7 @@ Every request sent is counted and billed normally, per contract. When the respon
 | `400` | Invalid `search_type`, `search_key` or `cache_ttl_in_days` (e.g. `cache_ttl_in_days` less than or equal to zero). | Validate the payload before sending. |
 | `401` | API Key missing or invalid. | Check the `api-key` header. |
 | `404` | Lawsuit not found, even after the on-demand attempt. | Treated as `has_lawsuits: false` — not necessarily an error. |
-| `429` | Rate limit exceeded (500 req/min). | Implement **exponential backoff** reading `X-RateLimit-Reset`. |
+| `429` | Rate limit exceeded (180 req/min). | Implement **exponential backoff** reading `X-RateLimit-Reset`. |
 | — | Client timeout before 3 minutes. | Increase the HTTP client timeout to at least 180 seconds for this route. |
 
 ## Next steps

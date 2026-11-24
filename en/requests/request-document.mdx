@@ -593,8 +593,6 @@ The filter mechanics work as follows:
 Optimize the search by time slices using the universal date format (ISO 8601: `YYYY-MM-DDTHH:mm:ss.sssZ`).
 
 * `distribution_date_gte` (string): Returns lawsuits filed (initiated) **on or after** a date.
-* `last_step_date_gte` (string): Returns lawsuits whose **last case update** occurred **on or after** a date.
-* `last_step_date_lte` (string): Returns lawsuits whose **last case update** occurred **before** a date.
 
 <Accordion title="JSON Example: Filtering by Dates">
 ```json
@@ -603,9 +601,9 @@ Optimize the search by time slices using the universal date format (ISO 8601: `Y
         "search_type": "cpf",
         "search_key": "99999999999",
         "search_params": {
-            // I want lawsuits that had any case update on or after October 10, 2024
+            // I want lawsuits filed on or after October 10, 2024
             "filter": {
-                "last_step_date_gte": "2024-10-10T00:00:00.000Z"
+                "distribution_date_gte": "2024-10-10T00:00:00.000Z"
             }
         }
     }

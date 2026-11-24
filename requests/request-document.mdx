@@ -593,8 +593,6 @@ A mecânica de filtro funciona da seguinte forma:
 Otimize a busca por recortes de tempo usando o formato universal de datas (ISO 8601: `AAAA-MM-DDTHH:mm:ss.sssZ`).
 
 * `distribution_date_gte` (string): Traz processos distribuídos (iniciados) **a partir de** uma data.
-* `last_step_date_gte` (string): Traz processos cuja **última movimentação** ocorreu **a partir de** uma data.
-* `last_step_date_lte` (string): Traz processos cuja **última movimentação** ocorreu **antes de** uma data.
 
 <Accordion title="Exemplo JSON: Filtrando por Datas">
 ```json
@@ -603,9 +601,9 @@ Otimize a busca por recortes de tempo usando o formato universal de datas (ISO 8
         "search_type": "cpf",
         "search_key": "99999999999",
         "search_params": {
-            // Quero processos que tiveram alguma movimentação a partir de 10 de Outubro de 2024
+            // Quero processos distribuídos a partir de 10 de Outubro de 2024
             "filter": {
-                "last_step_date_gte": "2024-10-10T00:00:00.000Z"
+                "distribution_date_gte": "2024-10-10T00:00:00.000Z"
             }
         }
     }

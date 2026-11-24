@@ -106,7 +106,7 @@ Filters can be added to the request, allowing for a more accurate return based o
   - `amount_lte` (optional): Filters lawsuits with a case amount less than or equal to the value specified in `amount_lte`;
 
   - `tribunals` (optional): An object containing the court filters:
-    - `keys` (optional): List of court codes available in the [list of courts](/en/resource/glossary#lista-de-tribunais). This filter allows you to restrict the search to lawsuits that have or do not have these specific codes;
+    - `keys` (optional): List of court codes available in the [list of courts](/en/resource/courtCoverage). This filter allows you to restrict the search to lawsuits that have or do not have these specific codes;
     - `not_equal` (optional): Boolean value that defines whether the filter will include or exclude the values specified in `keys`.
 
   - `subject_codes` (optional): An object containing the subject filters:
@@ -119,8 +119,6 @@ Filters can be added to the request, allowing for a more accurate return based o
 
   - `credential` (optional): Object for using the credentials vault:
     - `customer_key` (optional): Allows you to pass the user key registered in the credentials vault. If not provided, the API will try to find a credential registered for an empty `customer_key`.
-  - `last_step_date_gte` (optional): Restricts the search to lawsuits whose last step date is greater than the provided date.
-  - `last_step_date_lte` (optional): Restricts the search to lawsuits whose last step date is less than the provided date.
   - `party_names` (optional): List of names that restricts the search to lawsuits containing them in any of the parties.
 
     `Note` When using this filter together with the `Side` filter, the `Side` filter will not be considered for restricting these parties, since the `Side` filter is used to filter lawsuits where the main party being searched is on the specified side.
@@ -140,7 +138,7 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --data '{
     "search": {
         "search_type": "custom",
-        "search_key": "",
+        "search_key": "custom",
         "search_params": {
             "filter": {
                 "subject_codes": {

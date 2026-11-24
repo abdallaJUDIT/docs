@@ -48,7 +48,8 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
 {
     "search": {
         "search_type": "cpf",
-        "search_key": "999.999.999-99"
+        "search_key": "999.999.999-99",
+        "response_type": "lawsuits"
     }
 }
 ```
@@ -57,7 +58,8 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
 {
     "search": {
         "search_type": "cnpj",
-        "search_key": "A1B2C3D4/E5F6-90"
+        "search_key": "A1B2C3D4/E5F6-90",
+        "response_type": "lawsuits"
     }
 }
 ```
@@ -66,7 +68,8 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
 {
     "search": {
         "search_type": "name",
-        "search_key": "JOÃO DA SILVA"
+        "search_key": "JOÃO DA SILVA",
+        "response_type": "lawsuits"
     }
 }
 ```
@@ -75,7 +78,8 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
 {
     "search": {
         "search_type": "oab",
-        "search_key": "123456SP"
+        "search_key": "123456SP",
+        "response_type": "lawsuits"
     }
 }
 ```
@@ -85,6 +89,7 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
     "search": {
         "search_type": "cpf",
         "search_key": "999.999.999-99",
+        "response_type": "lawsuits",
         "search_params": {
             "filter": {
                 "side": "Passive",
@@ -122,7 +127,6 @@ Para apenas saber **se existe** processo (booleano), use [`POST /lawsuits` com `
     | Filtro | Tipo | Comportamento |
     | :--- | :--- | :--- |
     | `distribution_date_gte` / `_lte` | datetime | Janela de distribuição. |
-    | `last_step_date_gte` / `_lte` | datetime | Janela de última movimentação. |
   </Accordion>
 
   <Accordion title="Tribunais, classes e assuntos">
@@ -155,7 +159,8 @@ curl -X POST 'https://lawsuits.production.judit.io/lawsuits/count' \
   --data '{
     "search": {
       "search_type": "cpf",
-      "search_key": "999.999.999-99
+      "search_key": "999.999.999-99",
+      "response_type": "lawsuits"
     }
   }'
 ```

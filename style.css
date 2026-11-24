@@ -71,3 +71,56 @@ table th code {
   word-break: keep-all !important;
   overflow-wrap: normal !important;
 }
+
+/* Card "Copiar prompt de IA" (snippets/copy-ai-prompt.mdx): borda e fundo verdes suaves,
+   botão no verde da marca com um pulso contínuo para chamar atenção. */
+.judit-ai-prompt {
+  border: 1px solid rgba(21, 190, 98, 0.35);
+  background: rgba(21, 190, 98, 0.06);
+}
+
+.dark .judit-ai-prompt {
+  border-color: rgba(21, 190, 98, 0.45);
+  background: rgba(21, 190, 98, 0.10);
+}
+
+.judit-ai-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #15BE62;
+  /* Texto escuro: branco sobre o verde da marca não atinge o contraste mínimo (WCAG AA). */
+  color: #052E16;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  animation: judit-ai-pulse 2.4s ease-in-out infinite;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.judit-ai-prompt-btn:hover {
+  background-color: #0CAE56;
+  transform: translateY(-1px);
+}
+
+.judit-ai-prompt-btn:focus-visible {
+  outline: 2px solid #0CAE56;
+  outline-offset: 2px;
+}
+
+@keyframes judit-ai-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(21, 190, 98, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(21, 190, 98, 0); }
+}
+
+/* Quem pede menos movimento no sistema não vê o pulso. */
+@media (prefers-reduced-motion: reduce) {
+  .judit-ai-prompt-btn {
+    animation: none;
+    transition: none;
+  }
+}

@@ -6,6 +6,8 @@ keywords: ["judit api", "lawsuit query", "cpf", "cnpj", "oab", "cnj", "tracking"
 icon: "house"
 ---
 
+import { CopyAiPrompt } from '/snippets/copy-ai-prompt.mdx';
+
 export const ArchitectureAnimation = () => (
   <iframe sandbox="allow-scripts" scrolling="no" style={{width:'100%',height:'560px',border:'none',borderRadius:'12px',display:'block',margin:'20px 0'}} srcDoc={`<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#090c0d}canvas{display:block;width:100%;height:100%}</style></head><body><canvas id="c"></canvas><script>(function(){
 var A='#4FD1C5',J='#1FC16B',T='#E0A82E',D='#8B5CF6',RE='#ef4444',M='#7A8599';
@@ -68,7 +70,29 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 })()\x3c/script></body></html>`} />
 );
 
-<img src="/images/judit-api-charts.png" alt="Judit API" style={{ marginTop: 0 }} />
+<CopyAiPrompt
+  title="Integrate Judit using AI"
+  description="Copy this prompt and paste it into Lovable, Cursor, Claude Code or ChatGPT. The AI will understand your business, suggest how to use the API and help you integrate and build systems."
+  prompt="Integrate Judit into this project. Read https://docs.judit.io/skill.md and follow the instructions."
+  buttonLabel="Copy prompt"
+  copiedLabel="Copied!"
+  fallbackLabel="Select and copy"
+/>
+
+<Accordion title="How it works" icon="sparkles">
+  The prompt points your AI to an official Judit playbook, written so it integrates the API the right way from the very first step.
+
+  1. **Understands your business.** The AI asks a few simple questions: what you want to solve, which data you have (CPF, CNPJ, OAB, name or CNJ), and the volume and frequency of your queries.
+  2. **Builds a tailored plan.** You get a summary with the endpoints and filters that best fit your case and what each response means for your business.
+  3. **Writes the integration following best practices.** Authentication, asynchronous calls, webhooks and pagination follow the official documentation, with your `api-key` kept safe on the server.
+  4. **Helps day to day.** If something doesn't go as expected, the AI helps diagnose it and prepare a complete ticket for our support team.
+
+  The result is a faster integration, more efficient queries and less rework. Want the AI to read the documentation in real time? Connect the [Judit MCP](/en/resource/mcp).
+</Accordion>
+
+<div style={{ margin: "20px 0" }}>
+  <img src="/images/judit-api-charts.png" alt="Judit API" style={{ margin: 0, display: "block", width: "100%" }} />
+</div>
 
 The **Judit API** delivers ready-to-use Brazilian lawsuit data through a single integration. Instead of maintaining scrapers for each court, your application makes one HTTP call and receives the lawsuit cover, parties, lawyers, steps, attachments and relationships — in real time or from a constantly updated datalake.
 

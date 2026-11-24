@@ -106,7 +106,7 @@ Filtros poderão ser adicionados à requisição, permitindo um retorno mais ass
   - `amount_lte` (opcional): Filtra processos com valor da causa menor ou igual ao especificado em `amount_lte`;
 
   - `tribunals` (opcional): Um objeto que contém os filtros de tribunais:
-    - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](/resource/glossary#lista-de-tribunais). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
+    - `keys` (opcional): Lista de códigos de tribunais disponíveis na [lista de tribunais](/resource/courtCoverage). Este filtro permite restringir a busca a processos que tenham ou não esses códigos específicos;
     - `not_equal` (opcional): Valor booleano que define se o filtro incluirá ou excluirá os valores especificados em `keys`.
 
   - `subject_codes` (opcional): Um objeto que contém os filtros de assuntos:
@@ -119,8 +119,6 @@ Filtros poderão ser adicionados à requisição, permitindo um retorno mais ass
 
   - `credential` (opcional): Objeto para o uso do cofre de credenciais:
     - `customer_key` (opcional): Permite passar a chave do usuário cadastrada no cofre de credenciais. Caso não seja informada, a API tentará encontrar uma credencial cadastrada para uma `customer_key` vazia.
-  - `last_step_date_gte` (opcional): Restringe a busca a processos cuja data da última movimentação seja maior que à data fornecida.
-  - `last_step_date_lte` (opcional): Restringe a busca a processos cuja data da última movimentação seja menor que à data fornecida.
   - `party_names` (opcional): Lista de nomes que restringe a busca a processos que os contenham em alguma das partes.
 
     `Obs` Ao utilizar esse filtro em conjunto com o filtro de `Side`, o filtro de `Side` não será considerado para a restrição dessas partes, já que o filtro de `Side` é utilizado para filtrar processos onde a parte principal buscada esteja no lado especificado.
@@ -140,7 +138,7 @@ curl --location 'https://tracking.production.judit.io/tracking' \
 --data '{
     "search": {
         "search_type": "custom",
-        "search_key": "",
+        "search_key": "custom",
         "search_params": {
             "filter": {
                 "subject_codes": {

@@ -202,7 +202,7 @@ The synchronous query accepts the same filters as the historical query. Practica
 ```
 </CodeGroup>
 
-> Full list of accepted courts: see [Historical-query filters](/en/requests/request-document#lista-de-tribunais-aceitos-filtros).
+> Full list of accepted courts: see [Historical-query filters](/en/requests/request-document#list-of-accepted-courts-filters).
 
 ### Request example (POST)
 
@@ -386,7 +386,7 @@ The response will be a JSON object with the data:
 | `400` | Invalid `search_type` or `search_key` / wrong format. | Validate the document before sending (e.g. 11 digits for CPF, 14 for CNPJ). |
 | `401` | API Key missing or invalid. | Check the `api-key` header. |
 | `404` | No lawsuits found. The response still comes with `has_lawsuits: false`. | Treat as no judicial exposure — not necessarily an error. |
-| `429` | Rate limit exceeded (500 req/min). | Implement **exponential backoff** reading `X-RateLimit-Reset`. |
+| `429` | Rate limit exceeded (180 req/min). | Implement **exponential backoff** reading `X-RateLimit-Reset`. |
 | `500` | Transient internal error. | Retry with backoff. If it persists, open a ticket with [support](https://api.whatsapp.com/send/?phone=5511920501949). |
 
 ## Next steps
