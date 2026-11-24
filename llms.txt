@@ -130,13 +130,6 @@ Em consultas processuais e históricas, a resposta carrega o campo `cached_respo
 - Postman Collection: https://docs.judit.io/resource/postman-collection
 - MCP (Model Context Protocol): https://docs.judit.io/resource/mcp
 
-## Specs OpenAPI ao vivo
-
-- Requests: https://requests.production.judit.io/docs/spec
-- Tracking: https://tracking.production.judit.io/docs/spec
-- Lawsuits: https://lawsuits.production.judit.io/docs/spec
-- Miner: https://miner.production.judit.io/docs/spec
-
 ## Rate limits
 
 - Padrão: 180 req/min por API Key.
