@@ -56,8 +56,9 @@ Verifique os seguintes pontos:
 
 ### Como funciona a cobrança de anexos?
 
-- Requests de anexos usam `search_type = lawsuit_attachment`  
-- Apenas requests com `search_type = lawsuit_cnj` são cobradas  
+- A cobrança de anexos acontece na consulta processual (`search_type = lawsuit_cnj`) enviada com `with_attachments: true`  
+- A captura cobre **até 1.000 anexos por consulta**. Processos com mais anexos exigem novas consultas para o mesmo CNJ, e cada uma é cobrada como consulta processual com captura de anexos  
+- Consultas sem `with_attachments` (ou com `with_attachments: false`) não cobram captura de anexos  
 - PDFs individuais não geram cobrança separada  
 
 ---

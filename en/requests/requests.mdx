@@ -153,6 +153,7 @@ Refer to the table below to configure your search, enable attachments, or trigge
 | :--- | :--- | :--- | :--- |
 | `search.search_type` | string | **Yes** | Defines the entity being searched. For lawsuits, always use `"lawsuit_cnj"`. |
 | `search.search_key` | string | **Yes** | The lawsuit number in the CNJ standard (e.g., `"0009999-99.9999.8.26.9999"`). |
+| `search.on_demand` | boolean | No | If `true`, may trigger a query at the court depending on how outdated the lawsuit is in our database (or if it doesn't exist). To use `customer_key` for lawsuits under judicial secrecy, `on_demand` must be `true`; the key goes in `search.search_params.credential.customer_key` ([Credentials Vault](/en/essentials/cofre-de-credenciais)). |
 | `with_attachments` | boolean | No | If `true`, Judit will download the lawsuit files, **up to 1,000 attachments per request**. Read [How attachments work](#how-attachments-work-attachments) before using it. |
 | `judit_ia` | array | No | List of AI *features* applied to the result. Send `["summary"]` to receive a humanized summary of the header and case updates. |
 | `search_params.lawsuit_instance` | integer | No | Forces the search at a specific instance (e.g., `1` or `2`). |
