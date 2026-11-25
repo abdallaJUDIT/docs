@@ -15,14 +15,12 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-pt.mdx';
 
 A **Consulta Síncrona ao Hot Storage** retorna, em milissegundos, todos os processos do nosso datalake vinculados a um CPF, CNPJ, OAB, Nome ou CNJ. Não há fila nem espera por tribunal: a resposta vem direto do cache JUDIT.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits`. A resposta é síncrona (HTTP 200 com o JSON pronto). Esta rota não vai ao tribunal — ela lê o datalake da Judit, então pode haver um pequeno atraso em relação ao estado mais atual do processo. Se precisar de dados atualizados em tempo real, use [POST /requests](/requests/requests) (assíncrono).
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 <Warning>
 **Buscando por número de processo (CNJ)?**
 
-Esta rota é recomendada para descoberta por **CPF, CNPJ, OAB ou Nome**. Para consultas por **número de processo (CNJ)**, o dado no datalake pode estar desatualizado — ou o processo pode nem existir ainda em nossa base. Use a [Consulta On-Demand](/cache-judit/on-demand) para garantir atualização em tempo real no tribunal sem sair do fluxo síncrono.
+Esta rota é recomendada para descoberta por **CPF, CNPJ, OAB ou Nome**. Para consultas por **número de processo (CNJ)**, o dado no datalake pode estar desatualizado — ou o processo pode nem existir ainda em nossa base. Nesse caso, use a [Consulta Processual Síncrona](/cache-judit/on-demand): no mesmo `POST /lawsuits`, ela verifica se o dado do datalake está desatualizado e, se estiver, atualiza no tribunal. Fora esse caso, quando você precisa do dado direto do tribunal, use a [Busca Processual Assíncrona](/requests/requests) (`POST /requests`).
 </Warning>
 
 ## Síncrono vs. assíncrono — qual escolher?

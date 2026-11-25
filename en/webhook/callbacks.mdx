@@ -75,8 +75,6 @@ cv.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect(),cx=
 
 **Webhooks** push your query and tracking results in real time: no polling required. As soon as Judit finishes processing a request, we `POST` the response object to your configured URL. It's the most efficient and cheapest way to integrate asynchronous flows.
 
-> 🤖 Delivery pattern: HTTP POST with `application/json`. Use a public HTTPS URL. Implement idempotency based on `request_id` + `cached_response`. On 5xx or timeout, we retry with backoff.
-
 ## When to use
 
 <CardGroup cols={2}>
@@ -270,22 +268,22 @@ Most requests produce **two deliveries** in sequence: one from cache, one from t
 ## Best practices (production-grade)
 
 <AccordionGroup>
-  <Accordion title="✅ Idempotency" icon="repeat">
+  <Accordion title="Idempotency" icon="repeat">
     Use `callback_id` as the idempotency key: drop duplicates based on it. On retries, the same `callback_id` is redelivered.
   </Accordion>
-  <Accordion title="✅ Reply fast (HTTP 2xx)" icon="bolt">
+  <Accordion title="Reply fast (HTTP 2xx)" icon="bolt">
     Reply `200 OK` in **less than 10 seconds**. Process asynchronously (queue/worker). Slow responses count as failure and trigger retry.
   </Accordion>
-  <Accordion title="✅ Persist the event before processing" icon="database">
+  <Accordion title="Persist the event before processing" icon="database">
     Production pattern: write the raw event into a queue/log and process later. Avoids loss on application errors.
   </Accordion>
-  <Accordion title="✅ Treat `cached_response: true` as provisional" icon="layer-group">
+  <Accordion title="Treat `cached_response: true` as provisional" icon="layer-group">
     Always treat the `cached_response: false` delivery (when it exists) as the final version. Your UI/reports should reflect the latest value.
   </Accordion>
-  <Accordion title="✅ Validate source (HTTPS + IP allowlist)" icon="shield-halved">
+  <Accordion title="Validate source (HTTPS + IP allowlist)" icon="shield-halved">
     Accept `POST` only from Judit IPs (ask support for the list). Always HTTPS. In regulated environments also validate the `User-Agent` header.
   </Accordion>
-  <Accordion title="✅ Implement tolerant retry" icon="rotate">
+  <Accordion title="Implement tolerant retry" icon="rotate">
     On 5xx or timeout we retry with exponential backoff. If your URL stays down for too long, events are lost — keep the endpoint stable.
   </Accordion>
 </AccordionGroup>

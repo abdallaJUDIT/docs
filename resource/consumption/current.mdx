@@ -10,8 +10,6 @@ import { EndpointBadges } from '/snippets/badges.mdx';
 
 Enquanto o [Histórico de Consumo](/resource/consumption/history) lista **requisição por requisição**, o `GET /billing/consumption` devolve o **número consolidado do ciclo vigente**: quanto a company já consumiu, qual é o teto efetivo e quanto ainda resta.
 
-> 🤖 Endpoint: `GET https://requests.production.judit.io/billing/consumption`. A resposta é síncrona (HTTP 200) e traz `consumption`, `max_consumption`, `remaining` e as datas de abertura e fechamento do ciclo.
-
 <EndpointBadges auth billing={null} flow="sync" />
 
 ## Quando usar
@@ -27,13 +25,15 @@ Enquanto o [Histórico de Consumo](/resource/consumption/history) lista **requis
     Antes de disparar um volume grande de consultas, confira se `remaining` comporta a operação.
   </Card>
   <Card title="Fechamento por ciclo" icon="calendar">
-    Use `cycle_started_at` e `cycle_ended_at` para alinhar seus relatórios à janela real de faturamento.
+    `cycle_started_at` e `cycle_ended_at` são as datas de abertura e de fechamento do ciclo. Use-as para alinhar seus relatórios à janela real de faturamento.
   </Card>
 </CardGroup>
 
 ## Passo 1: Fazer a Consulta (GET)
 
 `GET https://requests.production.judit.io/billing/consumption`
+
+A resposta é síncrona (HTTP 200).
 
 ### Autenticação
 

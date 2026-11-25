@@ -18,8 +18,6 @@ The **On-Demand Query** solves exactly that: within the same synchronous `POST`,
 
 The On-Demand Query uses the **same endpoint** as the [Synchronous Datalake Query](/en/cache-judit/hotstorage) — `POST /lawsuits` — searching with `search_type: "lawsuit_cnj"`. The difference is two new parameters, `search.on_demand` and `search.cache_ttl_in_days`, which decide whether it's worth going to the court before responding.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits`. The response is still synchronous (HTTP 200 with the full JSON) — but when a court extraction is triggered, the **timeout increases to up to 3 minutes**. In testing, the average update time was **13 seconds**, but during peak hours or court instability that time can grow.
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## How it works

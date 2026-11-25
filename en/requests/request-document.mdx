@@ -556,7 +556,7 @@ Use the exact acronyms from the **Acronym (Key)** column below when filtering by
 #### 3. Subject and Class Filters (CNJ Standard)
 The Judit API uses the official **Unified Procedural Tables (TPU)** from the National Council of Justice (CNJ). You can filter lawsuits by entering the exact numeric codes from these tables.
 
-👉 *To find out the official codes for Classes and Subjects, visit the [Public Query of SGT/CNJ](https://www.cnj.jus.br/sgt/consulta_publica_classes.php).*
+*To find out the official codes for Classes and Subjects, visit the [Public Query of SGT/CNJ](https://www.cnj.jus.br/sgt/consulta_publica_classes.php).*
 
 The filter mechanics work as follows:
 * **Subjects (`subject_codes`):** Uses the lists `contains` (I want lawsuits that contain these codes) and `not_contains` (I do not want lawsuits that contain these codes).
@@ -684,7 +684,7 @@ Save the `request_id` (e.g., `05ee9825...`) generated in the response of this ca
 If you have a Webhook URL configured, **Steps 2 and 3 below are entirely optional**. 
 Instead of programming your application to keep polling the request status, the Judit API will send the found lawsuits **incrementally** directly to your server as soon as they are captured, finishing the flow with an `application_info` response with code `600` (`REQUEST_COMPLETED`).
 
-👉 *[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
+*[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
 </Info>
 
 ---

@@ -6,7 +6,7 @@ keywords: ["penal execution", "sentence enforcement", "schema"]
 icon: "gavel"
 ---
 
-> **🤖 Context for AIs and Code Assistants:** The structure of the Penal Execution object is similar to the [Lawsuit Object](/en/schemas/lawsuit-object), but contains specific fields such as `free_justice` and a dedicated object for the `last_step` (most recent case update). The roles of the parties (`person_type`) also differ, taking values such as `EXECUTADO` (convicted person) or `REEDUCANDO` (inmate).
+The Penal Execution object follows the structure of the [Lawsuit Object](/en/schemas/lawsuit-object), with extra fields such as `free_justice` and the `last_step` object (most recent case update). The parties' roles (`person_type`) also change, taking values such as `EXECUTADO` (convicted person) or `REEDUCANDO` (inmate).
 
 ## General Structure
 
@@ -209,5 +209,5 @@ Example of response return:
 
 Now that you understand the Penal Execution data dictionary, move on to integration:
 
-* 👉 **[Criminal Records Queries](/en/criminal-consultation/criminal-execution):** See the documentation for the endpoint to start an extraction in criminal and execution courts.
-* 👉 **[Registration Data Object](/en/schemas/entity):** See how to interpret the registration data model.
+* **[Criminal Records Queries](/en/criminal-consultation/criminal-execution):** See the documentation for the endpoint to start an extraction in criminal and execution courts.
+* **[Registration Data Object](/en/schemas/entity):** See how to interpret the registration data model.

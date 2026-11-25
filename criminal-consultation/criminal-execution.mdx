@@ -53,7 +53,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 A **Consulta de Execução Penal** identifica processos de cumprimento de pena (regime, progressão, livramento condicional, indulto) vinculados a um CPF, Nome ou número CNJ. Você recebe a estrutura de Penal Execution, com os papéis específicos (EXECUTADO/REEDUCANDO), o `last_step` (última movimentação) e detalhamento da pena.
 
-> 🤖 Mesma rota da consulta processual: `POST /requests` com `response_type: "execution"`. Para receber a estrutura completa, veja o [Schema Penal Execution](/schemas/penal-execution).
+A consulta usa a mesma rota da consulta processual: `POST /requests`, com `response_type: "execution"`. A estrutura completa da resposta está no [Schema Penal Execution](/schemas/penal-execution).
 
 <ExecutionAnimation />
 

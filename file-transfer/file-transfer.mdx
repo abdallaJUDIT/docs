@@ -6,9 +6,7 @@ keywords: ["file transfer", "download", "arquivo", "transferência", "auditoria"
 icon: "file-export"
 ---
 
-A **File Transfer API** entrega para você arquivos grandes geradas pela Judit — exportações em CSV/JSON de consultas customizadas, relatórios sob demanda, agregações volumosas — de forma assíncrona, com controle de status (`pending`, `available`, `consumed`) auditável por arquivo.
-
-> 🤖 **Base URL:** `https://lawsuits.production.judit.io/`. Após gerar um relatório (ex.: [Consulta Customizada](/requests/custom-search)), use esta API para listar arquivos pendentes, baixar via URL pré-assinada e marcar como consumidos para evitar reprocessamento.
+A **File Transfer API** entrega para você arquivos grandes geradas pela Judit — exportações em CSV/JSON de consultas customizadas, relatórios sob demanda, agregações volumosas — de forma assíncrona, com controle de status (`pending`, `available`, `consumed`) auditável por arquivo. Os endpoints ficam no host `lawsuits.production.judit.io`.
 
 ## Quando usar
 
@@ -41,7 +39,7 @@ api-key: SUA_CHAVE_DE_API
 
 ---
 
-## 📂 Listar arquivos disponíveis
+## Listar arquivos disponíveis
 
 ### `GET /transfer-file`
 
@@ -108,7 +106,7 @@ curl -H "api-key: SUA_CHAVE_DE_API" \
 
 ---
 
-## 📥 Obter URL para download
+## Obter URL para download
 
 ### `GET /transfer-file/:transfer_file_id`
 
@@ -142,7 +140,7 @@ curl -H "api-key: SUA_CHAVE_DE_API" \
 
 ---
 
-## 🛠 Atualizar status de um arquivo
+## Atualizar status de um arquivo
 
 ### `PATCH /transfer-file/:transfer_file_id`
 

@@ -1,12 +1,10 @@
 ---
 title: "Enums and Domains — Judit API"
 sidebarTitle: "Enums"
-description: "Complete list of literal values accepted and returned by Lawsuit, Warrant, Penal Execution and Entity properties (area, status, side, person_type, secrecy_level and more)."
-keywords: ["enums", "values", "domains", "area", "status", "side", "person_type", "secrecy_level"]
+description: "Complete list of literal values accepted and returned by Lawsuit, Warrant, Penal Execution and Entity properties (area, status, side, person_type, secrecy_level and more). In a Lawsuit, the cover fields sit in response_data, and side and person_type sit in each item of parties."
+keywords: ["enums", "values", "domains", "area", "status", "side", "person_type", "secrecy_level", "response_data", "parties"]
 icon: "list-tree"
 ---
-
-> 🤖 This document lists the literal values accepted and returned by the properties of the Judit API across its various Schemas. Remember that in the `lawsuit` object, the header properties (such as `area`, `status`, `situation`, `secrecy_level`) are nested inside the root `response_data` object, while `side` and `person_type` are inside the objects in the `parties` array.
 
 ## Lawsuit Areas (`area`)
 
@@ -243,7 +241,7 @@ sp_lawsuits = [
 
 ## Next Steps
 
-* 👉 **[Search Lawsuits](/en/requests/requests):** Use these enumerations as filter parameters in your searches.
-* 👉 **[Arrest Warrant](/en/schemas/warrant):** See the schema for the arrest warrant object.
-* 👉 **[Penal Execution](/en/schemas/penal-execution):** See the schema for penal executions and related enums.
-* 👉 **[Glossary](/en/resource/glossary):** Legal and technical terms used by the Judit API.
+* **[Search Lawsuits](/en/requests/requests):** Use these enumerations as filter parameters in your searches.
+* **[Arrest Warrant](/en/schemas/warrant):** See the schema for the arrest warrant object.
+* **[Penal Execution](/en/schemas/penal-execution):** See the schema for penal executions and related enums.
+* **[Glossary](/en/resource/glossary):** Legal and technical terms used by the Judit API.

@@ -6,7 +6,7 @@ keywords: ["warrant", "arrest warrant", "BNMP", "schema", "execution", "wanted"]
 icon: "handcuffs"
 ---
 
-> 🤖 Arrest warrant queries return the `warrant` object. The root contains the judicial order and sentence data. Information about the infringed laws is in the `law_type` array, and detailed data about the wanted individual is nested in the `entity` object (which follows the standard Individual (natural person) structure of the Judit API).
+Arrest warrant queries return the `warrant` object. The root holds the judicial order and sentence data, the infringed laws are in the `law_type` array, and the wanted person's data is in the `entity` object, which follows the Judit API's individual (natural person) structure.
 
 ## General Structure
 
@@ -232,5 +232,5 @@ Example of response return:
 
 ## Next Steps
 
-* 👉 **[Criminal Records Queries](/en/criminal-consultation/warrant):** See the documentation for the specific endpoint to trigger arrest warrant searches.
-* 👉 **[Entity Object](/en/schemas/entity):** Review all possible properties of the `entity` object returned within the warrant.
+* **[Criminal Records Queries](/en/criminal-consultation/warrant):** See the documentation for the specific endpoint to trigger arrest warrant searches.
+* **[Entity Object](/en/schemas/entity):** Review all possible properties of the `entity` object returned within the warrant.

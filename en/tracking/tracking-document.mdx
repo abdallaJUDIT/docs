@@ -52,7 +52,7 @@ window.addEventListener('resize',function(){dim=setup();});
 
 **Tracking by Document** detects the **birth** of new lawsuits linked to a CPF, CNPJ or OAB. Unlike CNJ tracking (which watches updates on a known lawsuit), here you discover lawsuits that **did not exist** when you started watching.
 
-> 🤖 Endpoint: `POST https://tracking.production.judit.io/tracking` with `search_type` in `cpf`, `cnpj` or `oab`. Whenever a new lawsuit is filed and Judit detects it, you receive a webhook notification.
+To create a document tracking, send `POST /tracking` with `search_type` set to `cpf`, `cnpj` or `oab`. Whenever Judit detects a newly filed lawsuit, you receive a webhook notification.
 
 <DocumentTrackingAnimation />
 
@@ -714,7 +714,7 @@ func main() {
 ## Receiving the response via webhook
 
 <Info>
-👉 *[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
+*[Learn how to configure and receive Webhooks here](/en/webhook/callbacks)*
 </Info>
 
 **Note**: Each new lawsuit distributed for the monitored document will be notified via webhook containing the full lawsuit data.

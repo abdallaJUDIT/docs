@@ -15,8 +15,6 @@ import CnpjAlphaInfo from '/snippets/cnpj-alphanumeric-en.mdx';
 
 The **Grouped (Synthetic) Query** delivers, in a single synchronous call, a statistical summary of every lawsuit linked to a document, grouped by class, subject, area, court, justice, phase, state, instance, party side and person type. Use it when the client needs a **bird's-eye view** rather than the full list.
 
-> 🤖 Endpoint: `POST https://lawsuits.production.judit.io/lawsuits/synthetic`. Synchronous response with aggregated counts. To list each lawsuit, use `POST /lawsuits` ([Hot Storage](/en/cache-judit/hotstorage)). For a simple existence/count, use [`POST /lawsuits/count`](/en/api-reference/endpoint/crawler/req-count).
-
 <EndpointBadges auth billing="billable" flow="sync" />
 
 ## When to use
