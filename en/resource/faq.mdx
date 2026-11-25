@@ -56,8 +56,9 @@ Check the following points:
 
 ### How does attachment billing work?
 
-- Attachment requests use `search_type = lawsuit_attachment`  
-- Only requests with `search_type = lawsuit_cnj` are charged  
+- Attachment billing happens in the lawsuit query (`search_type = lawsuit_cnj`) sent with `with_attachments: true`  
+- Capture covers **up to 1,000 attachments per query**. Lawsuits with more attachments require new queries for the same CNJ, and each one is billed as a lawsuit query with attachment capture  
+- Queries without `with_attachments` (or with `with_attachments: false`) do not charge for attachment capture  
 - Individual PDFs do not generate a separate charge  
 
 ---
