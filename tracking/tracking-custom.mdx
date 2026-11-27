@@ -56,6 +56,26 @@ Para criar um monitoramento customizado, faça um `POST /tracking` com `search_t
 
 <CustomTrackingAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Monitoramento Customizado por Filtros**. Judit detecta novos processos que atendem aos filtros configurados.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunais
+    App->>Judit: POST /tracking {search: {search_type: custom, filter}}
+    Judit-->>App: 201 {tracking_id} (status: created)
+    Note over App,Tribunal: Execução automática diária
+    Judit->>Tribunal: Verifica novos processos (com os filtros configurados)
+    Tribunal-->>Judit: Novo processo encontrado
+    Judit->>App: Webhook (event_type: response_created)
+```
+
+</Visibility>
+
 ## Quando usar
 
 <CardGroup cols={2}>

@@ -113,6 +113,53 @@ Antes de integrar, é fundamental entender a diferença de arquitetura que a Jud
 
 <DocumentAnimation />
 
+<Visibility for="agents">
+
+**Fluxos da animação acima, em texto.** A animação é um diagrama de sequência animado que alterna dois fluxos na mesma caixa, um depois do outro, em loop. Eles estão abaixo, na ordem em que aparecem.
+
+**Fluxo 1 de 2: Assíncrono — Datalake + Fontes Externas.** Datalake + fontes externas indexadas — sem acesso direto aos tribunais.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Ext as Fontes externas
+    participant Tribunal as Tribunais
+    Note over Tribunal: Não consultado neste fluxo
+    App->>Judit: POST /requests {search_type, search_key}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Judit->>DL: Busca no datalake (histórico indexado)
+    Judit->>Ext: Busca nas fontes externas (bases externas)
+    DL-->>Judit: Capa e partes (histórico do datalake)
+    Ext-->>Judit: Dados externos (enriquecimento)
+    Judit-->>App: Resultado por webhook ou polling (response_data consolidado)
+```
+
+**Fluxo 2 de 2: On-Demand — Máxima Completude.** Datalake + fontes externas + tribunais em tempo real.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Ext as Fontes externas
+    participant Tribunal as Tribunais
+    App->>Judit: POST /requests {search_type, search_key, on_demand: true}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Judit->>DL: Busca no datalake (histórico indexado)
+    Judit->>Ext: Busca nas fontes externas (bases externas)
+    DL-->>Judit: Capa e partes (histórico do datalake)
+    Ext-->>Judit: Dados externos (enriquecimento)
+    Judit->>Tribunal: Extração em tempo real
+    Tribunal-->>Judit: Dados do tribunal (maior completude)
+    Judit-->>App: Resultado por webhook ou polling (response_data consolidado)
+```
+
+</Visibility>
+
 ## Passo 1: Criar a Requisição de Busca (POST)
 
 Para iniciar o fluxo assíncrono, faça uma requisição `POST` informando o documento desejado.

@@ -56,6 +56,26 @@ Para criar um monitoramento por documento, faça um `POST /tracking` com `search
 
 <DocumentTrackingAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Monitoramento por Documento**. Judit detecta novos processos vinculados ao documento monitorado.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunais
+    App->>Judit: POST /tracking {search: {search_type: cpf, search_key}}
+    Judit-->>App: 201 {tracking_id} (status: created)
+    Note over App,Tribunal: Execução automática diária
+    Judit->>Tribunal: Verifica novos processos (para o CPF/CNPJ monitorado)
+    Tribunal-->>Judit: Novo processo distribuído
+    Judit->>App: Webhook (event_type: response_created)
+```
+
+</Visibility>
+
 ## Quando usar
 
 <CardGroup cols={2}>

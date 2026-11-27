@@ -63,6 +63,26 @@ Para criar um monitoramento do Diário Oficial, faça um `POST /tracking` com `r
 
 <DjenAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Monitoramento do Diário Oficial de Justiça (DJEN)**. Judit varre o DJEN diariamente e notifica via webhook cada publicação encontrada.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DJEN as DJEN (Diário de Justiça Eletrônico Nacional)
+    App->>Judit: POST /tracking {search, response_type: communication}
+    Judit-->>App: 201 {tracking_id} (status: created)
+    Note over App,DJEN: Diariamente, a Judit varre as publicações do DJEN
+    Judit->>DJEN: Varre as publicações (todos os campos de texto)
+    DJEN-->>Judit: Publicação encontrada (correspondência com o termo)
+    Judit->>App: Webhook (event_type: response_created)
+```
+
+</Visibility>
+
 ## Quando usar
 
 <CardGroup cols={2}>

@@ -92,6 +92,54 @@ O Miner segue um fluxo de 3 etapas: **estimar** → **comprar** → **paginar**.
 
 <MinerAnimation />
 
+<Visibility for="agents">
+
+**Fluxos da animação acima, em texto.** A animação é um diagrama de sequência animado que alterna três fluxos na mesma caixa, um depois do outro, em loop. Eles estão abaixo, na ordem em que aparecem.
+
+**Fluxo 1 de 3: Count — gratuito, síncrono.** Estime o volume antes de comprar.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Miner as Miner API
+    participant Base as Base Judit
+    App->>Miner: POST /requests/count {filtros: tribunal, valor, tipo}
+    Miner->>Base: Consulta o datalake
+    Base-->>Miner: Processos que batem com os filtros
+    Miner-->>App: 200 {total_lawsuits}
+    Note over App,Miner: Síncrono e sem custo de créditos
+```
+
+**Fluxo 2 de 3: Create — créditos cobrados.** Dispara a busca real e debita créditos.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Miner as Miner API
+    participant Base as Base Judit
+    App->>Miner: POST /requests/create {filtros, responses_limit}
+    Miner-->>App: {request_id, status: pending, cost} (créditos cobrados agora)
+    Miner->>Base: Materializa os processos (assíncrono)
+```
+
+**Fluxo 3 de 3: Poll + Collect.** Acompanhe o status e pagine os resultados.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Miner as Miner API
+    participant Base as Base Judit
+    App->>Miner: GET /requests/{request_id} (polling até completed)
+    Miner-->>App: status: completed
+    App->>Miner: GET /responses?request_id=...
+    Miner-->>App: Lista paginada (até 100 processos por página)
+```
+
+</Visibility>
+
 | Etapa | Endpoint | Para que serve |
 | --- | --- | --- |
 | **1. Contar** | `POST /requests/count` | Saber quantos processos batem com seus filtros, **sem custo** de créditos. Resposta síncrona. |

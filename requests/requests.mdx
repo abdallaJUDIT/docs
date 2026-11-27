@@ -114,6 +114,40 @@ A **Busca Processual Assíncrona** é a forma mais completa e atualizada de cons
 
 <AsyncFlowAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Consulta assíncrona**. Do POST /requests até os dados atualizados do tribunal, por webhook ou por polling.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Tribunal as Tribunal
+    App->>Judit: POST /requests {search_type, search_key}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Judit->>DL: Consulta o cache
+    DL-->>Judit: Dados em cache
+    Judit->>Tribunal: Extração no tribunal
+    Tribunal-->>Judit: Dados do processo
+    alt Webhook configurado
+        Judit->>App: POST callback_url (cached_response: true)
+        Judit->>App: POST callback_url (cached_response: false)
+    else Polling
+        App->>Judit: GET /requests/{id}
+        Judit-->>App: status: pending (dados do cache disponíveis)
+        App->>Judit: GET /responses?request_id=...
+        Judit-->>App: cached_response: true (dados do cache)
+        App->>Judit: GET /requests/{id}
+        Judit-->>App: status: completed
+        App->>Judit: GET /responses?request_id=...
+        Judit-->>App: cached_response: false (dados atualizados)
+    end
+```
+
+</Visibility>
+
 
 ## Entendendo o Fluxo Assíncrono
 
