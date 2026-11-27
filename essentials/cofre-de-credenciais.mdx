@@ -94,6 +94,44 @@ A `customer_key` não é a senha do tribunal. Ela é apenas uma chave de referê
 
 <VaultAnimation />
 
+<Visibility for="agents">
+
+**Fluxos da animação acima, em texto.** A animação é um diagrama de sequência animado que alterna dois fluxos na mesma caixa, um depois do outro, em loop. Eles estão abaixo, na ordem em que aparecem.
+
+**Fluxo 1 de 2: Cadastro da Credencial.** Configure uma vez por tribunal.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Cofre as Cofre de Credenciais
+    participant Tribunal as Portal do tribunal
+    Note over Judit: Não participa deste fluxo
+    App->>Tribunal: Cria usuário e senha no portal e confere o acesso
+    App->>Cofre: POST /credentials {credentials: [{system_name, customer_key, username, password}]}
+    Cofre-->>App: CREDENTIAL_CREATED (credencial criptografada)
+```
+
+**Fluxo 2 de 2: Uso na Consulta.** Referencie customer_key na requisição.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Cofre as Cofre de Credenciais
+    participant Tribunal as Tribunal
+    App->>Judit: POST /requests {search_type, search_key, customer_key}
+    Judit->>Cofre: Busca a credencial pela customer_key
+    Cofre-->>Judit: Credencial encontrada
+    Judit->>Tribunal: Acessa autenticado (processo sob segredo)
+    Tribunal-->>Judit: Dados restritos
+    Judit-->>App: Resultado por webhook ou polling (response_data)
+```
+
+</Visibility>
+
 ### Permissões da credencial no tribunal
 
 O retorno da consulta autenticada depende diretamente das permissões da credencial cadastrada no próprio tribunal.

@@ -61,6 +61,26 @@ Para criar um monitoramento processual, faça um `POST /tracking` com `search.se
 
 <TrackingAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Monitoramento Processual por CNJ**. Judit verifica o tribunal automaticamente e notifica via webhook.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunal
+    App->>Judit: POST /tracking {search: {search_type: lawsuit_cnj, search_key}}
+    Judit-->>App: 201 {tracking_id} (status: created)
+    Note over App,Tribunal: Execução automática diária
+    Judit->>Tribunal: Verifica no tribunal (sem ação da sua aplicação)
+    Tribunal-->>Judit: Nova movimentação
+    Judit->>App: Webhook (event_type: response_created)
+```
+
+</Visibility>
+
 ## Quando usar
 
 <CardGroup cols={2}>

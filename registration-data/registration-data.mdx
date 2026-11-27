@@ -60,6 +60,29 @@ A **Consulta por Dados Cadastrais** retorna informações de identificação de 
 
 <EntityAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Consulta de Dados Cadastrais**. Datalake ou Receita Federal em tempo real.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant RF as Receita Federal
+    alt Padrão (datalake)
+        App->>Judit: POST /entities {search_type: cpf, search_key}
+        Judit-->>App: 200 {entity} do datalake
+    else on_demand: true
+        App->>Judit: POST /entities {search_type: cpf, search_key, on_demand: true}
+        Judit->>RF: Consulta em tempo real
+        RF-->>Judit: Dados atualizados
+        Judit-->>App: 200 {entity} atualizado
+    end
+```
+
+</Visibility>
+
 <EndpointBadges auth billing="billable" flow={null} />
 
 ## Quando usar

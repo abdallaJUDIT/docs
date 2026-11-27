@@ -136,6 +136,80 @@ A **Judit API** entrega dados de processos judiciais brasileiros prontos para us
 
 <ArchitectureAnimation />
 
+<Visibility for="agents">
+
+**Fluxos da animação acima, em texto.** A animação é um diagrama de sequência animado que alterna quatro fluxos na mesma caixa, um depois do outro, em loop. Eles estão abaixo, na ordem em que aparecem.
+
+**Fluxo 1 de 4: Requests — Assíncrono On-Demand.** Extração em tempo real direto no tribunal.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Tribunal as Tribunais
+    App->>Judit: POST /requests {search_type, search_key}
+    Judit-->>App: 201 {request_id} (solicitação recebida)
+    Judit->>DL: Consulta a base
+    DL-->>Judit: Dados em cache
+    Judit-->>App: Resultado por webhook ou polling (cached_response: true)
+    Judit->>Tribunal: Extração no tribunal em tempo real
+    Tribunal-->>Judit: Dados do processo
+    Judit-->>App: Resultado por webhook ou polling (cached_response: false)
+```
+
+**Fluxo 2 de 4: Requests — Assíncrono (Histórico).** Varre o datalake e fontes externas, sem ir ao tribunal.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Tribunal as Tribunais
+    Note over Tribunal: Não consultado neste fluxo
+    App->>Judit: POST /requests {search_type, search_key}
+    Judit-->>App: 201 {request_id} (solicitação recebida)
+    Judit->>DL: Varre a base e as fontes externas
+    DL-->>Judit: Processos encontrados
+    Judit-->>App: Resultado por webhook ou polling (response_data)
+```
+
+**Fluxo 3 de 4: Tracking — Monitoramento.** Verifica o tribunal periodicamente e notifica por webhook.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Tribunal as Tribunais
+    Note over DL: Não participa deste fluxo
+    App->>Judit: POST /tracking {search_type, search_key}
+    Judit->>Tribunal: Verifica periodicamente (execução diária)
+    Tribunal-->>Judit: Nova movimentação
+    Judit->>App: Webhook (event_type: response_created)
+```
+
+**Fluxo 4 de 4: Lawsuits — Síncrono (Hot Storage).** Lê o datalake JUDIT — não vai ao tribunal.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant DL as Datalake
+    participant Tribunal as Tribunais
+    Note over Tribunal: Não consultado neste fluxo
+    App->>Judit: POST /lawsuits {search_type, search_key}
+    Judit->>DL: Leitura do datalake
+    DL-->>Judit: Processos indexados (em milissegundos)
+    Judit-->>App: 200 {response_data} na mesma requisição (síncrono)
+```
+
+</Visibility>
+
 Três serviços, um padrão de autenticação (header `api-key`):
 
 | Serviço | URL | Quando usar |

@@ -96,6 +96,78 @@ Os **Webhooks** entregam push em tempo real os resultados das suas consultas e m
 
 <WebhookAnimation />
 
+<Visibility for="agents">
+
+**Fluxos da animação acima, em texto.** A animação é um diagrama de sequência animado que alterna quatro fluxos na mesma caixa, um depois do outro, em loop. Eles estão abaixo, na ordem em que aparecem.
+
+**Fluxo 1 de 4: Com histórico em cache.** Datalake entregue imediato, tribunal atualiza na sequência — mínimo 3 webhooks.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunal
+    App->>Judit: POST /requests {callback_url, search}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Judit->>App: Webhook 1 (cached_response: true)
+    Judit->>Tribunal: Extração no tribunal
+    Tribunal-->>Judit: Dados atualizados
+    Judit->>App: Webhook 2 (cached_response: false)
+    Judit->>App: Webhook 3 (response_type: application_info, code 600)
+    Note over App,Judit: No mínimo 3 webhooks quando há histórico em cache
+```
+
+**Fluxo 2 de 4: Sem cache — on-demand.** Dado não indexado ou on_demand:true — sem evento de cache — 2 webhooks.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunal
+    App->>Judit: POST /requests {callback_url, search, on_demand: true}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Judit->>Tribunal: Extração em tempo real
+    Tribunal-->>Judit: Dados atualizados
+    Judit->>App: Webhook 1 (cached_response: false)
+    Judit->>App: Webhook 2 (response_type: application_info, code 600)
+    Note over App,Judit: Sem evento de cache (dado não indexado ou on_demand: true), 2 webhooks
+```
+
+**Fluxo 3 de 4: Monitoramento — Novas Ações.** 2 processos detectados → 1 webhook por processo + aviso de finalização (600).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunal
+    Judit->>Tribunal: Verifica novas ações (polling automático)
+    Tribunal-->>Judit: 2 processos com ação nova
+    Judit->>App: Webhook 1 (processo A, nova ação)
+    Judit->>App: Webhook 2 (processo B, nova ação)
+    Judit->>App: Webhook 3 (response_type: application_info, code 600)
+    Note over App,Judit: Um webhook por processo encontrado, mais o aviso de finalização (code 600)
+```
+
+**Fluxo 4 de 4: Monitoramento Processual.** Monitora CNJ específico — mínimo 2 webhooks por movimentação detectada.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Tribunal as Tribunal
+    Judit->>Tribunal: Verifica o processo (CNJ monitorado)
+    Tribunal-->>Judit: Nova movimentação (andamento atualizado)
+    Judit->>App: Webhook 1 (capa e movimentações completas)
+    Judit->>App: Webhook 2 (response_type: application_info, code 600)
+    Note over App,Judit: No mínimo 2 webhooks por movimentação detectada
+```
+
+</Visibility>
+
 A cada evento, fazemos um `POST` HTTPS para sua URL com o payload em `application/json`. **A entrega é incremental** — você pode receber várias respostas para o mesmo `request_id`. O fim do fluxo é sinalizado por uma resposta com `response_type: "application_info"` e `response_data.code: 600` (`REQUEST_COMPLETED`).
 
 ## Configurando seu webhook

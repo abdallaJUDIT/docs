@@ -55,6 +55,27 @@ A consulta é assíncrona e usa a mesma rota da consulta processual: `POST /requ
 
 <WarrantAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Consulta de Mandados de Prisão**. Judit consulta o BNMP e retorna mandados por CPF, nome ou RJI.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant BNMP as BNMP (Banco Nacional de Mandados de Prisão)
+    App->>Judit: POST /requests {search, response_type: warrant}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Note over App,BNMP: A Judit consulta o BNMP de forma assíncrona
+    Judit->>BNMP: Consulta o BNMP (por CPF, nome ou RJI)
+    BNMP-->>Judit: Mandado encontrado
+    App->>Judit: GET /responses?request_id=... (polling)
+    Judit-->>App: 200 com os mandados encontrados
+```
+
+</Visibility>
+
 <EndpointBadges auth billing="billable" flow="async" attachments />
 
 ## Quando usar

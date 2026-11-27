@@ -57,6 +57,27 @@ A consulta usa a mesma rota da consulta processual: `POST /requests`, com `respo
 
 <ExecutionAnimation />
 
+<Visibility for="agents">
+
+**Fluxo da animação acima, em texto.** A animação é um diagrama de sequência animado, com um único fluxo que se repete em loop: **Consulta de Execução Penal**. Judit localiza processos de cumprimento de pena por CPF, nome ou CNJ.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Sua aplicação
+    participant Judit as Judit API
+    participant Varas as Varas de execução penal
+    App->>Judit: POST /requests {search, response_type: execution}
+    Judit-->>App: 201 {request_id} (status: pending)
+    Note over App,Varas: A Judit busca execuções penais nos tribunais
+    Judit->>Varas: Busca execuções (CPF, regime, progressão)
+    Varas-->>Judit: Execução encontrada (EXECUTADO / REEDUCANDO)
+    App->>Judit: GET /responses?request_id=... (polling)
+    Judit-->>App: 200 com as execuções encontradas
+```
+
+</Visibility>
+
 <EndpointBadges auth billing="billable" flow="async" attachments />
 
 ## Quando usar
